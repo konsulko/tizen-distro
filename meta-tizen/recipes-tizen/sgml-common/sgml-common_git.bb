@@ -1,0 +1,8 @@
+require sgml-common.inc
+
+PRIORITY = "10"
+
+LIC_FILES_CHKSUM ??= "file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd6425610833a22dbe6"
+
+SRC_URI += "git://review.tizen.org/platform/upstream/sgml-common;protocol=ssh;tag=5949f1a0f29a5db939edca077d8723bcfa377c0d;nobranch=1"
+

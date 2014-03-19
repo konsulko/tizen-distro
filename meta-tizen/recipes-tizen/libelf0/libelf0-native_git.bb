@@ -1,0 +1,12 @@
+require libelf0.inc
+
+PRIORITY = "9"
+
+inherit native
+
+S = "${WORKDIR}/git"
+
+LIC_FILES_CHKSUM ??= "file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd6425610833a22dbe6"
+
+SRC_URI += "git://review.tizen.org/platform/upstream/libelf0;protocol=ssh;tag=f074ad917fb2e8717cb0e985a7a93049c38c783e;nobranch=1"
+

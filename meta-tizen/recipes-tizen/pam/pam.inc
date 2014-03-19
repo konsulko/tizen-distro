@@ -1,0 +1,261 @@
+DESCRIPTION = "PAM"
+HOMEPAGE = "http://www.linux-pam.org/"
+SECTION = "Security/Access Control"
+LICENSE = "GPL-2.0+ or BSD-3-Clause"
+
+SRC_URI = ""
+
+S = "${WORKDIR}/git"
+
+PROVIDES = ""
+
+#PROVIDES by pam-modules-extra 
+PROVIDES += "pam-modules-extra"
+RPROVIDES_pam-modules-extra += "pam-modules-extra"
+
+#PROVIDES by pam-docs  
+PROVIDES += "pam-docs "
+RPROVIDES_pam-docs  += "pam-docs "
+
+#PROVIDES by pam-locale  
+PROVIDES += "pam-locale "
+RPROVIDES_pam-locale  += "pam-locale "
+# the PROVIDES rules is ignore "pam-lang-all = 1.1.6"
+PROVIDES += "pam-lang-all"
+RPROVIDES_pam-locale  += "pam-lang-all"
+
+#PROVIDES by pam 
+PROVIDES += "pam"
+RPROVIDES_pam += "pam"
+
+#PROVIDES by pam-devel 
+PROVIDES += "pam-devel"
+RPROVIDES_pam-devel += "pam-devel"
+RPROVIDES_pam-devel += "pam-dev"
+
+RDEPENDS = ""
+#RDEPENDS of pam-modules-extra (${PN}-modules-extra)
+RDEPENDS_${PN}-modules-extra += "pam"
+
+#RDEPENDS of pam-locale  (${PN}-locale )
+RDEPENDS_${PN}-locale  += "pam"
+
+#RDEPENDS of pam (${PN})
+RDEPENDS_${PN} += "/usr/bin/install"
+RDEPENDS_${PN} += "/sbin/ldconfig"
+
+#RDEPENDS of pam-devel (${PN}-devel)
+RDEPENDS_${PN}-devel += "pam"
+
+
+DEPENDS = ""
+#DEPENDS of pam 
+DEPENDS += "zlib-devel"
+DEPENDS += "flex"
+DEPENDS += "gcc-cross"
+#Replace "DEPENDS" on gettext by "inherit gettext"
+inherit gettext
+DEPENDS += "automake-native"
+DEPENDS += "bison-native"
+DEPENDS += "net-tools"
+DEPENDS += "smack-devel"
+DEPENDS += "libtool-cross"
+DEPENDS += "autoconf-native"
+DEPENDS += "db4"
+
+do_patch() {
+ chmod -Rf a+rX,u+w,g-w,o-w ${S}
+ #setup -q -n Linux-PAM-1.1.6
+ cp ${S}/packaging/pam.manifest .
+ 
+ libtoolize -f #--copy --force && aclocal && autoheader
+ autoreconf
+ 
+ 
+}
+
+do_configure() {
+}
+
+do_compile() {
+ LANG=C
+ export LANG
+ unset DISPLAY
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ 
+ CFLAGS="-fPIC -O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables " ; export CFLAGS
+ 
+ 
+   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
+   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
+         --target=x86_64-tizen-linux \
+         --program-prefix= \
+         --prefix=/usr \
+         --exec-prefix=/usr \
+         --bindir=/usr/bin \
+         --sbindir=/sbin \
+         --sysconfdir=/etc \
+         --datadir=/usr/share \
+         --includedir=/usr/include \
+         --libdir=/usr/lib \
+         --libexecdir=/usr/libexec \
+         --localstatedir=/var \
+         --sharedstatedir=/usr/com \
+         --mandir=/usr/share/man \
+         --infodir=/usr/share/info \
+         --libdir=/usr/lib \
+         --includedir=/usr/include/security \
+         --enable-isadir=../../usr/lib/security \
+         --disable-audit \
+         --with-db-uniquename=_pam \
+         --with-libiconv-prefix=/usr \
+         --enable-read-both-confs &&
+ 
+ make  CFLAGS="$CFLAGS -lfl -lcrypt"
+ 
+ 
+ 
+}
+
+do_install() {
+ echo export RPM_BUILD_ROOT=${D}
+ LANG=C
+ export LANG
+ unset DISPLAY
+ rm -rf ${D} 
+ mkdir -p ${D} 
+ 
+ 
+   oe_runmake \
+         DESTDIR=${D} \
+         INSTALL_ROOT=${D} \
+         BINDIR=/usr/bin \
+   install  
+   rm -f ${D}/usr/share/info/dir 
+   find ${D} -regex ".*\.la$" | xargs rm -f -- 
+   find ${D} -regex ".*\.a$" | xargs rm -f --
+ 
+ # RPM uses docs from source tree
+ rm -rf ${D}/usr/share/doc/Linux-PAM
+ # Included in setup package
+ rm -f ${D}/etc/environment
+ 
+ for phase in auth acct passwd session ; do
+ 	ln -sf pam_unix.so ${D}/usr/lib/security/pam_unix_${phase}.so
+ done
+ 
+ # Install default pam configuration files
+ install -d -m 0755 ${D}/etc/pam.d
+ install -m 0644 ${S}/packaging/system-auth ${D}/etc/pam.d/
+ install -m 0644 ${S}/packaging/other ${D}/etc/pam.d/
+ 
+ /usr/share/spec2yocto/macro/lib/find-lang.sh ${D} Linux-PAM
+ 
+ 
+}
+
+PACKAGES = ""
+PACKAGES += "pam-modules-extra"
+PACKAGES += "pam-devel"
+PACKAGES += "pam"
+PACKAGES += "pam-docs"
+PACKAGES += "pam-locale"
+
+pam-modules-extra_files = ""
+pam-modules-extra_files += "pam.manifest"
+pam-modules-extra_files += "/usr/lib/security/pam_access.so"
+pam-modules-extra_files += "/usr/lib/security/pam_debug.so"
+pam-modules-extra_files += "/usr/lib/security/pam_echo.so"
+pam-modules-extra_files += "/usr/lib/security/pam_exec.so"
+pam-modules-extra_files += "/usr/lib/security/pam_faildelay.so"
+pam-modules-extra_files += "/usr/lib/security/pam_filter.so"
+pam-modules-extra_files += "/usr/lib/security/pam_ftp.so"
+pam-modules-extra_files += "/usr/lib/security/pam_group.so"
+pam-modules-extra_files += "/usr/lib/security/pam_issue.so"
+pam-modules-extra_files += "/usr/lib/security/pam_listfile.so"
+pam-modules-extra_files += "/usr/lib/security/pam_localuser.so"
+pam-modules-extra_files += "/usr/lib/security/pam_mail.so"
+pam-modules-extra_files += "/usr/lib/security/pam_motd.so"
+pam-modules-extra_files += "/usr/lib/security/pam_pwhistory.so"
+pam-modules-extra_files += "/usr/lib/security/pam_rhosts.so"
+pam-modules-extra_files += "/usr/lib/security/pam_shells.so"
+pam-modules-extra_files += "/usr/lib/security/pam_stress.so"
+pam-modules-extra_files += "/usr/lib/security/pam_tally.so"
+pam-modules-extra_files += "/usr/lib/security/pam_time.so"
+pam-modules-extra_files += "/usr/lib/security/pam_timestamp.so"
+pam-modules-extra_files += "/usr/lib/security/pam_umask.so"
+pam-modules-extra_files += "/usr/lib/security/pam_unix_acct.so"
+pam-modules-extra_files += "/usr/lib/security/pam_unix_auth.so"
+pam-modules-extra_files += "/usr/lib/security/pam_unix_passwd.so"
+pam-modules-extra_files += "/usr/lib/security/pam_unix_session.so"
+pam-modules-extra_files += "/usr/lib/security/pam_warn.so"
+pam-modules-extra_files += "/usr/lib/security/pam_smack.so"
+
+pam-devel_files = ""
+pam-devel_files += "pam.manifest"
+pam-devel_files += "/usr/include/security/*"
+pam-devel_files += "/usr/lib/libpam.so"
+pam-devel_files += "/usr/lib/libpam_misc.so"
+pam-devel_files += "/usr/lib/libpamc.so"
+pam-devel_files += "/usr/lib/security/pam_tally2.so"
+
+pam_files = ""
+pam_files += "pam.manifest"
+pam_files += "/sbin/pam_tally"
+pam_files += "/sbin/pam_tally2"
+pam_files += "/etc/security/limits.conf"
+pam_files += "/usr/lib/libpam.so.*"
+pam_files += "/usr/lib/libpam_misc.so.*"
+pam_files += "/usr/lib/libpamc.so.*"
+pam_files += "/usr/lib/security"
+pam_files += "/usr/lib/security/pam_deny.so"
+pam_files += "/usr/lib/security/pam_env.so"
+pam_files += "/usr/lib/security/pam_keyinit.so"
+pam_files += "/usr/lib/security/pam_limits.so"
+pam_files += "/usr/lib/security/pam_loginuid.so"
+pam_files += "/usr/lib/security/pam_namespace.so"
+pam_files += "/usr/lib/security/pam_nologin.so"
+pam_files += "/usr/lib/security/pam_permit.so"
+pam_files += "/usr/lib/security/pam_lastlog.so"
+pam_files += "/usr/lib/security/pam_rootok.so"
+pam_files += "/usr/lib/security/pam_securetty.so"
+pam_files += "/usr/lib/security/pam_succeed_if.so"
+pam_files += "/usr/lib/security/pam_unix.so"
+pam_files += "/usr/lib/security/pam_wheel.so"
+pam_files += "/usr/lib/security/pam_xauth.so"
+pam_files += "/usr/lib/security/pam_filter"
+pam_files += "/usr/lib/security/pam_mkhomedir.so"
+pam_files += "/etc/security"
+pam_files += "/etc/security/access.conf"
+pam_files += "/etc/security/group.conf"
+pam_files += "/etc/security/namespace.conf"
+pam_files += "/etc/security/pam_env.conf"
+pam_files += "/etc/security/time.conf"
+pam_files += "/etc/pam.d"
+pam_files += "/etc/pam.d/system-auth"
+pam_files += "/etc/pam.d/other"
+
+pam-docs_files = ""
+pam-docs_files += "/usr/share/info"
+pam-docs_files += "/usr/share/man"
+
+pam-locale_files = ""
+
+FILES_${PN}-modules-extra = "${pam-modules-extra_files}"
+FILES_${PN}-devel = "${pam-devel_files}"
+FILES_${PN} = "${pam_files}"
+FILES_${PN}-docs = "${pam-docs_files}"
+FILES_${PN}-locale = "${pam-locale_files}"
+
+PKG_pam-modules-extra= "pam-modules-extra"
+PKG_pam-devel= "pam-devel"
+PKG_pam= "pam"
+PKG_pam-docs= "pam-docs"
+PKG_pam-locale= "pam-locale"
+
+require pam-extraconf.inc
