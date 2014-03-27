@@ -7,47 +7,45 @@ SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
+inherit autotools
+
 PROVIDES = ""
 
 #PROVIDES by lua 
-PROVIDES += "lua"
-RPROVIDES_lua += "lua"
 
-#PROVIDES by lua-devel 
-PROVIDES += "lua-devel"
-RPROVIDES_lua-devel += "lua-devel"
-RPROVIDES_lua-devel += "lua-dev"
+#PROVIDES by lua-dev 
 
 #PROVIDES by liblua 
-PROVIDES += "liblua"
-RPROVIDES_liblua += "liblua"
 
 #PROVIDES by lua-doc 
-PROVIDES += "lua-doc"
-RPROVIDES_lua-doc += "lua-doc"
 
 RDEPENDS = ""
-#RDEPENDS of lua-devel (${PN}-devel)
-RDEPENDS_${PN}-devel += "lua"
+#RDEPENDS of lua-dev (${PN}-dev)
+RDEPENDS_${PN}-dev += "lua"
 
 
 DEPENDS = ""
 #DEPENDS of lua 
 DEPENDS += "pkgconfig-native"
-DEPENDS += "readline-devel"
+DEPENDS += "readline-native"
 
-do_patch() {
+do_prep() {
+ cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n lua-5.1.4
  cp ${S}/packaging/lua.manifest .
  
  
 }
+do_patch_append() {
+    bb.build.exec_func('do_prep', d)
+}
 
 do_configure() {
 }
 
 do_compile() {
+ cd ${S}
  LANG=C
  export LANG
  unset DISPLAY
@@ -65,62 +63,63 @@ do_compile() {
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
+ cd ${S}
  LANG=C
  export LANG
  unset DISPLAY
  rm -rf ${D} 
  mkdir -p ${D} 
  
- make install INSTALL_TOP="${D}/usr" INSTALL_LIB="${D}/usr/lib" INSTALL_CMOD=${D}/usr/lib/lua/5.1 INSTALL_MAN="${D}/usr/share/man/man1"
- install -D -m644 etc/lua.pc ${D}/usr/lib/pkgconfig/lua.pc
+ make install INSTALL_TOP="${D}${prefix}" INSTALL_LIB="${D}${prefix}/lib" INSTALL_CMOD=${D}${prefix}/lib/lua/5.1 INSTALL_MAN="${D}${mandir}/man1"
+ install -D -m644 etc/lua.pc ${D}${prefix}/lib/pkgconfig/lua.pc
  for file in lua luac ; do
-     mv "${D}/usr/bin/${file}"        "${D}/usr/bin/${file}5.1"
-     mv "${D}/usr/share/man/man1/${file}.1" "${D}/usr/share/man/man1/${file}5.1.1"
+     mv "${D}${prefix}/bin/${file}"        "${D}${prefix}/bin/${file}5.1"
+     mv "${D}${mandir}/man1/${file}.1" "${D}${mandir}/man1/${file}5.1.1"
  done
- install -d -m 0755 ${D}/usr/lib/lua/5.1
- install -d -m 0755 ${D}/usr/share/lua/5.1
- install -D -m644 ${S}/packaging/macros.lua ${D}/etc/rpm/macros.lua
+ install -d -m 0755 ${D}${prefix}/lib/lua/5.1
+ install -d -m 0755 ${D}${prefix}/share/lua/5.1
+ install -D -m644 ${S}/packaging/macros.lua ${D}${sysconfdir}/rpm/macros.lua
  
- chmod +x ${D}//usr/lib/liblua.so.5.1
+ chmod +x ${D}/${prefix}/lib/liblua.so.5.1
  
- ln -s lua5.1 ${D}/usr/bin/lua
+ ln -s lua5.1 ${D}${prefix}/bin/lua
  
  
 }
 
 PACKAGES = ""
 PACKAGES += "lua"
-PACKAGES += "lua-devel"
+PACKAGES += "lua-dev"
 PACKAGES += "liblua"
 PACKAGES += "lua-doc"
 
 lua_files = ""
 lua_files += "lua.manifest"
-lua_files += "/usr/share/man/man1/lua5.1.1*"
-lua_files += "/usr/share/man/man1/luac5.1.1*"
-lua_files += "/usr/bin/lua"
-lua_files += "/usr/bin/lua5.1"
-lua_files += "/usr/bin/luac5.1"
-lua_files += "/usr/lib/lua"
-lua_files += "/usr/lib/lua/5.1"
-lua_files += "/usr/share/lua"
-lua_files += "/usr/share/lua/5.1"
-lua_files += "/etc/rpm/macros.lua"
+lua_files += "${mandir}/man1/lua5.1.1*"
+lua_files += "${mandir}/man1/luac5.1.1*"
+lua_files += "${prefix}/bin/lua"
+lua_files += "${prefix}/bin/lua5.1"
+lua_files += "${prefix}/bin/luac5.1"
+lua_files += "${prefix}/lib/lua"
+lua_files += "${prefix}/lib/lua/5.1"
+lua_files += "${prefix}/share/lua"
+lua_files += "${prefix}/share/lua/5.1"
+lua_files += "${sysconfdir}/rpm/macros.lua"
 
-lua-devel_files = ""
+lua-dev_files = ""
 lua-devel_files += "lua.manifest"
-lua-devel_files += "/usr/include/lauxlib.h"
-lua-devel_files += "/usr/include/lua.h"
-lua-devel_files += "/usr/include/lua.hpp"
-lua-devel_files += "/usr/include/luaconf.h"
-lua-devel_files += "/usr/include/lualib.h"
-lua-devel_files += "/usr/lib/pkgconfig/lua.pc"
-lua-devel_files += "/usr/lib/liblua.a"
-lua-devel_files += "/usr/lib/liblua.so"
+lua-devel_files += "${prefix}/include/lauxlib.h"
+lua-devel_files += "${prefix}/include/lua.h"
+lua-devel_files += "${prefix}/include/lua.hpp"
+lua-devel_files += "${prefix}/include/luaconf.h"
+lua-devel_files += "${prefix}/include/lualib.h"
+lua-devel_files += "${prefix}/lib/pkgconfig/lua.pc"
+lua-devel_files += "${prefix}/lib/liblua.a"
+lua-devel_files += "${prefix}/lib/liblua.so"
 
 liblua_files = ""
 liblua_files += "lua.manifest"
-liblua_files += "/usr/lib/liblua.so.5.1"
+liblua_files += "${prefix}/lib/liblua.so.5.1"
 
 lua-doc_files = ""
 lua-doc_files += "lua.manifest"

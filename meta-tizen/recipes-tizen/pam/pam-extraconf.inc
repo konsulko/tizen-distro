@@ -1,1 +1,0 @@
-DEPENDS += "libtool-native"

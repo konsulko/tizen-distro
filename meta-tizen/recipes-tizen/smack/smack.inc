@@ -7,28 +7,21 @@ SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
+inherit autotools
+
 PROVIDES = ""
 
-#PROVIDES by smack-devel 
-PROVIDES += "smack-devel"
-RPROVIDES_smack-devel += "smack-devel"
-RPROVIDES_smack-devel += "smack-dev"
+#PROVIDES by smack-dev 
 
 #PROVIDES by smack 
-PROVIDES += "smack"
-RPROVIDES_smack += "smack"
 
 #PROVIDES by libsmack 
-PROVIDES += "libsmack"
-RPROVIDES_libsmack += "libsmack"
 
 #PROVIDES by smack-docs  
-PROVIDES += "smack-docs "
-RPROVIDES_smack-docs  += "smack-docs "
 
 RDEPENDS = ""
-#RDEPENDS of smack-devel (${PN}-devel)
-RDEPENDS_${PN}-devel += "libsmack"
+#RDEPENDS of smack-dev (${PN}-dev)
+RDEPENDS_${PN}-dev += "libsmack"
 
 
 DEPENDS = ""
@@ -37,18 +30,23 @@ DEPENDS += "autoconf-native"
 DEPENDS += "libtool-cross"
 DEPENDS += "automake-native"
 
-do_patch() {
+do_prep() {
+ cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
  cp ${S}/packaging/smack.manifest .
  
  
 }
+do_patch_append() {
+    bb.build.exec_func('do_prep', d)
+}
 
 do_configure() {
 }
 
 do_compile() {
+ cd ${S}
  LANG=C
  export LANG
  unset DISPLAY
@@ -57,7 +55,6 @@ do_compile() {
  FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
  LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
  
- autoreconf --install --symlink
  
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
    CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
@@ -65,19 +62,19 @@ do_compile() {
    autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
          --target=x86_64-tizen-linux \
          --program-prefix= \
-         --prefix=/usr \
-         --exec-prefix=/usr \
-         --bindir=/usr/bin \
-         --sbindir=/usr/sbin \
-         --sysconfdir=/etc \
-         --datadir=/usr/share \
-         --includedir=/usr/include \
-         --libdir=/usr/lib \
-         --libexecdir=/usr/libexec \
-         --localstatedir=/var \
-         --sharedstatedir=/usr/com \
-         --mandir=/usr/share/man \
-         --infodir=/usr/share/info --with-systemdsystemunitdir=/usr/lib/systemd/system
+         --prefix=${prefix} \
+         --exec-prefix=${prefix} \
+         --bindir=${prefix}/bin \
+         --sbindir=${prefix}/sbin \
+         --sysconfdir=${sysconfdir} \
+         --datadir=${prefix}/share \
+         --includedir=${prefix}/include \
+         --libdir=${prefix}/lib \
+         --libexecdir=${prefix}/libexec \
+         --localstatedir=${localstatedir} \
+         --sharedstatedir=${prefix}/com \
+         --mandir=${mandir} \
+         --infodir=${infodir} --with-systemdsystemunitdir=/lib/systemd/system
  
  make -j16
  
@@ -87,6 +84,7 @@ do_compile() {
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
+ cd ${S}
  LANG=C
  export LANG
  unset DISPLAY
@@ -97,45 +95,43 @@ do_install() {
    oe_runmake \
          DESTDIR=${D} \
          INSTALL_ROOT=${D} \
-         BINDIR=/usr/bin \
+         BINDIR=${prefix}/bin \
    install  
-   rm -f ${D}/usr/share/info/dir 
+   rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- 
- install -d ${D}/etc/smack/accesses.d
- install -d ${D}/etc/smack/cipso.d
- install -d ${D}/smack
- 
+ install -d ${D}${sysconfdir}/smack/accesses.d
+ install -d ${D}${sysconfdir}/smack/cipso.d
+ install -d ${D}${sysconfdir}/smack/netlabel.d
  
  
 }
 
 PACKAGES = ""
-PACKAGES += "smack-devel"
+PACKAGES += "smack-dev"
 PACKAGES += "smack"
 PACKAGES += "libsmack"
 PACKAGES += "smack-docs"
 
-smack-devel_files = ""
+smack-dev_files = ""
 smack-devel_files += "smack.manifest"
-smack-devel_files += "/usr/include/sys/smack.h"
-smack-devel_files += "/usr/lib/libsmack.so"
-smack-devel_files += "/usr/lib/pkgconfig/libsmack.pc"
+smack-devel_files += "${prefix}/include/sys/smack.h"
+smack-devel_files += "${prefix}/lib/libsmack.so"
+smack-devel_files += "${prefix}/lib/pkgconfig/libsmack.pc"
 
 smack_files = ""
 smack_files += "smack.manifest"
-smack_files += "/etc/smack"
-smack_files += "/etc/smack/accesses.d"
-smack_files += "/etc/smack/cipso.d"
+smack_files += "${sysconfdir}/smack"
+smack_files += "${sysconfdir}/smack/accesses.d"
+smack_files += "${sysconfdir}/smack/cipso.d"
+smack_files += "${sysconfdir}/smack/netlabel.d"
+smack_files += "${prefix}/bin/*"
 
 libsmack_files = ""
 libsmack_files += "smack.manifest"
-libsmack_files += "/usr/lib/libsmack.so.*"
+libsmack_files += "${prefix}/lib/libsmack.so.*"
 
 smack-docs_files = ""
-smack-docs_files += "/usr/share/info"
-smack-docs_files += "/usr/share/man"
 
 FILES_${PN}-devel = "${smack-devel_files}"
 FILES_${PN} = "${smack_files}"
