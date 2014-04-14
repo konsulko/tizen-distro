@@ -1,0 +1,58 @@
+diff --git a/ports/linux/guts/lsetxattr.c b/ports/linux/guts/lsetxattr.c
+index 140ae8d..2f73350 100644
+--- a/ports/linux/guts/lsetxattr.c
++++ b/ports/linux/guts/lsetxattr.c
+@@ -5,14 +5,16 @@
+  * int lsetxattr(const char *pathname, const char *name, const void *value, size_t size, int flags)
+  *	int rc = -1;
+  */
+-
+-	/* suppress warnings */
+-	(void) pathname;
+-	(void) name;
+-	(void) value;
+-	(void) size;
+-	(void) flags;
+-	errno = ENOTSUP;
++FILE *f;
++f = fopen("/etc/smack/init_attr", "a+");
++if (f){
++    fprintf(f, "setfattr -n \"%s\" -v \"%s\" \"%s\"\n",name,value,pathname);
++    fclose(f);
++    rc=0;
++}
++else{
++    errno = ENOTSUP;
++}
+
+ /*	return rc;
+  * }
+diff --git a/ports/linux/guts/setxattr.c b/ports/linux/guts/setxattr.c
+index de2de98..d7b10c9 100644
+--- a/ports/linux/guts/setxattr.c
++++ b/ports/linux/guts/setxattr.c
+@@ -5,14 +5,16 @@
+  * int setxattr(const char *pathname, const char *name, const void *value, size_t size, int flags)
+  *	int rc = -1;
+  */
+-
+-	/* suppress warnings */
+-	(void) pathname;
+-	(void) name;
+-	(void) value;
+-	(void) size;
+-	(void) flags;
+-	errno = ENOTSUP;
++FILE *f;
++f = fopen("/etc/smack/init_attr", "a+");
++if (f){
++    fprintf(f, "setfattr -n \"%s\" -v \"%s\" \"%s\"\n",name,value,pathname);
++    fclose(f);
++    rc=0;
++}
++else{
++    errno = ENOTSUP;
++}
+
+ /*	return rc;
+  * }

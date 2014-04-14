@@ -107,11 +107,8 @@ do_install() {
  
 }
 
-PACKAGES = ""
-PACKAGES += "smack-dev"
-PACKAGES += "smack"
-PACKAGES += "libsmack"
-PACKAGES += "smack-docs"
+PACKAGES += " libsmack "
+PACKAGES += " smack-docs "
 
 smack-dev_files = ""
 smack-devel_files += "smack.manifest"

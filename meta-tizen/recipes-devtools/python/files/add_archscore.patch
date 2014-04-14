@@ -1,0 +1,12 @@
+diff --git a/smart/backends/rpm/base.py b/smart/backends/rpm/base.py
+index 7140c1b..3ec2e60 100644
+--- a/smart/backends/rpm/base.py
++++ b/smart/backends/rpm/base.py
+@@ -338,6 +338,7 @@ class RPMObsoletes(Depends):
+ 
+ _SCOREMAP = {}
+ def getArchScore(arch, _sm=_SCOREMAP):
++    return 1
+     if arch not in _sm:
+         score = rpm.archscore(arch)
+         _sm[arch] = score

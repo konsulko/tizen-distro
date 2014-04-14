@@ -11,7 +11,7 @@ inherit autotools
 
 PROVIDES = ""
 
-#PROVIDES by python-rpm 
+#PROVIDES by python-rpm
 
 RDEPENDS = ""
 #RDEPENDS of python-rpm (${PN})
@@ -19,7 +19,7 @@ RDEPENDS_${PN} += "rpm"
 
 
 DEPENDS = ""
-#DEPENDS of python-rpm 
+#DEPENDS of python-rpm
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
 DEPENDS += "attr"
@@ -44,9 +44,9 @@ do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n rpm-4.11.0.1
- 
- 
- 
+
+
+
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -60,15 +60,15 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
- 
- 
- 
- 
- 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+
+
+
+
+
 }
 
 do_install() {
@@ -77,20 +77,20 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
- 
+ rm -rf ${D}
+ mkdir -p ${D}
+
  mkdir -p ${D}${prefix}/lib
  # only installing in python/ does not work because rpm links against
  # installed libs at install time
- 
+
    oe_runmake \
          DESTDIR=${D} \
          INSTALL_ROOT=${D} \
          BINDIR=${prefix}/bin \
-   install  
-   rm -f ${D}${infodir}/dir 
-   find ${D} -regex ".*\.la$" | xargs rm -f -- 
+   install
+   rm -f ${D}${infodir}/dir
+   find ${D} -regex ".*\.la$" | xargs rm -f --
    find ${D} -regex ".*\.a$" | xargs rm -f --
  find ${D} -not -type d -and -not -path ${D}${prefix}/lib/python*/site-packages/rpm/\* -print0 | xargs -0 rm
  pushd ${D}/${prefix}/lib/python*/site-packages/rpm
@@ -98,12 +98,21 @@ do_install() {
  #python ${prefix}/lib/python*/py_compile.py *.py
  #python -O ${prefix}/lib/python*/py_compile.py *.py
  popd
- 
- 
+
+ rm -fr ${D}${prefix}/lib/rpm/platform
+ rm -fr ${D}${prefix}/bin
+ rm -fr ${D}/bin
+ rm -fr ${D}/var
+ rm -fr ${D}${prefix}/lib/rpm-plugins
+ rm -fr ${D}${prefix}/lib/rpm
+ rm -fr ${D}${prefix}/lib/rpm/fileattr
+ rm -fr ${D}${prefix}${base_prefix}/bin
+ rm -fr ${D}${prefix}${localstatedir}
+ rm -fr ${D}${localstatedir}/tmp
+ rm -fr ${D}${localstatedir}/volatile
+
 }
 
-PACKAGES = ""
-PACKAGES += "python-rpm"
 
 python-rpm_files = ""
 python-rpm_files += "${prefix}/lib/python*/*/*"

@@ -1,6 +1,8 @@
 TARGET_CC_ARCH += " -fPIC ${LDFLAGS}"
 EXTRA_OEMAKE = "'CC=${CC} -fPIC' 'MYCFLAGS=${CFLAGS} -DLUA_USE_LINUX -fPIC' MYLDFLAGS='${LDFLAGS}' V=5.1"
 
+BBCLASSEXTEND = "nativesdk"
+
 do_configure_prepend() {
     sed -i -e s:/usr/local:${prefix}:g src/luaconf.h
     sed -i -e s:lib/lua/5.1/:${base_libdir}/lua/5.1/:g src/luaconf.h
@@ -27,4 +29,7 @@ do_install () {
     rmdir ${D}${datadir}/lua/5.1
     rmdir ${D}${datadir}/lua
 
+    rm  ${D}${bindir}/luac
 }
+
+lua-doc_files += "/usr/share/man/man1"

@@ -1,0 +1,13 @@
+diff --git a/build/files.c b/build/files.c
+index 63cac8b..13fca0b 100644
+--- a/build/files.c
++++ b/build/files.c
+@@ -2360,7 +2360,7 @@ rpmRC processBinaryFiles(rpmSpec spec, rpmBuildPkgFlags pkgFlags,
+ 	if ((rc = processPackageFiles(spec, pkgFlags, pkg, installSpecialDoc, test)) != RPMRC_OK)
+ 	    goto exit;
+ #if HAVE_GELF_H && HAVE_LIBELF
+-        addDebuginfoPackage(spec, pkg, buildroot);
++//        addDebuginfoPackage(spec, pkg, buildroot);
+ #endif
+ 	if ((rc = rpmfcGenerateDepends(spec, pkg)) != RPMRC_OK)
+ 	    goto exit;

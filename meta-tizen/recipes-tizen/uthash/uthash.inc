@@ -66,8 +66,6 @@ do_install() {
  
 }
 
-PACKAGES = ""
-PACKAGES += "uthash-dev"
 
 uthash-dev_files = ""
 uthash-devel_files += "uthash.manifest"

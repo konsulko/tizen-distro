@@ -11,9 +11,9 @@ inherit autotools
 
 PROVIDES = ""
 
-#PROVIDES by rpm-security-plugin 
+#PROVIDES by rpm-security-plugin
 
-#PROVIDES by rpm-build 
+#PROVIDES by rpm-build
 # the PROVIDES rules is ignore "rpmbuild  "
 PROVIDES += "rpmbuild"
 RPROVIDES_rpm-build += "rpmbuild"
@@ -21,14 +21,14 @@ RPROVIDES_rpm-build += "rpmbuild"
 PROVIDES += "rpm:${prefix}/bin/rpmbuild"
 RPROVIDES_rpm-build += "rpm:${prefix}/bin/rpmbuild"
 
-#PROVIDES by rpm-locale  
+#PROVIDES by rpm-locale
 # the PROVIDES rules is ignore "rpm-lang-all = 4.11.0.1"
 PROVIDES += "rpm-lang-all"
 RPROVIDES_rpm-locale  += "rpm-lang-all"
 
-#PROVIDES by rpm-dev 
+#PROVIDES by rpm-dev
 
-#PROVIDES by rpm 
+#PROVIDES by rpm
 # the PROVIDES rules is ignore "rpminst  "
 PROVIDES += "rpminst"
 RPROVIDES_rpm += "rpminst"
@@ -36,7 +36,7 @@ RPROVIDES_rpm += "rpminst"
 PROVIDES += "rpm-libs"
 RPROVIDES_rpm += "rpm-libs"
 
-#PROVIDES by rpm-docs  
+#PROVIDES by rpm-docs
 
 RDEPENDS = ""
 #RDEPENDS of rpm-security-plugin (${PN}-security-plugin)
@@ -66,7 +66,7 @@ RDEPENDS_${PN}-dev += "popt"
 
 
 DEPENDS = ""
-#DEPENDS of rpm 
+#DEPENDS of rpm
 DEPENDS += "libxml2"
 DEPENDS += "xz"
 DEPENDS += "findutils"
@@ -105,7 +105,7 @@ do_prep() {
  # will get linked from db3
  rm -f rpmdb/db.h
  patch -p0 < ${S}/packaging/db-4.8.30-integration.dif
- 
+
  if [ -s ${sysconfdir}/rpm/tizen_macros ]; then
      cp -a ${sysconfdir}/rpm/tizen_macros ${S}/packaging/rpm-tizen_macros
  fi
@@ -113,8 +113,8 @@ do_prep() {
  rm -f m4/libtool.m4
  rm -f m4/lt*.m4
  ### PREP END ###
- 
- 
+
+
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -128,19 +128,19 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
- 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+
  ### BUILD BEGIN ###
  CPPFLAGS="$CPPFLAGS `pkg-config --cflags nss`"
  export CPPFLAGS
  export CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -ffunction-sections"
  export LDFLAGS="${LDFLAGS} -Wl,-Bsymbolic-functions -ffunction-sections"
- 
+
  BUILDTARGET="--build=x86_64-tizen-linux --host=x86_64-linux-gnu "
- 
+ export CFLAGS+=" -DRPM_VENDOR_OE "
  autoreconf -i -f
  ./configure \
      --prefix=${prefix} \
@@ -157,12 +157,12 @@ do_compile() {
       \
      --with-msm \
      $BUILDTARGET
- 
+
  make -j16
  ### BUILD END ###
- 
- 
- 
+
+
+
 }
 
 do_install() {
@@ -171,20 +171,20 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
- 
+ rm -rf ${D}
+ mkdir -p ${D}
+
  mkdir -p ${D}${prefix}/lib
  mkdir -p ${D}${prefix}/share/locale
  ln -s ../share/locale ${D}${prefix}/lib/locale
- 
+
    oe_runmake \
          DESTDIR=${D} \
          INSTALL_ROOT=${D} \
          BINDIR=${prefix}/bin \
-   install  
-   rm -f ${D}${infodir}/dir 
-   find ${D} -regex ".*\.la$" | xargs rm -f -- 
+   install
+   rm -f ${D}${infodir}/dir
+   find ${D} -regex ".*\.la$" | xargs rm -f --
    find ${D} -regex ".*\.a$" | xargs rm -f --
  install -m 644 db3/db.h ${D}${prefix}/include/rpm
  # remove .la file and the static variant of libpopt
@@ -244,18 +244,16 @@ do_install() {
  rm -rf ${D}/${prefix}/lib/python2.7
  rm -f ${D}${prefix}/lib/*.la
  rm -f ${D}${prefix}/lib/rpm-plugins/*.la
- sh ${D}${prefix}/lib/rpm/find-lang.sh ${D} rpm
- 
- 
+
+ rm     ${D}${prefix}/bin/rpmgraph
+
 }
 
-PACKAGES = ""
-PACKAGES += "rpm-security-plugin"
-PACKAGES += "rpm-build"
-PACKAGES += "rpm-dev"
-PACKAGES += "rpm-locale"
-PACKAGES += "rpm-docs"
-PACKAGES += "rpm"
+
+
+PACKAGES += " rpm-security-plugin "
+PACKAGES += " rpm-build "
+PACKAGES += " rpm-docs "
 
 rpm-security-plugin_files = ""
 rpm-security-plugin_files += "rpm.manifest"

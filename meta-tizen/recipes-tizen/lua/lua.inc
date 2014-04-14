@@ -87,11 +87,7 @@ do_install() {
  
 }
 
-PACKAGES = ""
-PACKAGES += "lua"
-PACKAGES += "lua-dev"
-PACKAGES += "liblua"
-PACKAGES += "lua-doc"
+PACKAGES += " liblua "
 
 lua_files = ""
 lua_files += "lua.manifest"

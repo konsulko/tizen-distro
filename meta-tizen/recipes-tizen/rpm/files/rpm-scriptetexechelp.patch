@@ -1,0 +1,171 @@
+diff --git a/lib/psm.c b/lib/psm.c
+index fcc6749..9fd88c7 100644
+--- a/lib/psm.c
++++ b/lib/psm.c
+@@ -425,7 +425,7 @@ static rpmRC runScript(rpmpsm psm, ARGV_const_t prefixes,
+     rpmtsSuspendResumeDBLock(psm->ts, 0);
+     rpmswEnter(rpmtsOp(psm->ts, RPMTS_OP_SCRIPTLETS), 0);
+     rc = rpmScriptRun(script, arg1, arg2, sfd,
+-		      prefixes, warn_only, selinux, psm->ts->plugins);
++		      prefixes, warn_only, selinux, psm->ts->plugins, rpmtsRootDir(psm->ts) );
+     rpmswExit(rpmtsOp(psm->ts, RPMTS_OP_SCRIPTLETS), 0);
+     rpmtsSuspendResumeDBLock(psm->ts, 1);
+ 
+@@ -972,15 +972,50 @@ static rpmRC rpmpsmStage(rpmpsm psm, pkgStage stage)
+     case PSM_DESTROY:
+ 	break;
+     case PSM_SCRIPT:	/* Run current package scriptlets. */
++#ifdef RPM_VENDOR_OE
++        {
++        const char * scriptletWrapper = rpmExpand("%{?_cross_scriptlet_wrapper}", NULL);
++	if (scriptletWrapper && *scriptletWrapper)
++	     (void) rpmChrootOut();
++        
++#endif
++
+ 	rc = runInstScript(psm);
++#ifdef RPM_VENDOR_OE
++	if (scriptletWrapper && *scriptletWrapper)
++	     (void) rpmChrootIn();
++        }
++#endif
+ 	break;
+     case PSM_TRIGGERS:
+ 	/* Run triggers in other package(s) this package sets off. */
++#ifdef RPM_VENDOR_OE
++        {
++        const char * scriptletWrapper = rpmExpand("%{?_cross_scriptlet_wrapper}", NULL);
++	if (scriptletWrapper && *scriptletWrapper)
++	     (void) rpmChrootOut();
++#endif
+ 	rc = runTriggers(psm);
++#ifdef RPM_VENDOR_OE
++	if (scriptletWrapper && *scriptletWrapper)
++	     (void) rpmChrootIn();
++        }
++#endif
+ 	break;
+     case PSM_IMMED_TRIGGERS:
+ 	/* Run triggers in this package other package(s) set off. */
++#ifdef RPM_VENDOR_OE
++	{
++            const char * scriptletWrapper = rpmExpand("%{?_cross_scriptlet_wrapper}", NULL);
++	    if (scriptletWrapper && *scriptletWrapper)
++	     (void) rpmChrootOut();
++#endif
+ 	rc = runImmedTriggers(psm);
++#ifdef RPM_VENDOR_OE
++	    if (scriptletWrapper && *scriptletWrapper)
++	     (void) rpmChrootIn();
++	}
++#endif
+ 	break;
+ 
+     case PSM_RPMDB_ADD: {
+diff --git a/lib/rpmscript.c b/lib/rpmscript.c
+index a27251c..1e23bf2 100644
+--- a/lib/rpmscript.c
++++ b/lib/rpmscript.c
+@@ -94,7 +94,7 @@ static rpmRC runLuaScript(rpmPlugins plugins, int selinux, ARGV_const_t prefixes
+ static const char * const SCRIPT_PATH = "PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/X11R6/bin";
+ 
+ static void doScriptExec(int selinux, ARGV_const_t argv, ARGV_const_t prefixes,
+-			FD_t scriptFd, FD_t out)
++			FD_t scriptFd, FD_t out, char * rootDir )
+ {
+     int pipes[2];
+     int flag;
+@@ -160,13 +160,12 @@ static void doScriptExec(int selinux, ARGV_const_t argv, ARGV_const_t prefixes,
+ 	    setenv("RPM_INSTALL_PREFIX", *pf, 1);
+ 	}
+     }
+-	
+-    if (chdir("/") == 0) {
++    if (chdir(rootDir) == 0) {
+ 	/* XXX Don't mtrace into children. */
+ 	unsetenv("MALLOC_CHECK_");
+ 
+ 	/* Permit libselinux to do the scriptlet exec. */
+-	if (selinux == 1) {	
++	if (selinux == 1) {
+ 	    xx = rpm_execcon(0, argv[0], argv, environ);
+ 	}
+ 
+@@ -206,7 +205,7 @@ exit:
+  */
+ static rpmRC runExtScript(rpmPlugins plugins, int selinux, ARGV_const_t prefixes,
+ 		   const char *sname, rpmlogLvl lvl, FD_t scriptFd,
+-		   ARGV_t * argvp, const char *script, int arg1, int arg2)
++		   ARGV_t * argvp, const char *script, int arg1, int arg2,char * rootDir)
+ {
+     FD_t out = NULL;
+     char * fn = NULL;
+@@ -263,7 +262,7 @@ static rpmRC runExtScript(rpmPlugins plugins, int selinux, ARGV_const_t prefixes
+ 
+ 	/* Run scriptlet post fork hook for all plugins */
+ 	if (rpmpluginsCallScriptletForkPost(plugins, *argvp[0], RPMSCRIPTLET_FORK | RPMSCRIPTLET_EXEC) != RPMRC_FAIL) {
+-	    doScriptExec(selinux, *argvp, prefixes, scriptFd, out);
++	    doScriptExec(selinux, *argvp, prefixes, scriptFd, out, rootDir);
+ 	} else {
+ 	    _exit(126); /* exit 126 for compatibility with bash(1) */
+ 	}
+@@ -305,22 +304,35 @@ exit:
+ }
+ 
+ rpmRC rpmScriptRun(rpmScript script, int arg1, int arg2, FD_t scriptFd,
+-		   ARGV_const_t prefixes, int warn_only, int selinux, rpmPlugins plugins)
++		   ARGV_const_t prefixes, int warn_only, int selinux, rpmPlugins plugins, char * rootDir )
+ {
+     ARGV_t args = NULL;
+     rpmlogLvl lvl = warn_only ? RPMLOG_WARNING : RPMLOG_ERR;
+     rpmRC rc;
+     int script_type = RPMSCRIPTLET_FORK | RPMSCRIPTLET_EXEC;
++#ifdef RPM_VENDOR_OE
++    const char * scriptletWrapper = rpmExpand("%{?_cross_scriptlet_wrapper}", NULL);
++#endif
+ 
+     if (script == NULL) return RPMRC_OK;
++#ifdef RPM_VENDOR_OE
++    if (scriptletWrapper && *scriptletWrapper) {
++	argvAppend(&args, scriptletWrapper);
+ 
++	if ( rootDir ) {
++	  argvAppend(&args, rootDir);
++	} else {
++	  argvAppend(&args, "/");
++	}
++    }
++#endif
+     /* construct a new argv as we can't modify the one from header */
+     if (script->args) {
+ 	argvAppend(&args, script->args);
+     } else {
+ 	argvAdd(&args, "/bin/sh");
+     }
+-    
++
+     if (rstreq(args[0], "<lua>"))
+ 	script_type = RPMSCRIPTLET_NONE;
+ 
+@@ -329,7 +341,7 @@ rpmRC rpmScriptRun(rpmScript script, int arg1, int arg2, FD_t scriptFd,
+ 
+     if (rc != RPMRC_FAIL) {
+ 	if (script_type & RPMSCRIPTLET_EXEC) {
+-	    rc = runExtScript(plugins, selinux, prefixes, script->descr, lvl, scriptFd, &args, script->body, arg1, arg2);
++	    rc = runExtScript(plugins, selinux, prefixes, script->descr, lvl, scriptFd, &args, script->body, arg1, arg2, rootDir);
+ 	} else {
+ 	    rc = runLuaScript(plugins, selinux, prefixes, script->descr, lvl, scriptFd, &args, script->body, arg1, arg2);
+ 	}
+diff --git a/lib/rpmscript.h b/lib/rpmscript.h
+index 852735b..c488b32 100644
+--- a/lib/rpmscript.h
++++ b/lib/rpmscript.h
+@@ -29,7 +29,7 @@ rpmScript rpmScriptFree(rpmScript script);
+ 
+ RPM_GNUC_INTERNAL
+ rpmRC rpmScriptRun(rpmScript script, int arg1, int arg2, FD_t scriptFd,
+-                   ARGV_const_t prefixes, int warn_only, int selinux, rpmPlugins plugins);
++                   ARGV_const_t prefixes, int warn_only, int selinux, rpmPlugins plugins,char * rootDir);
+ 
+ RPM_GNUC_INTERNAL
+ rpmTagVal rpmScriptTag(rpmScript script);

@@ -1,0 +1,17 @@
+diff --git a/build/pack.c b/build/pack.c
+index 6480cec..95ced02 100644
+--- a/build/pack.c
++++ b/build/pack.c
+@@ -644,9 +644,9 @@ rpmRC packageBinaries(rpmSpec spec, const char *cookie, int cheating)
+ 	    headerPutBin(pkg->header, RPMTAG_SOURCEPKGID, spec->sourcePkgId,16);
+ 	}
+ 
+-	if (cheating) {
+-	    (void) rpmlibNeedsFeature(pkg->header, "ShortCircuited", "4.9.0-1");
+-	}
++//	if (cheating) {
++//	    (void) rpmlibNeedsFeature(pkg->header, "ShortCircuited", "4.9.0-1");
++//	}
+ 	
+ 	{   char *binFormat = rpmGetPath("%{_rpmfilename}", NULL);
+ 	    char *binRpm, *binDir;

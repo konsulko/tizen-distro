@@ -1,7 +1,9 @@
 SRC_URI += "file://pythondeps.sh \
             file://fix-python-rpm-conf.patch \
+            file://rpmmodule.c.patch \
            "
 
+BBCLASSEXTEND_append = " nativesdk "
 
 do_prep() {
  cd ${S}
@@ -75,7 +77,7 @@ do_compile() {
  BUILDTARGET="--build=x86_64-tizen-linux --host=x86_64-linux-gnu "
 
  autoreconf -i -f
-
+ export CFLAGS+=" -DRPM_VENDOR_OE "
  ./configure \
      --sysconfdir=${sysconfdir} \
      --prefix=${prefix} \
@@ -98,6 +100,11 @@ do_compile() {
  make -j16
  ### BUILD END ###
 
-
-
 }
+
+
+
+
+
+
+

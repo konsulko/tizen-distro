@@ -1,0 +1,16 @@
+diff --git a/smart/backends/rpm/pm.py b/smart/backends/rpm/pm.py
+index 707a146..ecd9f4e 100644
+--- a/smart/backends/rpm/pm.py
++++ b/smart/backends/rpm/pm.py
+@@ -162,8 +162,9 @@ class RPMPackageManager(PackageManager):
+                 try:
+                     h = ts.hdrFromFdno(fd)
+                     if sysconf.get("rpm-check-signatures", False):
+-                         if get_public_key(h) == '(none)':
+-                             raise rpm.error('package is not signed')
++                         pass
++                         #if get_public_key(h) == '(none)':
++                         #    raise rpm.error('package is not signed')
+                 except rpm.error, e:
+                     os.close(fd)
+                     raise Error, "%s: %s" % (os.path.basename(path), e)

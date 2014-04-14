@@ -5,4 +5,7 @@ EXTRA_OEMAKE_class-native = " \
   lib=${@os.path.basename('${libdir}')} \
   RAISE_SETFCAP=no \
 "
-DEPENDS_class-native = "attr "
+
+BBCLASSEXTEND_append = " nativesdk "
+
+DEPENDS_class-native = "attr-native "
