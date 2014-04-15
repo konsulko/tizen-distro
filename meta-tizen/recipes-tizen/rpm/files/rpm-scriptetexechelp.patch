@@ -1,5 +1,5 @@
 diff --git a/lib/psm.c b/lib/psm.c
-index fcc6749..9fd88c7 100644
+index fcc6749..01f64be 100644
 --- a/lib/psm.c
 +++ b/lib/psm.c
 @@ -425,7 +425,7 @@ static rpmRC runScript(rpmpsm psm, ARGV_const_t prefixes,
@@ -11,7 +11,7 @@ index fcc6749..9fd88c7 100644
      rpmswExit(rpmtsOp(psm->ts, RPMTS_OP_SCRIPTLETS), 0);
      rpmtsSuspendResumeDBLock(psm->ts, 1);
  
-@@ -972,15 +972,50 @@ static rpmRC rpmpsmStage(rpmpsm psm, pkgStage stage)
+@@ -972,15 +972,49 @@ static rpmRC rpmpsmStage(rpmpsm psm, pkgStage stage)
      case PSM_DESTROY:
  	break;
      case PSM_SCRIPT:	/* Run current package scriptlets. */
@@ -20,7 +20,6 @@ index fcc6749..9fd88c7 100644
 +        const char * scriptletWrapper = rpmExpand("%{?_cross_scriptlet_wrapper}", NULL);
 +	if (scriptletWrapper && *scriptletWrapper)
 +	     (void) rpmChrootOut();
-+        
 +#endif
 +
  	rc = runInstScript(psm);
@@ -63,7 +62,7 @@ index fcc6749..9fd88c7 100644
  
      case PSM_RPMDB_ADD: {
 diff --git a/lib/rpmscript.c b/lib/rpmscript.c
-index a27251c..1e23bf2 100644
+index a27251c..c378071 100644
 --- a/lib/rpmscript.c
 +++ b/lib/rpmscript.c
 @@ -94,7 +94,7 @@ static rpmRC runLuaScript(rpmPlugins plugins, int selinux, ARGV_const_t prefixes
@@ -91,6 +90,21 @@ index a27251c..1e23bf2 100644
  	    xx = rpm_execcon(0, argv[0], argv, environ);
  	}
  
+@@ -177,12 +176,12 @@ static void doScriptExec(int selinux, ARGV_const_t argv, ARGV_const_t prefixes,
+     _exit(127); /* exit 127 for compatibility with bash(1) */
+ }
+ 
+-static char * writeScript(const char *cmd, const char *script)
++static char * writeScript(const char *cmd, const char *script, char * rootDir)
+ {
+     char *fn = NULL;
+     size_t slen = strlen(script);
+     int ok = 0;
+-    FD_t fd = rpmMkTempFile("/", &fn);
++    FD_t fd = rpmMkTempFile(rootDir, &fn);
+ 
+     if (Ferror(fd))
+ 	goto exit;
 @@ -206,7 +205,7 @@ exit:
   */
  static rpmRC runExtScript(rpmPlugins plugins, int selinux, ARGV_const_t prefixes,
@@ -100,6 +114,15 @@ index a27251c..1e23bf2 100644
  {
      FD_t out = NULL;
      char * fn = NULL;
+@@ -217,7 +216,7 @@ static rpmRC runExtScript(rpmPlugins plugins, int selinux, ARGV_const_t prefixes
+     rpmlog(RPMLOG_DEBUG, "%s: scriptlet start\n", sname);
+ 
+     if (script) {
+-	fn = writeScript(*argvp[0], script);
++	fn = writeScript(*argvp[0], script, rootDir);
+ 	if (fn == NULL) {
+ 	    rpmlog(RPMLOG_ERR,
+ 		   _("Couldn't create temporary file for %s: %s\n"),
 @@ -263,7 +262,7 @@ static rpmRC runExtScript(rpmPlugins plugins, int selinux, ARGV_const_t prefixes
  
  	/* Run scriptlet post fork hook for all plugins */
@@ -109,7 +132,7 @@ index a27251c..1e23bf2 100644
  	} else {
  	    _exit(126); /* exit 126 for compatibility with bash(1) */
  	}
-@@ -305,22 +304,35 @@ exit:
+@@ -305,22 +304,34 @@ exit:
  }
  
  rpmRC rpmScriptRun(rpmScript script, int arg1, int arg2, FD_t scriptFd,
@@ -127,12 +150,12 @@ index a27251c..1e23bf2 100644
      if (script == NULL) return RPMRC_OK;
 +#ifdef RPM_VENDOR_OE
 +    if (scriptletWrapper && *scriptletWrapper) {
-+	argvAppend(&args, scriptletWrapper);
++	argvAdd(&args, scriptletWrapper);
  
 +	if ( rootDir ) {
-+	  argvAppend(&args, rootDir);
++	  argvAdd(&args, rootDir);
 +	} else {
-+	  argvAppend(&args, "/");
++	  argvAdd(&args, "/");
 +	}
 +    }
 +#endif
@@ -143,11 +166,10 @@ index a27251c..1e23bf2 100644
  	argvAdd(&args, "/bin/sh");
      }
 -    
-+
      if (rstreq(args[0], "<lua>"))
  	script_type = RPMSCRIPTLET_NONE;
  
-@@ -329,7 +341,7 @@ rpmRC rpmScriptRun(rpmScript script, int arg1, int arg2, FD_t scriptFd,
+@@ -329,7 +340,7 @@ rpmRC rpmScriptRun(rpmScript script, int arg1, int arg2, FD_t scriptFd,
  
      if (rc != RPMRC_FAIL) {
  	if (script_type & RPMSCRIPTLET_EXEC) {

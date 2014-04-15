@@ -17,7 +17,7 @@ index 140ae8d..2f73350 100644
 +FILE *f;
 +f = fopen("/etc/smack/init_attr", "a+");
 +if (f){
-+    fprintf(f, "setfattr -n \"%s\" -v \"%s\" \"%s\"\n",name,value,pathname);
++    fprintf(f, "setfattr -n %s -v %s ${D}%s\n",name,value,pathname);
 +    fclose(f);
 +    rc=0;
 +}
@@ -46,7 +46,7 @@ index de2de98..d7b10c9 100644
 +FILE *f;
 +f = fopen("/etc/smack/init_attr", "a+");
 +if (f){
-+    fprintf(f, "setfattr -n \"%s\" -v \"%s\" \"%s\"\n",name,value,pathname);
++    fprintf(f, "setfattr -n %s -v %s ${D}%s\n",name,value,pathname);
 +    fclose(f);
 +    rc=0;
 +}
