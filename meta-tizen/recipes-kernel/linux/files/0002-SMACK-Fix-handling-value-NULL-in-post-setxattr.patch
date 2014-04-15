@@ -1,0 +1,60 @@
+From: =?utf-8?q?Jos=C3=A9_Bollo?= <jose.bollo@open.eurogiciel.org>
+Date: Thu, 3 Apr 2014 09:51:07 +0200
+Subject: SMACK: Fix handling value==NULL in post setxattr
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+The function `smack_inode_post_setxattr` is called each
+time that a setxattr is done, for any value of name.
+The kernel allow to put value==NULL when size==0
+to set an empty attribute value. The systematic
+call to smk_import_entry was causing the dereference
+of a NULL pointer hence a KERNEL PANIC!
+
+The problem can be produced easily by issuing the
+command `setfattr -n user.data file` under bash prompt
+when SMACK is active.
+
+Moving the call to smk_import_entry as proposed by this
+patch is correcting the behaviour because the function
+smack_inode_post_setxattr is called for the SMACK's
+attributes only if the function smack_inode_setxattr validated
+the value and its size (what will not be the case when size==0).
+
+It also has a benefical effect to not fill the smack hash
+with garbage values coming from any extended attribute
+write.
+
+Change-Id: Iaf0039c2be9bccb6cee11c24a3b44d209101fe47
+Signed-off-by: José Bollo <jose.bollo@open.eurogiciel.org>
+---
+ security/smack/smack_lsm.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index acd8574..f0ebcb0 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -880,18 +880,20 @@ static void smack_inode_post_setxattr(struct dentry *dentry, const char *name,
+ 		return;
+ 	}
+ 
+-	skp = smk_import_entry(value, size);
+ 	if (strcmp(name, XATTR_NAME_SMACK) == 0) {
++		skp = smk_import_entry(value, size);
+ 		if (skp != NULL)
+ 			isp->smk_inode = skp->smk_known;
+ 		else
+ 			isp->smk_inode = smack_known_invalid.smk_known;
+ 	} else if (strcmp(name, XATTR_NAME_SMACKEXEC) == 0) {
++		skp = smk_import_entry(value, size);
+ 		if (skp != NULL)
+ 			isp->smk_task = skp;
+ 		else
+ 			isp->smk_task = &smack_known_invalid;
+ 	} else if (strcmp(name, XATTR_NAME_SMACKMMAP) == 0) {
++		skp = smk_import_entry(value, size);
+ 		if (skp != NULL)
+ 			isp->smk_mmap = skp;
+ 		else
