@@ -24,4 +24,7 @@ SRC_URI_append_class-native = "\
     file://signlibs.sh \
 "
 
-FILES_${PN}-dbg = " ${libdir}/debug "
+FILES_${PN}-dbg = "\
+    ${bindir}/.debug/* \
+    ${libdir}/.debug/* \
+    "
