@@ -15,16 +15,13 @@ do_install_append_class-native() {
     sed -i s:OEINCDIR:${includedir}/nss3:g ${D}${libdir}/pkgconfig/nss.pc
 }
 
-#do_install_append_class-target() {
-#    rmdir ${D}/${libdir}/debug
-#}
-
 SRC_URI_append_class-native = "\
     file://nss.pc.in \
     file://signlibs.sh \
 "
 
-FILES_${PN}-dbg = "\
+FILES_${PN}-dbg += "\
     ${bindir}/.debug/* \
     ${libdir}/.debug/* \
+    ${libdir}/debug/* \
     "
