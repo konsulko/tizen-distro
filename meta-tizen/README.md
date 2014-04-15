@@ -1,6 +1,5 @@
-
 Create a Tizen Common x86_64 image with Yocto
-_____________________________________________
+=============================================
 
 Target: Haswell CPU
 
@@ -77,14 +76,14 @@ Most of default values can be kept. The one that needs to be changed is:
 
 Other useful option to set:
 
-* Donwload directory:
+Download directory:
 
 	DL_DIR ?= "${HOME}/yocto/downloads"
 
 Setting the download directory DL_DIR to a directory shared amongst
 projects prevents common data from being downloaded for each project.
 
-* Terminal emulator:
+Terminal emulator:
 
 	OE_TERMINAL = "screen"
 
