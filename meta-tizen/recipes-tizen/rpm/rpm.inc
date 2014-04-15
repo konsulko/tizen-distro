@@ -74,7 +74,7 @@ DEPENDS += "file"
 DEPENDS += "popt"
 DEPENDS += "uthash"
 DEPENDS += "nss"
-DEPENDS += "gcc-cross"
+DEPENDS_build += "gcc-cross"
 DEPENDS += "elfutils"
 DEPENDS += "patch"
 DEPENDS += "lua"
@@ -176,7 +176,7 @@ do_install() {
 
  mkdir -p ${D}${prefix}/lib
  mkdir -p ${D}${prefix}/share/locale
- ln -s ../share/locale ${D}${prefix}/lib/locale
+ ln -sf ../share/locale ${D}${prefix}/lib/locale
 
    oe_runmake \
          DESTDIR=${D} \
@@ -199,7 +199,7 @@ do_install() {
  install -m 755 ${S}/packaging/find-provides.ksyms ${D}${prefix}/lib/rpm
  install -m 644 ${S}/packaging/device-sec-policy ${D}${sysconfdir}/device-sec-policy
  install -m 644 ${S}/packaging/device-sec-policy ${D}${prefix}/lib/rpm-plugins/msm-device-sec-policy
- ln -s ../tizen_macros ${D}${prefix}/lib/rpm/tizen/macros
+ ln -sf ../tizen_macros ${D}${prefix}/lib/rpm/tizen/macros
  for d in BUILD RPMS SOURCES SPECS SRPMS BUILDROOT ; do
    mkdir -p ${D}${prefix}/src/packages/$d
    chmod 755 ${D}${prefix}/src/packages/$d
