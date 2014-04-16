@@ -194,7 +194,6 @@ class DpkgIndexer(Indexer):
 
             cmd = "cd %s; PSEUDO_UNLOAD=1 %s packages . > Packages;" % (arch_dir, apt_ftparchive)
 
-
             cmd += "%s -fc Packages > Packages.gz;" % gzip
 
             with open(os.path.join(arch_dir, "Release"), "w+") as release:
@@ -865,7 +864,7 @@ class RpmPM(PackageManager):
             "export INTERCEPT_DIR=%s\n" \
             "export NATIVE_ROOT=%s\n" \
             "\n" \
-            "$2 $1/$3 $4\n" \
+            "$2 $3 $4\n" \
             "if [ $? -ne 0 ]; then\n" \
             "  if [ $4 -eq 1 ]; then\n" \
             "    mkdir -p $1/etc/rpm-postinsts\n" \
