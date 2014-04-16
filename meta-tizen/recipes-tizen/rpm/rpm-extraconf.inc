@@ -130,6 +130,10 @@ do_install() {
  rm -fr ${D}${localstatedir}/volatile
 }
 
+FILES_${PN}-dbg += "\
+    ${libdir}/rpm-plugins/.debug/* \
+    "
+
 
 DEPENDS_native += "popt-native"
 DEPENDS_native += "uthash-native"

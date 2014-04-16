@@ -102,7 +102,9 @@ do_compile() {
 
 }
 
-
+FILES_${PN}-dbg += "\
+    ${libdir}/python2.7/site-packages/rpm/.debug/* \
+    "
 
 
 
