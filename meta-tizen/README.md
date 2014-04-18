@@ -50,10 +50,10 @@ for the recipes.
 	# LAYER_CONF_VERSION is increased each time build/conf/bblayers.conf
 	# changes incompatibly
 	LCONF_VERSION = "6"
-	
+
 	BBPATH = "${TOPDIR}"
 	BBFILES ?= ""
-	
+
 	BBLAYERS ?= " \
 	  /home/user/yocto/poky/meta \
 	  /home/user/yocto/poky/meta-yocto \
@@ -72,7 +72,8 @@ for the recipes.
 
 Most of default values can be kept. The one that needs to be changed is:
 
-	MACHINE ?= "haswell-wc"
+	MACHINE ?= "qemux86-64:wq
+	:wq"
 
 Other useful option to set:
 
@@ -113,6 +114,19 @@ Example of a complete configuration file (without comments):
 		ASSUME_PROVIDED += "libsdl-native"
 	CONF_VERSION = "1"
 
+1) Unfortunately we have to copy some files to the meta directory
+#ls -1 classes/
+    image.bbclass
+    rootfs_rpm.bbclass
+#ls -1 lib/oe/
+package_manager.py
+smack.py
+
+This should be temporary and will be removed as soon as possible.
+
+# cp classes/* ${POCKY_PATH}/meta/classes/
+# cp lib/oe/* ${POCKY_PATH}/lib/oe/
+
 # Build the Tizen Common image
 
 	bitbake tizen-common-core-image-minimal
@@ -122,11 +136,11 @@ Two useful options are:
 'k' "Continue as much as possible after an error. While the target that
     failed and anything depending on it cannot be built, as much as
     possible will be built before stopping."
-    
+
 'v' "Output more log message data to the terminal."
 
 Which gives:
-
-	bitbake -kv tizen-common-core-image-minimal
-
-The generate image can be found in tmp/deploy/images/genericx86-64/
+	1) bitbake -kv tizen-common-core-image-minimal
+	2) runqemu qemux86-64 tizen-common-core-image-minimal bootparams="S"
+	3) /etc/smack/init_attr
+The generate image can be found in tmp/deploy/images/qemux86-64/
