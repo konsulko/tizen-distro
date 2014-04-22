@@ -241,6 +241,7 @@ fakeroot python do_rootfs () {
     from oe.image import create_image
     from oe.manifest import create_manifest
     from oe.smack import create_smackrules
+    from oe.smack import apply_smackrules
 
     # generate the initial manifest
     create_manifest(d)
@@ -253,6 +254,9 @@ fakeroot python do_rootfs () {
 
     # generate final images
     create_image(d)
+
+    # apply smackrules
+    apply_smackrules(d)
 }
 
 insert_feed_uris () {
