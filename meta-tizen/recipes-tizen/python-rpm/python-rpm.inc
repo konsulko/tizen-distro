@@ -38,6 +38,7 @@ DEPENDS += "file"
 DEPENDS += "popt"
 DEPENDS += "libcap"
 DEPENDS += "nss"
+DEPENDS += "python"
 inherit pythonnative
 
 do_prep() {

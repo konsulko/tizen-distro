@@ -4,11 +4,14 @@ EXTRA_OEMAKE = "'CC=${CC} -fPIC' 'MYCFLAGS=${CFLAGS} -DLUA_USE_LINUX -fPIC' MYLD
 BBCLASSEXTEND = "nativesdk"
 
 do_configure_prepend() {
-    sed -i -e s:/usr/local:${prefix}:g src/luaconf.h
-    sed -i -e s:lib/lua/5.1/:${base_libdir}/lua/5.1/:g src/luaconf.h
+    sed -i -e s:/usr/local:${prefix}:g ${S}/src/luaconf.h
+    sed -i -e s:lib/lua/5.1/:${base_libdir}/lua/5.1/:g ${S}/src/luaconf.h
 }
 
+B = "${S}"
+
 do_compile () {
+    pwd
     oe_runmake linux
 }
 
