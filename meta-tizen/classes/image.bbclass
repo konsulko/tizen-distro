@@ -260,7 +260,7 @@ fakeroot python do_rootfs () {
 }
 
 insert_feed_uris () {
-
+	
 	echo "Building feeds for [${DISTRO}].."
 
 	for line in ${FEED_URIS}
@@ -269,9 +269,9 @@ insert_feed_uris () {
 		line_clean="`echo "$line"|sed 's/^[ \t]*//;s/[ \t]*$//'`"
 		feed_name="`echo "$line_clean" | sed -n 's/\(.*\)##\(.*\)/\1/p'`"
 		feed_uri="`echo "$line_clean" | sed -n 's/\(.*\)##\(.*\)/\2/p'`"
-
+		
 		echo "Added $feed_name feed with URL $feed_uri"
-
+		
 		# insert new feed-sources
 		echo "src/gz $feed_name $feed_uri" >> ${IMAGE_ROOTFS}/etc/opkg/${feed_name}-feed.conf
 	done
@@ -288,7 +288,7 @@ zap_empty_root_password () {
 	elif [ -e ${IMAGE_ROOTFS}/etc/passwd ]; then
 		sed -i 's%^root::%root:*:%' ${IMAGE_ROOTFS}/etc/passwd
 	fi
-}
+} 
 
 # allow dropbear/openssh to accept root logins and logins from accounts with an empty password string
 ssh_allow_empty_password () {
@@ -363,7 +363,7 @@ set_image_autologin () {
         sed -i 's%^AUTOLOGIN=\"false"%AUTOLOGIN="true"%g' ${IMAGE_ROOTFS}/etc/sysconfig/gpelogin
 }
 
-# Can be use to create /etc/timestamp during image construction to give a reasonably
+# Can be use to create /etc/timestamp during image construction to give a reasonably 
 # sane default time setting
 rootfs_update_timestamp () {
 	date -u +%4Y%2m%2d%2H%2M >${IMAGE_ROOTFS}/etc/timestamp

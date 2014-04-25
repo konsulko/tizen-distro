@@ -200,7 +200,7 @@ class DpkgIndexer(Indexer):
                 release.write("Label: %s\n" % arch)
 
             cmd += "PSEUDO_UNLOAD=1 %s release . >> Release" % apt_ftparchive
-
+            
             index_cmds.append(cmd)
 
             deb_dirs_found = True
