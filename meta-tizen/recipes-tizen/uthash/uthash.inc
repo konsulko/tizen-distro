@@ -68,14 +68,14 @@ do_install() {
 
 
 uthash-dev_files = ""
-uthash-devel_files += "uthash.manifest"
-uthash-devel_files += "${prefix}/include/utarray.h"
-uthash-devel_files += "${prefix}/include/uthash.h"
-uthash-devel_files += "${prefix}/include/utlist.h"
-uthash-devel_files += "${prefix}/include/utstring.h"
+uthash-dev_files += "uthash.manifest"
+uthash-dev_files += "${prefix}/include/utarray.h"
+uthash-dev_files += "${prefix}/include/uthash.h"
+uthash-dev_files += "${prefix}/include/utlist.h"
+uthash-dev_files += "${prefix}/include/utstring.h"
 
-FILES_${PN}-devel = "${uthash-devel_files}"
+FILES_${PN}-dev = "${uthash-dev_files}"
 
-PKG_uthash-devel= "uthash-devel"
+PKG_uthash-dev= "uthash-dev"
 
 require uthash-extraconf.inc
