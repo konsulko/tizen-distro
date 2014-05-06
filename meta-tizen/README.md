@@ -4,7 +4,9 @@ Create a Tizen Common x86_64 image with Yocto
 Target: Haswell/Ivy CPU
 
 # Create your working directory
+
 Create a working directory (for example "${HOME}/yocto","/mnt/ssd","/tmp"):
+
 	WORKINGDIR=${HOME}/yocto
 	mkdir -p ${WORKINGDIR}
 	cd ${WORKINGDIR}
@@ -17,9 +19,11 @@ directory amongst projects:
 # Download sources
 
 Downlaod Poky (patched version for rpm 4 support):
+
 	git clone git@github.com:eurogiciel-oss/poky.git
 
 Download Intel layers:
+
 	git clone git://git.yoctoproject.org/meta-intel
 
 Download openembedded layers:
@@ -33,6 +37,7 @@ Download tizen layer:
 # Configuration
 
 Configure the environment:
+
 	BUILDID="alice"
 	cd ${WORKINGDIR}/poky
 	source ./oe-init-build-env build-${BUILDID}
@@ -79,13 +84,16 @@ Most of default values can be kept. The one that needs to be changed is:
 	MACHINE ?= "romley-ivb"
 
 Other useful option to set:
+
 Download directory:
+
 	DL_DIR ?= "${WORKINGDIR}/downloads"
 
 Setting the download directory DL_DIR to a directory shared amongst
 projects prevents common data from being downloaded for each project.
 
 Terminal emulator:
+
 	OE_TERMINAL = "screen"
 
 The terminal emulator you want to use.
@@ -99,10 +107,11 @@ The terminal emulator you want to use.
   bitbake tar-replacement-native
 
 # Build the Tizen Common image
-	tizen-common-core-image-minimal-dev
 
-Which gives:
-	1) bitbake -kv tizen-common-core-image-minimal-dev
-	2) runqemu qemux86-64 tizen-common-core-image-minimal
+	bitbake -kv tizen-common-core-image-minimal-dev
+	
+The generated image can be found in tmp/deploy/images/${MACHINE}
 
-The generate image can be found in tmp/deploy/images/${MACHINE}
+If you made a qemu image you can run it with:
+
+	runqemu qemux86-64 tizen-common-core-image-minimal-dev
