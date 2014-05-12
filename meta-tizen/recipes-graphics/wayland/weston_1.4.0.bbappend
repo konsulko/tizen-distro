@@ -1,3 +1,5 @@
+FILESEXTRAPATHS_prepend := "${THISDIR}/weston"
+
 SRC_URI += "file://0001-Update-to-1.4.0.patch \
             file://0002-This-vfunc-lets-us-read-out-a-rectangle-of-pixels-fr.patch \
             file://0003-compositor-implement-xdg_surface_set_minimized.patch \
