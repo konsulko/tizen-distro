@@ -1,0 +1,184 @@
+From 9aab809f91fd839fda0a7b8999efdfeafdab793d Mon Sep 17 00:00:00 2001
+From: Stephane Desneux <stephane.desneux@open.eurogiciel.org>
+Date: Fri, 11 Apr 2014 22:09:19 +0200
+Subject: [PATCH 09/10] shell 1.4.0: Hack to allow selecting a default output
+
+Ported patch from Rafael Antognolli <rafael.antognolli@intel.com>
+
+Use default_output=1 inside an output section on weston.ini to make it
+the default one. Any newly created maximized or fullscreen window, that
+does not specify its output, will default to use that one.
+
+Change-Id: I8b888d1de6c5e76e89e9b61b35ffc3401ac86100
+Signed-off-by: Stephane Desneux <stephane.desneux@open.eurogiciel.org>
+---
+ desktop-shell/shell.c |  2 ++
+ src/compositor-drm.c  | 13 +++++++++----
+ src/compositor-x11.c  | 16 ++++++++++++----
+ src/compositor.h      |  3 +++
+ 4 files changed, 26 insertions(+), 8 deletions(-)
+
+diff --git a/desktop-shell/shell.c b/desktop-shell/shell.c
+index 8cd4401..57c2710 100644
+--- a/desktop-shell/shell.c
++++ b/desktop-shell/shell.c
+@@ -471,6 +471,8 @@ shell_configuration(struct desktop_shell *shell)
+ struct weston_output *
+ get_default_output(struct weston_compositor *compositor)
+ {
++    if (compositor->default_output)
++        return compositor->default_output;
+ 	return container_of(compositor->output_list.next,
+ 			    struct weston_output, link);
+ }
+diff --git a/src/compositor-drm.c b/src/compositor-drm.c
+index 154e15e..933a91d 100644
+--- a/src/compositor-drm.c
++++ b/src/compositor-drm.c
+@@ -1166,10 +1166,10 @@ choose_mode (struct drm_output *output, struct weston_mode *target_mode)
+ 	wl_list_for_each(mode, &output->base.mode_list, base.link) {
+ 		if (mode->mode_info.hdisplay == target_mode->width &&
+ 		    mode->mode_info.vdisplay == target_mode->height) {
+-			if (mode->mode_info.vrefresh == target_mode->refresh || 
++			if (mode->mode_info.vrefresh == target_mode->refresh ||
+           		    target_mode->refresh == 0) {
+ 				return mode;
+-			} else if (!tmp_mode) 
++			} else if (!tmp_mode)
+ 				tmp_mode = mode;
+ 		}
+ 	}
+@@ -1870,6 +1870,7 @@ create_output_for_connector(struct drm_compositor *ec,
+ 	const char *type_name;
+ 	enum output_config config;
+ 	uint32_t transform;
++	int default_output;
+ 
+ 	i = find_crtc_for_connector(ec, resources, connector);
+ 	if (i < 0) {
+@@ -1918,6 +1919,8 @@ create_output_for_connector(struct drm_compositor *ec,
+ 	weston_config_section_get_string(section, "transform", &s, "normal");
+ 	transform = parse_transform(s, output->base.name);
+ 	free(s);
++	weston_config_section_get_int(section, "default_output",
++                    &default_output, 0);
+ 
+ 	weston_config_section_get_string(section, "seat", &s, "");
+ 	setup_output_seat_constraint(ec, &output->base, s);
+@@ -2035,6 +2038,8 @@ create_output_for_connector(struct drm_compositor *ec,
+ 	}
+ 
+ 	wl_list_insert(ec->base.output_list.prev, &output->base.link);
++    if (default_output)
++        ec->base.default_output = &output->base;
+ 
+ 	find_and_parse_output_edid(ec, output, connector);
+ 	if (connector->connector_type == DRM_MODE_CONNECTOR_LVDS)
+@@ -2286,7 +2291,7 @@ update_outputs(struct drm_compositor *ec, struct udev_device *drm_device)
+ 		}
+ 	}
+ 
+-	/* FIXME: handle zero outputs, without terminating */	
++	/* FIXME: handle zero outputs, without terminating */
+ 	if (ec->connector_allocator == 0)
+ 		wl_display_terminate(ec->base.wl_display);
+ }
+@@ -2380,7 +2385,7 @@ drm_compositor_set_modes(struct drm_compositor *compositor)
+ 		if (ret < 0) {
+ 			weston_log(
+ 				"failed to set mode %dx%d for output at %d,%d: %m\n",
+-				drm_mode->base.width, drm_mode->base.height, 
++				drm_mode->base.width, drm_mode->base.height,
+ 				output->base.x, output->base.y);
+ 		}
+ 	}
+diff --git a/src/compositor-x11.c b/src/compositor-x11.c
+index 6b5eb64..b742d00 100644
+--- a/src/compositor-x11.c
++++ b/src/compositor-x11.c
+@@ -505,7 +505,7 @@ x11_output_set_wm_protocols(struct x11_compositor *c,
+ 	xcb_atom_t list[1];
+ 
+ 	list[0] = c->atom.wm_delete_window;
+-	xcb_change_property (c->conn, 
++	xcb_change_property (c->conn,
+ 			     XCB_PROP_MODE_REPLACE,
+ 			     output->window,
+ 			     c->atom.wm_protocols,
+@@ -751,7 +751,8 @@ static struct x11_output *
+ x11_compositor_create_output(struct x11_compositor *c, int x, int y,
+ 			     int width, int height, int fullscreen,
+ 			     int no_input, char *configured_name,
+-			     uint32_t transform, int32_t scale)
++			     uint32_t transform, int32_t scale,
++                 int default_output)
+ {
+ 	static const char name[] = "Weston Compositor";
+ 	static const char class[] = "weston-1\0Weston Compositor";
+@@ -899,6 +900,8 @@ x11_compositor_create_output(struct x11_compositor *c, int x, int y,
+ 		wl_event_loop_add_timer(loop, finish_frame_handler, output);
+ 
+ 	wl_list_insert(c->base.output_list.prev, &output->base.link);
++    if (default_output)
++        c->base.default_output = &output->base;
+ 
+ 	weston_log("x11 output %dx%d, window id %d\n",
+ 		   width, height, output->window);
+@@ -1482,6 +1485,7 @@ x11_compositor_create(struct wl_display *display,
+ 	const char *section_name;
+ 	char *name, *t, *mode;
+ 	uint32_t transform;
++    int default_output;
+ 
+ 	weston_log("initializing x11 backend\n");
+ 
+@@ -1567,11 +1571,14 @@ x11_compositor_create(struct wl_display *display,
+ 						 "transform", &t, "normal");
+ 		transform = parse_transform(t, name);
+ 		free(t);
++        weston_config_section_get_int(section, "default_output",
++                    &default_output, 0);
+ 
+ 		output = x11_compositor_create_output(c, x, 0,
+ 						      width, height,
+ 						      fullscreen, no_input,
+-						      name, transform, scale);
++						      name, transform, scale,
++                              default_output);
+ 		free(name);
+ 		if (output == NULL)
+ 			goto err_x11_input;
+@@ -1586,7 +1593,8 @@ x11_compositor_create(struct wl_display *display,
+ 	for (i = output_count; i < count; i++) {
+ 		output = x11_compositor_create_output(c, x, 0, width, height,
+ 						      fullscreen, no_input, NULL,
+-						      WL_OUTPUT_TRANSFORM_NORMAL, 1);
++						      WL_OUTPUT_TRANSFORM_NORMAL, 1,
++                              default_output);
+ 		if (output == NULL)
+ 			goto err_x11_input;
+ 		x = pixman_region32_extents(&output->base.region)->x2;
+diff --git a/src/compositor.h b/src/compositor.h
+index ace75da..297a4ec 100644
+--- a/src/compositor.h
++++ b/src/compositor.h
+@@ -198,6 +198,7 @@ struct weston_output {
+ 	int move_x, move_y;
+ 	uint32_t frame_time;
+ 	int disable_planes;
++    uint32_t default_output;
+ 	int destroying;
+ 
+ 	char *make, *model, *serial_number;
+@@ -604,6 +605,8 @@ struct weston_compositor {
+ 	struct wl_list axis_binding_list;
+ 	struct wl_list debug_binding_list;
+ 
++    struct weston_output *default_output;
++
+ 	uint32_t state;
+ 	struct wl_event_source *idle_source;
+ 	uint32_t idle_inhibit;
+-- 
+1.8.1.4
+

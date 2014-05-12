@@ -1,0 +1,115 @@
+From 13640d5c849085fa2b099c2d54e656eec8a1318f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
+Date: Wed, 29 Jan 2014 15:55:09 +0900
+Subject: [PATCH 02/10] This vfunc lets us read out a rectangle of pixels from
+ the currently attached surface buffer.
+
+Change-Id: Ia12d01fd0d157654602a2c46dd5874218252dd2f
+---
+ src/compositor.h  |  3 +++
+ src/gl-renderer.c | 54 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 57 insertions(+)
+
+diff --git a/src/compositor.h b/src/compositor.h
+index 22a485f..ace75da 100644
+--- a/src/compositor.h
++++ b/src/compositor.h
+@@ -540,6 +540,9 @@ struct weston_renderer {
+ 			       pixman_format_code_t format, void *pixels,
+ 			       uint32_t x, uint32_t y,
+ 			       uint32_t width, uint32_t height);
++	int (*read_surface_pixels)(struct weston_surface *es,
++				   pixman_format_code_t format, void *pixels,
++				   int x, int y, int width, int height);
+ 	void (*repaint_output)(struct weston_output *output,
+ 			       pixman_region32_t *output_damage);
+ 	void (*flush_damage)(struct weston_surface *surface);
+diff --git a/src/gl-renderer.c b/src/gl-renderer.c
+index 0e5afbe..dca2e05 100644
+--- a/src/gl-renderer.c
++++ b/src/gl-renderer.c
+@@ -106,6 +106,8 @@ struct gl_renderer {
+ 	EGLContext egl_context;
+ 	EGLConfig egl_config;
+ 
++	GLuint fbo;
++
+ 	struct wl_array vertices;
+ 	struct wl_array vtxcnt;
+ 
+@@ -585,6 +587,54 @@ out:
+ 	pixman_region32_fini(&repaint);
+ }
+ 
++static int
++gl_renderer_read_surface_pixels(struct weston_surface *es,
++				pixman_format_code_t format, void *pixels,
++				int x, int y, int width, int height)
++{
++	struct weston_buffer *buffer = es->buffer_ref.buffer;
++	struct weston_compositor *ec = es->compositor;
++	struct gl_renderer *gr = get_renderer(ec);
++	struct gl_surface_state *gs = get_surface_state(es);
++	GLenum gl_format;
++	int size;
++	struct wl_shm_buffer *shm_buffer = NULL;
++
++	switch (format) {
++	case PIXMAN_a8r8g8b8:
++		gl_format = GL_BGRA_EXT;
++		break;
++	case PIXMAN_a8b8g8r8:
++		gl_format = GL_RGBA;
++		break;
++	default:
++		return -1;
++	}
++
++        if (buffer) {
++		shm_buffer = wl_shm_buffer_get(buffer->resource);
++	}
++	if (shm_buffer) {
++		size = buffer->width * 4 * buffer->height;
++		memcpy(pixels, wl_shm_buffer_get_data(shm_buffer), size);
++	} else {
++		if (gr->fbo == 0)
++			glGenFramebuffers(1, &gr->fbo);
++		glBindFramebuffer(GL_FRAMEBUFFER, gr->fbo);
++		glFramebufferTexture2D(GL_FRAMEBUFFER,
++				       GL_COLOR_ATTACHMENT0,
++				       GL_TEXTURE_2D,
++				       gs->textures[0], 0);
++
++		glReadPixels(x, y, width, height,
++			     gl_format, GL_UNSIGNED_BYTE, pixels);
++
++		glBindFramebuffer(GL_FRAMEBUFFER, 0);
++	}
++
++	return 0;
++}
++
+ static void
+ repaint_views(struct weston_output *output, pixman_region32_t *damage)
+ {
+@@ -1602,6 +1652,9 @@ gl_renderer_destroy(struct weston_compositor *ec)
+ 
+ 	wl_signal_emit(&gr->destroy_signal, gr);
+ 
++	if (gr->fbo)
++		glDeleteFramebuffers(1, &gr->fbo);
++
+ 	if (gr->has_bind_display)
+ 		gr->unbind_display(gr->egl_display, ec->wl_display);
+ 
+@@ -1699,6 +1752,7 @@ gl_renderer_create(struct weston_compositor *ec, EGLNativeDisplayType display,
+ 		return -1;
+ 
+ 	gr->base.read_pixels = gl_renderer_read_pixels;
++	gr->base.read_surface_pixels = gl_renderer_read_surface_pixels;
+ 	gr->base.repaint_output = gl_renderer_repaint_output;
+ 	gr->base.flush_damage = gl_renderer_flush_damage;
+ 	gr->base.attach = gl_renderer_attach;
+-- 
+1.8.1.4
+

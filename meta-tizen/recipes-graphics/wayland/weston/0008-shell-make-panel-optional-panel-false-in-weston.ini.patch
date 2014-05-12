@@ -1,0 +1,95 @@
+From 5bbfde4c9d19b17391a9a3e0d1dbc24a55bee496 Mon Sep 17 00:00:00 2001
+From: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
+Date: Mon, 7 Apr 2014 15:43:51 +0200
+Subject: [PATCH 08/10] shell: make panel optional ("panel=false" in
+ weston.ini)
+
+Change-Id: I6b2e9ee24f623c4b05f3cd675a90007bf708b09b
+Signed-off-by: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
+---
+ clients/desktop-shell.c | 27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
+
+diff --git a/clients/desktop-shell.c b/clients/desktop-shell.c
+index a0c6b6d..ad67ad2 100644
+--- a/clients/desktop-shell.c
++++ b/clients/desktop-shell.c
+@@ -62,6 +62,7 @@ struct desktop {
+ 
+ 	struct weston_config *config;
+ 	int locking;
++	int panel;
+ 
+ 	enum cursor_type grab_cursor;
+ 
+@@ -171,8 +172,10 @@ is_desktop_painted(struct desktop *desktop)
+ 	struct output *output;
+ 
+ 	wl_list_for_each(output, &desktop->outputs, link) {
+-		if (output->panel && !output->panel->painted)
+-			return 0;
++		if (desktop->panel) {
++			if (output->panel && !output->panel->painted)
++				return 0;
++		}
+ 		if (output->background && !output->background->painted)
+ 			return 0;
+ 	}
+@@ -1127,7 +1130,8 @@ static void
+ output_destroy(struct output *output)
+ {
+ 	background_destroy(output->background);
+-	panel_destroy(output->panel);
++	if (output->panel)
++		panel_destroy(output->panel);
+ 	wl_output_destroy(output->output);
+ 	wl_list_remove(&output->link);
+ 
+@@ -1157,7 +1161,8 @@ output_handle_geometry(void *data,
+ {
+ 	struct output *output = data;
+ 
+-	window_set_buffer_transform(output->panel->window, transform);
++	if (output->panel)
++		window_set_buffer_transform(output->panel->window, transform);
+ 	window_set_buffer_transform(output->background->window, transform);
+ }
+ 
+@@ -1184,7 +1189,8 @@ output_handle_scale(void *data,
+ {
+ 	struct output *output = data;
+ 
+-	window_set_buffer_scale(output->panel->window, scale);
++	if (output->panel)
++		window_set_buffer_scale(output->panel->window, scale);
+ 	window_set_buffer_scale(output->background->window, scale);
+ }
+ 
+@@ -1200,10 +1206,12 @@ output_init(struct output *output, struct desktop *desktop)
+ {
+ 	struct wl_surface *surface;
+ 
+-	output->panel = panel_create(desktop);
+-	surface = window_get_wl_surface(output->panel->window);
+-	desktop_shell_set_panel(desktop->shell,
+-				output->output, surface);
++	if (desktop->panel) {
++		output->panel = panel_create(desktop);
++		surface = window_get_wl_surface(output->panel->window);
++		desktop_shell_set_panel(desktop->shell,
++					output->output, surface);
++	}
+ 
+ 	output->background = background_create(desktop);
+ 	surface = window_get_wl_surface(output->background->window);
+@@ -1316,6 +1324,7 @@ int main(int argc, char *argv[])
+ 	desktop.config = weston_config_parse("weston.ini");
+ 	s = weston_config_get_section(desktop.config, "shell", NULL, NULL);
+ 	weston_config_section_get_bool(s, "locking", &desktop.locking, 1);
++	weston_config_section_get_bool(s, "panel", &desktop.panel, 1);
+ 
+ 	desktop.display = display_create(&argc, argv);
+ 	if (desktop.display == NULL) {
+-- 
+1.8.1.4
+

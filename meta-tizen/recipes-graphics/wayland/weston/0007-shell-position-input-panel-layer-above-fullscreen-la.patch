@@ -1,0 +1,91 @@
+From d74310237df6e88f6978f5b57b3924e8b4514f37 Mon Sep 17 00:00:00 2001
+From: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
+Date: Fri, 7 Mar 2014 17:49:07 +0100
+Subject: [PATCH 07/10] shell: position input panel layer above fullscreen
+ layer
+
+When a client calls the input panel (weston-keyboard e.g.)
+and then goes fullscreen, the panel will not be hidden
+anymore.
+
+Bug-Tizen: TIVI-2228
+Origin: http://lists.freedesktop.org/archives/wayland-devel/2014-March/013523.html
+
+Change-Id: Ia8bb924a824e1356c28b4bcaf34a7697be6e59c2
+Signed-off-by: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
+---
+ desktop-shell/input-panel.c |  2 +-
+ desktop-shell/shell.c       | 17 +++++++++--------
+ packaging/weston.changes    |  4 ++++
+ 3 files changed, 14 insertions(+), 9 deletions(-)
+
+diff --git a/desktop-shell/input-panel.c b/desktop-shell/input-panel.c
+index c08a403..12fe686 100644
+--- a/desktop-shell/input-panel.c
++++ b/desktop-shell/input-panel.c
+@@ -63,7 +63,7 @@ show_input_panels(struct wl_listener *listener, void *data)
+ 	shell->showing_input_panels = true;
+ 
+ 	if (!shell->locked)
+-		wl_list_insert(&shell->panel_layer.link,
++		wl_list_insert(&shell->compositor->cursor_layer.link,
+ 			       &shell->input_panel_layer.link);
+ 
+ 	wl_list_for_each_safe(ipsurf, next,
+diff --git a/desktop-shell/shell.c b/desktop-shell/shell.c
+index 962dde0..8cd4401 100644
+--- a/desktop-shell/shell.c
++++ b/desktop-shell/shell.c
+@@ -84,9 +84,9 @@ struct ping_timer {
+  * in the following order (top-most first):
+  *  • Lock layer (only ever displayed on its own)
+  *  • Cursor layer
++ *  • Input panel layer
+  *  • Fullscreen layer
+  *  • Panel layer
+- *  • Input panel layer
+  *  • Workspace layers
+  *  • Background layer
+  *
+@@ -3800,18 +3800,19 @@ resume_desktop(struct desktop_shell *shell)
+ 	terminate_screensaver(shell);
+ 
+ 	wl_list_remove(&shell->lock_layer.link);
+-	wl_list_insert(&shell->compositor->cursor_layer.link,
+-		       &shell->fullscreen_layer.link);
+-	wl_list_insert(&shell->fullscreen_layer.link,
+-		       &shell->panel_layer.link);
+ 	if (shell->showing_input_panels) {
+-		wl_list_insert(&shell->panel_layer.link,
++		wl_list_insert(&shell->compositor->cursor_layer.link,
+ 			       &shell->input_panel_layer.link);
+ 		wl_list_insert(&shell->input_panel_layer.link,
+-			       &ws->layer.link);
++			       &shell->fullscreen_layer.link);
+ 	} else {
+-		wl_list_insert(&shell->panel_layer.link, &ws->layer.link);
++		wl_list_insert(&shell->compositor->cursor_layer.link,
++			       &shell->fullscreen_layer.link);
+ 	}
++	wl_list_insert(&shell->fullscreen_layer.link,
++		       &shell->panel_layer.link);
++	wl_list_insert(&shell->panel_layer.link,
++		       &ws->layer.link),
+ 
+ 	restore_focus_state(shell, get_current_workspace(shell));
+ 
+diff --git a/packaging/weston.changes b/packaging/weston.changes
+index 6a35d43..df6408d 100644
+--- a/packaging/weston.changes
++++ b/packaging/weston.changes
+@@ -1,3 +1,7 @@
++* Fri Mar 07 2014 Ossama Othman <ossama.othman@intel.com> accepted/tizen/mobile/20140306.215156@0a8cc4e
++- shell: position input panel layer above fullscreen layer
++- packaging: add weston-editor & weston-subsurfaces clients.
++
+ * Wed Mar 05 2014 Ossama Othman <ossama.othman@intel.com> accepted/tizen/mobile/20140227.071827@0aaa2e4
+ - toytoolkit: totally switch to xdg-shell protocol
+ - compositor: use Mod-Tab to show/raise minimized surfaces
+-- 
+1.8.1.4
+

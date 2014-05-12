@@ -1,0 +1,337 @@
+From 804c40d5e1d0f4a42db1cbc7d6cf0666b82c1e7d Mon Sep 17 00:00:00 2001
+From: Ossama Othman <ossama.othman@intel.com>
+Date: Wed, 12 Feb 2014 14:17:21 -0800
+Subject: [PATCH 01/10] Update to 1.4.0
+
+Change-Id: I17dab833c810374f13cf79672690a09a92ef1fb7
+Signed-off-by: Ossama Othman <ossama.othman@intel.com>
+---
+ .gbs.conf                 |   3 +
+ packaging/weston.changes  | 104 +++++++++++++++++++++++++++++
+ packaging/weston.manifest |   8 +++
+ packaging/weston.spec     | 164 ++++++++++++++++++++++++++++++++++++++++++++++
+ packaging/weston.target   |   5 ++
+ 5 files changed, 284 insertions(+)
+ create mode 100644 .gbs.conf
+ create mode 100644 packaging/weston.changes
+ create mode 100644 packaging/weston.manifest
+ create mode 100644 packaging/weston.spec
+ create mode 100644 packaging/weston.target
+
+diff --git a/.gbs.conf b/.gbs.conf
+new file mode 100644
+index 0000000..fa9fdc5
+--- /dev/null
++++ b/.gbs.conf
+@@ -0,0 +1,3 @@
++[general]
++upstream_branch = upstream
++upstream_tag = ${upstreamversion}
+diff --git a/packaging/weston.changes b/packaging/weston.changes
+new file mode 100644
+index 0000000..e2beff6
+--- /dev/null
++++ b/packaging/weston.changes
+@@ -0,0 +1,104 @@
++* Wed Feb 12 2014 Ossama Othman <ossama.othman@intel.com> 1.4.0@d601bc0
++- Update to 1.4.0
++
++* Tue Jan 21 2014 Ossama Othman <ossama.othman@intel.com> accepted/tizen/generic/20140106.132549@36d486f
++- Clarified comment about weston-startup virtual package rationale.
++- weston-launch SMACK exec label is now set in weston systemd unit file.
++- [TIVI-2213] Moved IVI files to weston-ivi and ico-uxf-homescreen-sample-apps.
++
++* Tue Dec 10 2013 Ossama Othman <ossama.othman@intel.com> accepted/tizen/20131204.185237@e803629
++- v2:Fix [PTREL-522] Weston local build failed for X-Free repo.
++
++* Mon Dec 02 2013 Ossama Othman <ossama.othman@intel.com> accepted/tizen/20131127.212429@21af2d3
++- build failure fix (remove X dependencies)
++- This vfunc lets us read out a rectangle of pixels from the currently attached surface buffer.
++- Remove cairo-xcb dependency in spec file.
++
++* Fri Nov 22 2013 Ossama Othman <ossama.othman@intel.com> submit/tizen/20131122.063157@9f36b8a
++- Don't build xwayland and xwayland-test
++- Assign weston-launch to the User Smack domain.
++
++* Wed Nov 06 2013 Ossama Othman <ossama.othman@intel.com> 1.3.1@a6a11fb
++- Update to 1.3.1
++
++* Thu Oct 17 2013 Ossama Othman <ossama.othman@intel.com> 1.3.0@95659c0
++- Update to 1.3.0
++
++* Thu Oct 03 2013 Rusty Lynch <rusty.lynch@intel.com> accepted/tizen/20130925.220757@8c7ed3e
++- TIVI-1828: Make EFL apps use the wayland-based input method.
++- TIVI-1828: Install weekeyboard.xml app metadata file.
++- TIVI-1919: Associate the Giantec display with HDMI1
++
++* Wed Sep 25 2013 Ossama Othman <ossama.othman@intel.com> accepted/tizen/20130925.103624@58d1a75
++- Adding calibration values and bind HDMI output with touch screen of chelong monitor
++
++* Mon Sep 23 2013 Ossama Othman <ossama.othman@intel.com> accepted/tizen/20130918.214754@10eaa44
++- TIVI-1726: Not add output->x/y when caculating the absolute value of touch postion.
++- We have the calibrator for touch and delete touch quirk
++
++* Tue Sep 17 2013 Rusty Lynch <rusty.lynch@intel.com> submit/tizen/20130909.204211@5560428
++- TIVI-1771: Fix browser metadata so homescreen can find its surface
++- Added DBUS_SESSION_BUS_ADDRESS in /etc/profile.d/weston.sh (Bug TIVI-1686 and other bugs related to dbus)
++
++* Mon Sep 09 2013 Ossama Othman <ossama.othman@intel.com> 1.2.2@59772da
++- Add support for device quirks, such as swapped axes.
++- Add Tizen IVI weston packaging files.
++- Update to 1.2.2
++
++* Wed Aug 28 2013 Ossama Othman <ossama.othman@intel.com> submit/tizen/20130823.165548@163279b
++- evdev: Initliaze device->link so we can wl_list_remove() without crashing
++- Fix TIVI-1679
++
++* Thu Aug 22 2013 Ossama Othman <ossama.othman@intel.com> 1.2.0@56c32bd
++- Update to 1.2.1
++
++* Thu Aug 01 2013 Ossama Othman <ossama.othman@intel.com> submit/tizen/20130726.203035@2a224be
++- Add initial touch support to clients.
++
++* Fri Jul 26 2013 Rusty Lynch <rusty.lynch@intel.com> submit/tizen/20130725.223721@872ba32
++- Add calibration values for chelong display
++
++* Thu Jul 25 2013 Rusty Lynch <rusty.lynch@intel.com> accepted/tizen/20130719.063456@cd5293b
++- TIVI-1086: Fix handling of touch device
++- Add a new clients subpackage
++
++* Wed Jul 24 2013 Rusty Lynch <rusty.lynch@intel.com> accepted/tizen/20130719.063456@a7bec7a
++- Add a new clients subpackage
++
++* Tue Jul 16 2013 Ossama Othman <ossama.othman@intel.com> 1.2.0@1427ac4
++- Update to 1.2.0
++
++* Thu Jun 27 2013 Rusty Lynch <rusty.lynch@intel.com> accepted/tizen/20130627.155212@597c6fc
++- TIVI-1063: Disable lockscreen
++
++* Wed Jun 26 2013 Rusty Lynch <rusty.lynch@intel.com> submit/tizen/20130624.224834@a4a42d8
++- Add tizen environment file
++
++* Mon Jun 24 2013 Rusty Lynch <rusty.lynch@intel.com> submit/tizen/20130620.235949@109d186
++- Add udev rule to quirk the touchscreen on Chelong
++- compositor-drm: Add quirk loading from udev
++- evdev: Add support for device quirks and implement axes swapping
++
++* Thu Jun 20 2013 Rusty Lynch <rusty.lynch@intel.com> 1.1.1@f7089fb
++- weston-launch: Run weston in the user login shell
++- weston-launch: Don't exit on SIGTERM
++- Update to 1.1.1
++
++* Wed Jun 05 2013 Rusty Lynch <rusty.lynch@intel.com> 1.1.0@9d774db
++- Update to 1.1.0
++
++* Thu Apr 11 2013 Anas Nashif <anas.nashif@intel.com> submit/trunk/20130411.235236@639026a
++- Also package devel sub-package for header files
++
++* Thu Apr 11 2013 Anas Nashif <anas.nashif@intel.com> 1.0.6@aa865ba
++- Update to 1.0.6
++
++* Wed Feb 13 2013 Anas Nashif <anas.nashif@intel.com> 1.0.4@d32e140
++- Update to 1.0.4
++
++* Mon Dec 17 2012 Anas Nashif <anas.nashif@intel.com> 1.0.3@85b1093
++- Update to 1.0.3
++
++* Fri Nov 30 2012 Anas Nashif <anas.nashif@intel.com> 57b751b
++- Update to 1.0.2
++
+diff --git a/packaging/weston.manifest b/packaging/weston.manifest
+new file mode 100644
+index 0000000..da32097
+--- /dev/null
++++ b/packaging/weston.manifest
+@@ -0,0 +1,8 @@
++<manifest>
++ <request>
++    <domain name="_"/>
++ </request>
++ <assign>
++    <filesystem path="/usr/bin/weston-launch" exec_label="User" />
++ </assign>
++</manifest>
+diff --git a/packaging/weston.spec b/packaging/weston.spec
+new file mode 100644
+index 0000000..84d2cb8
+--- /dev/null
++++ b/packaging/weston.spec
+@@ -0,0 +1,164 @@
++%bcond_with wayland
++%bcond_with mobile
++%define _unitdir_user /usr/lib/systemd/user
++
++%if %{with mobile}
++%define extra_config_options --disable-drm-compositor
++%endif
++
++Name:           weston
++Version:        1.4.0
++Release:        0
++Summary:        Wayland Compositor Infrastructure
++License:        MIT
++Group:          Graphics & UI Framework/Wayland Window System
++Url:            http://weston.freedesktop.org/
++
++#Git-Clone:	git://anongit.freedesktop.org/wayland/weston
++#Git-Web:	http://cgit.freedesktop.org/wayland/weston/
++Source0:         %name-%version.tar.xz
++Source1:        weston.target
++Source1001: 	weston.manifest
++BuildRequires:	autoconf >= 2.64, automake >= 1.11
++BuildRequires:  expat-devel
++BuildRequires:  libjpeg-devel
++BuildRequires:  libtool >= 2.2
++BuildRequires:  libvpx-devel
++BuildRequires:  pam-devel
++BuildRequires:  pkgconfig
++BuildRequires:  xz
++BuildRequires:  pkgconfig(cairo)
++BuildRequires:  pkgconfig(cairo-egl) >= 1.11.3
++BuildRequires:  pkgconfig(egl) >= 7.10
++BuildRequires:  pkgconfig(gbm)
++BuildRequires:  pkgconfig(gio-2.0)
++BuildRequires:  pkgconfig(glesv2)
++BuildRequires:  pkgconfig(glib-2.0)
++BuildRequires:  pkgconfig(gobject-2.0)
++BuildRequires:  pkgconfig(libdrm) >= 2.4.30
++BuildRequires:  pkgconfig(libffi)
++BuildRequires:  pkgconfig(libsystemd-login)
++BuildRequires:  pkgconfig(libudev) >= 136
++BuildRequires:  pkgconfig(mtdev) >= 1.1.0
++BuildRequires:  pkgconfig(pixman-1)
++BuildRequires:  pkgconfig(poppler-glib)
++BuildRequires:  pkgconfig(wayland-client)
++BuildRequires:  pkgconfig(wayland-egl)
++BuildRequires:  pkgconfig(wayland-server)
++BuildRequires:  pkgconfig(xkbcommon) >= 0.3.0
++Requires:       weston-startup
++Requires(pre):  /usr/sbin/groupadd
++
++%if !%{with wayland}
++ExclusiveArch:
++%endif
++
++
++%description
++Weston is the reference implementation of a Wayland compositor, and a
++useful compositor in its own right. Weston has various backends that
++lets it run on Linux kernel modesetting and evdev input as well as
++under X11. Weston ships with a few example clients, from simple
++clients that demonstrate certain aspects of the protocol to more
++complete clients and a simplistic toolkit. There is also a quite
++capable terminal emulator (weston-terminal) and an toy/example
++desktop shell. Finally, weston also provides integration with the
++Xorg server and can pull X clients into the Wayland desktop and act
++as a X window manager.
++
++
++%package devel
++Summary: Development files for package %{name}
++Group:   Graphics & UI Framework/Development
++%description devel
++This package provides header files and other developer releated files
++for package %{name}.
++
++%package clients
++Summary: Sample clients for package %{name}
++Group:   Graphics & UI Framework/Development
++%description clients
++This package provides a set of example wayland clients useful for
++validating the functionality of wayland with very little dependencies
++on other system components.
++
++%prep
++%setup -q
++cp %{SOURCE1001} .
++
++%build
++%autogen --disable-static --disable-setuid-install  --enable-simple-clients --enable-clients --disable-libunwind --disable-xwayland --disable-xwayland-test --disable-x11-compositor --disable-rpi-compositor %{?extra_config_options:%extra_config_options}
++make %{?_smp_mflags}
++
++%install
++%make_install
++
++# install example clients
++install -m 755 clients/weston-simple-touch %{buildroot}%{_bindir}
++install -m 755 clients/weston-simple-shm %{buildroot}%{_bindir}
++install -m 755 clients/weston-simple-egl %{buildroot}%{_bindir}
++install -m 755 clients/weston-flower %{buildroot}%{_bindir}
++install -m 755 clients/weston-image %{buildroot}%{_bindir}
++install -m 755 clients/weston-cliptest %{buildroot}%{_bindir}
++install -m 755 clients/weston-dnd %{buildroot}%{_bindir}
++install -m 755 clients/weston-smoke %{buildroot}%{_bindir}
++install -m 755 clients/weston-resizor %{buildroot}%{_bindir}
++install -m 755 clients/weston-eventdemo %{buildroot}%{_bindir}
++install -m 755 clients/weston-clickdot %{buildroot}%{_bindir}
++install -m 755 clients/weston-transformed %{buildroot}%{_bindir}
++install -m 755 clients/weston-fullscreen %{buildroot}%{_bindir}
++install -m 755 clients/weston-calibrator %{buildroot}%{_bindir}
++
++install -d %{buildroot}%{_unitdir_user}
++install -m 644 %{SOURCE1} %{buildroot}%{_unitdir_user}/weston.target
++# The weston.service unit file must be provided by the weston-startup
++# virtual package, i.e. "Provide: weston-startup".  The weston-startup
++# virtual package requirement is intended to force Tizen profile
++# maintainers to add the necessary start-up script or systemd unit
++# file to start weston. Otherwise it becomes possible to install
++# weston without an automated means to start weston at boot, which may
++# lead to confusion.  This approach allows startup related files to be
++# maintained outside of this weston package.
++
++%pre
++getent group weston-launch >/dev/null || %{_sbindir}/groupadd -o -r weston-launch
++
++%docs_package
++
++%files
++%manifest %{name}.manifest
++%defattr(-,root,root)
++%license COPYING
++%_bindir/wcap-*
++%_bindir/weston
++%_bindir/weston-info
++%attr(4755,root,root) %{_bindir}/weston-launch
++%{_bindir}/weston-terminal
++%_libexecdir/weston-*
++%_libdir/weston
++%_datadir/weston
++%{_unitdir_user}/weston.target
++
++%files devel
++%manifest %{name}.manifest
++%_includedir/weston/*.h
++%_libdir/pkgconfig/*.pc
++
++%files clients
++%manifest %{name}.manifest
++%_bindir/weston-simple-touch
++%_bindir/weston-simple-shm
++%_bindir/weston-simple-egl
++%_bindir/weston-flower
++%_bindir/weston-image
++%_bindir/weston-cliptest
++%_bindir/weston-dnd
++%_bindir/weston-smoke
++%_bindir/weston-resizor
++%_bindir/weston-eventdemo
++%_bindir/weston-clickdot
++%_bindir/weston-transformed
++%_bindir/weston-fullscreen
++%_bindir/weston-calibrator
++
++%changelog
+diff --git a/packaging/weston.target b/packaging/weston.target
+new file mode 100644
+index 0000000..2717047
+--- /dev/null
++++ b/packaging/weston.target
+@@ -0,0 +1,5 @@
++
++[Unit]
++Description=Weston Compositor
++Requires=dbus.socket
++AllowIsolate=true
+-- 
+1.8.1.4
+
