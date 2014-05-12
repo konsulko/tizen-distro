@@ -59,7 +59,6 @@ for the recipes.
 	  ${WORKINGDIR}/poky/meta-yocto \
 	  ${WORKINGDIR}/poky/meta-yocto-bsp \
 	  ${WORKINGDIR}/meta-intel \
-	  ${WORKINGDIR}/meta-intel/meta-isg/meta-haswell-wc \
 	  ${WORKINGDIR}/meta-openembedded/meta-efl \
 	  ${WORKINGDIR}/meta-openembedded/meta-oe \
 	  ${WORKINGDIR}/meta-openembedded/meta-multimedia \
@@ -68,7 +67,7 @@ for the recipes.
 	  ${WORKINGDIR}/meta-tizen \
 	  "
 	#For Arch haswell
-	#BBLAYERS_append = "${WORKINGDIR}/meta-intel/meta-haswell-wc "
+	#BBLAYERS_append = "${WORKINGDIR}/meta-intel/meta-isg/meta-haswell-wc "
 	#For Arch Ivy
 	BBLAYERS_append = "${WORKINGDIR}/meta-intel/meta-romley "
 
