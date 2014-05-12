@@ -5,4 +5,3 @@ is suitable for development work."
 
 IMAGE_FEATURES += "dev-pkgs"
 IMAGE_INSTALL += "attr"
-IMAGE_INSTALL += "connman"
