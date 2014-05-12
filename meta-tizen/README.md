@@ -99,12 +99,14 @@ Terminal emulator:
 The terminal emulator you want to use.
 
 # WARNING' tmp add to /etc/sudoers 'WARNING
-1)
-  sudoedit /etc/sudoers
-  ronanguirec ALL=(ALL) NOPASSWD: ALL
+1:
 
-2)
-  bitbake tar-replacement-native
+	sudoedit /etc/sudoers
+	alice ALL=(ALL) NOPASSWD: ALL
+
+2:
+
+	bitbake tar-replacement-native
 
 # Build the Tizen Common image
 
