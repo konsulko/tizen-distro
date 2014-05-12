@@ -52,7 +52,7 @@ for the recipes.
 	BBPATH = "${TOPDIR}"
 	BBFILES ?= ""
 
-	WORKINGDIR=${HOME}/yocto
+	WORKINGDIR="${HOME}/yocto"
 
 	BBLAYERS ?= " \
 	  ${WORKINGDIR}/poky/meta \
