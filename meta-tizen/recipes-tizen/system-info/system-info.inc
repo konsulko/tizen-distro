@@ -25,6 +25,7 @@ RDEPENDS_capi-${PN}-dev += "capi-system-info"
 DEPENDS = ""
 #DEPENDS of capi-system-info 
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
 DEPENDS += "libxml2"
 DEPENDS += "iniparser"

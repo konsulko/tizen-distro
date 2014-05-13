@@ -25,6 +25,7 @@ RDEPENDS_${PN}-dev += "libdevice-node"
 DEPENDS = ""
 #DEPENDS of libdevice-node 
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "vconf"
 DEPENDS += "dlog"
 

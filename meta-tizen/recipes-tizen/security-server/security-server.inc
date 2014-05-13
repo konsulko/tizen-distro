@@ -49,6 +49,7 @@ DEPENDS = ""
 #DEPENDS of security-server 
 DEPENDS += "systemd"
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "attr"
 DEPENDS += "zip"
 DEPENDS += "openssl"

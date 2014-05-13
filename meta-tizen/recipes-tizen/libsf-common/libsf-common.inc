@@ -25,6 +25,7 @@ RDEPENDS_${PN}-dev += "libsf-common"
 DEPENDS = ""
 #DEPENDS of libsf-common 
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "attr"
 DEPENDS += "dlog"
 

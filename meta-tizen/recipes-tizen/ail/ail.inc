@@ -31,6 +31,7 @@ DEPENDS += "xdgmime"
 DEPENDS += "dlog"
 DEPENDS += "sqlite3"
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "vconf"
 DEPENDS += "libslp-db-util"
 

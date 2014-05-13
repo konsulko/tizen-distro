@@ -31,7 +31,9 @@ RDEPENDS_${PN}-dev += "lua"
 DEPENDS = ""
 #DEPENDS of lua 
 DEPENDS_append_class-native = " readline-native"
+DEPENDS_append_class-target = " readline-native"
 DEPENDS_append_class-native = " pkgconfig-native"
+DEPENDS_append_class-target = " pkgconfig-native"
 
 do_prep() {
  cd ${S}

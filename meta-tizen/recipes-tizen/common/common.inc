@@ -25,6 +25,7 @@ RDEPENDS_capi-base-${PN}-dev += "capi-base-common"
 DEPENDS = ""
 #DEPENDS of capi-base-common 
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 
 do_prep() {
  cd ${S}

@@ -25,6 +25,7 @@ RDEPENDS_${PN}-dev += "libtapi"
 DEPENDS = ""
 #DEPENDS of libtapi 
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "security-server"
 DEPENDS += "dlog"
 

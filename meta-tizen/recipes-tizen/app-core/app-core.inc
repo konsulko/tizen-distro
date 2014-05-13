@@ -52,6 +52,7 @@ DEPENDS = ""
 #DEPENDS of app-core 
 DEPENDS += "aul-1"
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "librua"
 DEPENDS += "dlog"
 DEPENDS += "libslp-sensor"

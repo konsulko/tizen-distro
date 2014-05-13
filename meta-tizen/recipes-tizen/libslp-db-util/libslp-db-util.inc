@@ -26,6 +26,7 @@ DEPENDS = ""
 #DEPENDS of libslp-db-util 
 DEPENDS += "sqlite3"
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "icu"
 DEPENDS += "dlog"
 

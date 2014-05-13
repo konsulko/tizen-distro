@@ -31,8 +31,10 @@ RDEPENDS_${PN}-dev += "libsmack"
 DEPENDS = ""
 #DEPENDS of smack 
 DEPENDS_append_class-native = " autoconf-native"
+DEPENDS_append_class-target = " autoconf-native"
 DEPENDS += "libtool-cross"
 DEPENDS_append_class-native = " automake-native"
+DEPENDS_append_class-target = " automake-native"
 
 do_prep() {
  cd ${S}

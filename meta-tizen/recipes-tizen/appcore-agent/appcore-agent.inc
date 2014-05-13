@@ -26,6 +26,7 @@ DEPENDS = ""
 #DEPENDS of appcore-agent 
 DEPENDS += "aul-1"
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
 DEPENDS += "application"
 DEPENDS += "libslp-sysman"

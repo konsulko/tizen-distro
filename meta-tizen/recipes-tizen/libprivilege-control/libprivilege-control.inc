@@ -31,6 +31,7 @@ RDEPENDS_${PN}-dev += "libprivilege-control"
 DEPENDS = ""
 #DEPENDS of libprivilege-control 
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
 DEPENDS += "libiri"
 DEPENDS += "smack"

@@ -37,6 +37,7 @@ RDEPENDS_${PN}-server += "app-checker"
 DEPENDS = ""
 #DEPENDS of app-checker 
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
 
 do_prep() {

@@ -60,6 +60,7 @@ DEPENDS += "pkgmgr-info"
 inherit gettext
 DEPENDS += "unzip"
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "iniparser"
 DEPENDS += "dbus"
 DEPENDS += "security-server"

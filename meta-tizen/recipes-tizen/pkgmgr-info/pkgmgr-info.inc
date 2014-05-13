@@ -37,6 +37,7 @@ RDEPENDS_${PN}-parser-dev += "pkgmgr-info"
 DEPENDS = ""
 #DEPENDS of pkgmgr-info 
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "libxml2"
 DEPENDS += "dbus"
 DEPENDS += "dlog"

@@ -28,6 +28,7 @@ DEPENDS = ""
 inherit gettext
 DEPENDS += "systemd"
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
 
 do_prep() {

@@ -30,6 +30,7 @@ DEPENDS = ""
 #DEPENDS of notification 
 DEPENDS += "aul-1"
 DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "eina"
 DEPENDS += "dbus"
 DEPENDS += "bundle"
