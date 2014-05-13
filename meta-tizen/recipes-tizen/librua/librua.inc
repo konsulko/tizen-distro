@@ -25,7 +25,7 @@ RDEPENDS_${PN}-dev += "librua"
 DEPENDS = ""
 #DEPENDS of librua 
 DEPENDS += "sqlite3"
-DEPENDS += "aul-1"
+#DEPENDS += "aul-1"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "cmake"
 DEPENDS += "libslp-db-util"
