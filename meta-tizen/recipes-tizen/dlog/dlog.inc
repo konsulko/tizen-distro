@@ -130,7 +130,6 @@ do_install() {
  mkdir -p ${D}/usr/bin/
  cp ${WORKDIR}/git/dlogctrl ${D}/usr/bin/dlogctrl
  
- #mkdir -p ${D}/lib/systemd/system/basic.target.wants
  mkdir -p ${D}/lib/systemd/system/multi-user.target.wants
  
  install -m 0644 ${S}/packaging/dlog-main.service ${D}/lib/systemd/system
