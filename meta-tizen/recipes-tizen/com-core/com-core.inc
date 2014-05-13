@@ -26,7 +26,7 @@ DEPENDS = ""
 #DEPENDS of libcom-core 
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "systemd"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"

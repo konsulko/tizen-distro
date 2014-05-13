@@ -25,7 +25,7 @@ RDEPENDS_sensor-dev += "sensor"
 DEPENDS = ""
 #DEPENDS of sensor 
 DEPENDS += "libsf-common"
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "vconf"
 DEPENDS += "glib-2.0"
 

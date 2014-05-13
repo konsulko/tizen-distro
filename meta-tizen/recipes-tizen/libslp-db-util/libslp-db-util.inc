@@ -25,7 +25,7 @@ RDEPENDS_${PN}-dev += "libslp-db-util"
 DEPENDS = ""
 #DEPENDS of libslp-db-util 
 DEPENDS += "sqlite3"
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "icu"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"

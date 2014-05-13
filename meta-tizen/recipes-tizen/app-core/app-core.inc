@@ -51,7 +51,7 @@ RDEPENDS_${PN}-efl-dev += "app-core-common-dev"
 DEPENDS = ""
 #DEPENDS of app-core 
 DEPENDS += "aul-1"
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "librua"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"

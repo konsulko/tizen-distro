@@ -24,7 +24,7 @@ RDEPENDS_${PN}-dev += "eina"
 
 DEPENDS = ""
 #DEPENDS of eina 
-DEPENDS += "aul-1"
+DEPENDS += "doxygen"
 
 do_prep() {
  cd ${S}

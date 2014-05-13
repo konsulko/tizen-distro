@@ -21,7 +21,7 @@ RDEPENDS = ""
 
 DEPENDS = ""
 #DEPENDS of vconf-internal-keys 
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 
 do_prep() {
  cd ${S}

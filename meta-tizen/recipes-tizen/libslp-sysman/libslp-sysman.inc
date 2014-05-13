@@ -31,7 +31,7 @@ RDEPENDS_sysman-dev += "sysman"
 DEPENDS = ""
 #DEPENDS of sysman 
 DEPENDS += "libdevice-node"
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "vconf"
 DEPENDS += "dlog"
 

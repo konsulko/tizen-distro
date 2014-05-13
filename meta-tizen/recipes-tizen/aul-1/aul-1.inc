@@ -30,7 +30,7 @@ DEPENDS = ""
 #DEPENDS of aul 
 DEPENDS += "pkgmgr-info"
 DEPENDS += "librua"
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "attr"
 DEPENDS += "dbus"
 DEPENDS += "tizen-platform-config"

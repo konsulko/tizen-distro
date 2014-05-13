@@ -25,7 +25,7 @@ RDEPENDS_${PN}-dev += "heynoti"
 DEPENDS = ""
 #DEPENDS of heynoti 
 DEPENDS += "ecore"
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 

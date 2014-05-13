@@ -27,7 +27,7 @@ RDEPENDS_${PN}-dev += "libhaptic"
 
 DEPENDS = ""
 #DEPENDS of libhaptic 
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "vconf"
 DEPENDS += "dlog"
 DEPENDS += "common"

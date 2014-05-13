@@ -29,7 +29,7 @@ RDEPENDS_${PN}-dev += "notification"
 DEPENDS = ""
 #DEPENDS of notification 
 DEPENDS += "aul-1"
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "eina"
 DEPENDS += "dbus"
 DEPENDS += "bundle"

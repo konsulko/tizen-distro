@@ -37,7 +37,7 @@ RDEPENDS_${PN}-dev += "glib-2.0"
 DEPENDS = ""
 #DEPENDS of vconf 
 DEPENDS += "vconf-internal-keys"
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 

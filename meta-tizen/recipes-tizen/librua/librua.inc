@@ -25,9 +25,8 @@ RDEPENDS_${PN}-dev += "librua"
 DEPENDS = ""
 #DEPENDS of librua 
 DEPENDS += "sqlite3"
-#DEPENDS += "aul-1"
 DEPENDS += "tizen-platform-config"
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "libslp-db-util"
 
 do_prep() {

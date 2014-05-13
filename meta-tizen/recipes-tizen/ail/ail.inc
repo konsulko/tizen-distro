@@ -30,7 +30,7 @@ DEPENDS = ""
 DEPENDS += "xdgmime"
 DEPENDS += "dlog"
 DEPENDS += "sqlite3"
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "vconf"
 DEPENDS += "libslp-db-util"
 

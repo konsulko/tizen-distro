@@ -59,7 +59,7 @@ DEPENDS += "pkgmgr-info"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
 DEPENDS += "unzip"
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "iniparser"
 DEPENDS += "dbus"
 DEPENDS += "security-server"

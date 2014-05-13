@@ -25,7 +25,7 @@ RDEPENDS_${PN}-dev += "appcore-agent"
 DEPENDS = ""
 #DEPENDS of appcore-agent 
 DEPENDS += "aul-1"
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "application"

@@ -36,7 +36,7 @@ RDEPENDS_${PN}-server += "app-checker"
 
 DEPENDS = ""
 #DEPENDS of app-checker 
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 

@@ -24,7 +24,7 @@ RDEPENDS_${PN}-dev += "libslp-pm"
 
 DEPENDS = ""
 #DEPENDS of libslp-pm 
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 
 do_prep() {
  cd ${S}

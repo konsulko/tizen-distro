@@ -25,7 +25,7 @@ RDEPENDS_capi-media-${PN}-dev += "capi-media-sound-manager"
 DEPENDS = ""
 #DEPENDS of capi-media-sound-manager 
 DEPENDS += "libmm-sound"
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "libmm-session"
 DEPENDS += "dlog"
 DEPENDS += "common"

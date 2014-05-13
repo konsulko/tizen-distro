@@ -24,7 +24,7 @@ RDEPENDS_capi-${PN}-dev += "capi-location-manager"
 
 DEPENDS = ""
 #DEPENDS of capi-location-manager 
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "common"
 DEPENDS += "dlog"
 

@@ -24,7 +24,7 @@ RDEPENDS_${PN}-dev += "xdgmime"
 
 DEPENDS = ""
 #DEPENDS of xdgmime 
-DEPENDS += "cmake"
+DEPENDS_append_class-native = " cmake-native"
 
 do_prep() {
  cd ${S}
