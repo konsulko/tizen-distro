@@ -19,8 +19,8 @@ PROVIDES = ""
 
 RDEPENDS = ""
 #RDEPENDS of aul (aul)
-RDEPENDS_aul += "/usr/bin/systemctl"
-RDEPENDS_aul += "/sbin/ldconfig"
+RDEPENDS_aul += "eglibc"
+RDEPENDS_aul += "systemd"
 
 #RDEPENDS of aul-dev (aul-dev)
 RDEPENDS_aul-dev += "aul"

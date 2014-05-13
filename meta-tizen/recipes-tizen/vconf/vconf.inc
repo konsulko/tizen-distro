@@ -26,8 +26,8 @@ RDEPENDS_${PN}-keys-dev += "vconf"
 RDEPENDS_${PN}-keys-dev += "vconf-internal-keys-dev"
 
 #RDEPENDS of vconf (${PN})
+RDEPENDS_${PN} += "eglibc"
 RDEPENDS_${PN} += "systemd"
-RDEPENDS_${PN} += "/sbin/ldconfig"
 
 #RDEPENDS of vconf-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "vconf"

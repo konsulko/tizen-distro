@@ -22,8 +22,8 @@ PROVIDES = ""
 
 RDEPENDS = ""
 #RDEPENDS of avsystem (${PN})
-RDEPENDS_${PN} += "/usr/bin/systemctl"
-RDEPENDS_${PN} += "/sbin/ldconfig"
+RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "systemd"
 
 #RDEPENDS of avsystem-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "avsystem"
@@ -31,13 +31,13 @@ RDEPENDS_${PN}-dev += "avsystem"
 
 DEPENDS = ""
 #DEPENDS of avsystem 
+DEPENDS += "alsa-lib"
 DEPENDS += "libmm-log"
 DEPENDS += "pulseaudio"
 DEPENDS += "iniparser"
 DEPENDS += "libexif"
 DEPENDS += "alsa-state"
 DEPENDS += "libmm-ta"
-DEPENDS += "alsa"
 
 do_prep() {
  cd ${S}

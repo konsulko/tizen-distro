@@ -24,7 +24,6 @@ DEPENDS = ""
 DEPENDS += "flex"
 DEPENDS += "gcc-cross"
 DEPENDS_append_class-native = " bison-native"
-DEPENDS_append_class-target = " bison"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
 

@@ -7,17 +7,21 @@ SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools
+inherit autotools-brokensep
 
 PROVIDES = ""
 
 #PROVIDES by smack-dev 
 
+
 #PROVIDES by smack 
+
 
 #PROVIDES by libsmack 
 
+
 #PROVIDES by smack-docs  
+
 
 RDEPENDS = ""
 #RDEPENDS of smack-dev (${PN}-dev)
@@ -26,9 +30,9 @@ RDEPENDS_${PN}-dev += "libsmack"
 
 DEPENDS = ""
 #DEPENDS of smack 
-DEPENDS += "autoconf-native"
+DEPENDS_append_class-native = " autoconf-native"
 DEPENDS += "libtool-cross"
-DEPENDS += "automake-native"
+DEPENDS_append_class-native = " automake-native"
 
 do_prep() {
  cd ${S}
@@ -141,3 +145,4 @@ PKG_libsmack= "libsmack"
 PKG_smack-docs= "smack-docs"
 
 require smack-extraconf.inc
+

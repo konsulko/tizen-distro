@@ -34,8 +34,8 @@ RDEPENDS_${PN}-sdk-dev += "libmm-sound-dev"
 RDEPENDS_${PN}-tool += "libmm-sound"
 
 #RDEPENDS of libmm-sound (${PN})
-RDEPENDS_${PN} += "/usr/bin/vconftool"
-RDEPENDS_${PN} += "/sbin/ldconfig"
+RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "vconf"
 
 
 DEPENDS = ""

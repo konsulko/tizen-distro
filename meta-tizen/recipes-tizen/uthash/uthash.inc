@@ -7,13 +7,15 @@ SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools
+inherit autotools-brokensep
 
 PROVIDES = ""
 
 #PROVIDES by uthash 
 
+
 #PROVIDES by uthash-dev 
+
 
 RDEPENDS = ""
 
@@ -79,3 +81,4 @@ FILES_${PN}-dev = "${uthash-dev_files}"
 PKG_uthash-dev= "uthash-dev"
 
 require uthash-extraconf.inc
+

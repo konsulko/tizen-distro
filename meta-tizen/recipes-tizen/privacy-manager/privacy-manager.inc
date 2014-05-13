@@ -34,7 +34,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-client += "privacy-manager-server"
 
 #RDEPENDS of privacy-manager-server (${PN}-server)
-RDEPENDS_${PN}-server += "/sbin/ldconfig"
+RDEPENDS_${PN}-server += "eglibc"
 
 #RDEPENDS of privacy-manager-server-dev (${PN}-server-dev)
 RDEPENDS_${PN}-server-dev += "privacy-manager-server"

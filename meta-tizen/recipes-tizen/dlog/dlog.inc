@@ -26,7 +26,7 @@ PROVIDES = ""
 RDEPENDS = ""
 #RDEPENDS of dlogutil (${PN}util)
 RDEPENDS_${PN}util += "libdlog"
-RDEPENDS_${PN}util += "/usr/bin/systemctl"
+RDEPENDS_${PN}util += "systemd"
 
 #RDEPENDS of libdlog-dev (lib${PN}-dev)
 RDEPENDS_lib${PN}-dev += "libdlog"

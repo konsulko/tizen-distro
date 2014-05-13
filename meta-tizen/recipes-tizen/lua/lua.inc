@@ -13,11 +13,15 @@ PROVIDES = ""
 
 #PROVIDES by lua 
 
+
 #PROVIDES by lua-dev 
+
 
 #PROVIDES by liblua 
 
+
 #PROVIDES by lua-doc 
+
 
 RDEPENDS = ""
 #RDEPENDS of lua-dev (${PN}-dev)
@@ -26,9 +30,8 @@ RDEPENDS_${PN}-dev += "lua"
 
 DEPENDS = ""
 #DEPENDS of lua 
-DEPENDS += "pkgconfig-native"
 DEPENDS_append_class-native = " readline-native"
-DEPENDS_append_class-target = " readline"
+DEPENDS_append_class-native = " pkgconfig-native"
 
 do_prep() {
  cd ${S}
@@ -55,7 +58,7 @@ do_compile() {
  FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
  LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
  
- sed -i 's:LUA_ROOT2 "LIBDIR/lua/5.1/":LUA_ROOT2 \"lib/lua/5.1/":' ${S}/src/luaconf.h
+ sed -i 's:LUA_ROOT2 "LIBDIR/lua/5.1/":LUA_ROOT2 \"lib/lua/5.1/":' src/luaconf.h
  make -j16 -C src CC="gcc" MYCFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -fPIC -DLUA_USE_LINUX" MYLIBS="-Wl,-E -ldl -lreadline -lhistory -lncurses" V=5.1 all
  
  
@@ -133,3 +136,4 @@ PKG_liblua= "liblua"
 PKG_lua-doc= "lua-doc"
 
 require lua-extraconf.inc
+
