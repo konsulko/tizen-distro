@@ -14,4 +14,4 @@ DESCRIPTION = "A weston image with Tizen common."
 
 IMAGE_INSTALL += "connman"
 IMAGE_INSTALL += "weston-common"
-IMAGE_INSTALL += "crosswalk"
+#IMAGE_INSTALL += "crosswalk"
