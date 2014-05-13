@@ -126,10 +126,11 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  mkdir -p ${D}/opt/etc/dump.d/default.d
- cp ${WORKDIR}/git/dlog_dump.sh ${D}/opt/etc/dump.d/default.d/dlog_dump.sh
+ cp ${WORKDIR}/dlog-0.4.1/dlog_dump.sh ${D}/opt/etc/dump.d/default.d/dlog_dump.sh
  mkdir -p ${D}/usr/bin/
- cp ${WORKDIR}/git/dlogctrl ${D}/usr/bin/dlogctrl
+ cp ${WORKDIR}/dlog-0.4.1/dlogctrl ${D}/usr/bin/dlogctrl
  
+ mkdir -p ${D}/lib/systemd/system/basic.target.wants
  mkdir -p ${D}/lib/systemd/system/multi-user.target.wants
  
  install -m 0644 ${S}/packaging/dlog-main.service ${D}/lib/systemd/system

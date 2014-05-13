@@ -154,17 +154,17 @@ do_install() {
  mkdir -p ${D}${sysconfdir}/udev/rules.d
  cat >${D}${sysconfdir}/udev/rules.d/99-dri.rules <<'EOF'
  SUBSYSTEM=="drm", MODE="0660", GROUP="display", SMACK="*"
- EOF
+EOF
  
  # user 'display' must own /dev/tty7 for weston to start correctly
  cat >${D}${sysconfdir}/udev/rules.d/99-tty.rules <<'EOF'
  SUBSYSTEM=="tty", KERNEL=="tty7", OWNER="display", SMACK="^"
- EOF
+EOF
  
  # user 'display' must also be able to access /dev/input/event*
  cat >${D}${sysconfdir}/udev/rules.d/99-input.rules <<'EOF'
  SUBSYSTEM=="input", KERNEL=="event*", MODE="0660", GROUP="input", SMACK="^"
- EOF
+EOF
  
  # install desktop file
  mkdir -p ${D}${prefix}/share/applications

@@ -72,10 +72,8 @@ do_install() {
  install -m 644 src/*.h ${D}/${prefix}/include
  install -m 644 src/*.h ${D}/${prefix}/include
  mkdir -p ${D}/${prefix}/lib/pkgconfig
-
- #cat > ${D}/${prefix}/lib/pkgconfig/iniparser.pc <<EOF
-
- echo "prefix = ${prefix}
+ cat > ${D}/${prefix}/lib/pkgconfig/iniparser.pc <<EOF
+ prefix = ${prefix}
  exec_prefix = ${prefix}
  libdir = ${prefix}/lib
  includedir = ${prefix}/include
@@ -84,9 +82,9 @@ do_install() {
  Description : a free stand-alone ini file parsing library.
  Version : 2.17
  Libs : -L\${libdir} -liniparser
- Cflags : -I\${includedir}" > ${D}/${prefix}/lib/pkgconfig/iniparser.pc
+ Cflags : -I\${includedir}
  
- #EOF
+EOF
  
 }
 
