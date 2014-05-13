@@ -37,7 +37,6 @@ DEPENDS = ""
 DEPENDS += "avsystem"
 DEPENDS += "libmm-common"
 DEPENDS += "security-server"
-DEPENDS += "glib-2.0"
 DEPENDS += "libslp-sysman"
 DEPENDS += "vconf"
 

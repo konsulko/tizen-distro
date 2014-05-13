@@ -33,7 +33,6 @@ DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "iniparser"
 DEPENDS += "dbus"
 DEPENDS += "bundle"
-DEPENDS += "glib-2.0"
 DEPENDS += "xdgmime"
 DEPENDS += "ail"
 DEPENDS += "dlog"
@@ -80,8 +79,7 @@ do_compile() {
          -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON \
-         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake . \
+         -DBUILD_SHARED_LIBS:BOOL=ON . \
  -Dwith_wayland=TRUE
  
  make -j16

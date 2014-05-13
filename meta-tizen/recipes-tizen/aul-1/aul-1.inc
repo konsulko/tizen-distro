@@ -84,8 +84,7 @@ do_compile() {
          -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON \
-         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake . -DWITH_WAYLAND=On
+         -DBUILD_SHARED_LIBS:BOOL=ON . -DWITH_WAYLAND=On
  
  make -j16
  

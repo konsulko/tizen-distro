@@ -27,7 +27,6 @@ DEPENDS = ""
 DEPENDS += "aul-1"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS += "dlog"
-DEPENDS += "glib-2.0"
 DEPENDS += "application"
 DEPENDS += "libslp-sysman"
 DEPENDS += "libslp-pm"
@@ -71,8 +70,7 @@ do_compile() {
          -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON \
-         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake .
+         -DBUILD_SHARED_LIBS:BOOL=ON .
  make -j16
  
  

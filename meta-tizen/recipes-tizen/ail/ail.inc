@@ -73,8 +73,7 @@ do_compile() {
          -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON \
-         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake .  -DBUILD_PKGTYPE=rpm \
+         -DBUILD_SHARED_LIBS:BOOL=ON .  -DBUILD_PKGTYPE=rpm \
  		  -DSMACK=Off
  
  make -j16
