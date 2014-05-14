@@ -18,7 +18,7 @@ directory amongst projects:
 
 # Download sources
 
-Downlaod Poky (patched version for rpm 4 support):
+Downlaod Poky (tmp fork, poky is patched version for rpm 4 support):
 
 	git clone git@github.com:eurogiciel-oss/poky.git
 
@@ -32,7 +32,7 @@ Download openembedded layers:
 
 Download tizen layer:
 
-	git clone git@github.com:eurogiciel-oss/meta-tizen.git
+	git clone ssh://${YOURID}@review.tizen.org:29418/scm/bb/meta-tizen
 
 # Configuration
 
