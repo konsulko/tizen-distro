@@ -66,7 +66,7 @@ do_compile() {
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
          --infodir=${infodir}
- make -j16
+ oe_runmake -j16
  
  
  
@@ -99,6 +99,7 @@ tizen-platform-wrapper_files = ""
 tizen-platform-wrapper_files += "tizen-platform-wrapper.manifest"
 tizen-platform-wrapper_files += "${prefix}/bin/*"
 tizen-platform-wrapper_files += "${prefix}/share/tizen-platform-wrapper/*"
+tizen-platform-wrapper_files += "${prefix}/lib/pkgconfig/tizen-platform-wrapper.pc"
 
 FILES_${PN} = "${tizen-platform-wrapper_files}"
 
