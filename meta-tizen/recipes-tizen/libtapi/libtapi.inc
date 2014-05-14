@@ -1,6 +1,6 @@
-DESCRIPTION = "Telephony dbus client library"
+DESCRIPTION = "Telephony client API library"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "System/Libraries"
+SECTION = "Telephony/Libraries"
 LICENSE = "Apache-2.0"
 
 SRC_URI = ""
@@ -11,30 +11,31 @@ inherit autotools-brokensep
 
 PROVIDES = ""
 
-#PROVIDES by libtapi-dev 
+#PROVIDES by libtapi3 
 
 
-#PROVIDES by libtapi 
+#PROVIDES by libtapi3-dev 
 
 
 RDEPENDS = ""
-#RDEPENDS of libtapi-dev (${PN}-dev)
-RDEPENDS_${PN}-dev += "libtapi"
+#RDEPENDS of libtapi3-dev (${PN}3-dev)
+RDEPENDS_${PN}3-dev += "libtapi3"
 
 
 DEPENDS = ""
-#DEPENDS of libtapi 
+#DEPENDS of libtapi3 
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
+inherit pythonnative
 DEPENDS += "security-server"
 DEPENDS += "dlog"
+DEPENDS += "python-xml"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
  cp ${S}/packaging/libtapi.manifest .
- 
  
  
 }
@@ -68,8 +69,7 @@ do_compile() {
          -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON .
- 
+         -DBUILD_SHARED_LIBS:BOOL=ON . -DTAPI_VERSION=3.0.1
  
  make -j16
  
@@ -86,7 +86,6 @@ do_install() {
  rm -rf ${D} 
  mkdir -p ${D} 
  
- rm -rf ${D}
  
    oe_runmake \
          DESTDIR=${D} \
@@ -97,29 +96,30 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- rm -rf ${D}/usr/include/telephony/tapi/.gitignore
- mkdir -p ${D}/usr/share/license
- 
  
 }
 
+PACKAGES += " libtapi3 "
+PACKAGES += " libtapi3-dev "
 
-libtapi-dev_files = ""
-libtapi-dev_files += "libtapi.manifest"
-libtapi-dev_files += "${prefix}/include/telephony-client/*.h"
-libtapi-dev_files += "${prefix}/lib/pkgconfig/*.pc"
-libtapi-dev_files += "${prefix}/lib/*.so"
+libtapi3_files = ""
+libtapi3_files += "libtapi.manifest"
+libtapi3_files += "${prefix}/lib/*.so*"
+libtapi3_files += "${prefix}/bin/tapitest"
 
-libtapi_files = ""
-libtapi_files += "libtapi.manifest"
-libtapi_files += "${prefix}/lib/*.so.*"
-libtapi_files += "/usr/share/license/libtapi"
+libtapi3-dev_files = ""
+libtapi3-dev_files += "libtapi.manifest"
+libtapi3-dev_files += "${prefix}/include/tapi-3.0/*.h"
+libtapi3-dev_files += "${prefix}/include/tapi-3.0/common/*.h"
+libtapi3-dev_files += "${prefix}/include/tapi-3.0/private/*.h"
+libtapi3-dev_files += "${prefix}/lib/pkgconfig/*.pc"
+libtapi3-dev_files += "${prefix}/lib/*.so"
 
-FILES_${PN}-dev = "${libtapi-dev_files}"
-FILES_${PN} = "${libtapi_files}"
+FILES_${PN} = "${libtapi3_files}"
+FILES_${PN}-dev = "${libtapi3-dev_files}"
 
-PKG_libtapi-dev= "libtapi-dev"
-PKG_libtapi= "libtapi"
+PKG_libtapi3= "libtapi3"
+PKG_libtapi3-dev= "libtapi3-dev"
 
 require libtapi-extraconf.inc
 

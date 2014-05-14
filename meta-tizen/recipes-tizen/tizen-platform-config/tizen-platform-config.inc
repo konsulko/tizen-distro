@@ -82,13 +82,11 @@ do_compile() {
          --localstatedir=${localstatedir} \
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
-         --infodir=${infodir} \
-     --disable-static
- 
- make -j16
+         --infodir=${infodir} --disable-static
+ oe_runmake -j16
  
  exit 0
- make check
+ oe_runmake check
  
  
  
