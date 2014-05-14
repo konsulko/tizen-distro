@@ -36,8 +36,7 @@ RDEPENDS_libtzplatform-config += "tizen-platform-config"
 
 DEPENDS = ""
 #DEPENDS of tizen-platform-config 
-DEPENDS_append_class-native = " tizen-platform-wrapper-native"
-DEPENDS_append_class-target = " tizen-platform-wrapper-native"
+DEPENDS += "tizen-platform-wrapper"
 
 do_prep() {
  cd ${S}
