@@ -33,6 +33,8 @@ RDEPENDS_lib${PN}-dev += "libdlog"
 
 
 DEPENDS = ""
+#DEPENDS of dlog 
+DEPENDS += "tizen-platform-config"
 
 do_prep() {
  cd ${S}
@@ -125,20 +127,22 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/opt/etc/dump.d/default.d
- cp ${WORKDIR}/dlog-0.4.1/dlog_dump.sh ${D}/opt/etc/dump.d/default.d/dlog_dump.sh
+ mkdir -p ${D}%{TZ_SYS_ETC}/dump.d/default.d
+ cp dlog_dump.sh ${D}%{TZ_SYS_ETC}/dump.d/default.d/dlog_dump.sh
  mkdir -p ${D}/usr/bin/
- cp ${WORKDIR}/dlog-0.4.1/dlogctrl ${D}/usr/bin/dlogctrl
+ cp dlogctrl ${D}/usr/bin/dlogctrl
  
- mkdir -p ${D}/lib/systemd/system/basic.target.wants
  mkdir -p ${D}/lib/systemd/system/multi-user.target.wants
  
  install -m 0644 ${S}/packaging/dlog-main.service ${D}/lib/systemd/system
  install -m 0644 ${S}/packaging/dlog-radio.service ${D}/lib/systemd/system
  
- ln -s ../dlog-main.service ${D}/lib/systemd/system/multi-user.target.wants/dlog-main.service
- ln -s ../dlog-radio.service ${D}/lib/systemd/system/multi-user.target.wants/dlog-radio.service
  
+ mkdir -p ${D}//lib/systemd/system/multi-user.target.wants 
+ ln -s ../dlog-main.service  ${D}//lib/systemd/system/multi-user.target.wants/dlog-main.service  
+ 
+ mkdir -p ${D}//lib/systemd/system/multi-user.target.wants 
+ ln -s ../dlog-radio.service  ${D}//lib/systemd/system/multi-user.target.wants/dlog-radio.service  
  
  
 }
@@ -153,7 +157,7 @@ libdlog_files += "${prefix}/lib/libdlog.so.*"
 
 dlogutil_files = ""
 dlogutil_files += "dlog.manifest"
-dlogutil_files += "/opt/etc/dump.d/default.d/dlog_dump.sh"
+dlogutil_files += "%{TZ_SYS_ETC}/dump.d/default.d/dlog_dump.sh"
 dlogutil_files += "${prefix}/bin/dlogutil"
 dlogutil_files += "${prefix}/bin/dlogctrl"
 dlogutil_files += "/lib/systemd/system/dlog-main.service"
