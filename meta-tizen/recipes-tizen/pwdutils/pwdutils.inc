@@ -87,22 +87,21 @@ do_install() {
  rm -rf ${D} 
  mkdir -p ${D} 
  
- make install DESTDIR=$RPM_BUILD_ROOT
- rm -f $RPM_BUILD_ROOT${prefix}/lib/pwdutils/lib*.so
- #mkdir $RPM_BUILD_ROOT/lib
- #mv $RPM_BUILD_ROOT${prefix}/lib/security $RPM_BUILD_ROOT/lib
+ make install DESTDIR=${D}
+ rm -f ${D}${prefix}/lib/pwdutils/lib*.so
  /sbin/ldconfig -n ${prefix}/lib/pwdutils
- rm -f $RPM_BUILD_ROOT${prefix}/lib/pwdutils/*a
- rm -f $RPM_BUILD_ROOT/lib/security/*a
  
- rm -f ${D}/etc/init.d/rpasswdd
- rm -f ${D}/etc/pam.d/rpasswd
- rm -f ${D}/etc/rpasswd.conf
- rm -f ${D}/usr/bin/rpasswd
- rm -f ${D}/usr/sbin/rpasswdd
- ln -sf newgrp $RPM_BUILD_ROOT${prefix}/bin/sg
- install -m 644 $RPM_SOURCE_DIR/useradd.default $RPM_BUILD_ROOT/etc/default/useradd
- echo ".so man8/useradd.8" > $RPM_BUILD_ROOT${mandir}/man8/adduser.8
+ rm -f ${D}${prefix}/lib/pwdutils/*a
+ rm -f ${D}lib/security/*a
+ rm -f ${D}${sysconfdir}/init.d/rpasswdd
+ rm -f ${D}${sysconfdir}/pam.d/rpasswd
+ rm -f ${D}${sysconfdir}/rpasswd.conf
+ rm -f ${D}${prefix}/bin/rpasswd
+ rm -f ${D}${prefix}/sbin/rpasswdd
+ 
+ ln -sf newgrp ${D}${prefix}/bin/sg
+ install -m 644 ${S}/packaging/useradd.default ${D}${sysconfdir}/default/useradd
+ echo ".so man8/useradd.8" > ${D}${mandir}/man8/adduser.8
  
  
  
@@ -114,17 +113,17 @@ pwdutils-docs_files = ""
 
 pwdutils_files = ""
 pwdutils_files += "pwdutils.manifest"
-pwdutils_files += "/etc/login.defs"
-pwdutils_files += "/etc/pam.d/chage"
-pwdutils_files += "/etc/pam.d/chfn"
-pwdutils_files += "/etc/pam.d/chsh"
-pwdutils_files += "/etc/pam.d/passwd"
-pwdutils_files += "/etc/pam.d/shadow"
-pwdutils_files += "/etc/pam.d/useradd"
-pwdutils_files += "/etc/default/useradd"
-pwdutils_files += "/etc/default/passwd"
-pwdutils_files += "/etc/pwdutils"
-pwdutils_files += "/etc/pwdutils/logging"
+pwdutils_files += "${sysconfdir}/login.defs"
+pwdutils_files += "${sysconfdir}/pam.d/chage"
+pwdutils_files += "${sysconfdir}/pam.d/chfn"
+pwdutils_files += "${sysconfdir}/pam.d/chsh"
+pwdutils_files += "${sysconfdir}/pam.d/passwd"
+pwdutils_files += "${sysconfdir}/pam.d/shadow"
+pwdutils_files += "${sysconfdir}/pam.d/useradd"
+pwdutils_files += "${sysconfdir}/default/useradd"
+pwdutils_files += "${sysconfdir}/default/passwd"
+pwdutils_files += "${sysconfdir}/pwdutils"
+pwdutils_files += "${sysconfdir}/pwdutils/logging"
 pwdutils_files += "${prefix}/bin/sg"
 pwdutils_files += "${prefix}/sbin/chpasswd"
 pwdutils_files += "${prefix}/sbin/groupadd"
