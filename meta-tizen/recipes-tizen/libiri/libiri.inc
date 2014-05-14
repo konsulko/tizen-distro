@@ -25,10 +25,8 @@ RDEPENDS_${PN}-dev += "libiri"
 DEPENDS = ""
 #DEPENDS of libiri 
 DEPENDS_append_class-native = " autoconf-native"
-DEPENDS_append_class-target = " autoconf-native"
 DEPENDS += "libtool-cross"
 DEPENDS_append_class-native = " automake-native"
-DEPENDS_append_class-target = " automake-native"
 
 do_prep() {
  cd ${S}
@@ -55,7 +53,6 @@ do_compile() {
  FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
  LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
  
- sh ./autogen.sh
  
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
    CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
@@ -100,7 +97,6 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- 
  
  
  
