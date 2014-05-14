@@ -3,4 +3,5 @@ PV = "1.6.0+git${SRCPV}"
 
 DEFAULT_PREFERENCE = "100"
 
-SRC_URI = "git://git.yoctoproject.org/pseudo;branch=seebs/xattr"
+SRC_URI = "git://git.yoctoproject.org/pseudo;branch=seebs/xattr \
+		   file://pseudo-xattr.patch"
