@@ -150,7 +150,7 @@ do_compile() {
  autoreconf -i -f
  ./configure --disable-dependency-tracking --prefix=${prefix} --mandir=${mandir} --infodir=${infodir} \
  --libdir=${prefix}/lib --sysconfdir=/etc --localstatedir=/var  --with-lua \
- --with-acl --with-cap  --enable-shared  --with-msm $BUILDTARGET
+ --with-acl --with-cap  --enable-shared  --with-msm $BUILDTARGET --host=x86_64-linux-gnu
  
  make -j16
  ### BUILD END ###
