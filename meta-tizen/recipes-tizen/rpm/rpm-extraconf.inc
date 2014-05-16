@@ -13,7 +13,7 @@ DEPENDS += "python"
 
 CFLAGS_append = " -DRPM_VENDOR_OE "
 
-BBCLASSEXTEND += " nativesdk "
+#BBCLASSEXTEND += " nativesdk "
 
 do_compile_prepend() {
  cd ${S}
@@ -176,7 +176,7 @@ do_install() {
   _target="";
   _symlinks=0;
 
- sh ${D}${prefix}/lib/rpm/find-lang.sh ${D} rpm
+ #sh ${D}${prefix}/lib/rpm/find-lang.sh ${D} rpm
 
 
 
