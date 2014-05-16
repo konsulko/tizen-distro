@@ -9,8 +9,11 @@ DEPENDS += "uthash-native"
 DEPENDS += "smack-native"
 DEPENDS += "acl-native"
 DEPENDS += "lua-native"
+DEPENDS += "python"
 
 CFLAGS_append = " -DRPM_VENDOR_OE "
+
+BBCLASSEXTEND += " nativesdk "
 
 do_compile_prepend() {
  cd ${S}
@@ -31,6 +34,7 @@ do_compile_prepend() {
  export CCFLAGS+=" -fPIC "
  export CXXFLAGS+=" -fPIC "
  export CFLAGS+=" -fPIC "
+
  cd db3
  ./configure --build=${TARGET_SYS} --host=x86_64-linux-gnu
  cd ..
@@ -39,10 +43,59 @@ do_compile_prepend() {
 
  export CFLAGS+=" -DRPM_VENDOR_OE "
 }
-do_install_append() {
- mkdir -p ${D}${prefix}/lib/rpm/bin
- ln -s ../debugedit ${D}${prefix}/lib/rpm/bin/debugedit
- ln -s ../rpmdeps ${D}${prefix}/lib/rpm/bin/rpmdeps-oecore
+
+do_compile() {
+ cd ${S}
+ LANG=C
+ export LANG
+ unset DISPLAY
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+
+ CPPFLAGS="$CPPFLAGS `pkg-config --cflags nss`"
+ export CPPFLAGS
+ export CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -ffunction-sections"
+ export LDFLAGS="${LDFLAGS} -Wl,-Bsymbolic-functions -ffunction-sections"
+
+ BUILDTARGET="--host=x86_64-linux-gnu "
+
+
+   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ;
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+   autoreconf -i -f
+   ./configure   --host=${HOST_SYS} \
+         --target=x86_64-tizen-linux \
+         --program-prefix= \
+         --prefix=${prefix} \
+         --exec-prefix=${prefix} \
+         --bindir=${prefix}/bin \
+         --sbindir=${prefix}/sbin \
+         --sysconfdir=${sysconfdir} \
+         --datadir=${prefix}/share \
+         --includedir=${prefix}/include \
+         --libdir=${prefix}/lib \
+         --libexecdir=${prefix}/libexec \
+         --localstatedir=${localstatedir} \
+         --sharedstatedir=${prefix}/com \
+         --mandir=${mandir} \
+         --infodir=${infodir} \
+     --disable-dependency-tracking \
+     --with-lua \
+     --with-acl \
+     --with-cap \
+     --enable-shared \
+     --with-python-inc-dir=${STAGING_INCDIR}/python${PYTHON_BASEVERSION} \
+     --with-python-lib-dir=${libdir}/python${PYTHON_BASEVERSION}/site-packages \
+     --with-msm \
+     $BUILDTARGET
+
+ make -j16
+
+
+
 }
 
 do_install() {
@@ -67,11 +120,6 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f --
    find ${D} -regex ".*\.a$" | xargs rm -f --
  install -m 644 db3/db.h ${D}${prefix}/include/rpm
- # remove .la file and the static variant of libpopt
- # have to remove the dependency from other .la files as well
- #for f in ${D}/${prefix}/lib/*.la; do
- #    sed -i -e "s,/lib/libpopt.la,-lpopt,g" $f
- #done
  mkdir -p ${D}${sysconfdir}/rpm
  cp -a tizen_macros ${D}${prefix}/lib/rpm
  mkdir -p ${D}${prefix}/lib/rpm/tizen
@@ -87,7 +135,7 @@ do_install() {
  for d in ${D}${prefix}/lib/rpm/platform/*-linux/macros ; do
    dd=${d%-linux/macros}
    dd=${dd##*/}
-   mkdir ${D}${prefix}/src/packages/RPMS/$dd
+   mkdir -p ${D}${prefix}/src/packages/RPMS/$dd
    chmod 755 ${D}${prefix}/src/packages/RPMS/$dd
  done
  mkdir -p ${D}${localstatedir}/lib/rpm
@@ -95,14 +143,14 @@ do_install() {
  export RPM_BUILD_ROOT
  chmod 755 doc/manual
  rm -rf doc/manual/Makefile*
- rm -f ${D}/usr/lib/rpmpopt
+ rm -f ${D}${prefix}/lib/rpmpopt
  rm -rf ${D}${mandir}/{fr,ja,ko,pl,ru,sk}
  rm -f ${D}${prefix}/share/locale/de/LC_MESSAGES/rpm.mo
  rm -f ${D}${prefix}/lib/rpm/cpanflute ${D}${prefix}/lib/rpm/cpanflute2
  install -m 755 scripts/find-supplements{,.ksyms} ${D}${prefix}/lib/rpm
  install -m 755 scripts/firmware.prov ${D}${prefix}/lib/rpm
  install -m 755 scripts/debuginfo.prov ${D}${prefix}/lib/rpm
- rm -f ${D}${prefix}/lib/locale ${D}/usr/lib/rpmrc
+ rm -f ${D}${prefix}/lib/locale ${D}${prefix}/lib/rpmrc
  mkdir -p ${D}${sysconfdir}/rpm
  chmod 755 ${D}${sysconfdir}/rpm
  mkdir -p ${D}${prefix}/lib/rpm/macros.d
@@ -121,19 +169,34 @@ do_install() {
    fi
  done
  popd
- rm -rf ${D}/${prefix}/lib/python2.7
  rm -f ${D}${prefix}/lib/*.la
  rm -f ${D}${prefix}/lib/rpm-plugins/*.la
 
- rm     ${D}${prefix}/bin/rpmgraph
- rm -fr ${D}${localstatedir}/tmp
- rm -fr ${D}${localstatedir}/volatile
+
+  _target="";
+  _symlinks=0;
+
+ sh ${D}${prefix}/lib/rpm/find-lang.sh ${D} rpm
+
+
+
+}
+
+
+
+do_install_append() {
+ rm -fr ${D}/var/tmp
+ rm -fr ${D}/var/volatile
+
+ mkdir -p ${D}${prefix}/lib/rpm/bin
+ ln -s ../debugedit ${D}${prefix}/lib/rpm/bin/debugedit
+ ln -s ../rpmdeps ${D}${prefix}/lib/rpm/bin/rpmdeps-oecore
 }
 
 FILES_${PN}-dbg += "\
     ${libdir}/rpm-plugins/.debug/* \
     "
-
+PROVIDES += " python-rpm "
 
 DEPENDS_native += "popt-native"
 DEPENDS_native += "uthash-native"
