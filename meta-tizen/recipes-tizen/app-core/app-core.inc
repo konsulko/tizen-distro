@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by app-core-efl 
@@ -55,6 +56,7 @@ DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "librua"
 DEPENDS += "dlog"
+DEPENDS += "glib-2.0"
 DEPENDS += "libslp-sensor"
 DEPENDS += "elementary"
 DEPENDS += "ecore"

@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by libmm-common-dev 
@@ -25,6 +26,7 @@ RDEPENDS_${PN}-dev += "libmm-common"
 DEPENDS = ""
 #DEPENDS of libmm-common 
 DEPENDS += "libmm-log"
+DEPENDS += "glib-2.0"
 
 do_prep() {
  cd ${S}

@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by capi-base-common-dev 

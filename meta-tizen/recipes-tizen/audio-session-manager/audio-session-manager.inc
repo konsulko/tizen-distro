@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by audio-session-manager-dev 
@@ -37,6 +38,7 @@ DEPENDS = ""
 DEPENDS += "avsystem"
 DEPENDS += "libmm-common"
 DEPENDS += "security-server"
+DEPENDS += "glib-2.0"
 DEPENDS += "libslp-sysman"
 DEPENDS += "vconf"
 

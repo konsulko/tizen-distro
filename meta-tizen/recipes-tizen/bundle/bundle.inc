@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by bundle-dev 
@@ -27,6 +28,7 @@ DEPENDS = ""
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
+DEPENDS += "glib-2.0"
 
 do_prep() {
  cd ${S}

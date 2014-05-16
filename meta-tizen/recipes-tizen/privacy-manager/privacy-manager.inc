@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by privacy-manager-client 
@@ -59,6 +60,7 @@ DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "libxml2"
 DEPENDS += "dbus"
 DEPENDS += "dlog"
+DEPENDS += "glib-2.0"
 DEPENDS += "system-info"
 DEPENDS += "common"
 DEPENDS += "sqlite3"

@@ -6,5 +6,5 @@ LIC_FILES_CHKSUM ??= "file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd64
 
 SRC_URI += "git://review.tizen.org/platform/core/multimedia/avsystem;tag=57e12ce4c38bccf9aa47ce2b9d1d7ac57d1e5d65;nobranch=1"
 
-BBCLASSEXTEND = "native"
+BBCLASSEXTEND += " native "
 

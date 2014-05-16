@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by app-svc 
@@ -34,6 +35,7 @@ DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "iniparser"
 DEPENDS += "dbus"
 DEPENDS += "bundle"
+DEPENDS += "glib-2.0"
 DEPENDS += "xdgmime"
 DEPENDS += "ail"
 DEPENDS += "dlog"

@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by libcom-core 
@@ -26,10 +27,11 @@ DEPENDS = ""
 #DEPENDS of libcom-core 
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
-DEPENDS += "systemd"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
+DEPENDS += "systemd"
 DEPENDS += "dlog"
+DEPENDS += "glib-2.0"
 
 do_prep() {
  cd ${S}

@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by crosswalk 
@@ -42,6 +43,7 @@ DEPENDS += "freetype"
 DEPENDS += "gperf"
 inherit pythonnative
 DEPENDS += "pkgmgr-info"
+DEPENDS += "glib-2.0"
 DEPENDS += "libdrm"
 DEPENDS += "python-xml"
 DEPENDS_append_class-native = " ninja-native"

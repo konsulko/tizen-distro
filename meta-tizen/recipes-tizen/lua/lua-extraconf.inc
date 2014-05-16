@@ -14,3 +14,6 @@ do_compile() {
 
 
 }
+
+BBCLASSEXTEND += " nativesdk "
+

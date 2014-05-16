@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by libtapi-dev 
@@ -27,10 +28,11 @@ RDEPENDS_libtapi-dev += "libtapi"
 
 DEPENDS = ""
 #DEPENDS of libtapi 
-DEPENDS += "libtapi"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "security-server"
+DEPENDS += "libtapi"
+DEPENDS += "glib-2.0"
 DEPENDS += "dlog"
 
 do_prep() {

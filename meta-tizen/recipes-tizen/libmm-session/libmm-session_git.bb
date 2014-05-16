@@ -6,5 +6,5 @@ LIC_FILES_CHKSUM ??= "file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd64
 
 SRC_URI += "git://review.tizen.org/platform/core/multimedia/libmm-session;tag=cfbc912e50461f204a2ba519ab40a84a45c03bf6;nobranch=1"
 
-BBCLASSEXTEND = "native"
+BBCLASSEXTEND += " native "
 

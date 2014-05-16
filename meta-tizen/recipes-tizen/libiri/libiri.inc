@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by libiri-dev 
@@ -26,7 +27,8 @@ DEPENDS = ""
 #DEPENDS of libiri 
 DEPENDS_append_class-native = " autoconf-native"
 DEPENDS_append_class-target = " autoconf-native"
-DEPENDS += "libtool-cross"
+DEPENDS_append_class-native = " libtool"
+DEPENDS_append_class-target = " libtool-cross"
 DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
 

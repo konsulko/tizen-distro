@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by vconf-keys-dev 
@@ -30,8 +31,8 @@ RDEPENDS_${PN} += "eglibc"
 RDEPENDS_${PN} += "systemd"
 
 #RDEPENDS of vconf-dev (${PN}-dev)
-RDEPENDS_${PN}-dev += "eglibc"
 RDEPENDS_${PN}-dev += "vconf"
+RDEPENDS_${PN}-dev += "glib-2.0"
 
 
 DEPENDS = ""
@@ -40,6 +41,7 @@ DEPENDS += "vconf-internal-keys"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
+DEPENDS += "glib-2.0"
 
 do_prep() {
  cd ${S}
@@ -127,6 +129,7 @@ vconf_files += "vconf.manifest"
 vconf_files += "${sysconfdir}/preconf.d/vconf-setup"
 vconf_files += "${prefix}/bin/vconftool"
 vconf_files += "${prefix}/bin/vconf-init"
+vconf_files += "/opt/var/kdb/kdb_first_boot"
 vconf_files += "${prefix}/lib/*.so.*"
 vconf_files += "%attr(777,root,root) /opt/var/kdb/db"
 vconf_files += "%attr(777,root,root) /opt/var/kdb/db/.backup"

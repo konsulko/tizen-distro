@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by alarm-manager 
@@ -41,10 +42,11 @@ DEPENDS += "dbus"
 DEPENDS += "app-svc"
 DEPENDS += "security-server"
 DEPENDS += "bundle"
-DEPENDS += "libtapi-legacy"
+DEPENDS += "glib-2.0"
 DEPENDS += "dlog"
 DEPENDS += "libslp-pm"
 DEPENDS += "heynoti"
+DEPENDS += "libtapi-legacy"
 DEPENDS += "vconf"
 DEPENDS += "libslp-db-util"
 

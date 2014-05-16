@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by libtapi3 
@@ -29,6 +30,7 @@ DEPENDS_append_class-target = " cmake-native"
 inherit pythonnative
 DEPENDS += "security-server"
 DEPENDS += "dlog"
+DEPENDS += "glib-2.0"
 DEPENDS += "python-xml"
 
 do_prep() {

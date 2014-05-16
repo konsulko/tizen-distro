@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by sensor 
@@ -28,6 +29,7 @@ DEPENDS += "libsf-common"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "vconf"
+DEPENDS += "glib-2.0"
 
 do_prep() {
  cd ${S}

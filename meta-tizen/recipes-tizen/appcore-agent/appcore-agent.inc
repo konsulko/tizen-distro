@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by appcore-agent 
@@ -28,6 +29,7 @@ DEPENDS += "aul-1"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
+DEPENDS += "glib-2.0"
 DEPENDS += "application"
 DEPENDS += "libslp-sysman"
 DEPENDS += "libslp-pm"

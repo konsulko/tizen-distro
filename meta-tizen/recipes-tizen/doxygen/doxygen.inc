@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by doxygen-docs  
@@ -22,7 +23,8 @@ RDEPENDS = ""
 DEPENDS = ""
 #DEPENDS of doxygen 
 DEPENDS += "flex"
-DEPENDS += "gcc-cross"
+DEPENDS_append_class-native = " gcc"
+DEPENDS_append_class-target = " gcc-cross"
 DEPENDS_append_class-native = " bison-native"
 DEPENDS_append_class-target = " bison-native"
 #Replace "DEPENDS" on gettext by "inherit gettext"

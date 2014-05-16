@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
+BBCLASSEXTEND += ""
 PROVIDES = ""
 
 #PROVIDES by weston-common 
@@ -35,6 +36,7 @@ DEPENDS = ""
 DEPENDS += "weston"
 DEPENDS += "libxkbcommon"
 DEPENDS += "cairo"
+DEPENDS += "glib-2.0"
 DEPENDS_append_class-native = " pkgconfig-native"
 DEPENDS_append_class-target = " pkgconfig-native"
 DEPENDS += "jpeg"
@@ -42,7 +44,8 @@ DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
 DEPENDS += "xz"
 DEPENDS += "wayland"
-DEPENDS += "libtool-cross"
+DEPENDS_append_class-native = " libtool"
+DEPENDS_append_class-target = " libtool-cross"
 DEPENDS += "libpng"
 DEPENDS += "mesa"
 DEPENDS_append_class-native = " autoconf-native"

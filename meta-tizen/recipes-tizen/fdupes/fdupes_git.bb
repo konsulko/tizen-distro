@@ -6,5 +6,5 @@ LIC_FILES_CHKSUM ??= "file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd64
 
 SRC_URI += "git://review.tizen.org/platform/upstream/fdupes;tag=4c6078349ea0047962571e4bf73a669a6af8eea7;nobranch=1"
 
-BBCLASSEXTEND = "native"
+BBCLASSEXTEND += " native "
 

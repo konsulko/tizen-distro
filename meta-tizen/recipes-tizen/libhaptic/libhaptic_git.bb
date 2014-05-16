@@ -6,5 +6,5 @@ LIC_FILES_CHKSUM ??= "file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd64
 
 SRC_URI += "git://review.tizen.org/platform/core/system/libhaptic;tag=f231283973654cf74742eb4f27e9baca5cb575ac;nobranch=1"
 
-BBCLASSEXTEND = "native"
+BBCLASSEXTEND += " native "
 
