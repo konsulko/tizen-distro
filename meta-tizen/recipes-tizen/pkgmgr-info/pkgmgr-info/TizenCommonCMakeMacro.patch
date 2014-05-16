@@ -1,0 +1,38 @@
+From fba91e42f737956fb27ef8ef75955ada9eef0539 Mon Sep 17 00:00:00 2001
+From: Xavier Roche <xavrock.os@gmail.com>
+Date: Fri, 16 May 2014 18:05:01 +0200
+Subject: [PATCH] meta-tizen: Removing TizenCommon macro in packaging
+
+Signed-off-by: Xavier Roche <xavrock.os@gmail.com>
+---
+ CMakeLists.txt        |    1 -
+ parser/CMakeLists.txt |    1 -
+ 2 files changed, 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index bd24c9c..513d28a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -5,7 +5,6 @@ PROJECT(pkgmgr-info C)
+ 
+ SET(VERSION 0.0.17)
+ SET(VERSION_MAJOR 0)
+-INCLUDE(TizenCommon)
+ 
+ SET(PREFIX ${CMAKE_INSTALL_PREFIX})
+ SET(EXEC_PREFIX "\${prefix}")
+diff --git a/parser/CMakeLists.txt b/parser/CMakeLists.txt
+index 8904ecc..f183758 100755
+--- a/parser/CMakeLists.txt
++++ b/parser/CMakeLists.txt
+@@ -6,7 +6,6 @@ cmake_minimum_required(VERSION 2.6)
+ #set(CMAKE_SKIP_BUILD_RPATH true)
+ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
+ 
+-INCLUDE(TizenCommon)
+ 
+ ### Versioning
+ if(DEFINED ${VERSION})
+-- 
+1.7.9.5
+
