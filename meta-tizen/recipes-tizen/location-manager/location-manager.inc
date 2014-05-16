@@ -28,6 +28,7 @@ DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "common"
 DEPENDS += "dlog"
+DEPENDS += "libslp-location"
 
 do_prep() {
  cd ${S}
