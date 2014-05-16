@@ -78,7 +78,6 @@ do_compile() {
  FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
  LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
  
- cd tz-launcher
  
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
    CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
@@ -116,7 +115,6 @@ do_install() {
  
  
  #install tz-launcher
- cd tz-launcher
  
    oe_runmake \
          DESTDIR=${D} \
@@ -126,7 +124,6 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- cd ..
  
  # install weston service as 'display-manager.service' as it's the one wanted by graphical.target
  mkdir -p ${D}/lib/systemd/system
