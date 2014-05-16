@@ -37,7 +37,7 @@ DEPENDS += "libmm-log"
 DEPENDS += "pulseaudio"
 DEPENDS += "iniparser"
 DEPENDS += "libexif"
-DEPENDS += "alsa-state"
+DEPENDS += "alsa-scenario-0.2"
 DEPENDS += "libmm-ta"
 
 do_prep() {
