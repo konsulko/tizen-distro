@@ -69,6 +69,7 @@ do_compile() {
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ;
    CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables} " ; export CXXFLAGS ;
    FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir } " ; export FFLAGS ;
+   export CFLAGS+=" -DRPM_VENDOR_OE "
    autoreconf -i -f
    ./configure   --host=${HOST_SYS} \
          --target=x86_64-tizen-linux \
