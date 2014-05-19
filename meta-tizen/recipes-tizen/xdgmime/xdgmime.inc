@@ -1,7 +1,7 @@
 DESCRIPTION = "Pkg xdgmime"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "TO_BE/FILLED_IN"
-LICENSE = "LGPLv2, AFLv2"
+SECTION = "Applications/Other"
+LICENSE = "LGPL-2.0 and AFL-2.0"
 
 SRC_URI = ""
 
@@ -9,7 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
-BBCLASSEXTEND += ""
+BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by xdgmime-dev 
