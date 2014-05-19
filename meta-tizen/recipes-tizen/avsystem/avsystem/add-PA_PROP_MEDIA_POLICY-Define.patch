@@ -1,0 +1,13 @@
+diff --git a/avsys-audio-pasimple.c b/avsys-audio-pasimple.c
+index aeeb999..a56d8bc 100644
+--- a/avsys-audio-pasimple.c
++++ b/avsys-audio-pasimple.c
+@@ -39,6 +39,8 @@
+ #define PA_SIMPLE_PERIOD_TIME_FOR_MID_LATENCY_MSEC			50
+ #define PA_SIMPLE_PERIOD_TIME_FOR_HIGH_LATENCY_MSEC			75
+ 
++#define PA_PROP_MEDIA_POLICY    "media.policy"
++
+ #define MSEC_TO_SAMPLE(samplerate,period_time)		(samplerate*period_time/1000)
+ 
+ #define CHECK_VALID_HANDLE(handle) \
