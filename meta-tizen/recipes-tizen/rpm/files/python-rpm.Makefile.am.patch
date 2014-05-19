@@ -1,0 +1,13 @@
+diff --git a/python/Makefile.am b/python/Makefile.am
+index fff51ae..f37cb9d 100644
+--- a/python/Makefile.am
++++ b/python/Makefile.am
+@@ -4,7 +4,7 @@ EXTRA_DIST = rpm/__init__.py rpm/transaction.py
+ 
+ AM_CPPFLAGS = -I$(top_builddir)/include/
+ AM_CPPFLAGS += -I$(top_srcdir)/python
+-AM_CPPFLAGS += -I@WITH_PYTHON_INCLUDE@
++AM_CPPFLAGS += @WITH_PYTHON_INCLUDE@
+ 
+ pkgpyexec_LTLIBRARIES = _rpmmodule.la _rpmbmodule.la _rpmsmodule.la
+ pkgpyexec_DATA = rpm/__init__.py rpm/transaction.py

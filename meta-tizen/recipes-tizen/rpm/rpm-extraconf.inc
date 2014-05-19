@@ -2,14 +2,18 @@ SRC_URI += "file://disable_debuginfo.patch \
             file://disable_shortcircuited.patch \
             file://fix_libdir.patch \
             file://rpm-scriptetexechelp.patch \
-            file://rpmmodule.c.patch "
+            file://fix-python-rpm-conf.patch \
+            file://rpmmodule.c.patch \
+            file://python-rpm.Makefile.am.patch \
+            file://pythondeps.sh \
+           "
 
 DEPENDS += "popt-native"
 DEPENDS += "uthash-native"
 DEPENDS += "smack-native"
 DEPENDS += "acl-native"
 DEPENDS += "lua-native"
-DEPENDS += "python"
+DEPENDS += "python-native"
 
 CFLAGS_append = " -DRPM_VENDOR_OE "
 
@@ -22,7 +26,7 @@ do_compile_prepend() {
  unset DISPLAY
  CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
  CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir }" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
 
  ### BUILD BEGIN ###
@@ -51,7 +55,7 @@ do_compile() {
  unset DISPLAY
  CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
  CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir }" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
 
  CPPFLAGS="$CPPFLAGS `pkg-config --cflags nss`"
@@ -63,8 +67,8 @@ do_compile() {
 
 
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ;
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables} " ; export CXXFLAGS ;
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir } " ; export FFLAGS ;
    autoreconf -i -f
    ./configure   --host=${HOST_SYS} \
          --target=x86_64-tizen-linux \
@@ -87,6 +91,7 @@ do_compile() {
      --with-acl \
      --with-cap \
      --enable-shared \
+     --enable-python \
      --with-python-inc-dir=${STAGING_INCDIR}/python${PYTHON_BASEVERSION} \
      --with-python-lib-dir=${libdir}/python${PYTHON_BASEVERSION}/site-packages \
      --with-msm \
@@ -195,7 +200,9 @@ do_install_append() {
 
 FILES_${PN}-dbg += "\
     ${libdir}/rpm-plugins/.debug/* \
+    ${libdir}/python2.7/site-packages/rpm/.debug/* \
     "
+
 PROVIDES += " python-rpm "
 
 DEPENDS_native += "popt-native"
