@@ -1,0 +1,13 @@
+diff --git a/configure.ac b/configure.ac
+index 7b2f4b3..3c16ce8 100755
+--- a/configure.ac
++++ b/configure.ac
+@@ -5,7 +5,7 @@ AC_CONFIG_AUX_DIR([build-aux])
+ AC_CONFIG_MACRO_DIR([m4])
+ AC_CONFIG_HEADER([config.h])
+ AC_CONFIG_SRCDIR([location])
+-AM_INIT_AUTOMAKE([1.10.2 foreign -Wall -Werror])
++AM_INIT_AUTOMAKE([1.10.2 subdir-objects foreign -Wall -Werror])
+ 
+ # Check programs for making executable
+ m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
