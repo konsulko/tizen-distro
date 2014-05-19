@@ -9,7 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
-BBCLASSEXTEND += ""
+BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by weston-common 
@@ -28,7 +28,7 @@ RDEPENDS = ""
 #RDEPENDS of weston-common (${PN})
 RDEPENDS_${PN} += "weston"
 RDEPENDS_${PN} += "eglibc"
-RDEPENDS_${PN} += "pwdutils"
+RDEPENDS_${PN} += "shadow"
 
 
 DEPENDS = ""
