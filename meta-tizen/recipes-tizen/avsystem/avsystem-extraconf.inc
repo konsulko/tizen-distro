@@ -18,39 +18,38 @@ do_compile() {
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
    CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
    FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-    autoreconf -v --install --force
-    ./configure --host=${HOST_SYS}
+   autoreconf -v --install --force
+   ./configure  --host=${HOST_SYS} \
+   --prefix=${prefix}
  
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
    CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
    FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
    autoreconf -v --install --force
-   ./configure --host=${HOST_SYS} \
-	--enable-audiotest
+   ./configure  --host=${HOST_SYS} \
+   --prefix=${prefix} \
+   --enable-audiotest
  make -j16
  
  
  
 }
-#PACKAGES += "avsystem-dbg"
 
-#avsystem-dbg_files = ""
-#avsystem-dbg_files += "avsystem.manifest"
 avsystem-dbg_files += "${prefix}/local/bin/.debug"
 avsystem-dbg_files += "${prefix}/local/bin/.debug/*"
-avsystem-dbg_files += "${prefix}/local/lib/.debug/*.so.*"
+avsystem-dbg_files += "${prefix}/lib/.debug/*.so.*"
 
 
 avsystem-dev_files = ""
 avsystem-dev_files += "avsystem.manifest"
-avsystem-dev_files += "${prefix}/local/lib/pkgconfig/*.pc"
-avsystem-dev_files += "${prefix}/local/lib/*.so"
-avsystem-dev_files += "${prefix}/local/include/avsystem/*.h"
+avsystem-dev_files += "${prefix}/lib/pkgconfig/*.pc"
+avsystem-dev_files += "${prefix}/lib/*.so"
+avsystem-dev_files += "${prefix}/include/avsystem/*.h"
 
 
 libavsysaudio_files = ""
 libavsysaudio_files += "avsystem.manifest"
-libavsysaudio_files += "${prefix}/local/lib/lib*.so.*"
+libavsysaudio_files += "${prefix}/lib/lib*.so.*"
 libavsysaudio_files += "${prefix}/local/bin/sound_initializer"
 libavsysaudio_files += "${prefix}/local/bin/avsys_volume_dump"
 libavsysaudio_files += "${prefix}/local/bin/avsys_audio_test"
