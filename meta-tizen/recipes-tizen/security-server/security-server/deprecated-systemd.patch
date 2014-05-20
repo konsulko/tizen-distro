@@ -1,0 +1,102 @@
+From b45e88111f94323e715c5ad4fd1527ea9099ce7b Mon Sep 17 00:00:00 2001
+From: Xavier Roche <xavrock.os@gmail.com>
+Date: Tue, 20 May 2014 09:51:34 +0200
+Subject: [PATCH] meta-tizen: Fix Security server build on Yocto poky
+
+ - Fixing lib install dir in CMakeLists files and .pc template files
+ - Fixing deprecated depedencies to systemd library
+
+Signed-off-by: Xavier Roche <xavrock.os@gmail.com>
+---
+ CMakeLists.txt                              |    2 --
+ build/security-server/CMakeLists.txt        |    2 +-
+ build/security-server/security-server.pc.in |    2 +-
+ src/CMakeLists.txt                          |    4 ++--
+ src/server/CMakeLists.txt                   |    5 +++--
+ 5 files changed, 7 insertions(+), 8 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 476b94a..09a1105 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -48,8 +48,6 @@ ADD_DEFINITIONS("-Werror")                      # Make all warnings into errors.
+ ADD_DEFINITIONS("-Wall")                        # Generate all warnings
+ ADD_DEFINITIONS("-Wextra")                      # Generate even more extra warnings
+ 
+-STRING(REGEX MATCH "([^.]*)" API_VERSION "${VERSION}")
+-ADD_DEFINITIONS("-DAPI_VERSION=\"$(API_VERSION)\"")
+ 
+ ADD_DEFINITIONS("-DSMACK_ENABLED")
+ 
+diff --git a/build/security-server/CMakeLists.txt b/build/security-server/CMakeLists.txt
+index ddc0fb7..d65dd3a 100644
+--- a/build/security-server/CMakeLists.txt
++++ b/build/security-server/CMakeLists.txt
+@@ -22,5 +22,5 @@ CONFIGURE_FILE(security-server.pc.in security-server.pc @ONLY)
+ INSTALL(FILES
+     ${CMAKE_BINARY_DIR}/build/security-server/security-server.pc
+     DESTINATION
+-    ${LIB_INSTALL_DIR}/pkgconfig
++    lib/pkgconfig
+     )
+diff --git a/build/security-server/security-server.pc.in b/build/security-server/security-server.pc.in
+index 608cb2d..df49caf 100644
+--- a/build/security-server/security-server.pc.in
++++ b/build/security-server/security-server.pc.in
+@@ -1,6 +1,6 @@
+ prefix=@CMAKE_INSTALL_PREFIX@
+ exec_prefix=${prefix}
+-libdir=@LIB_INSTALL_DIR@
++libdir=${prefix}/lib
+ includedir=${prefix}/include
+ 
+ Name: security-server
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index b0270d4..e238087 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -3,7 +3,7 @@ PKG_CHECK_MODULES(SECURITY_SERVER_DEP
+     openssl
+     libsmack
+     libprivilege-control
+-    libsystemd-daemon
++    systemd
+     REQUIRED
+     )
+ 
+@@ -93,7 +93,7 @@ TARGET_LINK_LIBRARIES(${TARGET_SECURITY_CLIENT}
+ 
+ ################################################################################
+ 
+-INSTALL(TARGETS ${TARGET_SECURITY_CLIENT} DESTINATION ${LIB_INSTALL_DIR})
++INSTALL(TARGETS ${TARGET_SECURITY_CLIENT} DESTINATION lib)
+ 
+ INSTALL(TARGETS ${TARGET_SECURITY_SERVER} DESTINATION bin)
+ 
+diff --git a/src/server/CMakeLists.txt b/src/server/CMakeLists.txt
+index 2cd6177..e493c51 100644
+--- a/src/server/CMakeLists.txt
++++ b/src/server/CMakeLists.txt
+@@ -1,5 +1,6 @@
+ PKG_CHECK_MODULES(COMMON_DEP
+     dlog
++    systemd
+     REQUIRED
+     )
+ 
+@@ -44,10 +45,10 @@ SET_TARGET_PROPERTIES(
+     )
+ 
+ TARGET_LINK_LIBRARIES(${TARGET_SERVER_COMMON}
+-    ${COMMON_DEP_LIBRARIES}
++    ${COMMON_DEP_LIBRARIES} -lsystemd
+     )
+ 
+ ################################################################################
+ 
+-INSTALL(TARGETS ${TARGET_SERVER_COMMON} DESTINATION ${LIB_INSTALL_DIR})
++INSTALL(TARGETS ${TARGET_SERVER_COMMON} DESTINATION lib)
+ 
+-- 
+1.7.9.5
+
