@@ -12,6 +12,9 @@ CORE_IMAGE_BASE_INSTALL += "weston weston-init weston-examples clutter-1.0-examp
 
 DESCRIPTION = "A weston image with Tizen common."
 
+DEPENDS += " tar-replacement-native "
+
 IMAGE_INSTALL += "connman"
 IMAGE_INSTALL += "weston-common"
+IMAGE_INSTALL += "mesa-driver-i965"
 #IMAGE_INSTALL += "crosswalk"
