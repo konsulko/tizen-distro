@@ -1,0 +1,89 @@
+From a6ac09dd1cc5b7547ff75fbe993f878aeb8920b4 Mon Sep 17 00:00:00 2001
+From: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
+Date: Wed, 14 May 2014 13:32:38 +0200
+Subject: [PATCH 08/13] packaging: add the RDP backend
+
+As we now have FreeRDP (platform/upstream/freerdp), we are
+able to ship the RDP backend -which provides a remote
+display feature- in an additionnal package.
+
+Change-Id: Iaefb801ff4cf65060546fedebaff6aecf5263507
+Signed-off-by: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
+---
+ packaging/weston-rdp.spec | 64 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 64 insertions(+)
+ create mode 100644 packaging/weston-rdp.spec
+
+diff --git a/packaging/weston-rdp.spec b/packaging/weston-rdp.spec
+new file mode 100644
+index 0000000..ad5993c
+--- /dev/null
++++ b/packaging/weston-rdp.spec
+@@ -0,0 +1,64 @@
++%bcond_with wayland
++
++Name:           weston-rdp
++Version:        1.4.0
++Release:        0
++Summary:	RDP compositor for Weston
++License:        MIT
++Group:          Graphics & UI Framework/Wayland Window System
++Url:            http://weston.freedesktop.org/
++
++#Git-Clone:	git://anongit.freedesktop.org/wayland/weston
++#Git-Web:	http://cgit.freedesktop.org/wayland/weston/
++Source0:         %name-%version.tar.xz
++Source1: 	weston-rdp.manifest
++BuildRequires:	autoconf >= 2.64, automake >= 1.11
++BuildRequires:  expat-devel
++BuildRequires:  libjpeg-devel
++BuildRequires:  libtool >= 2.2
++BuildRequires:  pkgconfig
++BuildRequires:  xz
++BuildRequires:  pkgconfig(cairo)
++BuildRequires:  pkgconfig(freerdp)
++BuildRequires:  pkgconfig(gio-2.0)
++BuildRequires:  pkgconfig(glib-2.0)
++BuildRequires:  pkgconfig(gobject-2.0)
++BuildRequires:  pkgconfig(pixman-1)
++BuildRequires:  pkgconfig(wayland-client)
++BuildRequires:  pkgconfig(wayland-server)
++BuildRequires:  pkgconfig(xkbcommon) >= 0.3.0
++Requires:       weston
++
++%if !%{with wayland}
++ExclusiveArch:
++%endif
++
++
++%description
++This package provides a RDP compositor allowing to do remote rendering
++through the network.
++
++%prep
++%setup -q
++cp %{SOURCE1} .
++
++%build
++%autogen --disable-static --disable-setuid-install --disable-weston-launch --disable-simple-clients --with-cairo=image --disable-egl --disable-clients --disable-libunwind --disable-xwayland --disable-xwayland-test --disable-x11-compositor --disable-drm-compositor --disable-fbdev-compositor --disable-headless-compositor --disable-wayland-compositor --disable-rpi-compositor --enable-rdp-compositor %{?extra_config_options:%extra_config_options}
++make %{?_smp_mflags}
++
++%install
++%make_install
++
++%files
++%manifest %{name}.manifest
++%defattr(-,root,root)
++%license COPYING
++%_libdir/weston/rdp-backend.so
++%exclude %_bindir
++%exclude %_includedir
++%exclude %_prefix/lib/debug
++%exclude %_libdir/pkgconfig
++%exclude %_libdir/weston/desktop-shell.so
++%exclude %_datadir
++
++%changelog
+-- 
+1.8.1.4
+

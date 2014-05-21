@@ -1,7 +1,7 @@
-From 5d81c84830847a7f9b6120329239720c35fd80e1 Mon Sep 17 00:00:00 2001
+From 5ac9c3048611cc8afcfc54c85f5618a562c8f0ec Mon Sep 17 00:00:00 2001
 From: Stephane Desneux <stephane.desneux@open.eurogiciel.org>
 Date: Mon, 14 Apr 2014 20:44:40 +0200
-Subject: [PATCH 10/10] allow to start weston with system user
+Subject: [PATCH 13/13] allow to start weston with system user
 
 the check to allow only root user had been replaced
 by a check to see if effective uid is equal or less than 499

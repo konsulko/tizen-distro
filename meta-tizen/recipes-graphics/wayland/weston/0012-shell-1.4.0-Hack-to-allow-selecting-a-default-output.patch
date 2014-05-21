@@ -1,7 +1,7 @@
-From 9aab809f91fd839fda0a7b8999efdfeafdab793d Mon Sep 17 00:00:00 2001
+From bdb907107b377633a870b164e706a731a2279321 Mon Sep 17 00:00:00 2001
 From: Stephane Desneux <stephane.desneux@open.eurogiciel.org>
 Date: Fri, 11 Apr 2014 22:09:19 +0200
-Subject: [PATCH 09/10] shell 1.4.0: Hack to allow selecting a default output
+Subject: [PATCH 12/13] shell 1.4.0: Hack to allow selecting a default output
 
 Ported patch from Rafael Antognolli <rafael.antognolli@intel.com>
 

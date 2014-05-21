@@ -1,7 +1,7 @@
-From 5bbfde4c9d19b17391a9a3e0d1dbc24a55bee496 Mon Sep 17 00:00:00 2001
+From 63fb11604751406fe80f75de5452009bf0d03772 Mon Sep 17 00:00:00 2001
 From: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
 Date: Mon, 7 Apr 2014 15:43:51 +0200
-Subject: [PATCH 08/10] shell: make panel optional ("panel=false" in
+Subject: [PATCH 11/13] shell: make panel optional ("panel=false" in
  weston.ini)
 
 Change-Id: I6b2e9ee24f623c4b05f3cd675a90007bf708b09b

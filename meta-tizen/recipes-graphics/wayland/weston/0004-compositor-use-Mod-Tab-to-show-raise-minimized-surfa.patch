@@ -1,7 +1,7 @@
 From 8b5c42d8c95bf4b3f25ad767e0eb15b6b2c6710e Mon Sep 17 00:00:00 2001
 From: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
 Date: Wed, 26 Feb 2014 17:11:22 +0100
-Subject: [PATCH 04/10] compositor: use Mod-Tab to show/raise minimized
+Subject: [PATCH 04/13] compositor: use Mod-Tab to show/raise minimized
  surfaces
 
 Temporarily show minimized surfaces when switching between

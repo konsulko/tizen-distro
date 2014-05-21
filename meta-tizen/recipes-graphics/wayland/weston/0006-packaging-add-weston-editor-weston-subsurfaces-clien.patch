@@ -1,7 +1,7 @@
 From c4be9bb5d281a7dad9fc409cde43cab349a369b0 Mon Sep 17 00:00:00 2001
 From: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
 Date: Thu, 6 Mar 2014 12:22:25 +0100
-Subject: [PATCH 06/10] packaging: add weston-editor & weston-subsurfaces
+Subject: [PATCH 06/13] packaging: add weston-editor & weston-subsurfaces
  clients.
 
 The editor client has virtual keyboard API, and subsurfaces

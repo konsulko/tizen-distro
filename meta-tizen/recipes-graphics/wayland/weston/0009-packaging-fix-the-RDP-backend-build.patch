@@ -1,0 +1,50 @@
+From ea380956ee45d68bf1c13c73843f1f07e693960e Mon Sep 17 00:00:00 2001
+From: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
+Date: Tue, 20 May 2014 13:49:34 +0200
+Subject: [PATCH 09/13] packaging: fix the RDP backend build
+
+Add manifest file, correct small typos.
+
+Change-Id: I3d1e088ed2aca9b64a9dd9b24d9e5296d38c0bdb
+Signed-off-by: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
+---
+ packaging/weston-rdp.manifest | 5 +++++
+ packaging/weston-rdp.spec     | 4 ++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+ create mode 100644 packaging/weston-rdp.manifest
+
+diff --git a/packaging/weston-rdp.manifest b/packaging/weston-rdp.manifest
+new file mode 100644
+index 0000000..017d22d
+--- /dev/null
++++ b/packaging/weston-rdp.manifest
+@@ -0,0 +1,5 @@
++<manifest>
++ <request>
++    <domain name="_"/>
++ </request>
++</manifest>
+diff --git a/packaging/weston-rdp.spec b/packaging/weston-rdp.spec
+index ad5993c..a3c2a32 100644
+--- a/packaging/weston-rdp.spec
++++ b/packaging/weston-rdp.spec
+@@ -3,14 +3,14 @@
+ Name:           weston-rdp
+ Version:        1.4.0
+ Release:        0
+-Summary:	RDP compositor for Weston
++Summary:        RDP compositor for Weston
+ License:        MIT
+ Group:          Graphics & UI Framework/Wayland Window System
+ Url:            http://weston.freedesktop.org/
+ 
+ #Git-Clone:	git://anongit.freedesktop.org/wayland/weston
+ #Git-Web:	http://cgit.freedesktop.org/wayland/weston/
+-Source0:         %name-%version.tar.xz
++Source0:         weston-%version.tar.xz
+ Source1: 	weston-rdp.manifest
+ BuildRequires:	autoconf >= 2.64, automake >= 1.11
+ BuildRequires:  expat-devel
+-- 
+1.8.1.4
+

@@ -1,0 +1,27 @@
+From 4b6ce5843ab0836d4f7b3300811cbc7c3afeff28 Mon Sep 17 00:00:00 2001
+From: Stephane Desneux <stephane.desneux@open.eurogiciel.org>
+Date: Tue, 20 May 2014 16:03:48 +0200
+Subject: [PATCH 10/13] packaging: fix obs build
+
+Change-Id: Ie934cee0017e1251db9fe4cc73c9d82c070fb126
+Signed-off-by: Stephane Desneux <stephane.desneux@open.eurogiciel.org>
+---
+ packaging/weston-rdp.spec | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/packaging/weston-rdp.spec b/packaging/weston-rdp.spec
+index a3c2a32..abe1801 100644
+--- a/packaging/weston-rdp.spec
++++ b/packaging/weston-rdp.spec
+@@ -39,7 +39,7 @@ This package provides a RDP compositor allowing to do remote rendering
+ through the network.
+ 
+ %prep
+-%setup -q
++%setup -q -n weston-%{version}
+ cp %{SOURCE1} .
+ 
+ %build
+-- 
+1.8.1.4
+

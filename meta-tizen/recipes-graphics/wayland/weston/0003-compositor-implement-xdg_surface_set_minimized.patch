@@ -1,7 +1,7 @@
 From cb6dd95704b8dbf2344d0c5008e0739cf8740438 Mon Sep 17 00:00:00 2001
 From: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
 Date: Wed, 26 Feb 2014 16:43:59 +0100
-Subject: [PATCH 03/10] compositor: implement xdg_surface_set_minimized()
+Subject: [PATCH 03/13] compositor: implement xdg_surface_set_minimized()
 
 We now handle the client-side xdg_surface_set_minimized()
 call, and eventually hide the target surface by moving it

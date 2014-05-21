@@ -1,7 +1,7 @@
 From d74310237df6e88f6978f5b57b3924e8b4514f37 Mon Sep 17 00:00:00 2001
 From: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
 Date: Fri, 7 Mar 2014 17:49:07 +0100
-Subject: [PATCH 07/10] shell: position input panel layer above fullscreen
+Subject: [PATCH 07/13] shell: position input panel layer above fullscreen
  layer
 
 When a client calls the input panel (weston-keyboard e.g.)

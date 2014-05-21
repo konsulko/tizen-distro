@@ -1,7 +1,7 @@
 From 13640d5c849085fa2b099c2d54e656eec8a1318f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Wed, 29 Jan 2014 15:55:09 +0900
-Subject: [PATCH 02/10] This vfunc lets us read out a rectangle of pixels from
+Subject: [PATCH 02/13] This vfunc lets us read out a rectangle of pixels from
  the currently attached surface buffer.
 
 Change-Id: Ia12d01fd0d157654602a2c46dd5874218252dd2f

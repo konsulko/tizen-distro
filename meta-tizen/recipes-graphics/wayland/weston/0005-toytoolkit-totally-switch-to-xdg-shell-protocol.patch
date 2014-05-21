@@ -1,7 +1,7 @@
 From 12578261ae9027f89ebfcfcc326e2757c253e4a2 Mon Sep 17 00:00:00 2001
 From: Manuel Bachmann <manuel.bachmann@open.eurogiciel.org>
 Date: Wed, 26 Feb 2014 17:59:19 +0100
-Subject: [PATCH 05/10] toytoolkit: totally switch to xdg-shell protocol
+Subject: [PATCH 05/13] toytoolkit: totally switch to xdg-shell protocol
 
 Totally switch toytoolkit to xdg-shell instead of wl_shell,
 so each state (maximization, minimization...) is correctly

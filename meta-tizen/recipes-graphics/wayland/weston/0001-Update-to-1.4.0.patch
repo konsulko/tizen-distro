@@ -1,7 +1,7 @@
 From 804c40d5e1d0f4a42db1cbc7d6cf0666b82c1e7d Mon Sep 17 00:00:00 2001
 From: Ossama Othman <ossama.othman@intel.com>
 Date: Wed, 12 Feb 2014 14:17:21 -0800
-Subject: [PATCH 01/10] Update to 1.4.0
+Subject: [PATCH 01/13] Update to 1.4.0
 
 Change-Id: I17dab833c810374f13cf79672690a09a92ef1fb7
 Signed-off-by: Ossama Othman <ossama.othman@intel.com>
