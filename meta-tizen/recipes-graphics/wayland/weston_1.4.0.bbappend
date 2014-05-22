@@ -1,6 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/weston"
 
-SRC_URI += "file://0001-Update-to-1.4.0.patch \
+SRC_URI += "file://weston.target \
+            file://0001-Update-to-1.4.0.patch \
             file://0002-This-vfunc-lets-us-read-out-a-rectangle-of-pixels-fr.patch \
             file://0003-compositor-implement-xdg_surface_set_minimized.patch \
             file://0004-compositor-use-Mod-Tab-to-show-raise-minimized-surfa.patch \
@@ -12,4 +13,12 @@ SRC_URI += "file://0001-Update-to-1.4.0.patch \
             file://0010-packaging-fix-obs-build.patch \
             file://0011-shell-make-panel-optional-panel-false-in-weston.ini.patch \
             file://0012-shell-1.4.0-Hack-to-allow-selecting-a-default-output.patch \
-            file://0013-allow-to-start-weston-with-system-user.patch"
+            file://0013-allow-to-start-weston-with-system-user.patch \
+            "
+
+do_install_append() {
+    install -d ${D}/usr/lib/systemd/user
+    install -m 644 ${WORKDIR}/weston.target ${D}/usr/lib/systemd/user/weston.target
+}
+
+FILES_${PN} += " ${prefix}/lib/systemd/user/weston.target"
