@@ -1,0 +1,45 @@
+From fd1ec3bd9cbceed1e8651efc44611ba556968f99 Mon Sep 17 00:00:00 2001
+From: Anas Nashif <anas.nashif@intel.com>
+Date: Fri, 2 Aug 2013 11:07:52 -0400
+Subject: [PATCH 17/20] fixed license
+
+---
+ packaging/pam.changes | 3 +++
+ packaging/pam.spec    | 4 ++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/packaging/pam.changes b/packaging/pam.changes
+index be6647f..9384291 100644
+--- a/packaging/pam.changes
++++ b/packaging/pam.changes
+@@ -1,3 +1,6 @@
++* Fri Aug 02 2013 Anas Nashif <anas.nashif@intel.com> submit/tizen/20130802.145428@792be7c
++- fixed license
++
+ * Thu Aug 01 2013 Anas Nashif <anas.nashif@intel.com> accepted/tizen/20130722.203006@d9d7f57
+ - Update package groups
+ 
+diff --git a/packaging/pam.spec b/packaging/pam.spec
+index 8ad3593..c18b282 100644
+--- a/packaging/pam.spec
++++ b/packaging/pam.spec
+@@ -6,14 +6,14 @@
+ Name:           pam
+ Version:        1.1.6
+ Release:        1
+-License:        BSD and GPLv2+ and BSD with advertising
++License:        GPL-2.0+ or BSD-3-Clause
+ Summary:        PAM
+ Url:            http://www.linux-pam.org/
+ Group:          Security/Access Control
+ Source0:        Linux-PAM-%{version}.tar.bz2
+ Source1:        system-auth
+ Source2:        other
+-Source1001: 	pam.manifest
++Source1001:     pam.manifest
+ 
+ BuildRequires:  autoconf
+ BuildRequires:  automake
+-- 
+1.8.1.4
+

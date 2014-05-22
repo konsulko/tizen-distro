@@ -1,0 +1,21 @@
+From f3ed55fb93f9413a03190a2e950707e874919c2e Mon Sep 17 00:00:00 2001
+From: Patrick McCarty <patrick.mccarty@linux.intel.com>
+Date: Tue, 5 Feb 2013 17:03:12 -0800
+Subject: [PATCH 12/20] Add multi-lib support
+
+Change-Id: Ie3f00a4319e7beb2be15236b725ca5cd3f57ce87
+---
+ packaging/baselibs.conf | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 packaging/baselibs.conf
+
+diff --git a/packaging/baselibs.conf b/packaging/baselibs.conf
+new file mode 100644
+index 0000000..dc83ed2
+--- /dev/null
++++ b/packaging/baselibs.conf
+@@ -0,0 +1 @@
++pam
+-- 
+1.8.1.4
+

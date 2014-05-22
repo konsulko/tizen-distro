@@ -1,0 +1,23 @@
+From 821a95223a0c2f22e43dc01423dc2fb4352e4293 Mon Sep 17 00:00:00 2001
+From: Anas Nashif <anas.nashif@intel.com>
+Date: Sat, 2 Feb 2013 17:25:33 -0800
+Subject: [PATCH 09/20] remove manifest macro
+
+---
+ packaging/pam.changes | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/packaging/pam.changes b/packaging/pam.changes
+index c2fbe90..d23bfa3 100644
+--- a/packaging/pam.changes
++++ b/packaging/pam.changes
+@@ -1,3 +1,6 @@
++* Sat Feb 02 2013 Anas Nashif <anas.nashif@intel.com> accepted/trunk/20130117.013515@58ebf98
++- remove manifest macro
++
+ * Wed Jan 16 2013 Anas Nashif <anas.nashif@intel.com> submit/trunk/20130112.055406@75fb870
+ - Move pam_mkhomedir.so to main package, systemd needs it
+ 
+-- 
+1.8.1.4
+

@@ -1,0 +1,61 @@
+From e59a7c8f368344f18c2c4dd9eec95130ea783892 Mon Sep 17 00:00:00 2001
+From: Anas Nashif <anas.nashif@intel.com>
+Date: Mon, 22 Jul 2013 10:22:03 -0400
+Subject: [PATCH 15/20] build locale package
+
+---
+ packaging/pam.changes | 3 +++
+ packaging/pam.spec    | 5 ++++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/packaging/pam.changes b/packaging/pam.changes
+index 92fa9a8..f6a52b2 100644
+--- a/packaging/pam.changes
++++ b/packaging/pam.changes
+@@ -1,3 +1,6 @@
++* Mon Jul 22 2013 Anas Nashif <anas.nashif@intel.com> accepted/tizen/20130710.215322@b4d6d0b
++- build locale package
++
+ * Fri Mar 22 2013 Anas Nashif <anas.nashif@intel.com> submit/trunk/20130203.013415@f3ed55f
+ - Fixed package groups
+ 
+diff --git a/packaging/pam.spec b/packaging/pam.spec
+index 5402e7a..5c418cd 100644
+--- a/packaging/pam.spec
++++ b/packaging/pam.spec
+@@ -24,6 +24,7 @@ BuildRequires:  gcc
+ BuildRequires:  libtool
+ BuildRequires:  net-tools
+ BuildRequires:  zlib-devel
++BuildRequires:  gettext-tools
+ Requires(post): /sbin/ldconfig
+ Requires(post): /usr/bin/install
+ Requires(postun): /sbin/ldconfig
+@@ -72,7 +73,6 @@ CFLAGS="-fPIC %{optflags} " ; export CFLAGS
+         --includedir=%{_includedir}/security \
+         --enable-isadir=../..%{_moduledir} \
+         --disable-audit \
+-        --disable-nls \
+         --with-db-uniquename=_pam \
+         --with-libiconv-prefix=/usr \
+         --enable-read-both-confs &&
+@@ -96,6 +96,8 @@ install -d -m 0755 %{buildroot}%{_pamconfdir}
+ install -m 0644 %{SOURCE1} %{buildroot}%{_pamconfdir}/
+ install -m 0644 %{SOURCE2} %{buildroot}%{_pamconfdir}/
+ 
++%find_lang Linux-PAM
++
+ %post
+ /sbin/ldconfig
+ if [ ! -a /var/log/faillog ] ; then
+@@ -107,6 +109,7 @@ fi
+ 
+ %postun -p /sbin/ldconfig
+ 
++%lang_package -f Linux-PAM
+ 
+ %files
+ %manifest %{name}.manifest
+-- 
+1.8.1.4
+

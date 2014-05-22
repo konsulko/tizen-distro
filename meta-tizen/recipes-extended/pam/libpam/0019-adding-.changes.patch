@@ -1,0 +1,26 @@
+From d2a097ba110167aeb4cfffe62042fb7119f27f30 Mon Sep 17 00:00:00 2001
+From: Michael Leibowitz <michael.leibowitz@intel.com>
+Date: Mon, 24 Feb 2014 14:53:02 -0800
+Subject: [PATCH 19/20] adding .changes
+
+Change-Id: I51c91b81cd5109ff9befa0e9d793e124928af28a
+Signed-off-by: Michael Leibowitz <michael.leibowitz@intel.com>
+---
+ packaging/pam.changes | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/packaging/pam.changes b/packaging/pam.changes
+index 9384291..17283ca 100644
+--- a/packaging/pam.changes
++++ b/packaging/pam.changes
+@@ -1,3 +1,7 @@
++* Mon Feb 24 2014 Michael Leibowitz <michael.leibowitz@intel.com> accepted/tizen/ivi/genivi/20140131.034623@e9fdd38
++- Add a pam module to set smack label (PTREL-549)
++- fixed license
++
+ * Fri Aug 02 2013 Anas Nashif <anas.nashif@intel.com> submit/tizen/20130802.145428@792be7c
+ - fixed license
+ 
+-- 
+1.8.1.4
+

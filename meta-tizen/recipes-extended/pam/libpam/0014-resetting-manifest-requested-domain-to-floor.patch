@@ -1,0 +1,69 @@
+From 7708f7f5845f8ff34598d3cae0e8c361c1456b98 Mon Sep 17 00:00:00 2001
+From: Alexandru Cornea <alexandru.cornea@intel.com>
+Date: Mon, 1 Jul 2013 21:46:20 +0300
+Subject: [PATCH 14/20] resetting manifest requested domain to floor
+
+---
+ packaging/pam.manifest | 5 +++++
+ packaging/pam.spec     | 5 +++++
+ 2 files changed, 10 insertions(+)
+ create mode 100644 packaging/pam.manifest
+
+diff --git a/packaging/pam.manifest b/packaging/pam.manifest
+new file mode 100644
+index 0000000..017d22d
+--- /dev/null
++++ b/packaging/pam.manifest
+@@ -0,0 +1,5 @@
++<manifest>
++ <request>
++    <domain name="_"/>
++ </request>
++</manifest>
+diff --git a/packaging/pam.spec b/packaging/pam.spec
+index 9b8a90a..5402e7a 100644
+--- a/packaging/pam.spec
++++ b/packaging/pam.spec
+@@ -13,6 +13,7 @@ Group:          Security/Access Control
+ Source0:        Linux-PAM-%{version}.tar.bz2
+ Source1:        system-auth
+ Source2:        other
++Source1001: 	pam.manifest
+ 
+ BuildRequires:  autoconf
+ BuildRequires:  automake
+@@ -58,6 +59,7 @@ PAM-aware applications and modules for use with PAM.
+ 
+ %prep
+ %setup -q -n Linux-PAM-%{version}
++cp %{SOURCE1001} .
+ 
+ libtoolize -f #--copy --force && aclocal && autoheader
+ autoreconf
+@@ -107,6 +109,7 @@ fi
+ 
+ 
+ %files
++%manifest %{name}.manifest
+ %license Copyright
+ %{_sbindir}/pam_tally
+ %{_sbindir}/pam_tally2
+@@ -149,6 +152,7 @@ fi
+ %{_pamconfdir}/other
+ 
+ %files -n pam-modules-extra
++%manifest %{name}.manifest
+ %{_moduledir}/pam_access.so
+ %{_moduledir}/pam_debug.so
+ %{_moduledir}/pam_echo.so
+@@ -177,6 +181,7 @@ fi
+ %{_moduledir}/pam_warn.so
+ 
+ %files devel
++%manifest %{name}.manifest
+ %{_includedir}/security/*
+ %{_libdir}/libpam.so
+ %{_libdir}/libpam_misc.so
+-- 
+1.8.1.4
+

@@ -1,0 +1,36 @@
+From 792be7ce64749c9cc5712c21cd0c347046cbfe06 Mon Sep 17 00:00:00 2001
+From: Anas Nashif <anas.nashif@intel.com>
+Date: Thu, 1 Aug 2013 16:28:00 -0400
+Subject: [PATCH 16/20] optimize package groups
+
+---
+ packaging/pam.changes | 3 +++
+ packaging/pam.spec    | 1 -
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/packaging/pam.changes b/packaging/pam.changes
+index f6a52b2..be6647f 100644
+--- a/packaging/pam.changes
++++ b/packaging/pam.changes
+@@ -1,3 +1,6 @@
++* Thu Aug 01 2013 Anas Nashif <anas.nashif@intel.com> accepted/tizen/20130722.203006@d9d7f57
++- Update package groups
++
+ * Mon Jul 22 2013 Anas Nashif <anas.nashif@intel.com> accepted/tizen/20130710.215322@b4d6d0b
+ - build locale package
+ 
+diff --git a/packaging/pam.spec b/packaging/pam.spec
+index 5c418cd..8ad3593 100644
+--- a/packaging/pam.spec
++++ b/packaging/pam.spec
+@@ -48,7 +48,6 @@ default Tizen install.
+ 
+ %package devel
+ Summary:        Files needed for developing PAM-aware applications and modules for PAM
+-Group:          Development/Libraries
+ Requires:       pam = %{version}
+ 
+ %description devel
+-- 
+1.8.1.4
+

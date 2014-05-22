@@ -1,0 +1,46 @@
+From 60744838d458089f74f1f2a792a0599d9aace6ca Mon Sep 17 00:00:00 2001
+From: Anas Nashif <anas.nashif@intel.com>
+Date: Fri, 22 Mar 2013 11:04:21 -0700
+Subject: [PATCH 13/20] Fixed package groups
+
+---
+ packaging/pam.changes | 3 +++
+ packaging/pam.spec    | 4 ++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/packaging/pam.changes b/packaging/pam.changes
+index eedb6cb..92fa9a8 100644
+--- a/packaging/pam.changes
++++ b/packaging/pam.changes
+@@ -1,3 +1,6 @@
++* Fri Mar 22 2013 Anas Nashif <anas.nashif@intel.com> submit/trunk/20130203.013415@f3ed55f
++- Fixed package groups
++
+ * Sat Feb 02 2013 Anas Nashif <anas.nashif@intel.com> submit/trunk/20130203.012535@3b802af
+ - remove non-existant manifest macro
+ 
+diff --git a/packaging/pam.spec b/packaging/pam.spec
+index 6ef0aad..9b8a90a 100644
+--- a/packaging/pam.spec
++++ b/packaging/pam.spec
+@@ -9,7 +9,7 @@ Release:        1
+ License:        BSD and GPLv2+ and BSD with advertising
+ Summary:        PAM
+ Url:            http://www.linux-pam.org/
+-Group:          System/Base
++Group:          Security/Access Control
+ Source0:        Linux-PAM-%{version}.tar.bz2
+ Source1:        system-auth
+ Source2:        other
+@@ -34,7 +34,7 @@ having to recompile programs that handle authentication.
+ 
+ %package -n pam-modules-extra
+ Summary:        Extra modules provided by PAM not used in the base system
+-Group:          System/Base
++Group:          Security/Access Control
+ Requires:       pam = %{version}
+ 
+ %description -n pam-modules-extra
+-- 
+1.8.1.4
+
