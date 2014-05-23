@@ -19,4 +19,10 @@ IMAGE_INSTALL += "weston-common"
 IMAGE_INSTALL += "mesa-driver-i965"
 IMAGE_INSTALL += "meta"
 IMAGE_INSTALL += "libpam"
+IMAGE_INSTALL += "weston-common-tz-launcher"
+IMAGE_INSTALL += "weston-common-config"
+
+# Doesn't build: needs to be fixed:
+#IMAGE_INSTALL += "user-session-units"
+
 #IMAGE_INSTALL += "crosswalk"
