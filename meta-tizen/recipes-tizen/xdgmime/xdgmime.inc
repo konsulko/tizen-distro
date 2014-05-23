@@ -1,7 +1,7 @@
 DESCRIPTION = "Pkg xdgmime"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Applications/Other"
-LICENSE = "LGPL-2.0 and AFL-2.0"
+SECTION = "TO_BE/FILLED_IN"
+LICENSE = "LGPLv2, AFLv2"
 
 SRC_URI = ""
 

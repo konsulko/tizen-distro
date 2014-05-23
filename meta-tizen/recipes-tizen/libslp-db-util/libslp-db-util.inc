@@ -9,7 +9,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools-brokensep
 
-BBCLASSEXTEND += ""
+BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libslp-db-util-dev 
