@@ -2,7 +2,7 @@ inherit useradd
 
 USERADD_PACKAGES = "${PN}"
 
-GROUPADD_PARAM_${PN} = "-g 191 display;-g 100 users,-g 1004 input,-g 190 systemd-journal,-g 54 lock"
+GROUPADD_PARAM_${PN} = "-g 191 display;-g 100 users;-g 1004 input;-g 190 systemd-journal;-g 54 lock"
 
 USERADD_PARAM_${PN} = "  -d /run/display -m  -u 115  -g display -G users,input,tty,display  -s /bin/sh display; "
 USERADD_PARAM_${PN} += " -d /home/alice -m -u 5001   -g users   -G display -r -s /bin/sh alice; "
