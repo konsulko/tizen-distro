@@ -1,3 +1,4 @@
+
 systemd_files += "${sysconfdir}/*"
 
 systemd_files += "/usr/lib64/python2.7"
@@ -41,10 +42,12 @@ do_install_append() {
 
 }
 
+EXTRA_OECONF = " --disable-manpages \
+                 --without-python \
+               "
+GTKDOC_DOCDIR = "${S}/docs/"
 
-
-
-
-
-
-
+do_configure_prepend() {
+	rm -f ${S}/docs/gtk-doc.make
+	echo 'EXTRA_DIST =' > ${S}/docs/gtk-doc.make
+}

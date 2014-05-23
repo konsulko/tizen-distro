@@ -8,7 +8,7 @@ inherit core-image distro_features_check
 
 REQUIRED_DISTRO_FEATURES = "wayland pam"
 
-CORE_IMAGE_BASE_INSTALL += "weston weston-init weston-examples clutter-1.0-examples"
+CORE_IMAGE_BASE_INSTALL += "weston weston-init weston-examples gtk+3-demo clutter-1.0-examples"
 
 DESCRIPTION = "A weston image with Tizen common."
 

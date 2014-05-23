@@ -100,8 +100,7 @@ do_compile() {
          --localstatedir=${localstatedir} \
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
-         --infodir=${infodir}
-
+         --infodir=${infodir} --enable-gnome --enable-enlightenment
  
  make -j16
  
