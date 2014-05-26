@@ -1,4 +1,4 @@
 inherit cmake
-SRC_URI += "file://deprecated-systemd.patch "
+SRC_URI += "file://Fix-lib-install-dir.patch "
 			
 CXXFLAGS += "-std=c++11"
