@@ -139,12 +139,14 @@ do_compile() {
          --infodir=${infodir} \
          --enable-bootchart \
          --libexecdir=${prefix}/lib \
- 	    --docdir=${prefix}/share/doc/packages/systemd \
+         --docdir=${prefix}/share/doc/packages/systemd \
          --disable-static \
          --with-sysvinit-path= \
          --with-sysvrcnd-path= \
          --with-smack-run-label=System
- make -j16
+ make -j16 \
+         systemunitdir=/lib/systemd/system \
+         userunitdir=/lib/systemd/user
  
  
  
