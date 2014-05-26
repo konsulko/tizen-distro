@@ -10,3 +10,12 @@ USERADD_PARAM_${PN} += " -d /home/bob   -m -u 5002   -g users   -G display -r -s
 USERADD_PARAM_${PN} += " -d /home/carole -m -u 5003   -g users   -G display -r -s /bin/sh carole; "
 USERADD_PARAM_${PN} += " -d /home/guest -m -u 9999   -g users   -G display -r -s /bin/sh guest "
 
+pkg_postinst_${PN} () {
+for user in alice bob carol app guest; do
+	for appdir in desktop manifest dbspace; do
+		mkdir -p ${D}/home/$user/.applications/$appdir
+	done
+	find ${D}/home/$user/ -type d -exec chsmack -a User {} \;
+	chown -R $user:users ${D}/home/$user/
+done
+}
