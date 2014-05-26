@@ -28,3 +28,7 @@ FILES_${PN}-dbg += "${pam-dbg_files}"
 
 INSANE_SKIP_${PN} = "pam-modules-extra"
 
+pam-dev_files += "${prefix}/lib/security/pam_unix_acct.so"
+pam-dev_files += "${prefix}/lib/security/pam_unix_auth.so"
+pam-dev_files += "${prefix}/lib/security/pam_unix_passwd.so"
+pam-dev_files += "${prefix}/lib/security/pam_unix_session.so"

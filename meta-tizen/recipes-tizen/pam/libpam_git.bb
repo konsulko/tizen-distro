@@ -1,4 +1,4 @@
-require pam.inc
+require libpam.inc
 
 PRIORITY = "10"
 

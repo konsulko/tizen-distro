@@ -24,8 +24,9 @@ PROVIDES += "pam-lang-all"
 RPROVIDES_pam-locale  += "pam-lang-all"
 
 
-#PROVIDES by pam
 
+#PROVIDES by pam
+RPROVIDES_libpam  += "pam"
 
 #PROVIDES by pam-dev
 
@@ -263,5 +264,5 @@ PKG_pam= "pam"
 PKG_pam-docs= "pam-docs"
 PKG_pam-locale= "pam-locale"
 
-require pam-extraconf.inc
+require libpam-extraconf.inc
 
