@@ -50,7 +50,7 @@ DEPENDS = ""
 #DEPENDS of pam
 DEPENDS += "flex"
 DEPENDS_append_class-native = " gcc"
-DEPENDS_append_class-target = " gcc-cross"
+DEPENDS_append_class-target = " gcc"
 DEPENDS += "zlib"
 DEPENDS += "db"
 #Replace "DEPENDS" on gettext by "inherit gettext"
@@ -160,9 +160,6 @@ do_install() {
  install -d -m 0755 ${D}${sysconfdir}/pam.d
  install -m 0644 ${S}/packaging/system-auth ${D}${sysconfdir}/pam.d/
  install -m 0644 ${S}/packaging/other ${D}${sysconfdir}/pam.d/
-
- /usr/share/spec2yocto/macro/lib/find-lang.sh ${D} Linux-PAM
-
 
 }
 
