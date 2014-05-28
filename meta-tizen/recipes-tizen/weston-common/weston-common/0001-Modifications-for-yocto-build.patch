@@ -1,0 +1,49 @@
+From de783cd7347bad945d00fcdd84e1e4b660b11c95 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
+Date: Wed, 28 May 2014 21:13:45 +0200
+Subject: [PATCH] meta-tizen: Modifications for yocto build
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Change-Id: I8487930c70cbc1956d0abce023af919fe25d4042
+Signed-off-by: Kévin THIERRY <kevin.thierry@open.eurogiciel.org>
+---
+ display-manager.path    | 6 +++---
+ display-manager.service | 4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/display-manager.path b/display-manager.path
+index d1ae107..c44f379 100644
+--- a/display-manager.path
++++ b/display-manager.path
+@@ -1,7 +1,7 @@
+ [Unit]
+ Description=Wait for wayland socket
+-Requires=display-manager-run.service
+-After=display-manager-run.service
++#Requires=display-manager-run.service
++#After=display-manager-run.service
+ 
+ [Path]
+-PathExists=/run/display/wayland-0
++PathChanged=/run/display/wayland-0
+diff --git a/display-manager.service b/display-manager.service
+index 2adaeef..ca808eb 100644
+--- a/display-manager.service
++++ b/display-manager.service
+@@ -4,9 +4,9 @@ Requires=display-manager-run.service
+ After=display-manager-run.service
+ 
+ [Service]
+-Type=oneshot
++#Type=oneshot
+ ExecStart=/bin/chmod g+w /run/display/wayland-0
+-ExecStart=/usr/bin/chsmack -a User /run/display/wayland-0
++#ExecStart=/usr/bin/chsmack -a User /run/display/wayland-0
+ Restart=on-failure
+ RestartSec=2
+ 
+-- 
+1.8.1.4
+

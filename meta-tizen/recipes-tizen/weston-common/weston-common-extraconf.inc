@@ -5,6 +5,7 @@ FILESEXTRAPATHS_append := "${THISDIR}/weston-common"
 SRC_URI += "file://0001-Fix-path-to-binary-ln-and-chmod.patch"
 SRC_URI += "file://0001-Add-a-script-to-export-UID.patch"
 SRC_URI += "file://0001-Automatically-restart-display-manager.patch"
+SRC_URI += "file://0001-Modifications-for-yocto-build.patch"
 
 USERADD_PACKAGES = "${PN}"
 
@@ -17,7 +18,10 @@ USERADD_PARAM_${PN} += " -d /home/carole -m -u 5003   -g users   -G display -r -
 USERADD_PARAM_${PN} += " -d /home/guest -m -u 9999   -g users   -G display -r -s /bin/sh guest "
 
 do_install_append() {
-	install -m 755 uid.sh ${D}/etc/profile.d
+    install -m 755 uid.sh ${D}/etc/profile.d
+
+    mkdir -p ${D}/lib/systemd/user/default.target.wants
+    ln -sf ../weston-user.service ${D}/lib/systemd/user/default.target.wants/weston-user.service
 }
 
 pkg_postinst_${PN} () {
@@ -29,3 +33,5 @@ for user in alice bob carol app guest; do
 	chown -R $user:users ${D}/home/$user/
 done
 }
+
+weston-common_files += "/lib/systemd/user/default.target.wants/weston-user.service"
