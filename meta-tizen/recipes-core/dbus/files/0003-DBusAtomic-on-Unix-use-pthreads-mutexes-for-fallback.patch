@@ -1,0 +1,147 @@
+From: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Date: Mon, 15 Apr 2013 13:51:19 +0100
+Subject: DBusAtomic: on Unix, use pthreads mutexes for fallback
+
+On pthreads platforms, POSIX guarantees that we can "allocate" mutexes
+as library-global variables, without involving malloc. This means we
+don't need to error-check their allocation - if the dynamic linker
+succeeds, then we have enough memory for all our globals - which is an
+important step towards being thread-safe by default. In particular,
+making atomic operations never rely on DBusMutex means that we are free
+to implement parts of DBusMutex in terms of DBusAtomic, if it would help.
+
+We do not currently support any non-Windows platform that does not have
+pthreads. This is unlikely to change.
+
+On Windows, we already used real atomic operations; we can just
+delete the unused global variable.
+
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=54972
+Signed-off-by: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Reviewed-by: Alban Crequy <alban.crequy@collabora.co.uk>
+Reviewed-by: Ralf Habacker <ralf.habacker@freenet.de>
+Applied-upstream: 1.7.4, commit:c36f21a2e91730e9ae52e8945305aa3072f0e508
+Bug-Tizen: TZPC-1971
+Change-Id: I91d99a86f25d49d63d79eebfe85767bb8cc66170
+---
+ dbus/dbus-internals.h    |  5 -----
+ dbus/dbus-sysdeps-unix.c | 27 ++++++++++++++++++++-------
+ dbus/dbus-sysdeps-win.c  |  2 --
+ dbus/dbus-threads.c      |  3 ---
+ 4 files changed, 20 insertions(+), 17 deletions(-)
+
+diff --git a/dbus/dbus-internals.h b/dbus/dbus-internals.h
+index 8036a2b..eaf9603 100644
+--- a/dbus/dbus-internals.h
++++ b/dbus/dbus-internals.h
+@@ -327,12 +327,7 @@ _DBUS_DECLARE_GLOBAL_LOCK (win_fds);
+ _DBUS_DECLARE_GLOBAL_LOCK (sid_atom_cache);
+ _DBUS_DECLARE_GLOBAL_LOCK (machine_uuid);
+ 
+-#if !DBUS_USE_SYNC
+-_DBUS_DECLARE_GLOBAL_LOCK (atomic);
+-#define _DBUS_N_GLOBAL_LOCKS (15)
+-#else
+ #define _DBUS_N_GLOBAL_LOCKS (14)
+-#endif
+ 
+ dbus_bool_t _dbus_threads_init_debug (void);
+ 
+diff --git a/dbus/dbus-sysdeps-unix.c b/dbus/dbus-sysdeps-unix.c
+index 7c9fb09..a67f5d3 100644
+--- a/dbus/dbus-sysdeps-unix.c
++++ b/dbus/dbus-sysdeps-unix.c
+@@ -82,6 +82,10 @@
+ 
+ #include "sd-daemon.h"
+ 
++#if !DBUS_USE_SYNC
++#include <pthread.h>
++#endif
++
+ #ifndef O_BINARY
+ #define O_BINARY 0
+ #endif
+@@ -2428,7 +2432,12 @@ _dbus_parse_uid (const DBusString      *uid_str,
+ }
+ 
+ #if !DBUS_USE_SYNC
+-_DBUS_DEFINE_GLOBAL_LOCK (atomic);
++/* To be thread-safe by default on platforms that don't necessarily have
++ * atomic operations (notably Debian armel, which is armv4t), we must
++ * use a mutex that can be initialized statically, like this.
++ * GLib >= 2.32 uses a similar system.
++ */
++static pthread_mutex_t atomic_mutex = PTHREAD_MUTEX_INITIALIZER;
+ #endif
+ 
+ /**
+@@ -2444,10 +2453,12 @@ _dbus_atomic_inc (DBusAtomic *atomic)
+   return __sync_add_and_fetch(&atomic->value, 1)-1;
+ #else
+   dbus_int32_t res;
+-  _DBUS_LOCK (atomic);
++
++  pthread_mutex_lock (&atomic_mutex);
+   res = atomic->value;
+   atomic->value += 1;
+-  _DBUS_UNLOCK (atomic);
++  pthread_mutex_unlock (&atomic_mutex);
++
+   return res;
+ #endif
+ }
+@@ -2466,10 +2477,11 @@ _dbus_atomic_dec (DBusAtomic *atomic)
+ #else
+   dbus_int32_t res;
+ 
+-  _DBUS_LOCK (atomic);
++  pthread_mutex_lock (&atomic_mutex);
+   res = atomic->value;
+   atomic->value -= 1;
+-  _DBUS_UNLOCK (atomic);
++  pthread_mutex_unlock (&atomic_mutex);
++
+   return res;
+ #endif
+ }
+@@ -2490,9 +2502,10 @@ _dbus_atomic_get (DBusAtomic *atomic)
+ #else
+   dbus_int32_t res;
+ 
+-  _DBUS_LOCK (atomic);
++  pthread_mutex_lock (&atomic_mutex);
+   res = atomic->value;
+-  _DBUS_UNLOCK (atomic);
++  pthread_mutex_unlock (&atomic_mutex);
++
+   return res;
+ #endif
+ }
+diff --git a/dbus/dbus-sysdeps-win.c b/dbus/dbus-sysdeps-win.c
+index c42316f..a17b210 100644
+--- a/dbus/dbus-sysdeps-win.c
++++ b/dbus/dbus-sysdeps-win.c
+@@ -3084,8 +3084,6 @@ _dbus_get_standard_system_servicedirs (DBusList **dirs)
+   return TRUE;
+ }
+ 
+-_DBUS_DEFINE_GLOBAL_LOCK (atomic);
+-
+ /**
+  * Atomically increments an integer
+  *
+diff --git a/dbus/dbus-threads.c b/dbus/dbus-threads.c
+index bb1169d..b464629 100644
+--- a/dbus/dbus-threads.c
++++ b/dbus/dbus-threads.c
+@@ -496,9 +496,6 @@ init_locks (void)
+     LOCK_ADDR (pending_call_slots),
+     LOCK_ADDR (server_slots),
+     LOCK_ADDR (message_slots),
+-#if !DBUS_USE_SYNC
+-    LOCK_ADDR (atomic),
+-#endif
+     LOCK_ADDR (bus),
+     LOCK_ADDR (bus_datas),
+     LOCK_ADDR (shutdown_funcs),

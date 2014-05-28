@@ -1,0 +1,30 @@
+From: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Date: Tue, 16 Apr 2013 12:14:14 +0100
+Subject: Turn a runtime assertion into a compile-time assertion
+
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=54972
+Signed-off-by: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Reviewed-by: Alban Crequy <alban.crequy@collabora.co.uk>
+Reviewed-by: Ralf Habacker <ralf.habacker@freenet.de>
+Applied-upstream: 1.7.4, commit:24a9b93021908b6f2b20eaacc1b36fa8fb24edb4
+Bug-Tizen: TZPC-1971
+Reviewed-by: Anas Nashif <anas.nashif@intel.com>
+Change-Id: I2784b0aa9046fba5a83065d32305c127a2a2dc78
+---
+ dbus/dbus-threads.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/dbus/dbus-threads.c b/dbus/dbus-threads.c
+index 9fbbae5..43676bc 100644
+--- a/dbus/dbus-threads.c
++++ b/dbus/dbus-threads.c
+@@ -504,8 +504,7 @@ init_locks (void)
+ #undef LOCK_ADDR
+   };
+ 
+-  _dbus_assert (_DBUS_N_ELEMENTS (global_locks) ==
+-                _DBUS_N_GLOBAL_LOCKS);
++  _DBUS_STATIC_ASSERT (_DBUS_N_ELEMENTS (global_locks) == _DBUS_N_GLOBAL_LOCKS);
+ 
+   i = 0;
+   

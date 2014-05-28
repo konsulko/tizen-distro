@@ -1,0 +1,122 @@
+From: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Date: Tue, 16 Apr 2013 16:48:11 +0100
+Subject: Add a statically-initialized implementation of _dbus_lock() on glibc
+ systems
+
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=54972
+Signed-off-by: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Reviewed-by: Alban Crequy <alban.crequy@collabora.co.uk>
+Reviewed-by: Anas Nashif <anas.nashif@intel.com>
+Bug-Tizen: TZPC-1971
+Applied-upstream: 1.7.6, commit:83aaa9f359e90d3b8cae5d17f6d9ba4600cff68b
+Change-Id: Iee8ec5e2138ad8398efbe1cd16b46e61cee08670
+---
+ dbus/dbus-sysdeps-pthread.c  | 47 ++++++++++++++++++++++++++++++++++++++++++++
+ dbus/dbus-threads-internal.h |  6 ++++++
+ dbus/dbus-threads.c          | 14 +++++++++++++
+ 3 files changed, 67 insertions(+)
+
+diff --git a/dbus/dbus-sysdeps-pthread.c b/dbus/dbus-sysdeps-pthread.c
+index 1b5d0ba..da7d937 100644
+--- a/dbus/dbus-sysdeps-pthread.c
++++ b/dbus/dbus-sysdeps-pthread.c
+@@ -298,3 +298,50 @@ _dbus_threads_unlock_platform_specific (void)
+ {
+   pthread_mutex_unlock (&init_mutex);
+ }
++
++#ifdef DBUS_HAVE_STATIC_RECURSIVE_MUTEXES
++
++static pthread_mutex_t global_locks[] = {
++    /* 0-4 */
++    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
++    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
++    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
++    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
++    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
++    /* 5-9 */
++    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
++    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
++    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
++    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
++    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
++    /* 10-11 */
++    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP,
++    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
++};
++
++_DBUS_STATIC_ASSERT (_DBUS_N_ELEMENTS (global_locks) == _DBUS_N_GLOBAL_LOCKS);
++
++dbus_bool_t
++_dbus_lock (DBusGlobalLock lock)
++{
++  /* No initialization is needed. */
++  _dbus_assert (lock >= 0);
++  _dbus_assert (lock < _DBUS_N_GLOBAL_LOCKS);
++
++  PTHREAD_CHECK ("pthread_mutex_lock",
++      pthread_mutex_lock (&(global_locks[lock])));
++  return TRUE;
++}
++
++void
++_dbus_unlock (DBusGlobalLock lock)
++{
++  /* No initialization is needed. */
++  _dbus_assert (lock >= 0);
++  _dbus_assert (lock < _DBUS_N_GLOBAL_LOCKS);
++
++  PTHREAD_CHECK ("pthread_mutex_unlock",
++      pthread_mutex_unlock (&(global_locks[lock])));
++}
++
++#endif
+diff --git a/dbus/dbus-threads-internal.h b/dbus/dbus-threads-internal.h
+index 64e8bac..228a8c0 100644
+--- a/dbus/dbus-threads-internal.h
++++ b/dbus/dbus-threads-internal.h
+@@ -32,6 +32,12 @@
+  * @{
+  */
+ 
++/* glibc can implement global locks without needing an initialization step,
++ * which improves our thread-safety-by-default further. */
++#if defined(__GLIBC__) && defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
++#   define DBUS_HAVE_STATIC_RECURSIVE_MUTEXES 1
++#endif
++
+ /**
+  * A mutex which is recursive if possible, else non-recursive.
+  * This is typically recursive, but that cannot be relied upon.
+diff --git a/dbus/dbus-threads.c b/dbus/dbus-threads.c
+index 29462eb..1781bda 100644
+--- a/dbus/dbus-threads.c
++++ b/dbus/dbus-threads.c
+@@ -283,6 +283,18 @@ _dbus_condvar_wake_one (DBusCondVar *cond)
+   _dbus_platform_condvar_wake_one (cond);
+ }
+ 
++#ifdef DBUS_HAVE_STATIC_RECURSIVE_MUTEXES
++
++static dbus_bool_t
++init_global_locks (void)
++{
++  return TRUE;
++}
++
++/* implementations in dbus-sysdeps-pthread.c */
++
++#else /* !defined(DBUS_HAVE_STATIC_RECURSIVE_MUTEXES) */
++
+ static DBusRMutex *global_locks[_DBUS_N_GLOBAL_LOCKS] = { NULL };
+ 
+ static void
+@@ -356,6 +368,8 @@ _dbus_unlock (DBusGlobalLock lock)
+   _dbus_platform_rmutex_unlock (global_locks[lock]);
+ }
+ 
++#endif /* !defined(DBUS_HAVE_STATIC_RECURSIVE_MUTEXES) */
++
+ /** @} */ /* end of internals */
+ 
+ /**

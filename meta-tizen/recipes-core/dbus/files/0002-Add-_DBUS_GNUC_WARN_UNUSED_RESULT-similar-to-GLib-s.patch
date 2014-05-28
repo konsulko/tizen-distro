@@ -1,0 +1,42 @@
+From: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Date: Mon, 15 Apr 2013 20:40:21 +0100
+Subject: Add _DBUS_GNUC_WARN_UNUSED_RESULT, similar to GLib's
+
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=54972
+Signed-off-by: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Reviewed-by: Ralf Habacker <ralf.habacker@freenet.de>
+Reviewed-by: Alban Crequy <alban.crequy@collabora.co.uk>
+Applied-upstream: 1.7.4, commit:7ac9b68220a2f48bc2942aaa909d6ba1f4605f73
+Bug-Tizen: TZPC-1971
+Change-Id: I9944ae3a1e9901728bbc3bedbcc6474022db586f
+---
+ dbus/dbus-macros.h | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/dbus/dbus-macros.h b/dbus/dbus-macros.h
+index dcd3eeb..cae4100 100644
+--- a/dbus/dbus-macros.h
++++ b/dbus/dbus-macros.h
+@@ -88,13 +88,21 @@
+ #define DBUS_ALLOC_SIZE2(x,y)
+ #endif
+ 
++#if    (__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
++#define _DBUS_GNUC_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
++#else
++#define _DBUS_GNUC_WARN_UNUSED_RESULT
++#endif
++
+ /** @def _DBUS_GNUC_PRINTF
+  * used to tell gcc about printf format strings
+  */
+ /** @def _DBUS_GNUC_NORETURN
+  * used to tell gcc about functions that never return, such as _dbus_abort()
+  */
+-
++/** @def _DBUS_GNUC_WARN_UNUSED_RESULT
++ * used to tell gcc about functions whose result must be used
++ */
+ 
+ /* Normally docs are in .c files, but there isn't a .c file for this. */
+ /**

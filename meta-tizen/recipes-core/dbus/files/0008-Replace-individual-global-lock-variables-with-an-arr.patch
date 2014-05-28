@@ -1,0 +1,734 @@
+From: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Date: Tue, 16 Apr 2013 15:39:54 +0100
+Subject: Replace individual global-lock variables with an array of DBusRMutex
+ *
+
+This means we can use a much simpler code structure in data-slot
+allocators: instead of giving them a DBusRMutex ** at first-allocation,
+we can just give them an index into the array, which can be done
+statically.
+
+It doesn't make us any more thread-safe-by-default - the mutexes will
+only actually be used if threads were already initialized - but it's
+substantially better than nothing.
+
+These locks really do have to be recursive: for instance,
+internal_bus_get() calls dbus_bus_register() under the bus lock,
+and dbus_bus_register() can call _dbus_connection_close_possibly_shared(),
+which takes the bus lock.
+
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=54972
+Signed-off-by: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Reviewed-by: Alban Crequy <alban.crequy@collabora.co.uk>
+Reviewed-by: Ralf Habacker <ralf.habacker@freenet.de>
+Reviewed-by: Anas Nashif <anas.nashif@intel.com>
+Applied-upstream: 1.7.6, commit:c80c20af46c5f43dcbe672f2c6d8aec0e7f2bbd6
+Bug-Tizen: TZPC-1971
+Change-Id: I22a31a9278b5f9c88557c54723f86827a91de818
+---
+ Doxyfile.in              |   1 -
+ cmake/Doxyfile.cmake     |   1 -
+ dbus/dbus-bus.c          |  13 ------
+ dbus/dbus-connection.c   |   7 ++--
+ dbus/dbus-dataslot.c     |  62 +++++++++--------------------
+ dbus/dbus-dataslot.h     |   8 ++--
+ dbus/dbus-internals.c    |  19 +--------
+ dbus/dbus-internals.h    |  59 ++++++++++++++++------------
+ dbus/dbus-list.c         |   2 +-
+ dbus/dbus-memory.c       |  18 ++++++---
+ dbus/dbus-message.c      |   7 ++--
+ dbus/dbus-pending-call.c |   5 +--
+ dbus/dbus-server.c       |   6 +--
+ dbus/dbus-sysdeps.c      |   2 -
+ dbus/dbus-threads.c      | 100 +++++++++++++++++++++--------------------------
+ 15 files changed, 126 insertions(+), 184 deletions(-)
+
+diff --git a/Doxyfile.in b/Doxyfile.in
+index afac639..f0a37ed 100644
+--- a/Doxyfile.in
++++ b/Doxyfile.in
+@@ -147,7 +147,6 @@ PREDEFINED             = "DBUS_BEGIN_DECLS=" 			\
+ 			 "DBUS_END_DECLS=" 			\
+ 			 "DOXYGEN_SHOULD_SKIP_THIS" 		\
+                          "DBUS_GNUC_DEPRECATED="                \
+-			 "_DBUS_DEFINE_GLOBAL_LOCK(name)="	\
+ 			 "_DBUS_GNUC_PRINTF(from,to)="
+ SKIP_FUNCTION_MACROS   = YES
+ #---------------------------------------------------------------------------
+diff --git a/cmake/Doxyfile.cmake b/cmake/Doxyfile.cmake
+index e00984e..3c63d95 100644
+--- a/cmake/Doxyfile.cmake
++++ b/cmake/Doxyfile.cmake
+@@ -147,7 +147,6 @@ PREDEFINED             = "DBUS_BEGIN_DECLS=" 			\
+ 			 "DBUS_END_DECLS=" 			\
+ 			 "DOXYGEN_SHOULD_SKIP_THIS" 		\
+                          "DBUS_GNUC_DEPRECATED="                \
+-			 "_DBUS_DEFINE_GLOBAL_LOCK(name)="	\
+ 			 "_DBUS_GNUC_PRINTF(from,to)=" \
+ 			 "DBUS_EXPORT="
+ SKIP_FUNCTION_MACROS   = YES
+diff --git a/dbus/dbus-bus.c b/dbus/dbus-bus.c
+index fadc3a8..7a31cbd 100644
+--- a/dbus/dbus-bus.c
++++ b/dbus/dbus-bus.c
+@@ -95,19 +95,6 @@ static DBusBusType activation_bus_type = DBUS_BUS_STARTER;
+ 
+ static dbus_bool_t initialized = FALSE;
+ 
+-/**
+- * Lock for globals in this file
+- */
+-_DBUS_DEFINE_GLOBAL_LOCK (bus);
+-
+-/**
+- * Global lock covering all BusData on any connection. The bet is
+- * that some lock contention is better than more memory
+- * for a per-connection lock, but it's tough to imagine it mattering
+- * either way.
+- */
+-_DBUS_DEFINE_GLOBAL_LOCK (bus_datas);
+-
+ static void
+ addresses_shutdown_func (void *data)
+ {
+diff --git a/dbus/dbus-connection.c b/dbus/dbus-connection.c
+index 66315b3..03ee066 100644
+--- a/dbus/dbus-connection.c
++++ b/dbus/dbus-connection.c
+@@ -1531,7 +1531,7 @@ _dbus_connection_handle_watch (DBusWatch                   *watch,
+   return retval;
+ }
+ 
+-_DBUS_DEFINE_GLOBAL_LOCK (shared_connections);
++/* Protected by _DBUS_LOCK (shared_connections) */
+ static DBusHashTable *shared_connections = NULL;
+ static DBusList *shared_connections_no_guid = NULL;
+ 
+@@ -5852,8 +5852,8 @@ dbus_connection_list_registered (DBusConnection              *connection,
+   return retval;
+ }
+ 
+-static DBusDataSlotAllocator slot_allocator;
+-_DBUS_DEFINE_GLOBAL_LOCK (connection_slots);
++static DBusDataSlotAllocator slot_allocator =
++  _DBUS_DATA_SLOT_ALLOCATOR_INIT (_DBUS_LOCK_NAME (connection_slots));
+ 
+ /**
+  * Allocates an integer ID to be used for storing application-specific
+@@ -5873,7 +5873,6 @@ dbus_bool_t
+ dbus_connection_allocate_data_slot (dbus_int32_t *slot_p)
+ {
+   return _dbus_data_slot_allocator_alloc (&slot_allocator,
+-                                          &_DBUS_LOCK_NAME (connection_slots),
+                                           slot_p);
+ }
+ 
+diff --git a/dbus/dbus-dataslot.c b/dbus/dbus-dataslot.c
+index 0369612..b3c8090 100644
+--- a/dbus/dbus-dataslot.c
++++ b/dbus/dbus-dataslot.c
+@@ -43,13 +43,14 @@
+  * @param allocator the allocator to initialize
+  */
+ dbus_bool_t
+-_dbus_data_slot_allocator_init (DBusDataSlotAllocator *allocator)
++_dbus_data_slot_allocator_init (DBusDataSlotAllocator *allocator,
++                                DBusGlobalLock         lock)
+ {
+   allocator->allocated_slots = NULL;
+   allocator->n_allocated_slots = 0;
+   allocator->n_used_slots = 0;
+-  allocator->lock_loc = NULL;
+-  
++  allocator->lock = lock;
++
+   return TRUE;
+ }
+ 
+@@ -61,29 +62,16 @@ _dbus_data_slot_allocator_init (DBusDataSlotAllocator *allocator)
+  * is allocated and stored at *slot_id_p.
+  * 
+  * @param allocator the allocator
+- * @param mutex_loc the location lock for this allocator
+  * @param slot_id_p address to fill with the slot ID
+  * @returns #TRUE on success
+  */
+ dbus_bool_t
+ _dbus_data_slot_allocator_alloc (DBusDataSlotAllocator *allocator,
+-                                 DBusRMutex            **mutex_loc,
+                                  dbus_int32_t          *slot_id_p)
+ {
+   dbus_int32_t slot;
+ 
+-  _dbus_rmutex_lock (*mutex_loc);
+-
+-  if (allocator->n_allocated_slots == 0)
+-    {
+-      _dbus_assert (allocator->lock_loc == NULL);
+-      allocator->lock_loc = mutex_loc;
+-    }
+-  else if (allocator->lock_loc != mutex_loc)
+-    {
+-      _dbus_warn_check_failed ("D-Bus threads were initialized after first using the D-Bus library. If your application does not directly initialize threads or use D-Bus, keep in mind that some library or plugin may have used D-Bus or initialized threads behind your back. You can often fix this problem by calling dbus_init_threads() or dbus_g_threads_init() early in your main() method, before D-Bus is used.\n");
+-      _dbus_assert_not_reached ("exiting");
+-    }
++  _dbus_lock (allocator->lock);
+ 
+   if (*slot_id_p >= 0)
+     {
+@@ -146,7 +134,7 @@ _dbus_data_slot_allocator_alloc (DBusDataSlotAllocator *allocator,
+                  slot, allocator, allocator->n_allocated_slots, allocator->n_used_slots);
+   
+  out:
+-  _dbus_rmutex_unlock (*(allocator->lock_loc));
++  _dbus_unlock (allocator->lock);
+   return slot >= 0;
+ }
+ 
+@@ -165,7 +153,7 @@ void
+ _dbus_data_slot_allocator_free (DBusDataSlotAllocator *allocator,
+                                 dbus_int32_t          *slot_id_p)
+ {
+-  _dbus_rmutex_lock (*(allocator->lock_loc));
++  _dbus_lock (allocator->lock);
+   
+   _dbus_assert (*slot_id_p < allocator->n_allocated_slots);
+   _dbus_assert (allocator->allocated_slots[*slot_id_p].slot_id == *slot_id_p);
+@@ -175,7 +163,7 @@ _dbus_data_slot_allocator_free (DBusDataSlotAllocator *allocator,
+ 
+   if (allocator->allocated_slots[*slot_id_p].refcount > 0)
+     {
+-      _dbus_rmutex_unlock (*(allocator->lock_loc));
++      _dbus_unlock (allocator->lock);
+       return;
+     }
+ 
+@@ -190,19 +178,12 @@ _dbus_data_slot_allocator_free (DBusDataSlotAllocator *allocator,
+   
+   if (allocator->n_used_slots == 0)
+     {
+-      DBusRMutex **mutex_loc = allocator->lock_loc;
+-      
+       dbus_free (allocator->allocated_slots);
+       allocator->allocated_slots = NULL;
+       allocator->n_allocated_slots = 0;
+-      allocator->lock_loc = NULL;
+-
+-      _dbus_rmutex_unlock (*mutex_loc);
+-    }
+-  else
+-    {
+-      _dbus_rmutex_unlock (*(allocator->lock_loc));
+     }
++
++  _dbus_unlock (allocator->lock);
+ }
+ 
+ /**
+@@ -247,10 +228,10 @@ _dbus_data_slot_list_set  (DBusDataSlotAllocator *allocator,
+    * be e.g. realloc()ing allocated_slots. We avoid doing this if asserts
+    * are disabled, since then the asserts are empty.
+    */
+-  _dbus_rmutex_lock (*(allocator->lock_loc));
++  _dbus_lock (allocator->lock);
+   _dbus_assert (slot < allocator->n_allocated_slots);
+   _dbus_assert (allocator->allocated_slots[slot].slot_id == slot);
+-  _dbus_rmutex_unlock (*(allocator->lock_loc));
++  _dbus_unlock (allocator->lock);
+ #endif
+   
+   if (slot >= list->n_slots)
+@@ -304,11 +285,11 @@ _dbus_data_slot_list_get  (DBusDataSlotAllocator *allocator,
+    * be e.g. realloc()ing allocated_slots. We avoid doing this if asserts
+    * are disabled, since then the asserts are empty.
+    */
+-  _dbus_rmutex_lock (*(allocator->lock_loc));
++  _dbus_lock (allocator->lock);
+   _dbus_assert (slot >= 0);
+   _dbus_assert (slot < allocator->n_allocated_slots);
+   _dbus_assert (allocator->allocated_slots[slot].slot_id == slot);
+-  _dbus_rmutex_unlock (*(allocator->lock_loc));
++  _dbus_unlock (allocator->lock);
+ #endif
+ 
+   if (slot >= list->n_slots)
+@@ -384,17 +365,12 @@ _dbus_data_slot_test (void)
+   int i;
+   DBusFreeFunction old_free_func;
+   void *old_data;
+-  DBusRMutex *mutex;
+-  
+-  if (!_dbus_data_slot_allocator_init (&allocator))
++
++  if (!_dbus_data_slot_allocator_init (&allocator, _DBUS_LOCK_server_slots))
+     _dbus_assert_not_reached ("no memory for allocator");
+ 
+   _dbus_data_slot_list_init (&list);
+ 
+-  _dbus_rmutex_new_at_location (&mutex);
+-  if (mutex == NULL)
+-    _dbus_assert_not_reached ("failed to alloc mutex");
+-  
+ #define N_SLOTS 100
+ 
+   i = 0;
+@@ -405,8 +381,8 @@ _dbus_data_slot_test (void)
+        * here.
+        */
+       dbus_int32_t tmp = -1;
+-      
+-      _dbus_data_slot_allocator_alloc (&allocator, &mutex, &tmp);
++
++      _dbus_data_slot_allocator_alloc (&allocator, &tmp);
+ 
+       if (tmp != i)
+         _dbus_assert_not_reached ("did not allocate slots in numeric order\n");
+@@ -471,8 +447,6 @@ _dbus_data_slot_test (void)
+       ++i;
+     }
+ 
+-  _dbus_rmutex_free_at_location (&mutex);
+-  
+   return TRUE;
+ }
+ 
+diff --git a/dbus/dbus-dataslot.h b/dbus/dbus-dataslot.h
+index 3d9d5ed..1e04fcb 100644
+--- a/dbus/dbus-dataslot.h
++++ b/dbus/dbus-dataslot.h
+@@ -57,9 +57,11 @@ struct DBusDataSlotAllocator
+   DBusAllocatedSlot *allocated_slots; /**< Allocated slots */
+   int  n_allocated_slots; /**< number of slots malloc'd */
+   int  n_used_slots;      /**< number of slots used */
+-  DBusRMutex **lock_loc;  /**< location of thread lock */
++  DBusGlobalLock lock;    /**< index of thread lock */
+ };
+ 
++#define _DBUS_DATA_SLOT_ALLOCATOR_INIT(x) { NULL, 0, 0, x }
++
+ /**
+  * Data structure that stores the actual user data set at a given
+  * slot.
+@@ -70,9 +72,9 @@ struct DBusDataSlotList
+   int           n_slots; /**< Slots we have storage for in data_slots */
+ };
+ 
+-dbus_bool_t _dbus_data_slot_allocator_init  (DBusDataSlotAllocator  *allocator);
++dbus_bool_t _dbus_data_slot_allocator_init  (DBusDataSlotAllocator  *allocator,
++                                             DBusGlobalLock          lock);
+ dbus_bool_t _dbus_data_slot_allocator_alloc (DBusDataSlotAllocator  *allocator,
+-                                             DBusRMutex             **mutex_loc,
+                                              int                    *slot_id_p);
+ void        _dbus_data_slot_allocator_free  (DBusDataSlotAllocator  *allocator,
+                                              int                    *slot_id_p);
+diff --git a/dbus/dbus-internals.c b/dbus/dbus-internals.c
+index 0e5d807..1a36734 100644
+--- a/dbus/dbus-internals.c
++++ b/dbus/dbus-internals.c
+@@ -163,23 +163,6 @@
+  */
+ 
+ /**
+- * @def _DBUS_DEFINE_GLOBAL_LOCK
+- *
+- * Defines a global lock variable with the given name.
+- * The lock must be added to the list to initialize
+- * in dbus_threads_init().
+- */
+-
+-/**
+- * @def _DBUS_DECLARE_GLOBAL_LOCK
+- *
+- * Expands to declaration of a global lock defined
+- * with _DBUS_DEFINE_GLOBAL_LOCK.
+- * The lock must be added to the list to initialize
+- * in dbus_threads_init().
+- */
+-
+-/**
+  * @def _DBUS_LOCK
+  *
+  * Locks a global lock
+@@ -847,7 +830,7 @@ _dbus_read_uuid_file (const DBusString *filename,
+     }
+ }
+ 
+-_DBUS_DEFINE_GLOBAL_LOCK (machine_uuid);
++/* Protected by _DBUS_LOCK (machine_uuid) */
+ static int machine_uuid_initialized_generation = 0;
+ static DBusGUID machine_uuid;
+ 
+diff --git a/dbus/dbus-internals.h b/dbus/dbus-internals.h
+index 336d22e..22ad297 100644
+--- a/dbus/dbus-internals.h
++++ b/dbus/dbus-internals.h
+@@ -297,35 +297,42 @@ dbus_bool_t _dbus_test_oom_handling (const char             *description,
+ #endif /* !DBUS_BUILD_TESTS */
+ 
+ typedef void (* DBusShutdownFunction) (void *data);
+-dbus_bool_t _dbus_register_shutdown_func (DBusShutdownFunction  function,
+-                                          void                 *data);
++dbus_bool_t _dbus_register_shutdown_func          (DBusShutdownFunction  function,
++                                                   void                 *data);
++dbus_bool_t _dbus_register_shutdown_func_unlocked (DBusShutdownFunction  function,
++                                                   void                 *data);
+ 
+ extern int _dbus_current_generation;
+ 
+-/* Thread initializers */
+-#define _DBUS_LOCK_NAME(name)           _dbus_lock_##name
+-#define _DBUS_DECLARE_GLOBAL_LOCK(name) extern DBusRMutex *_dbus_lock_##name
+-#define _DBUS_DEFINE_GLOBAL_LOCK(name)  DBusRMutex        *_dbus_lock_##name
+-#define _DBUS_LOCK(name)                _dbus_rmutex_lock   (_dbus_lock_##name)
+-#define _DBUS_UNLOCK(name)              _dbus_rmutex_unlock (_dbus_lock_##name)
+-
+-/* index 0-4 */
+-_DBUS_DECLARE_GLOBAL_LOCK (list);
+-_DBUS_DECLARE_GLOBAL_LOCK (connection_slots);
+-_DBUS_DECLARE_GLOBAL_LOCK (pending_call_slots);
+-_DBUS_DECLARE_GLOBAL_LOCK (server_slots);
+-_DBUS_DECLARE_GLOBAL_LOCK (message_slots);
+-/* index 5-9 */
+-_DBUS_DECLARE_GLOBAL_LOCK (bus);
+-_DBUS_DECLARE_GLOBAL_LOCK (bus_datas);
+-_DBUS_DECLARE_GLOBAL_LOCK (shutdown_funcs);
+-_DBUS_DECLARE_GLOBAL_LOCK (system_users);
+-_DBUS_DECLARE_GLOBAL_LOCK (message_cache);
+-/* index 10-11 */
+-_DBUS_DECLARE_GLOBAL_LOCK (shared_connections);
+-_DBUS_DECLARE_GLOBAL_LOCK (machine_uuid);
+-
+-#define _DBUS_N_GLOBAL_LOCKS (12)
++/* The weird case convention is to avoid having to change all the callers,
++ * which would be quite a mega-patch. */
++typedef enum
++{
++  /* index 0-4 */
++  _DBUS_LOCK_list,
++  _DBUS_LOCK_connection_slots,
++  _DBUS_LOCK_pending_call_slots,
++  _DBUS_LOCK_server_slots,
++  _DBUS_LOCK_message_slots,
++  /* index 5-9 */
++  _DBUS_LOCK_bus,
++  _DBUS_LOCK_bus_datas,
++  _DBUS_LOCK_shutdown_funcs,
++  _DBUS_LOCK_system_users,
++  _DBUS_LOCK_message_cache,
++  /* index 10-11 */
++  _DBUS_LOCK_shared_connections,
++  _DBUS_LOCK_machine_uuid,
++
++  _DBUS_N_GLOBAL_LOCKS
++} DBusGlobalLock;
++
++void _dbus_lock   (DBusGlobalLock lock);
++void _dbus_unlock (DBusGlobalLock lock);
++
++#define _DBUS_LOCK_NAME(name)           _DBUS_LOCK_##name
++#define _DBUS_LOCK(name)                _dbus_lock   (_DBUS_LOCK_##name)
++#define _DBUS_UNLOCK(name)              _dbus_unlock (_DBUS_LOCK_##name)
+ 
+ dbus_bool_t _dbus_threads_init_debug (void);
+ 
+diff --git a/dbus/dbus-list.c b/dbus/dbus-list.c
+index 7e11cc8..e5a4940 100644
+--- a/dbus/dbus-list.c
++++ b/dbus/dbus-list.c
+@@ -35,8 +35,8 @@
+  * Types and functions related to DBusList.
+  */
+ 
++/* Protected by _DBUS_LOCK (list) */
+ static DBusMemPool *list_pool;
+-_DBUS_DEFINE_GLOBAL_LOCK (list);
+ 
+ /**
+  * @defgroup DBusListInternals Linked list implementation details
+diff --git a/dbus/dbus-memory.c b/dbus/dbus-memory.c
+index 317e37e..a13b951 100644
+--- a/dbus/dbus-memory.c
++++ b/dbus/dbus-memory.c
+@@ -795,7 +795,7 @@ struct ShutdownClosure
+   void *data;                /**< Data for function */
+ };
+ 
+-_DBUS_DEFINE_GLOBAL_LOCK (shutdown_funcs);
++/* Protected by _DBUS_LOCK (shutdown_funcs) */
+ static ShutdownClosure *registered_globals = NULL;
+ 
+ /**
+@@ -810,6 +810,18 @@ dbus_bool_t
+ _dbus_register_shutdown_func (DBusShutdownFunction  func,
+                               void                 *data)
+ {
++  dbus_bool_t ok;
++
++  _DBUS_LOCK (shutdown_funcs);
++  ok = _dbus_register_shutdown_func_unlocked (func, data);
++  _DBUS_UNLOCK (shutdown_funcs);
++  return ok;
++}
++
++dbus_bool_t
++_dbus_register_shutdown_func_unlocked (DBusShutdownFunction  func,
++                                       void                 *data)
++{
+   ShutdownClosure *c;
+ 
+   c = dbus_new (ShutdownClosure, 1);
+@@ -820,13 +832,9 @@ _dbus_register_shutdown_func (DBusShutdownFunction  func,
+   c->func = func;
+   c->data = data;
+ 
+-  _DBUS_LOCK (shutdown_funcs);
+-  
+   c->next = registered_globals;
+   registered_globals = c;
+ 
+-  _DBUS_UNLOCK (shutdown_funcs);
+-  
+   return TRUE;
+ }
+ 
+diff --git a/dbus/dbus-message.c b/dbus/dbus-message.c
+index 71bcee6..2814569 100644
+--- a/dbus/dbus-message.c
++++ b/dbus/dbus-message.c
+@@ -506,7 +506,7 @@ _dbus_message_set_signature (DBusMessage *message,
+ /** Avoid caching too many messages */
+ #define MAX_MESSAGE_CACHE_SIZE    5
+ 
+-_DBUS_DEFINE_GLOBAL_LOCK (message_cache);
++/* Protected by _DBUS_LOCK (message_cache) */
+ static DBusMessage *message_cache[MAX_MESSAGE_CACHE_SIZE];
+ static int message_cache_count = 0;
+ static dbus_bool_t message_cache_shutdown_registered = FALSE;
+@@ -4423,8 +4423,8 @@ _dbus_message_loader_get_max_message_unix_fds (DBusMessageLoader  *loader)
+   return loader->max_message_unix_fds;
+ }
+ 
+-static DBusDataSlotAllocator slot_allocator;
+-_DBUS_DEFINE_GLOBAL_LOCK (message_slots);
++static DBusDataSlotAllocator slot_allocator =
++  _DBUS_DATA_SLOT_ALLOCATOR_INIT (_DBUS_LOCK_NAME (message_slots));
+ 
+ /**
+  * Allocates an integer ID to be used for storing application-specific
+@@ -4444,7 +4444,6 @@ dbus_bool_t
+ dbus_message_allocate_data_slot (dbus_int32_t *slot_p)
+ {
+   return _dbus_data_slot_allocator_alloc (&slot_allocator,
+-                                          &_DBUS_LOCK_NAME (message_slots),
+                                           slot_p);
+ }
+ 
+diff --git a/dbus/dbus-pending-call.c b/dbus/dbus-pending-call.c
+index 62c6c74..1604408 100644
+--- a/dbus/dbus-pending-call.c
++++ b/dbus/dbus-pending-call.c
+@@ -489,8 +489,8 @@ _dbus_pending_call_get_completed_unlocked (DBusPendingCall    *pending)
+   return pending->completed;
+ }
+ 
+-static DBusDataSlotAllocator slot_allocator;
+-_DBUS_DEFINE_GLOBAL_LOCK (pending_call_slots);
++static DBusDataSlotAllocator slot_allocator =
++  _DBUS_DATA_SLOT_ALLOCATOR_INIT (_DBUS_LOCK_NAME (pending_call_slots));
+ 
+ /**
+  * Stores a pointer on a #DBusPendingCall, along
+@@ -768,7 +768,6 @@ dbus_pending_call_allocate_data_slot (dbus_int32_t *slot_p)
+   _dbus_return_val_if_fail (slot_p != NULL, FALSE);
+ 
+   return _dbus_data_slot_allocator_alloc (&slot_allocator,
+-                                          &_DBUS_LOCK_NAME (pending_call_slots),
+                                           slot_p);
+ }
+ 
+diff --git a/dbus/dbus-server.c b/dbus/dbus-server.c
+index b62c2b4..e021266 100644
+--- a/dbus/dbus-server.c
++++ b/dbus/dbus-server.c
+@@ -1071,9 +1071,8 @@ dbus_server_set_auth_mechanisms (DBusServer  *server,
+   return TRUE;
+ }
+ 
+-
+-static DBusDataSlotAllocator slot_allocator;
+-_DBUS_DEFINE_GLOBAL_LOCK (server_slots);
++static DBusDataSlotAllocator slot_allocator =
++  _DBUS_DATA_SLOT_ALLOCATOR_INIT (_DBUS_LOCK_NAME (server_slots));
+ 
+ /**
+  * Allocates an integer ID to be used for storing application-specific
+@@ -1093,7 +1092,6 @@ dbus_bool_t
+ dbus_server_allocate_data_slot (dbus_int32_t *slot_p)
+ {
+   return _dbus_data_slot_allocator_alloc (&slot_allocator,
+-                                          (DBusRMutex **)&_DBUS_LOCK_NAME (server_slots),
+                                           slot_p);
+ }
+ 
+diff --git a/dbus/dbus-sysdeps.c b/dbus/dbus-sysdeps.c
+index 4e14ac3..0fbf9e7 100644
+--- a/dbus/dbus-sysdeps.c
++++ b/dbus/dbus-sysdeps.c
+@@ -46,8 +46,6 @@
+ #include <errno.h>
+ #endif
+ 
+-_DBUS_DEFINE_GLOBAL_LOCK (system_users);
+-
+ #ifdef DBUS_WIN
+   #include <stdlib.h>
+ #elif (defined __APPLE__)
+diff --git a/dbus/dbus-threads.c b/dbus/dbus-threads.c
+index 43676bc..297a7e4 100644
+--- a/dbus/dbus-threads.c
++++ b/dbus/dbus-threads.c
+@@ -343,23 +343,19 @@ _dbus_condvar_wake_one (DBusCondVar *cond)
+     _dbus_platform_condvar_wake_one (cond);
+ }
+ 
++static DBusRMutex *global_locks[_DBUS_N_GLOBAL_LOCKS] = { NULL };
++
+ static void
+-shutdown_global_locks (void *data)
++shutdown_global_locks (void *nil)
+ {
+-  DBusRMutex ***locks = data;
+   int i;
+ 
+-  i = 0;
+-  while (i < _DBUS_N_GLOBAL_LOCKS)
++  for (i = 0; i < _DBUS_N_GLOBAL_LOCKS; i++)
+     {
+-      if (*(locks[i]) != NULL)
+-        _dbus_platform_rmutex_free (*(locks[i]));
+-
+-      *(locks[i]) = NULL;
+-      ++i;
++      _dbus_assert (global_locks[i] != NULL);
++      _dbus_platform_rmutex_free (global_locks[i]);
++      global_locks[i] = NULL;
+     }
+-  
+-  dbus_free (locks);
+ }
+ 
+ static void
+@@ -483,67 +479,60 @@ init_uninitialized_locks (void)
+ }
+ 
+ static dbus_bool_t
+-init_locks (void)
++init_global_locks (void)
+ {
+   int i;
+-  DBusRMutex ***dynamic_global_locks;
+-  DBusRMutex **global_locks[] = {
+-#define LOCK_ADDR(name) (& _dbus_lock_##name)
+-    LOCK_ADDR (list),
+-    LOCK_ADDR (connection_slots),
+-    LOCK_ADDR (pending_call_slots),
+-    LOCK_ADDR (server_slots),
+-    LOCK_ADDR (message_slots),
+-    LOCK_ADDR (bus),
+-    LOCK_ADDR (bus_datas),
+-    LOCK_ADDR (shutdown_funcs),
+-    LOCK_ADDR (system_users),
+-    LOCK_ADDR (message_cache),
+-    LOCK_ADDR (shared_connections),
+-    LOCK_ADDR (machine_uuid)
+-#undef LOCK_ADDR
+-  };
+-
+-  _DBUS_STATIC_ASSERT (_DBUS_N_ELEMENTS (global_locks) == _DBUS_N_GLOBAL_LOCKS);
+-
+-  i = 0;
+-  
+-  dynamic_global_locks = dbus_new (DBusRMutex**, _DBUS_N_GLOBAL_LOCKS);
+-  if (dynamic_global_locks == NULL)
+-    goto failed;
+-  
+-  while (i < _DBUS_N_ELEMENTS (global_locks))
++  dbus_bool_t ok;
++
++  for (i = 0; i < _DBUS_N_GLOBAL_LOCKS; i++)
+     {
+-      *global_locks[i] = _dbus_platform_rmutex_new ();
++      _dbus_assert (global_locks[i] == NULL);
++
++      global_locks[i] = _dbus_platform_rmutex_new ();
+ 
+-      if (*global_locks[i] == NULL)
++      if (global_locks[i] == NULL)
+         goto failed;
++    }
+ 
+-      dynamic_global_locks[i] = global_locks[i];
++  _dbus_lock (_DBUS_LOCK_NAME (shutdown_funcs));
++  ok = _dbus_register_shutdown_func_unlocked (shutdown_global_locks, NULL);
++  _dbus_unlock (_DBUS_LOCK_NAME (shutdown_funcs));
+ 
+-      ++i;
+-    }
+-  
+-  if (!_dbus_register_shutdown_func (shutdown_global_locks,
+-                                     dynamic_global_locks))
++  if (!ok)
+     goto failed;
+ 
+-  if (!init_uninitialized_locks ())
+-    goto failed;
+-  
+   return TRUE;
+ 
+  failed:
+-  dbus_free (dynamic_global_locks);
+-                                     
+   for (i = i - 1; i >= 0; i--)
+     {
+-      _dbus_platform_rmutex_free (*global_locks[i]);
+-      *global_locks[i] = NULL;
++      _dbus_platform_rmutex_free (global_locks[i]);
++      global_locks[i] = NULL;
+     }
++
+   return FALSE;
+ }
+ 
++void
++_dbus_lock (DBusGlobalLock lock)
++{
++  _dbus_assert (lock >= 0);
++  _dbus_assert (lock < _DBUS_N_GLOBAL_LOCKS);
++
++  if (thread_init_generation == _dbus_current_generation)
++    _dbus_platform_rmutex_lock (global_locks[lock]);
++}
++
++void
++_dbus_unlock (DBusGlobalLock lock)
++{
++  _dbus_assert (lock >= 0);
++  _dbus_assert (lock < _DBUS_N_GLOBAL_LOCKS);
++
++  if (thread_init_generation == _dbus_current_generation)
++    _dbus_platform_rmutex_unlock (global_locks[lock]);
++}
++
+ /** @} */ /* end of internals */
+ 
+ /**
+@@ -587,7 +576,8 @@ dbus_threads_init (const DBusThreadFunctions *functions)
+     }
+ 
+   if (!_dbus_threads_init_platform_specific() ||
+-      !init_locks ())
++      !init_global_locks () ||
++      !init_uninitialized_locks ())
+     {
+       _dbus_threads_unlock_platform_specific ();
+       return FALSE;

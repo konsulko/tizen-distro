@@ -1,0 +1,719 @@
+From: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Date: Tue, 16 Apr 2013 16:28:44 +0100
+Subject: Make taking a global lock automatically initialize locking if needed
+
+This lets them be thread-safe by default, at the cost that they can
+now fail.
+
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=54972
+Signed-off-by: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Reviewed-by: Alban Crequy <alban.crequy@collabora.co.uk>
+Reviewed-by: Anas Nashif <anas.nashif@intel.com>
+Applied-upstream: 1.7.6, commit:2b3272c75ae48c93911bd6f656965cf77d6de3e8
+Bug-Tizen: TZPC-1971
+Change-Id: I7e547e5776d37051ec8b6eccc2c8bd34b8d1996b
+---
+ bus/stats.c                        |  4 +--
+ dbus/dbus-bus.c                    | 52 ++++++++++++++++++++++++++++++--------
+ dbus/dbus-connection.c             | 50 ++++++++++++++++++++++++++----------
+ dbus/dbus-dataslot.c               | 19 ++++++++++----
+ dbus/dbus-internals.c              |  8 ++++--
+ dbus/dbus-internals.h              |  4 +--
+ dbus/dbus-list.c                   | 17 ++++++++++---
+ dbus/dbus-memory.c                 |  4 ++-
+ dbus/dbus-message.c                | 19 +++++++++++---
+ dbus/dbus-threads.c                | 28 +++++++++++++-------
+ dbus/dbus-userdb-util.c            | 20 ++++++++++++---
+ dbus/dbus-userdb.c                 | 43 +++++++++++++++++++++++--------
+ dbus/dbus-userdb.h                 |  2 +-
+ test/name-test/test-threads-init.c | 14 ++++++----
+ 14 files changed, 213 insertions(+), 71 deletions(-)
+
+diff --git a/bus/stats.c b/bus/stats.c
+index 28fd49b..4553191 100644
+--- a/bus/stats.c
++++ b/bus/stats.c
+@@ -203,8 +203,8 @@ bus_stats_handle_get_stats (DBusConnection *connection,
+   if (!asv_add_uint32 (&iter, &arr_iter, "Serial", stats_serial++))
+     goto oom;
+ 
+-  _dbus_list_get_stats (&in_use, &in_free_list, &allocated);
+-  if (!asv_add_uint32 (&iter, &arr_iter, "ListMemPoolUsedBytes", in_use) ||
++  if (!_dbus_list_get_stats (&in_use, &in_free_list, &allocated) ||
++      !asv_add_uint32 (&iter, &arr_iter, "ListMemPoolUsedBytes", in_use) ||
+       !asv_add_uint32 (&iter, &arr_iter, "ListMemPoolCachedBytes",
+                        in_free_list) ||
+       !asv_add_uint32 (&iter, &arr_iter, "ListMemPoolAllocatedBytes",
+diff --git a/dbus/dbus-bus.c b/dbus/dbus-bus.c
+index 7a31cbd..3aa5c09 100644
+--- a/dbus/dbus-bus.c
++++ b/dbus/dbus-bus.c
+@@ -317,7 +317,11 @@ bus_data_free (void *data)
+   if (bd->is_well_known)
+     {
+       int i;
+-      _DBUS_LOCK (bus);
++
++      if (!_DBUS_LOCK (bus))
++        _dbus_assert_not_reached ("global locks should have been initialized "
++            "when we attached bus data");
++
+       /* We may be stored in more than one slot */
+       /* This should now be impossible - these slots are supposed to
+        * be cleared on disconnect, so should not need to be cleared on
+@@ -388,8 +392,13 @@ void
+ _dbus_bus_notify_shared_connection_disconnected_unlocked (DBusConnection *connection)
+ {
+   int i;
+-  
+-  _DBUS_LOCK (bus);
++
++  if (!_DBUS_LOCK (bus))
++    {
++      /* If it was in bus_connections, we would have initialized global locks
++       * when we added it. So, it can't be. */
++      return;
++    }
+ 
+   /* We are expecting to have the connection saved in only one of these
+    * slots, but someone could in a pathological case set system and session
+@@ -423,7 +432,12 @@ internal_bus_get (DBusBusType  type,
+ 
+   connection = NULL;
+ 
+-  _DBUS_LOCK (bus);
++  if (!_DBUS_LOCK (bus))
++    {
++      _DBUS_SET_OOM (error);
++      /* do not "goto out", that would try to unlock */
++      return NULL;
++    }
+ 
+   if (!init_connections_unlocked ())
+     {
+@@ -493,8 +507,10 @@ internal_bus_get (DBusBusType  type,
+    */
+   dbus_connection_set_exit_on_disconnect (connection,
+                                           TRUE);
+- 
+-  _DBUS_LOCK (bus_datas);
++
++  if (!_DBUS_LOCK (bus_datas))
++    _dbus_assert_not_reached ("global locks were initialized already");
++
+   bd = ensure_bus_data (connection);
+   _dbus_assert (bd != NULL); /* it should have been created on
+                                 register, so OOM not possible */
+@@ -647,7 +663,12 @@ dbus_bus_register (DBusConnection *connection,
+   message = NULL;
+   reply = NULL;
+ 
+-  _DBUS_LOCK (bus_datas);
++  if (!_DBUS_LOCK (bus_datas))
++    {
++      _DBUS_SET_OOM (error);
++      /* do not "goto out", that would try to unlock */
++      return FALSE;
++    }
+ 
+   bd = ensure_bus_data (connection);
+   if (bd == NULL)
+@@ -756,8 +777,12 @@ dbus_bus_set_unique_name (DBusConnection *connection,
+   _dbus_return_val_if_fail (connection != NULL, FALSE);
+   _dbus_return_val_if_fail (unique_name != NULL, FALSE);
+ 
+-  _DBUS_LOCK (bus_datas);
+-  
++  if (!_DBUS_LOCK (bus_datas))
++    {
++      /* do not "goto out", that would try to unlock */
++      return FALSE;
++    }
++
+   bd = ensure_bus_data (connection);
+   if (bd == NULL)
+     goto out;
+@@ -799,8 +824,13 @@ dbus_bus_get_unique_name (DBusConnection *connection)
+ 
+   _dbus_return_val_if_fail (connection != NULL, NULL);
+ 
+-  _DBUS_LOCK (bus_datas);
+-  
++  if (!_DBUS_LOCK (bus_datas))
++    {
++      /* We'd have initialized locks when we gave it its unique name, if it
++       * had one. Don't "goto out", that would try to unlock. */
++      return NULL;
++    }
++
+   bd = ensure_bus_data (connection);
+   if (bd == NULL)
+     goto out;
+diff --git a/dbus/dbus-connection.c b/dbus/dbus-connection.c
+index 03ee066..87cfeb0 100644
+--- a/dbus/dbus-connection.c
++++ b/dbus/dbus-connection.c
+@@ -1555,9 +1555,14 @@ static void
+ shared_connections_shutdown (void *data)
+ {
+   int n_entries;
+-  
+-  _DBUS_LOCK (shared_connections);
+-  
++
++  if (!_DBUS_LOCK (shared_connections))
++    {
++      /* We'd have initialized locks before adding anything, so there
++       * can't be anything there. */
++      return;
++    }
++
+   /* This is a little bit unpleasant... better ideas? */
+   while ((n_entries = _dbus_hash_table_get_n_entries (shared_connections)) > 0)
+     {
+@@ -1571,7 +1576,8 @@ shared_connections_shutdown (void *data)
+ 
+       _DBUS_UNLOCK (shared_connections);
+       close_connection_on_shutdown (connection);
+-      _DBUS_LOCK (shared_connections);
++      if (!_DBUS_LOCK (shared_connections))
++        _dbus_assert_not_reached ("global locks were already initialized");
+ 
+       /* The connection should now be dead and not in our hash ... */
+       _dbus_assert (_dbus_hash_table_get_n_entries (shared_connections) < n_entries);
+@@ -1590,7 +1596,8 @@ shared_connections_shutdown (void *data)
+         {
+           _DBUS_UNLOCK (shared_connections);
+           close_connection_on_shutdown (connection);
+-          _DBUS_LOCK (shared_connections);
++          if (!_DBUS_LOCK (shared_connections))
++            _dbus_assert_not_reached ("global locks were already initialized");
+           connection = _dbus_list_pop_first (&shared_connections_no_guid);
+         }
+     }
+@@ -1607,8 +1614,13 @@ connection_lookup_shared (DBusAddressEntry  *entry,
+   _dbus_verbose ("checking for existing connection\n");
+   
+   *result = NULL;
+-  
+-  _DBUS_LOCK (shared_connections);
++
++  if (!_DBUS_LOCK (shared_connections))
++    {
++      /* If it was shared, we'd have initialized global locks when we put
++       * it in shared_connections. */
++      return FALSE;
++    }
+ 
+   if (shared_connections == NULL)
+     {
+@@ -1706,7 +1718,8 @@ connection_record_shared_unlocked (DBusConnection *connection,
+ 
+   if (guid == NULL)
+     {
+-      _DBUS_LOCK (shared_connections);
++      if (!_DBUS_LOCK (shared_connections))
++        return FALSE;
+ 
+       if (!_dbus_list_prepend (&shared_connections_no_guid, connection))
+         {
+@@ -1733,8 +1746,14 @@ connection_record_shared_unlocked (DBusConnection *connection,
+       dbus_free (guid_key);
+       return FALSE;
+     }
+-  
+-  _DBUS_LOCK (shared_connections);
++
++  if (!_DBUS_LOCK (shared_connections))
++    {
++      dbus_free (guid_in_connection);
++      dbus_free (guid_key);
++      return FALSE;
++    }
++
+   _dbus_assert (shared_connections != NULL);
+   
+   if (!_dbus_hash_table_insert_string (shared_connections,
+@@ -1765,9 +1784,14 @@ connection_forget_shared_unlocked (DBusConnection *connection)
+ 
+   if (!connection->shareable)
+     return;
+-  
+-  _DBUS_LOCK (shared_connections);
+-      
++
++  if (!_DBUS_LOCK (shared_connections))
++    {
++      /* If it was shared, we'd have initialized global locks when we put
++       * it in the table; so it can't be there. */
++      return;
++    }
++
+   if (connection->server_guid != NULL)
+     {
+       _dbus_verbose ("dropping connection to %s out of the shared table\n",
+diff --git a/dbus/dbus-dataslot.c b/dbus/dbus-dataslot.c
+index b3c8090..412e7f4 100644
+--- a/dbus/dbus-dataslot.c
++++ b/dbus/dbus-dataslot.c
+@@ -71,7 +71,8 @@ _dbus_data_slot_allocator_alloc (DBusDataSlotAllocator *allocator,
+ {
+   dbus_int32_t slot;
+ 
+-  _dbus_lock (allocator->lock);
++  if (!_dbus_lock (allocator->lock))
++    return FALSE;
+ 
+   if (*slot_id_p >= 0)
+     {
+@@ -153,8 +154,10 @@ void
+ _dbus_data_slot_allocator_free (DBusDataSlotAllocator *allocator,
+                                 dbus_int32_t          *slot_id_p)
+ {
+-  _dbus_lock (allocator->lock);
+-  
++  if (!_dbus_lock (allocator->lock))
++    _dbus_assert_not_reached ("we should have initialized global locks "
++        "before we allocated this slot");
++
+   _dbus_assert (*slot_id_p < allocator->n_allocated_slots);
+   _dbus_assert (allocator->allocated_slots[*slot_id_p].slot_id == *slot_id_p);
+   _dbus_assert (allocator->allocated_slots[*slot_id_p].refcount > 0);
+@@ -228,7 +231,10 @@ _dbus_data_slot_list_set  (DBusDataSlotAllocator *allocator,
+    * be e.g. realloc()ing allocated_slots. We avoid doing this if asserts
+    * are disabled, since then the asserts are empty.
+    */
+-  _dbus_lock (allocator->lock);
++  if (!_dbus_lock (allocator->lock))
++    _dbus_assert_not_reached ("we should have initialized global locks "
++        "before we allocated this slot");
++
+   _dbus_assert (slot < allocator->n_allocated_slots);
+   _dbus_assert (allocator->allocated_slots[slot].slot_id == slot);
+   _dbus_unlock (allocator->lock);
+@@ -285,7 +291,10 @@ _dbus_data_slot_list_get  (DBusDataSlotAllocator *allocator,
+    * be e.g. realloc()ing allocated_slots. We avoid doing this if asserts
+    * are disabled, since then the asserts are empty.
+    */
+-  _dbus_lock (allocator->lock);
++  if (!_dbus_lock (allocator->lock))
++    _dbus_assert_not_reached ("we should have initialized global locks "
++        "before we allocated this slot");
++
+   _dbus_assert (slot >= 0);
+   _dbus_assert (slot < allocator->n_allocated_slots);
+   _dbus_assert (allocator->allocated_slots[slot].slot_id == slot);
+diff --git a/dbus/dbus-internals.c b/dbus/dbus-internals.c
+index 1a36734..63559be 100644
+--- a/dbus/dbus-internals.c
++++ b/dbus/dbus-internals.c
+@@ -165,7 +165,9 @@
+ /**
+  * @def _DBUS_LOCK
+  *
+- * Locks a global lock
++ * Locks a global lock, initializing it first if necessary.
++ *
++ * @returns #FALSE if not enough memory
+  */
+ 
+ /**
+@@ -849,7 +851,9 @@ _dbus_get_local_machine_uuid_encoded (DBusString *uuid_str)
+ {
+   dbus_bool_t ok;
+   
+-  _DBUS_LOCK (machine_uuid);
++  if (!_DBUS_LOCK (machine_uuid))
++    return FALSE;
++
+   if (machine_uuid_initialized_generation != _dbus_current_generation)
+     {
+       DBusError error = DBUS_ERROR_INIT;
+diff --git a/dbus/dbus-internals.h b/dbus/dbus-internals.h
+index 22ad297..edde80b 100644
+--- a/dbus/dbus-internals.h
++++ b/dbus/dbus-internals.h
+@@ -327,8 +327,8 @@ typedef enum
+   _DBUS_N_GLOBAL_LOCKS
+ } DBusGlobalLock;
+ 
+-void _dbus_lock   (DBusGlobalLock lock);
+-void _dbus_unlock (DBusGlobalLock lock);
++dbus_bool_t _dbus_lock   (DBusGlobalLock lock) _DBUS_GNUC_WARN_UNUSED_RESULT;
++void        _dbus_unlock (DBusGlobalLock lock);
+ 
+ #define _DBUS_LOCK_NAME(name)           _DBUS_LOCK_##name
+ #define _DBUS_LOCK(name)                _dbus_lock   (_DBUS_LOCK_##name)
+diff --git a/dbus/dbus-list.c b/dbus/dbus-list.c
+index e5a4940..525e067 100644
+--- a/dbus/dbus-list.c
++++ b/dbus/dbus-list.c
+@@ -56,7 +56,8 @@ alloc_link (void *data)
+ {
+   DBusList *link;
+ 
+-  _DBUS_LOCK (list);
++  if (!_DBUS_LOCK (list))
++    return FALSE;
+ 
+   if (list_pool == NULL)
+     {      
+@@ -93,7 +94,10 @@ alloc_link (void *data)
+ static void
+ free_link (DBusList *link)
+ {  
+-  _DBUS_LOCK (list);
++  if (!_DBUS_LOCK (list))
++    _dbus_assert_not_reached ("we should have initialized global locks "
++        "before we allocated a linked-list link");
++
+   if (_dbus_mem_pool_dealloc (list_pool, link))
+     {
+       _dbus_mem_pool_free (list_pool);
+@@ -152,7 +156,14 @@ _dbus_list_get_stats     (dbus_uint32_t *in_use_p,
+                           dbus_uint32_t *in_free_list_p,
+                           dbus_uint32_t *allocated_p)
+ {
+-  _DBUS_LOCK (list);
++  if (!_DBUS_LOCK (list))
++    {
++      *in_use_p = 0;
++      *in_free_list_p = 0;
++      *allocated_p = 0;
++      return;
++    }
++
+   _dbus_mem_pool_get_stats (list_pool, in_use_p, in_free_list_p, allocated_p);
+   _DBUS_UNLOCK (list);
+ }
+diff --git a/dbus/dbus-memory.c b/dbus/dbus-memory.c
+index a13b951..6cf0449 100644
+--- a/dbus/dbus-memory.c
++++ b/dbus/dbus-memory.c
+@@ -812,7 +812,9 @@ _dbus_register_shutdown_func (DBusShutdownFunction  func,
+ {
+   dbus_bool_t ok;
+ 
+-  _DBUS_LOCK (shutdown_funcs);
++  if (!_DBUS_LOCK (shutdown_funcs))
++    return FALSE;
++
+   ok = _dbus_register_shutdown_func_unlocked (func, data);
+   _DBUS_UNLOCK (shutdown_funcs);
+   return ok;
+diff --git a/dbus/dbus-message.c b/dbus/dbus-message.c
+index 2814569..275c425 100644
+--- a/dbus/dbus-message.c
++++ b/dbus/dbus-message.c
+@@ -516,7 +516,9 @@ dbus_message_cache_shutdown (void *data)
+ {
+   int i;
+ 
+-  _DBUS_LOCK (message_cache);
++  if (!_DBUS_LOCK (message_cache))
++    _dbus_assert_not_reached ("we would have initialized global locks "
++        "before registering a shutdown function");
+ 
+   i = 0;
+   while (i < MAX_MESSAGE_CACHE_SIZE)
+@@ -548,7 +550,12 @@ dbus_message_get_cached (void)
+ 
+   message = NULL;
+ 
+-  _DBUS_LOCK (message_cache);
++  if (!_DBUS_LOCK (message_cache))
++    {
++      /* we'd have initialized global locks before caching anything,
++       * so there can't be anything in the cache */
++      return NULL;
++    }
+ 
+   _dbus_assert (message_cache_count >= 0);
+ 
+@@ -660,7 +667,13 @@ dbus_message_cache_or_finalize (DBusMessage *message)
+ 
+   was_cached = FALSE;
+ 
+-  _DBUS_LOCK (message_cache);
++  if (!_DBUS_LOCK (message_cache))
++    {
++      /* The only way to get a non-null message goes through
++       * dbus_message_get_cached() which takes the lock. */
++      _dbus_assert_not_reached ("we would have initialized global locks "
++          "the first time we constructed a message");
++    }
+ 
+   if (!message_cache_shutdown_registered)
+     {
+diff --git a/dbus/dbus-threads.c b/dbus/dbus-threads.c
+index 297a7e4..2c2a816 100644
+--- a/dbus/dbus-threads.c
++++ b/dbus/dbus-threads.c
+@@ -366,10 +366,12 @@ shutdown_uninitialized_locks (void *data)
+   _dbus_list_clear (&uninitialized_condvar_list);
+ }
+ 
++/* init_global_locks() must be called first. */
+ static dbus_bool_t
+ init_uninitialized_locks (void)
+ {
+   DBusList *link;
++  dbus_bool_t ok;
+ 
+   _dbus_assert (thread_init_generation != _dbus_current_generation);
+ 
+@@ -422,8 +424,12 @@ init_uninitialized_locks (void)
+   _dbus_list_clear (&uninitialized_cmutex_list);
+   _dbus_list_clear (&uninitialized_condvar_list);
+ 
+-  if (!_dbus_register_shutdown_func (shutdown_uninitialized_locks,
+-                                     NULL))
++  /* This assumes that init_global_locks() has already been called. */
++  _dbus_platform_rmutex_lock (global_locks[_DBUS_LOCK_shutdown_funcs]);
++  ok = _dbus_register_shutdown_func_unlocked (shutdown_uninitialized_locks, NULL);
++  _dbus_platform_rmutex_unlock (global_locks[_DBUS_LOCK_shutdown_funcs]);
++
++  if (!ok)
+     goto fail_condvar;
+ 
+   return TRUE;
+@@ -494,9 +500,9 @@ init_global_locks (void)
+         goto failed;
+     }
+ 
+-  _dbus_lock (_DBUS_LOCK_NAME (shutdown_funcs));
++  _dbus_platform_rmutex_lock (global_locks[_DBUS_LOCK_shutdown_funcs]);
+   ok = _dbus_register_shutdown_func_unlocked (shutdown_global_locks, NULL);
+-  _dbus_unlock (_DBUS_LOCK_NAME (shutdown_funcs));
++  _dbus_platform_rmutex_unlock (global_locks[_DBUS_LOCK_shutdown_funcs]);
+ 
+   if (!ok)
+     goto failed;
+@@ -513,14 +519,18 @@ init_global_locks (void)
+   return FALSE;
+ }
+ 
+-void
++dbus_bool_t
+ _dbus_lock (DBusGlobalLock lock)
+ {
+   _dbus_assert (lock >= 0);
+   _dbus_assert (lock < _DBUS_N_GLOBAL_LOCKS);
+ 
+-  if (thread_init_generation == _dbus_current_generation)
+-    _dbus_platform_rmutex_lock (global_locks[lock]);
++  if (thread_init_generation != _dbus_current_generation &&
++      !dbus_threads_init_default ())
++    return FALSE;
++
++  _dbus_platform_rmutex_lock (global_locks[lock]);
++  return TRUE;
+ }
+ 
+ void
+@@ -529,8 +539,7 @@ _dbus_unlock (DBusGlobalLock lock)
+   _dbus_assert (lock >= 0);
+   _dbus_assert (lock < _DBUS_N_GLOBAL_LOCKS);
+ 
+-  if (thread_init_generation == _dbus_current_generation)
+-    _dbus_platform_rmutex_unlock (global_locks[lock]);
++  _dbus_platform_rmutex_unlock (global_locks[lock]);
+ }
+ 
+ /** @} */ /* end of internals */
+@@ -576,6 +585,7 @@ dbus_threads_init (const DBusThreadFunctions *functions)
+     }
+ 
+   if (!_dbus_threads_init_platform_specific() ||
++      /* init_global_locks() must be called before init_uninitialized_locks. */
+       !init_global_locks () ||
+       !init_uninitialized_locks ())
+     {
+diff --git a/dbus/dbus-userdb-util.c b/dbus/dbus-userdb-util.c
+index 16bf229..a8cc3d1 100644
+--- a/dbus/dbus-userdb-util.c
++++ b/dbus/dbus-userdb-util.c
+@@ -103,7 +103,11 @@ _dbus_is_console_user (dbus_uid_t uid,
+ 
+ #endif /* HAVE_CONSOLE_OWNER_FILE */
+ 
+-  _dbus_user_database_lock_system ();
++  if (!_dbus_user_database_lock_system ())
++    {
++      _DBUS_SET_OOM (error);
++      return FALSE;
++    }
+ 
+   db = _dbus_user_database_get_system ();
+   if (db == NULL)
+@@ -157,7 +161,10 @@ _dbus_get_group_id (const DBusString  *groupname,
+ {
+   DBusUserDatabase *db;
+   const DBusGroupInfo *info;
+-  _dbus_user_database_lock_system ();
++
++  /* FIXME: this can't distinguish ENOMEM from other errors */
++  if (!_dbus_user_database_lock_system ())
++    return FALSE;
+ 
+   db = _dbus_user_database_get_system ();
+   if (db == NULL)
+@@ -194,7 +201,10 @@ _dbus_get_user_id_and_primary_group (const DBusString  *username,
+ {
+   DBusUserDatabase *db;
+   const DBusUserInfo *info;
+-  _dbus_user_database_lock_system ();
++
++  /* FIXME: this can't distinguish ENOMEM from other errors */
++  if (!_dbus_user_database_lock_system ())
++    return FALSE;
+ 
+   db = _dbus_user_database_get_system ();
+   if (db == NULL)
+@@ -387,7 +397,9 @@ _dbus_groups_from_uid (dbus_uid_t         uid,
+   *group_ids = NULL;
+   *n_group_ids = 0;
+ 
+-  _dbus_user_database_lock_system ();
++  /* FIXME: this can't distinguish ENOMEM from other errors */
++  if (!_dbus_user_database_lock_system ())
++    return FALSE;
+ 
+   db = _dbus_user_database_get_system ();
+   if (db == NULL)
+diff --git a/dbus/dbus-userdb.c b/dbus/dbus-userdb.c
+index 4e8b39a..73f8fce 100644
+--- a/dbus/dbus-userdb.c
++++ b/dbus/dbus-userdb.c
+@@ -306,11 +306,18 @@ init_system_db (void)
+ /**
+  * Locks global system user database.
+  */
+-void
++dbus_bool_t
+ _dbus_user_database_lock_system (void)
+ {
+-  _DBUS_LOCK (system_users);
+-  database_locked = TRUE;
++  if (_DBUS_LOCK (system_users))
++    {
++      database_locked = TRUE;
++      return TRUE;
++    }
++  else
++    {
++      return FALSE;
++    }
+ }
+ 
+ /**
+@@ -345,8 +352,12 @@ _dbus_user_database_get_system (void)
+ void
+ _dbus_user_database_flush_system (void)
+ {
+-  _dbus_user_database_lock_system ();
+-   
++  if (!_dbus_user_database_lock_system ())
++    {
++      /* nothing to flush */
++      return;
++    }
++
+    if (system_db != NULL)
+     _dbus_user_database_flush (system_db);
+ 
+@@ -363,7 +374,9 @@ _dbus_user_database_flush_system (void)
+ dbus_bool_t
+ _dbus_username_from_current_process (const DBusString **username)
+ {
+-  _dbus_user_database_lock_system ();
++  if (!_dbus_user_database_lock_system ())
++    return FALSE;
++
+   if (!init_system_db ())
+     {
+       _dbus_user_database_unlock_system ();
+@@ -385,7 +398,9 @@ _dbus_username_from_current_process (const DBusString **username)
+ dbus_bool_t
+ _dbus_homedir_from_current_process (const DBusString  **homedir)
+ {
+-  _dbus_user_database_lock_system ();
++  if (!_dbus_user_database_lock_system ())
++    return FALSE;
++
+   if (!init_system_db ())
+     {
+       _dbus_user_database_unlock_system ();
+@@ -410,7 +425,10 @@ _dbus_homedir_from_username (const DBusString *username,
+ {
+   DBusUserDatabase *db;
+   const DBusUserInfo *info;
+-  _dbus_user_database_lock_system ();
++
++  /* FIXME: this can't distinguish ENOMEM from other errors */
++  if (!_dbus_user_database_lock_system ())
++    return FALSE;
+ 
+   db = _dbus_user_database_get_system ();
+   if (db == NULL)
+@@ -449,7 +467,10 @@ _dbus_homedir_from_uid (dbus_uid_t         uid,
+ {
+   DBusUserDatabase *db;
+   const DBusUserInfo *info;
+-  _dbus_user_database_lock_system ();
++
++  /* FIXME: this can't distinguish ENOMEM from other errors */
++  if (!_dbus_user_database_lock_system ())
++    return FALSE;
+ 
+   db = _dbus_user_database_get_system ();
+   if (db == NULL)
+@@ -496,7 +517,9 @@ _dbus_credentials_add_from_user (DBusCredentials  *credentials,
+   DBusUserDatabase *db;
+   const DBusUserInfo *info;
+ 
+-  _dbus_user_database_lock_system ();
++  /* FIXME: this can't distinguish ENOMEM from other errors */
++  if (!_dbus_user_database_lock_system ())
++    return FALSE;
+ 
+   db = _dbus_user_database_get_system ();
+   if (db == NULL)
+diff --git a/dbus/dbus-userdb.h b/dbus/dbus-userdb.h
+index cb49d9e..d6b72d8 100644
+--- a/dbus/dbus-userdb.h
++++ b/dbus/dbus-userdb.h
+@@ -86,7 +86,7 @@ void           _dbus_group_info_free_allocated  (DBusGroupInfo    *info);
+ #endif /* DBUS_USERDB_INCLUDES_PRIVATE */
+ 
+ DBusUserDatabase* _dbus_user_database_get_system    (void);
+-void              _dbus_user_database_lock_system   (void);
++dbus_bool_t       _dbus_user_database_lock_system   (void) _DBUS_GNUC_WARN_UNUSED_RESULT;
+ void              _dbus_user_database_unlock_system (void);
+ void              _dbus_user_database_flush_system  (void);
+ 
+diff --git a/test/name-test/test-threads-init.c b/test/name-test/test-threads-init.c
+index 5e22852..580ffe1 100644
+--- a/test/name-test/test-threads-init.c
++++ b/test/name-test/test-threads-init.c
+@@ -149,11 +149,15 @@ main (int argc, char *argv[])
+                                          &dispatch_cond1,
+                                          &io_path_cond1);
+ 
+-  check_mutex_lock (mutex1, mutex2, FALSE);
+-  check_mutex_lock (dispatch_mutex1, dispatch_mutex2, FALSE);
+-  check_mutex_lock (io_path_mutex1, io_path_mutex2, FALSE);
+-  check_condvar_lock (dispatch_cond1, dispatch_cond2, FALSE);
+-  check_condvar_lock (io_path_cond1, io_path_cond2, FALSE);
++  /* Since 1.7 it is no longer the case that mutex1 != mutex2, because
++   * initializing global locks automatically initializes locks
++   * in general. However, it is true that the mutex is not the dummy
++   * implementation, which is what we really wanted to check here. */
++  _dbus_assert (mutex1 != (DBusMutex *) 0xABCDEF);
++  _dbus_assert (dispatch_mutex1 != (DBusMutex *) 0xABCDEF);
++  _dbus_assert (dispatch_cond1 != (DBusCondVar *) 0xABCDEF2);
++  _dbus_assert (io_path_mutex1 != (DBusMutex *) 0xABCDEF);
++  _dbus_assert (io_path_cond1 != (DBusCondVar *) 0xABCDEF2);
+ 
+   _run_iteration (conn);
+   _dbus_connection_test_get_locks (conn, &mutex2,

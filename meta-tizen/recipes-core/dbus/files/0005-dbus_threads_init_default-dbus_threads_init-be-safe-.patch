@@ -1,0 +1,296 @@
+From: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Date: Tue, 16 Apr 2013 12:07:23 +0100
+Subject: dbus_threads_init_default,
+ dbus_threads_init: be safe to call at any time
+
+On Unix, we use a pthreads mutex, which can be allocated and
+initialized in global memory.
+
+On Windows, we use a CRITICAL_SECTION, together with a call to
+InitializeCriticalSection() from the constructor of a global static
+C++ object (thanks to Ralf Habacker for suggesting this approach).
+
+Bug: https://bugs.freedesktop.org/show_bug.cgi?id=54972
+Signed-off-by: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Reviewed-by: Alban Crequy <alban.crequy@collabora.co.uk>
+Reviewed-by: Ralf Habacker <ralf.habacker@freenet.de>
+Applied-upstream: 1.7.4, commit:17a23d08b51cf21a2110047649a86445e99e2b3f
+Bug-Tizen: TZPC-1971
+Reviewed-by: Anas Nashif <anas.nashif@intel.com>
+Change-Id: Id6aa81b7d553965c4c6f511e2410673c2f222a66
+---
+ cmake/dbus/CMakeLists.txt      |  1 +
+ dbus/Makefile.am               |  1 +
+ dbus/dbus-init-win.cpp         | 52 ++++++++++++++++++++++++++++++++++++++++++
+ dbus/dbus-memory.c             |  7 ++++++
+ dbus/dbus-sysdeps-pthread.c    | 14 ++++++++++++
+ dbus/dbus-sysdeps-thread-win.c | 28 +++++++++++++++++++++++
+ dbus/dbus-sysdeps-win.h        |  3 +++
+ dbus/dbus-sysdeps.h            | 12 ++++++++++
+ dbus/dbus-threads.c            | 28 +++++++++++++++++------
+ 9 files changed, 139 insertions(+), 7 deletions(-)
+ create mode 100644 dbus/dbus-init-win.cpp
+
+diff --git a/cmake/dbus/CMakeLists.txt b/cmake/dbus/CMakeLists.txt
+index d09e63d..9fcbb80 100644
+--- a/cmake/dbus/CMakeLists.txt
++++ b/cmake/dbus/CMakeLists.txt
+@@ -186,6 +186,7 @@ set (DBUS_UTIL_HEADERS
+ if (WIN32)
+ 	set (DBUS_SHARED_SOURCES ${DBUS_SHARED_SOURCES} 
+ 		${DBUS_DIR}/dbus-file-win.c
++		${DBUS_DIR}/dbus-init-win.cpp
+ 		${DBUS_DIR}/dbus-sysdeps-win.c
+ 		${DBUS_DIR}/dbus-pipe-win.c
+ 		${DBUS_DIR}/dbus-sysdeps-thread-win.c
+diff --git a/dbus/Makefile.am b/dbus/Makefile.am
+index bb5ccca..0e54c9f 100644
+--- a/dbus/Makefile.am
++++ b/dbus/Makefile.am
+@@ -68,6 +68,7 @@ endif
+ DBUS_SHARED_arch_sources = 			\
+ 	$(wince_source)				\
+ 	dbus-file-win.c 			\
++	dbus-init-win.cpp			\
+ 	dbus-pipe-win.c 			\
+ 	dbus-sockets-win.h			\
+ 	dbus-sysdeps-win.c 			\
+diff --git a/dbus/dbus-init-win.cpp b/dbus/dbus-init-win.cpp
+new file mode 100644
+index 0000000..687f248
+--- /dev/null
++++ b/dbus/dbus-init-win.cpp
+@@ -0,0 +1,52 @@
++/*
++ * dbus-init-win.cpp - once-per-process initialization
++ *
++ * Copyright © 2013 Intel Corporation
++ *
++ * Licensed under the Academic Free License version 2.1
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
++ *
++ */
++
++#include <config.h>
++
++extern "C"
++{
++#include "dbus-sysdeps-win.h"
++}
++
++class DBusInternalInit
++  {
++    public:
++      DBusInternalInit ()
++        {
++          _dbus_threads_windows_init_global ();
++        }
++
++      void must_not_be_omitted ()
++        {
++        }
++  };
++
++static DBusInternalInit init;
++
++extern "C" void
++_dbus_threads_windows_ensure_ctor_linked ()
++{
++  /* Do nothing significant, just ensure that the global initializer gets
++   * linked in. */
++  init.must_not_be_omitted ();
++}
+diff --git a/dbus/dbus-memory.c b/dbus/dbus-memory.c
+index a033b54..317e37e 100644
+--- a/dbus/dbus-memory.c
++++ b/dbus/dbus-memory.c
+@@ -26,6 +26,7 @@
+ #include "dbus-internals.h"
+ #include "dbus-sysdeps.h"
+ #include "dbus-list.h"
++#include "dbus-threads.h"
+ #include <stdlib.h>
+ 
+ /**
+@@ -890,7 +891,13 @@ dbus_shutdown (void)
+       dbus_free (c);
+     }
+ 
++  /* We wrap this in the thread-initialization lock because
++   * dbus_threads_init() uses the current generation to tell whether
++   * we're initialized, so we need to make sure that un-initializing
++   * propagates into all threads. */
++  _dbus_threads_lock_platform_specific ();
+   _dbus_current_generation += 1;
++  _dbus_threads_unlock_platform_specific ();
+ }
+ 
+ /** @} */ /** End of public API docs block */
+diff --git a/dbus/dbus-sysdeps-pthread.c b/dbus/dbus-sysdeps-pthread.c
+index 36a1e4b..1b5d0ba 100644
+--- a/dbus/dbus-sysdeps-pthread.c
++++ b/dbus/dbus-sysdeps-pthread.c
+@@ -284,3 +284,17 @@ _dbus_threads_init_platform_specific (void)
+ 
+   return TRUE;
+ }
++
++static pthread_mutex_t init_mutex = PTHREAD_MUTEX_INITIALIZER;
++
++void
++_dbus_threads_lock_platform_specific (void)
++{
++  pthread_mutex_lock (&init_mutex);
++}
++
++void
++_dbus_threads_unlock_platform_specific (void)
++{
++  pthread_mutex_unlock (&init_mutex);
++}
+diff --git a/dbus/dbus-sysdeps-thread-win.c b/dbus/dbus-sysdeps-thread-win.c
+index 4c4442a..0887a54 100644
+--- a/dbus/dbus-sysdeps-thread-win.c
++++ b/dbus/dbus-sysdeps-thread-win.c
+@@ -30,6 +30,21 @@
+ 
+ #include <windows.h>
+ 
++static dbus_bool_t global_init_done = FALSE;
++static CRITICAL_SECTION init_lock;
++
++/* Called from C++ code in dbus-init-win.cpp. */
++void
++_dbus_threads_windows_init_global (void)
++{
++  /* this ensures that the object that acts as our global constructor
++   * actually gets linked in when we're linked statically */
++  _dbus_threads_windows_ensure_ctor_linked ();
++
++  InitializeCriticalSection (&init_lock);
++  global_init_done = TRUE;
++}
++
+ struct DBusCondVar {
+   DBusList *list;        /**< list thread-local-stored events waiting on the cond variable */
+   CRITICAL_SECTION lock; /**< lock protecting the list */
+@@ -272,3 +287,16 @@ _dbus_threads_init_platform_specific (void)
+   return TRUE;
+ }
+ 
++void
++_dbus_threads_lock_platform_specific (void)
++{
++  _dbus_assert (global_init_done);
++  EnterCriticalSection (&init_lock);
++}
++
++void
++_dbus_threads_unlock_platform_specific (void)
++{
++  _dbus_assert (global_init_done);
++  LeaveCriticalSection (&init_lock);
++}
+diff --git a/dbus/dbus-sysdeps-win.h b/dbus/dbus-sysdeps-win.h
+index 74624b7..5e7f1e4 100644
+--- a/dbus/dbus-sysdeps-win.h
++++ b/dbus/dbus-sysdeps-win.h
+@@ -85,6 +85,9 @@ dbus_bool_t _dbus_get_config_file_name(DBusString *config_file,
+ 
+ dbus_bool_t _dbus_get_install_root(char *prefix, int len);
+ 
++void        _dbus_threads_windows_init_global (void);
++void        _dbus_threads_windows_ensure_ctor_linked (void);
++
+ #endif
+ 
+ /** @} end of sysdeps-win.h */
+diff --git a/dbus/dbus-sysdeps.h b/dbus/dbus-sysdeps.h
+index eee9160..c48d50f 100644
+--- a/dbus/dbus-sysdeps.h
++++ b/dbus/dbus-sysdeps.h
+@@ -507,6 +507,18 @@ dbus_bool_t _dbus_read_local_machine_uuid   (DBusGUID         *machine_id,
+  */
+ dbus_bool_t _dbus_threads_init_platform_specific (void);
+ 
++/**
++ * Lock a static mutex used to protect _dbus_threads_init_platform_specific().
++ *
++ * On Windows, this is currently unimplemented and does nothing.
++ */
++void _dbus_threads_lock_platform_specific (void);
++
++/**
++ * Undo _dbus_threads_lock_platform_specific().
++ */
++void _dbus_threads_unlock_platform_specific (void);
++
+ dbus_bool_t _dbus_split_paths_and_append (DBusString *dirs, 
+                                           const char *suffix, 
+                                           DBusList **dir_list);
+diff --git a/dbus/dbus-threads.c b/dbus/dbus-threads.c
+index e7f2eb7..9a505de 100644
+--- a/dbus/dbus-threads.c
++++ b/dbus/dbus-threads.c
+@@ -581,15 +581,24 @@ init_locks (void)
+ dbus_bool_t
+ dbus_threads_init (const DBusThreadFunctions *functions)
+ {
++  _dbus_threads_lock_platform_specific ();
++
+   if (thread_init_generation == _dbus_current_generation)
+-    return TRUE;
++    {
++      _dbus_threads_unlock_platform_specific ();
++      return TRUE;
++    }
+ 
+   if (!_dbus_threads_init_platform_specific() ||
+       !init_locks ())
+-    return FALSE;
++    {
++      _dbus_threads_unlock_platform_specific ();
++      return FALSE;
++    }
+ 
+   thread_init_generation = _dbus_current_generation;
+-  
++
++  _dbus_threads_unlock_platform_specific ();
+   return TRUE;
+ }
+ 
+@@ -600,11 +609,16 @@ dbus_threads_init (const DBusThreadFunctions *functions)
+ /**
+  * Initializes threads. If this function is not called, the D-Bus
+  * library will not lock any data structures.  If it is called, D-Bus
+- * will do locking, at some cost in efficiency. Note that this
+- * function must be called BEFORE the second thread is started.
++ * will do locking, at some cost in efficiency.
++ *
++ * Since D-Bus 1.7 it is safe to call this function from any thread,
++ * any number of times (but it must be called before any other
++ * libdbus API is used).
+  *
+- * It's safe to call dbus_threads_init_default() as many times as you
+- * want, but only the first time will have an effect.
++ * In D-Bus 1.6 or older, this function must be called in the main thread
++ * before any other thread starts. As a result, it is not sufficient to
++ * call this function in a library or plugin, unless the library or plugin
++ * imposes a similar requirement on its callers.
+  *
+  * dbus_shutdown() reverses the effects of this function when it
+  * resets all global state in libdbus.
