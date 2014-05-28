@@ -1,5 +1,9 @@
 inherit useradd
 
+FILESEXTRAPATHS_prepend := "${THISDIR}/weston-common"
+
+SRC_URI += "file://0001-Fix-path-to-binary-ln-and-chmod.patch"
+
 USERADD_PACKAGES = "${PN}"
 
 GROUPADD_PARAM_${PN} = "-g 191 display;-g 100 users;-g 1004 input;-g 190 systemd-journal;-g 54 lock"

@@ -1,0 +1,47 @@
+From 1e727279150b639e57c795f01316cf284214bad8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
+Date: Wed, 28 May 2014 16:08:18 +0200
+Subject: [PATCH] meta-tizen: Fix path to binary ln and chmod
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+On Tizen Common Yocto ln and chmod are located under /bin/ instead of
+/usr/bin/.
+
+Change-Id: If7ca735549a6d4bf6900e1ef6dc20d9b82231be4
+Signed-off-by: Kévin THIERRY <kevin.thierry@open.eurogiciel.org>
+---
+ display-manager.service | 2 +-
+ weston-user.service     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/display-manager.service b/display-manager.service
+index 43efbb5..69754b4 100644
+--- a/display-manager.service
++++ b/display-manager.service
+@@ -5,7 +5,7 @@ After=display-manager-run.service
+ 
+ [Service]
+ Type=oneshot
+-ExecStart=/usr/bin/chmod g+w /run/display/wayland-0
++ExecStart=/bin/chmod g+w /run/display/wayland-0
+ ExecStart=/usr/bin/chsmack -a User /run/display/wayland-0
+ 
+ [Install]
+diff --git a/weston-user.service b/weston-user.service
+index f15d574..5c5d563 100644
+--- a/weston-user.service
++++ b/weston-user.service
+@@ -2,7 +2,7 @@
+ Description=Shared weston session
+ 
+ [Service]
+-ExecStartPre=/usr/bin/ln -sf /run/display/wayland-0 /run/user/%U/
++ExecStartPre=/bin/ln -sf /run/display/wayland-0 /run/user/%U/
+ ExecStart=/usr/bin/tz-launcher -c /usr/share/applications/tizen/launcher.conf %h/.applications/desktop
+ EnvironmentFile=/etc/sysconfig/weston-user
+ 
+-- 
+1.8.1.4
+
