@@ -22,5 +22,6 @@ IMAGE_INSTALL += "libpam"
 IMAGE_INSTALL += "weston-common-tz-launcher"
 IMAGE_INSTALL += "weston-common-config"
 IMAGE_INSTALL += "user-session-units"
+IMAGE_INSTALL += "default-ac-domains"
 
 #IMAGE_INSTALL += "crosswalk"
