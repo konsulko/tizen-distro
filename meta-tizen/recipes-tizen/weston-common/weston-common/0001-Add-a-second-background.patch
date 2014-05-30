@@ -1,0 +1,32 @@
+From cf662a8d7cd9f70e820d88779ed794426f62f090 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
+Date: Fri, 30 May 2014 17:33:52 +0200
+Subject: [PATCH] meta-tizen: Add a second background
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Change-Id: Ia473562dc399fa5875b646dc0b6ce563c26efb0e
+Signed-off-by: Kévin THIERRY <kevin.thierry@open.eurogiciel.org>
+---
+ weston.ini | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/weston.ini b/weston.ini
+index 4e1f36f..a604b54 100644
+--- a/weston.ini
++++ b/weston.ini
+@@ -2,8 +2,8 @@
+ modules=desktop-shell.so
+ 
+ [shell]
+-#background-image=/usr/share/backgrounds/gnome/Aqua.jpg
+-background-image=/usr/share/backgrounds/tizen/golfe-morbihan.jpg	
++#background-image=/usr/share/backgrounds/tizen/golfe-morbihan.jpg	
++background-image=/usr/share/backgrounds/tizen/tizen_common.png
+ background-color=0xff002244
+ background-type=scale-crop
+ panel-color=0x95333333
+-- 
+1.8.1.4
+
