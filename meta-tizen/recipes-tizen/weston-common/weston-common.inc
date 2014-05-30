@@ -12,16 +12,16 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by weston-common 
+#PROVIDES by weston-common
 # the PROVIDES rules is ignore "weston-startup  "
 PROVIDES += "weston-startup"
 RPROVIDES_weston-common += "weston-startup"
 
 
-#PROVIDES by weston-common-config 
+#PROVIDES by weston-common-config
 
 
-#PROVIDES by weston-common-tz-launcher 
+#PROVIDES by weston-common-tz-launcher
 
 
 RDEPENDS = ""
@@ -32,7 +32,7 @@ RDEPENDS_${PN} += "shadow"
 
 
 DEPENDS = ""
-#DEPENDS of weston-common 
+#DEPENDS of weston-common
 DEPENDS += "weston"
 DEPENDS += "libxkbcommon"
 DEPENDS += "cairo"
@@ -58,8 +58,8 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
  cp ${S}/packaging/weston-common.manifest .
- 
- 
+
+
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -73,15 +73,15 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
- 
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+
+
+   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ;
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
    autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
          --target=x86_64-tizen-linux \
          --program-prefix= \
@@ -99,9 +99,9 @@ do_compile() {
          --mandir=${mandir} \
          --infodir=${infodir}
  make -j16
- 
- 
- 
+
+
+
 }
 
 do_install() {
@@ -110,70 +110,70 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
- 
- 
+ rm -rf ${D}
+ mkdir -p ${D}
+
+
  #install tz-launcher
- 
+
    oe_runmake \
          DESTDIR=${D} \
          INSTALL_ROOT=${D} \
          BINDIR=${prefix}/bin \
-   install  
-   rm -f ${D}${infodir}/dir 
-   find ${D} -regex ".*\.la$" | xargs rm -f -- 
+   install
+   rm -f ${D}${infodir}/dir
+   find ${D} -regex ".*\.la$" | xargs rm -f --
    find ${D} -regex ".*\.a$" | xargs rm -f --
- 
+
  # install weston service as 'display-manager.service' as it's the one wanted by graphical.target
  mkdir -p ${D}/lib/systemd/system
  install -m 644 display-manager-run.service ${D}/lib/systemd/system/display-manager-run.service
  install -m 644 display-manager.service ${D}/lib/systemd/system/display-manager.service
  install -m 644 display-manager.path ${D}/lib/systemd/system/display-manager.path
- 
+
  # install Environment file for weston service and weston-user.service
  mkdir -p ${D}${sysconfdir}/sysconfig
  install -m 0644 weston.sysconfig ${D}${sysconfdir}/sysconfig/weston
  install -m 0644 weston-user.sysconfig ${D}${sysconfdir}/sysconfig/weston-user
- 
+
  # install tmpfiles.d(5) conf
  mkdir -p ${D}${prefix}/lib/tmpfiles.d
  install -m 0644 weston_tmpfiles.conf ${D}${prefix}/lib/tmpfiles.d/weston.conf
- 
+
  # install weston-user service in user session
  mkdir -p ${D}/lib/systemd/user
  install -m 644 weston-user.service ${D}/lib/systemd/user/
- 
+
  # install weston.sh
  mkdir -p ${D}${sysconfdir}/profile.d/
  install -m 0644 weston.sh ${D}${sysconfdir}/profile.d/
- 
+
  # install weston.ini
  mkdir -p ${D}${sysconfdir}/xdg/weston
  install -m 0644 weston.ini ${D}${sysconfdir}/xdg/weston
- 
+
  # Add a rule to ensure the 'display' user has permissions to
  # open the graphics device
  mkdir -p ${D}${sysconfdir}/udev/rules.d
  cat >${D}${sysconfdir}/udev/rules.d/99-dri.rules <<'EOF'
  SUBSYSTEM=="drm", MODE="0660", GROUP="display", SMACK="*"
 EOF
- 
+
  # user 'display' must own /dev/tty7 for weston to start correctly
  cat >${D}${sysconfdir}/udev/rules.d/99-tty.rules <<'EOF'
- SUBSYSTEM=="tty", KERNEL=="tty7", OWNER="display", SMACK="^"
+ SUBSYSTEM=="tty", KERNEL=="tty7", OWNER="display", SMACK="*"
 EOF
- 
+
  # user 'display' must also be able to access /dev/input/event*
  cat >${D}${sysconfdir}/udev/rules.d/99-input.rules <<'EOF'
- SUBSYSTEM=="input", KERNEL=="event*", MODE="0660", GROUP="input", SMACK="^"
+ SUBSYSTEM=="input", KERNEL=="event*", MODE="0660", GROUP="input", SMACK="*"
 EOF
- 
+
  # install desktop file
  mkdir -p ${D}${prefix}/share/applications
  install -m 0644 weston-terminal.desktop ${D}${prefix}/share/applications
- 
- 
+
+
 }
 
 PACKAGES += " weston-common-tz-launcher "

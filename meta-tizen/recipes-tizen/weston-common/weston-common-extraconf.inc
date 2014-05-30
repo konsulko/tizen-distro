@@ -6,6 +6,7 @@ SRC_URI += "file://0001-Fix-path-to-binary-ln-and-chmod.patch"
 SRC_URI += "file://0001-Add-a-script-to-export-UID.patch"
 SRC_URI += "file://0001-Automatically-restart-display-manager.patch"
 SRC_URI += "file://0001-Modifications-for-yocto-build.patch"
+SRC_URI += "file://0001-fix_weston_start.patch"
 
 USERADD_PACKAGES = "${PN}"
 
