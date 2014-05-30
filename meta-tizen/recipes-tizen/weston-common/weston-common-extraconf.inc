@@ -18,6 +18,13 @@ USERADD_PARAM_${PN} += " -d /home/bob   -m -u 5002   -g users   -G display -r -s
 USERADD_PARAM_${PN} += " -d /home/carole -m -u 5003   -g users   -G display -r -s /bin/sh carole; "
 USERADD_PARAM_${PN} += " -d /home/guest -m -u 9999   -g users   -G display -r -s /bin/sh guest "
 
+do_compile_append() {
+
+    # Comment on of those two lines to define the desktop background:
+    sed -i 's@background-image=/usr/share/backgrounds/tizen/golfe-morbihan.jpg@background-image=/usr/share/backgrounds/tizen/tizen_common.png@g' ${S}/weston.ini
+    # sed -i 's@background-image=/usr/share/backgrounds/tizen/tizen_common.png@background-image=/usr/share/backgrounds/tizen/golfe-morbihan.jpg@g' ${S}/weston.ini
+}
+
 do_install_append() {
     install -m 755 uid.sh ${D}/etc/profile.d
 
@@ -26,13 +33,13 @@ do_install_append() {
 }
 
 pkg_postinst_${PN} () {
-for user in alice bob carol app guest; do
-	for appdir in desktop manifest dbspace; do
-		mkdir -p ${D}/home/$user/.applications/$appdir
-	done
-	find ${D}/home/$user/ -type d -exec chsmack -a User {} \;
-	chown -R $user:users ${D}/home/$user/
-done
+    for user in alice bob carol app guest; do
+        for appdir in desktop manifest dbspace; do
+            mkdir -p ${D}/home/$user/.applications/$appdir
+        done
+        find ${D}/home/$user/ -type d -exec chsmack -a User {} \;
+        chown -R $user:users ${D}/home/$user/
+    done
 }
 
 weston-common_files += "/lib/systemd/user/default.target.wants/weston-user.service"
