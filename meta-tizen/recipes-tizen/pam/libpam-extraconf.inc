@@ -1,3 +1,7 @@
+
+SRC_URI += "file://system-auth"
+
+
 EXTRA_OECONF = "--with-db-uniquename=_pam \
                 --disable-nis \
                 --disable-regenerate-docu \
@@ -37,6 +41,6 @@ for i in _pam_compat.h \
     cp ${D}${prefix}/include/${i} ${D}${prefix}/include/security/
 done
 
-install -m 0644 ${WORKDIR}/system-auth ${D}/etc/pam.d
+install -m 0644 ${WORKDIR}/system-auth ${D}${sysconfdir}/pam.d
 
 }

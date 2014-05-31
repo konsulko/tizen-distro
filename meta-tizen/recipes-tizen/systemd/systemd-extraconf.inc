@@ -1,3 +1,4 @@
+SRC_URI += "file://systemd-user"
 
 systemd_files += "${sysconfdir}/*"
 
@@ -40,6 +41,7 @@ do_install_append() {
  rm ${D}${sysconfdir}/machine-info
  rm ${D}${sysconfdir}/timezone
 
+ install -m 0644 ${WORKDIR}/systemd-user ${D}${sysconfdir}/pam.d
 }
 
 EXTRA_OECONF = " --disable-manpages \
