@@ -37,4 +37,6 @@ for i in _pam_compat.h \
     cp ${D}${prefix}/include/${i} ${D}${prefix}/include/security/
 done
 
+install -m 0644 ${WORKDIR}/system-auth ${D}/etc/pam.d
+
 }
