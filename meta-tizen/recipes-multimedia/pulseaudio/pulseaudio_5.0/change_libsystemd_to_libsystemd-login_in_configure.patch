@@ -1,0 +1,11 @@
+--- a/configure.ac	2014-06-06 10:00:12.384361791 +0200
++++ b/configure.ac	2014-06-06 09:59:26.573362703 +0200
+@@ -1158,7 +1158,7 @@
+     AS_HELP_STRING([--disable-systemd],[Disable optional systemd support]))
+ 
+ AS_IF([test "x$enable_systemd" != "xno"],
+-    [PKG_CHECK_MODULES(SYSTEMD, [ libsystemd ], HAVE_SYSTEMD=1, HAVE_SYSTEMD=0)],
++    [PKG_CHECK_MODULES(SYSTEMD, [ libsystemd-login ], HAVE_SYSTEMD=1, HAVE_SYSTEMD=0)],
+     HAVE_SYSTEMD=0)
+ 
+ AS_IF([test "x$enable_systemd" = "xyes" && test "x$HAVE_SYSTEMD" = "x0"],
