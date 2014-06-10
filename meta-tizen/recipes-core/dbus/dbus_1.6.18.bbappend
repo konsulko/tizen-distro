@@ -29,3 +29,5 @@ do_install_append() {
 FILES_${PN} += "${systemd_unitdir}/user/dbus.service \
                ${systemd_unitdir}/user/dbus.socket \
               "
+
+EXTRA_OECONF += " --enable-smack "
