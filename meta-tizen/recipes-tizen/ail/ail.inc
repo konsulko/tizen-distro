@@ -13,7 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by ail 
-# the PROVIDES rules is ignore "libail = 0.2.73-1"
+# the PROVIDES rules is ignore "libail = 0.2.80-1"
 PROVIDES += "libail"
 RPROVIDES_ail += "libail"
 
@@ -23,12 +23,14 @@ RPROVIDES_ail += "libail"
 
 RDEPENDS = ""
 #RDEPENDS of ail-dev (${PN}-dev)
+RDEPENDS_${PN}-dev += "tizen-platform-config"
 RDEPENDS_${PN}-dev += "libail"
 
 
 DEPENDS = ""
 #DEPENDS of ail 
 DEPENDS += "xdgmime"
+DEPENDS += "tizen-platform-config"
 DEPENDS += "dlog"
 DEPENDS += "sqlite3"
 DEPENDS_append_class-native = " cmake-native"
@@ -62,6 +64,8 @@ do_compile() {
  LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
  
  CFLAGS+=" -fpic"
+ 
+ 
  
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
    CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
@@ -103,17 +107,70 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}/opt/dbspace/
- mkdir -p ${D}/opt/share/applications/
+ mkdir -p ${D}/usr/dbspace/
+ mkdir -p ${D}/usr/share/applications/
  
  
+}
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+    vconftool set -t string db/ail/ail_info "0" -f -s system::vconf_inhouse
+    vconftool set -t string db/menuscreen/desktop "0" -f -s system::vconf_inhouse
+    vconftool set -t string db/menu_widget/language "en_US.utf8" -f -s system::vconf_inhouse
+    chsmack -a User /usr/kdb/db/ail
+    chsmack -a User /usr/kdb/db/ail/ail_info
+    chsmack -a User /usr/kdb/db/menuscreen
+    chsmack -a User /usr/kdb/db/menuscreen/desktop
+    chsmack -a User /usr/kdb/db/menu_widget
+    chsmack -a User /usr/kdb/db/menu_widget/language
+    CHDBGID="6010"
+    update_DAC_for_db_file()
+    {
+            if [ ! -f $@ ]; then
+                    touch $@
+            fi
+            chown :$CHDBGID $@ 2>/dev/null
+            if [ $? -ne 0 ]; then
+                    echo "Failed to change the owner of $@"
+            fi
+            chmod 664 $@ 2>/dev/null
+            if [ $? -ne 0 ]; then
+                    echo "Failed to change the perms of $@"
+            fi
+    }
+    ail_initdb
+    mkdir -p /usr/share/applications
+    mkdir -p /usr/share/applications
+    mkdir -p /usr/dbspace
+    update_DAC_for_db_file /usr/dbspace/.app_info.db
+    update_DAC_for_db_file /usr/dbspace/.app_info.db-journal
+    chsmack -a 'User' /usr/dbspace/.app_info.db*
+
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+    if [ $1 == 0 ]; then
+    rm -f /usr/dbspace/.app_info.db*
+    fi
+
 }
 
 
 ail_files = ""
 ail_files += "ail.manifest"
-ail_files += "/opt/share/applications"
+ail_files += "/usr/share/applications"
 ail_files += "${prefix}/bin/ail_initdb"
+ail_files += "${prefix}/bin/ail_initdb"
+ail_files += "${prefix}/bin/ail_fota"
+ail_files += "${prefix}/bin/ail_desktop"
+ail_files += "${prefix}/bin/ail_filter"
+ail_files += "${prefix}/bin/ail_package"
 ail_files += "${prefix}/share/install-info/*"
 ail_files += "${prefix}/lib/libail.so.0"
 ail_files += "${prefix}/lib/libail.so.0.1.0"
