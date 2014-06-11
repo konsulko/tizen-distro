@@ -99,6 +99,18 @@ do_install() {
  
 }
 
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
 
 libslp-db-util-dev_files = ""
 libslp-db-util-dev_files += "libslp-db-util-devel.manifest"
