@@ -145,6 +145,46 @@ do_install() {
  
 }
 
+pkg_postinst_libavsysaudio() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+
+}
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    systemctl daemon-reload
+    if [ $1 == 1 ]; then
+        systemctl restart avsystem.service
+    fi
+
+}
+
+pkg_prerm_${PN}() {
+    #!/bin/sh -e
+
+    if [ $1 == 0 ]; then
+        systemctl stop avsystem.service
+    fi
+
+}
+
+pkg_postrm_libavsysaudio() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    systemctl daemon-reload
+
+}
+
 PACKAGES += " libavsysaudio "
 
 avsystem_files = ""
