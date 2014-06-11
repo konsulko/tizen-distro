@@ -96,6 +96,18 @@ do_install() {
  
 }
 
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
 
 libdevice-node_files = ""
 libdevice-node_files += "${prefix}/lib/*.so.*"
