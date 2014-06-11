@@ -94,6 +94,18 @@ do_install() {
  
 }
 
+pkg_postinst_liblua() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_liblua() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
 PACKAGES += " liblua "
 
 lua_files = ""
