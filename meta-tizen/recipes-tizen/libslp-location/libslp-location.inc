@@ -114,6 +114,37 @@ do_install() {
  
 }
 
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+    vconftool set -t int db/location/last/gps/Timestamp "0" -f
+    vconftool set -t double db/location/last/gps/Latitude "0.0" -f
+    vconftool set -t double db/location/last/gps/Longitude "0.0" -f
+    vconftool set -t double db/location/last/gps/Altitude "0.0" -f
+    vconftool set -t double db/location/last/gps/HorAccuracy "0.0" -f
+    vconftool set -t double db/location/last/gps/VerAccuracy "0.0" -f
+    vconftool set -t double db/location/last/gps/Speed "0.0" -f
+    vconftool set -t double db/location/last/gps/Direction "0.0" -f
+    vconftool set -t int db/location/last/wps/Timestamp "0" -f
+    vconftool set -t double db/location/last/wps/Latitude "0.0" -f
+    vconftool set -t double db/location/last/wps/Longitude "0.0" -f
+    vconftool set -t double db/location/last/wps/Altitude "0.0" -f
+    vconftool set -t double db/location/last/wps/HorAccuracy "0.0" -f
+    vconftool set -t double db/location/last/wps/Speed "0.0" -f
+    vconftool set -t double db/location/last/wps/Direction "0.0" -f
+    vconftool set -t int db/location/setting/GpsEnabled "0" -g 6514 -f
+    vconftool set -t int db/location/setting/AgpsEnabled "0" -g 6514 -f
+    vconftool set -t int db/location/setting/NetworkEnabled "0" -g 6514 -f
+
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
 
 libslp-location-dev_files = ""
 libslp-location-dev_files += "libslp-location.manifest"
