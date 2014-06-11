@@ -1,0 +1,7 @@
+--- a/CMakeLists.txt	2014-06-11 15:33:14.110487872 +0200
++++ b/CMakeLists.txt	2014-06-11 15:32:42.708486993 +0200
+@@ -1,3 +1,4 @@
++SET(VERSION "0.1.17")
+ 
+ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+ SET(fw_name "capi-system-sensor")
