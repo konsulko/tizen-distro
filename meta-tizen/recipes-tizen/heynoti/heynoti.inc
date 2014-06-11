@@ -1,7 +1,7 @@
 DESCRIPTION = "HEY (ligHt Easy speedy) notification library"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
-LICENSE = "Apache License, Version 2.0"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -26,6 +26,7 @@ RDEPENDS_${PN}-dev += "heynoti"
 DEPENDS = ""
 #DEPENDS of heynoti 
 DEPENDS += "ecore"
+DEPENDS += "tizen-platform-config"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
@@ -98,9 +99,23 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}/opt/share/noti
+ mkdir -p ${D}/usr/share/noti
+ mkdir -p ${D}/usr/share/license
+ install LICENSE ${D}/usr/share/license/heynoti
  
  
+}
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
 }
 
 
@@ -109,7 +124,8 @@ heynoti_files += "heynoti.manifest"
 heynoti_files += "${prefix}/lib/libheynoti.so.0"
 heynoti_files += "${prefix}/lib/libheynoti.so.0.0.2"
 heynoti_files += "${prefix}/bin/heynotitool"
-heynoti_files += "/opt/share/noti"
+heynoti_files += "/usr/share/noti"
+heynoti_files += "/usr/share/license/heynoti"
 
 heynoti-dev_files = ""
 heynoti-dev_files += "heynoti.manifest"
