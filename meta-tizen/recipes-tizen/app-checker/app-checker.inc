@@ -1,7 +1,7 @@
 DESCRIPTION = "App Checker"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
-LICENSE = "Apache License, Version 2.0"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -82,7 +82,7 @@ do_compile() {
          -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON . 
+         -DBUILD_SHARED_LIBS:BOOL=ON .
  
  make -j16
  
@@ -111,8 +111,25 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  mkdir -p ${D}${prefix}/lib/ac-plugins
  
+ mkdir -p ${D}/usr/share/license
+ cp LICENSE ${D}/usr/share/license/app-checker
+ cp LICENSE ${D}/usr/share/license/app-checker-devel
+ cp LICENSE ${D}/usr/share/license/app-checker-server
+ cp LICENSE ${D}/usr/share/license/app-checker-server-devel
  
  
+}
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
 }
 
 PACKAGES += " app-checker-server-dev "
@@ -122,24 +139,28 @@ app-checker-server-dev_files = ""
 app-checker-server-dev_files += "app-checker.manifest"
 app-checker-server-dev_files += "${prefix}/lib/libapp-checker-server.so"
 app-checker-server-dev_files += "${prefix}/lib/pkgconfig/app-checker-server.pc"
-app-checker-server-dev_files += "/usr/include/app-checker/app-checker-server.h"
+app-checker-server-dev_files += "${prefix}/include/app-checker/app-checker-server.h"
+app-checker-server-dev_files += "/usr/share/license/app-checker-server-devel"
 
 app-checker-server_files = ""
 app-checker-server_files += "app-checker.manifest"
 app-checker-server_files += "${prefix}/lib/libapp-checker-server.so.0"
 app-checker-server_files += "${prefix}/lib/libapp-checker-server.so.0.1.0"
+app-checker-server_files += "/usr/share/license/app-checker-server"
 
 app-checker_files = ""
 app-checker_files += "app-checker.manifest"
 app-checker_files += "${prefix}/lib/libapp-checker.so.0"
 app-checker_files += "${prefix}/lib/libapp-checker.so.0.1.0"
 app-checker_files += "${prefix}/lib/ac-plugins"
+app-checker_files += "/usr/share/license/app-checker"
 
 app-checker-dev_files = ""
 app-checker-dev_files += "app-checker.manifest"
 app-checker-dev_files += "${prefix}/lib/libapp-checker.so"
 app-checker-dev_files += "${prefix}/lib/pkgconfig/app-checker.pc"
-app-checker-dev_files += "/usr/include/app-checker/app-checker.h"
+app-checker-dev_files += "${prefix}/include/app-checker/app-checker.h"
+app-checker-dev_files += "/usr/share/license/app-checker-devel"
 
 FILES_${PN}-server-dev = "${app-checker-server-dev_files}"
 FILES_${PN}-server = "${app-checker-server_files}"
