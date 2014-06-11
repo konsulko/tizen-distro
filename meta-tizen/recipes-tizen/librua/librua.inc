@@ -18,9 +18,15 @@ PROVIDES = ""
 #PROVIDES by librua-dev 
 
 
+#PROVIDES by librua-test 
+
+
 RDEPENDS = ""
 #RDEPENDS of librua-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "librua"
+
+#RDEPENDS of librua-test (${PN}-test)
+RDEPENDS_${PN}-test += "librua"
 
 
 DEPENDS = ""
@@ -94,16 +100,26 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}%{TZ_SYS_DB}
- sqlite3 ${D}%{TZ_SYS_DB}/.rua.db < data/rua_db.sql
  
  
 }
 
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+PACKAGES += " librua-test "
 
 librua_files = ""
 librua_files += "librua.manifest"
-librua_files += "%attr(0660,root,%{TZ_SYS_USER_GROUP}) %{TZ_SYS_DB}/.rua.db*"
 librua_files += "${prefix}/lib/librua.so.*"
 
 librua-dev_files = ""
@@ -113,11 +129,17 @@ librua-dev_files += "${prefix}/include/rua/*.h"
 librua-dev_files += "${prefix}/lib/librua.so"
 librua-dev_files += "${prefix}/lib/pkgconfig/rua.pc"
 
+librua-test_files = ""
+librua-test_files += "librua.manifest"
+librua-test_files += "${prefix}/bin/rua-test"
+
 FILES_${PN} = "${librua_files}"
 FILES_${PN}-dev = "${librua-dev_files}"
+FILES_${PN}-test = "${librua-test_files}"
 
 PKG_librua= "librua"
 PKG_librua-dev= "librua-dev"
+PKG_librua-test= "librua-test"
 
 require librua-extraconf.inc
 
