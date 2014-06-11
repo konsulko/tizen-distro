@@ -125,6 +125,18 @@ do_install() {
  
 }
 
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
 
 libmm-session_files = ""
 libmm-session_files += "libmm-session.manifest"
