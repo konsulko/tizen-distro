@@ -89,6 +89,18 @@ EOF
  
 }
 
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
 
 iniparser-dev_files = ""
 iniparser-dev_files += "iniparser.manifest"
