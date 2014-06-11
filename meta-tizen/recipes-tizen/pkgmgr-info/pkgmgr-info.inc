@@ -32,6 +32,7 @@ RDEPENDS_${PN}-parser += "pkgmgr-info"
 RDEPENDS_${PN}-dev += "pkgmgr-info"
 
 #RDEPENDS of pkgmgr-info-parser-dev (${PN}-parser-dev)
+RDEPENDS_${PN}-parser-dev += "tizen-platform-config"
 RDEPENDS_${PN}-parser-dev += "pkgmgr-info"
 
 
@@ -41,6 +42,7 @@ DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "libxml2"
 DEPENDS += "dbus"
+DEPENDS += "tizen-platform-config"
 DEPENDS += "dlog"
 DEPENDS += "sqlite3"
 DEPENDS += "vconf"
@@ -84,7 +86,7 @@ do_compile() {
          -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON .
+         -DBUILD_SHARED_LIBS:BOOL=ON . 
  make -j16
  
  
@@ -109,13 +111,35 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/opt/usr/apps/tmp
- touch ${D}/opt/usr/apps/tmp/pkgmgr_tmp.txt
  
  # create the directory for hosting Read-Write application manifest files
- mkdir -p ${D}/opt/share/packages/
+ mkdir -p ${D}/usr/share/packages
  
  
+}
+
+pkg_postinst_pkgmgr-info-parser() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_pkgmgr-info-parser() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
 }
 
 PACKAGES += " pkgmgr-info-parser "
@@ -148,9 +172,7 @@ pkgmgr-info-dev_files += "${prefix}/lib/libpkgmgr-info.so"
 pkgmgr-info_files = ""
 pkgmgr-info_files += "pkgmgr-info.manifest"
 pkgmgr-info_files += "${prefix}/lib/libpkgmgr-info.so.*"
-pkgmgr-info_files += "%attr(771,app,app) /opt/usr/apps/tmp"
-pkgmgr-info_files += "/opt/usr/apps/tmp/pkgmgr_tmp.txt"
-pkgmgr-info_files += "/opt/share/packages"
+pkgmgr-info_files += "/usr/share/packages"
 
 FILES_${PN}-parser = "${pkgmgr-info-parser_files}"
 FILES_${PN}-parser-dev = "${pkgmgr-info-parser-dev_files}"
