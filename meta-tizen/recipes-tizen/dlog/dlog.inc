@@ -128,8 +128,8 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}%{TZ_SYS_ETC}/dump.d/default.d
- cp dlog_dump.sh ${D}%{TZ_SYS_ETC}/dump.d/default.d/dlog_dump.sh
+ mkdir -p ${D}/etc/dump.d/default.d
+ cp dlog_dump.sh ${D}/etc/dump.d/default.d/dlog_dump.sh
  mkdir -p ${D}/usr/bin/
  cp dlogctrl ${D}/usr/bin/dlogctrl
  
@@ -148,6 +148,46 @@ do_install() {
  
 }
 
+pkg_postinst_libdlog() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postinst_dlogutil() {
+    #!/bin/sh -e
+
+    systemctl daemon-reload
+    if [ $1 == 1 ]; then
+        systemctl restart dlog-main.service
+        systemctl restart dlog-radio.service
+    fi
+
+}
+
+pkg_prerm_dlogutil() {
+    #!/bin/sh -e
+
+    if [ $1 == 0 ]; then
+        systemctl stop dlog-main.service
+        systemctl stop dlog-radio.service
+    fi
+
+}
+
+pkg_postrm_dlogutil() {
+    #!/bin/sh -e
+
+    systemctl daemon-reload
+
+}
+
+pkg_postrm_libdlog() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
 PACKAGES += " libdlog "
 PACKAGES += " dlogutil "
 PACKAGES += " libdlog-dev "
@@ -158,7 +198,7 @@ libdlog_files += "${prefix}/lib/libdlog.so.*"
 
 dlogutil_files = ""
 dlogutil_files += "dlog.manifest"
-dlogutil_files += "%{TZ_SYS_ETC}/dump.d/default.d/dlog_dump.sh"
+dlogutil_files += "/etc/dump.d/default.d/dlog_dump.sh"
 dlogutil_files += "${prefix}/bin/dlogutil"
 dlogutil_files += "${prefix}/bin/dlogctrl"
 dlogutil_files += "/lib/systemd/system/dlog-main.service"
