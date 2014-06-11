@@ -38,6 +38,7 @@ RDEPENDS_${PN}-dev += "glib-2.0"
 DEPENDS = ""
 #DEPENDS of vconf 
 DEPENDS += "vconf-internal-keys"
+DEPENDS += "tizen-platform-config"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
@@ -46,7 +47,7 @@ DEPENDS += "glib-2.0"
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n vconf-0.2.45
+ #setup -q -n vconf-0.2.51
  cp ${S}/packaging/vconf.manifest .
  
  
@@ -81,7 +82,8 @@ do_compile() {
          -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON .
+         -DBUILD_SHARED_LIBS:BOOL=ON . \
+ 	-DTZ_SYS_CONFIG=/usr/kdb
  
  make -j16
  
@@ -107,8 +109,8 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/opt/var/kdb/db
- mkdir -p ${D}/opt/var/kdb/db/.backup
+ mkdir -p ${D}/usr/kdb/db
+ mkdir -p ${D}/usr/kdb/db/.backup
  mkdir -p ${D}/lib/systemd/system/basic.target.wants
  mkdir -p ${D}${prefix}/lib/tmpfiles.d
  install -m0644 ${S}/packaging/vconf-setup.service ${D}/lib/systemd/system/
@@ -116,6 +118,22 @@ do_install() {
  ln -sf ../vconf-setup.service ${D}/lib/systemd/system/basic.target.wants/
  
  
+}
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+    systemctl daemon-reload
+
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+    systemctl daemon-reload
+
 }
 
 PACKAGES += " vconf-keys-dev "
@@ -129,10 +147,10 @@ vconf_files += "vconf.manifest"
 vconf_files += "${sysconfdir}/preconf.d/vconf-setup"
 vconf_files += "${prefix}/bin/vconftool"
 vconf_files += "${prefix}/bin/vconf-init"
-vconf_files += "/opt/var/kdb/kdb_first_boot"
+vconf_files += "/usr/kdb/kdb_first_boot"
 vconf_files += "${prefix}/lib/*.so.*"
-vconf_files += "%attr(777,root,root) /opt/var/kdb/db"
-vconf_files += "%attr(777,root,root) /opt/var/kdb/db/.backup"
+vconf_files += "%attr(777,root,root) /usr/kdb/db"
+vconf_files += "%attr(777,root,root) /usr/kdb/db/.backup"
 vconf_files += "/lib/systemd/system/basic.target.wants/vconf-setup.service"
 vconf_files += "/lib/systemd/system/vconf-setup.service"
 vconf_files += "${prefix}/lib/tmpfiles.d/vconf-setup.conf"
