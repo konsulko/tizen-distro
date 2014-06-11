@@ -18,7 +18,13 @@ PROVIDES += "pciutils-ids"
 RPROVIDES_hwdata += "pciutils-ids"
 
 
+#PROVIDES by hwdata-ivi 
+
+
 RDEPENDS = ""
+#RDEPENDS of hwdata-ivi (${PN}-ivi)
+RDEPENDS_${PN}-ivi += "hwdata"
+
 
 DEPENDS = ""
 
@@ -26,7 +32,6 @@ do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n hwdata-0.260-1
- cp ${S}/packaging/hwdata.manifest .
  
  
 }
@@ -67,6 +72,8 @@ do_compile() {
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
          --infodir=${infodir}
+ cp ${S}/packaging/hwdata.manifest .
+ 
  
  
  
@@ -94,10 +101,14 @@ do_install() {
  mv ${D}${prefix}/lib/modprobe.d/dist-blacklist.conf \
     ${D}${sysconfdir}/modprobe.d/blacklist.conf
  rm -rf ${D}${prefix}/lib
+ install -m644 blacklist.conf ${D}/${sysconfdir}/modprobe.d
+ install -m644 video.conf ${D}/${sysconfdir}/modprobe.d
+ 
  
  
 }
 
+PACKAGES += " hwdata-ivi "
 
 hwdata_files = ""
 hwdata_files += "hwdata.manifest"
@@ -105,9 +116,14 @@ hwdata_files += "${sysconfdir}/modprobe.d/blacklist.conf"
 hwdata_files += "${prefix}/share/hwdata"
 hwdata_files += "${prefix}/share/hwdata/*"
 
+hwdata-ivi_files = ""
+hwdata-ivi_files += "${sysconfdir}/modprobe.d/video.conf"
+
 FILES_${PN} = "${hwdata_files}"
+FILES_${PN}-ivi = "${hwdata-ivi_files}"
 
 PKG_hwdata= "hwdata"
+PKG_hwdata-ivi= "hwdata-ivi"
 
 require hwdata-extraconf.inc
 
