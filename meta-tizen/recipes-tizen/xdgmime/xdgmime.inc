@@ -96,6 +96,18 @@ do_install() {
  
 }
 
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
 
 xdgmime-dev_files = ""
 xdgmime-dev_files += "xdgmime.manifest"
