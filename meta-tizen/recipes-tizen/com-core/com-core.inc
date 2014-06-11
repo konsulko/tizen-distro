@@ -103,6 +103,18 @@ do_install() {
  
 }
 
+pkg_postinst_libcom-core() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_libcom-core() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
 PACKAGES += " libcom-core "
 PACKAGES += " libcom-core-dev "
 
