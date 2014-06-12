@@ -40,6 +40,7 @@ DEPENDS = ""
 DEPENDS += "aul-1"
 DEPENDS += "dbus"
 DEPENDS += "app-svc"
+DEPENDS += "tizen-platform-config"
 DEPENDS += "security-server"
 DEPENDS += "bundle"
 DEPENDS += "glib-2.0"
@@ -156,8 +157,56 @@ do_install() {
  
  mkdir -p ${D}/${sysconfdir}/dbus-1/system.d
  install -m0644  ${S}/packaging/alarm-service.conf ${D}${sysconfdir}/dbus-1/system.d/
+ mkdir -p ${D}/usr/share/license
+ cp LICENSE ${D}/usr/share/license/alarm-server
+ cp LICENSE ${D}/usr/share/license/libalarm
+ cp LICENSE ${D}/usr/share/license/libalarm-devel
  
  
+}
+
+pkg_postinst_alarm-server() {
+    #!/bin/sh -e
+
+    vconftool set -t int db/system/timechange 0
+    vconftool set -t double db/system/timechange_external 0
+    vconftool set -t int memory/system/timechanged 0 -i -g 5000
+    systemctl daemon-reload
+    if [ $1 == 1 ]; then
+        systemctl restart alarm-server.service
+    fi
+
+}
+
+pkg_postinst_libalarm() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_prerm_alarm-server() {
+    #!/bin/sh -e
+
+    if [ $1 == 0 ]; then
+        systemctl stop alarm-server.service
+    fi
+
+}
+
+pkg_postrm_libalarm() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_alarm-server() {
+    #!/bin/sh -e
+
+    systemctl daemon-reload
+    if [ "$1" == 1 ]; then
+        systemctl restart net-config.service
+    fi
+
 }
 
 PACKAGES += " libalarm "
@@ -169,6 +218,7 @@ libalarm_files += "alarm-manager.manifest"
 libalarm_files += "alarm-lib.manifest"
 libalarm_files += "${prefix}/lib/libalarm.so.0.0.0"
 libalarm_files += "${prefix}/lib/libalarm.so.0"
+libalarm_files += "/usr/share/license/libalarm"
 
 alarm-server_files = ""
 alarm-server_files += "alarm-manager.manifest"
@@ -177,12 +227,14 @@ alarm-server_files += "/lib/systemd/system/multi-user.target.wants/alarm-server.
 alarm-server_files += "/lib/systemd/system/alarm-server.service"
 alarm-server_files += "${sysconfdir}/dbus-1/system.d/alarm-service.conf"
 alarm-server_files += "${sysconfdir}/udev/rules.d/60-alarm-manager-rtc.rules"
+alarm-server_files += "/usr/share/license/alarm-server"
 
 libalarm-dev_files = ""
 libalarm-dev_files += "alarm-manager.manifest"
 libalarm-dev_files += "${prefix}/include/*.h"
 libalarm-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 libalarm-dev_files += "${prefix}/lib/libalarm.so"
+libalarm-dev_files += "/usr/share/license/libalarm-devel"
 
 FILES_libalarm = "${libalarm_files}"
 FILES_alarm-server = "${alarm-server_files}"
