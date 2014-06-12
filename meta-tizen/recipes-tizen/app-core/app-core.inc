@@ -1,7 +1,7 @@
 DESCRIPTION = "Application basic"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Application Framework"
-LICENSE = "Apache License, Version 2.0"
+SECTION = "Application Framework/Libraries"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -55,6 +55,7 @@ DEPENDS += "aul-1"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "librua"
+DEPENDS += "tizen-platform-config"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "libslp-sensor"
@@ -67,6 +68,7 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q 
  cp ${S}/packaging/app-core.manifest .
+ 
  
  
 }
@@ -88,6 +90,7 @@ do_compile() {
  LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
  
  
+ 
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
    CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
    FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export FFLAGS ; 
@@ -105,6 +108,7 @@ do_compile() {
  -DENABLE_GTK=OFF
  
  make -j16
+ 
  
  
  
@@ -132,11 +136,32 @@ do_install() {
  install -d ${D}/lib/systemd/user/core-efl.target.wants
  install -m0644 ${S}/packaging/core-efl-wayland.target ${D}/lib/systemd/user/core-efl.target
  
- mkdir -p ${D}/usr/share/license
- cp LICENSE ${D}/usr/share/license/app-core
  
  
- 
+}
+
+pkg_postinst_app-core-common() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postinst_app-core-efl() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_app-core-efl() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_app-core-common() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
 }
 
 PACKAGES += " app-core-efl-dev "
@@ -159,7 +184,6 @@ app-core-common_files += "app-core.manifest"
 app-core-common_files += "${prefix}/lib/libappcore-common.so.*"
 app-core-common_files += "${prefix}/lib/systemd/user/core-efl.target"
 app-core-common_files += "${prefix}/lib/systemd/user/core-efl.target.wants/"
-app-core-common_files += "/usr/share/license/app-core"
 
 app-core-common-dev_files = ""
 app-core-common-dev_files += "app-core.manifest"
