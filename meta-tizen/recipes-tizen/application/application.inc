@@ -30,6 +30,7 @@ DEPENDS += "sqlite3"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "notification"
+DEPENDS += "tizen-platform-config"
 DEPENDS += "app-svc"
 DEPENDS += "bundle"
 DEPENDS += "app-core"
@@ -111,6 +112,18 @@ do_install() {
  cp LICENSE ${D}/usr/share/license/capi-appfw-application
  
  
+}
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
 }
 
 PACKAGES += " capi-appfw-application-dev "
