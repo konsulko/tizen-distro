@@ -43,3 +43,4 @@ pkg_postinst_${PN} () {
 }
 
 weston-common_files += "/lib/systemd/user/default.target.wants/weston-user.service"
+weston-common_files += "/home/*"
