@@ -16,7 +16,7 @@ pam_files += "${prefix}/sbin/*"
 pam-dbg_files += "${prefix}/lib/security/.debug/*"
 pam-dbg_files += "${prefix}/lib/security/pam_filter/.debug/*"
 
-FILES_${PN}-dbg += "${pam-dbg_files}"
+FILES_pam-dbg += "${pam-dbg_files}"
 
 INSANE_SKIP_${PN} = "pam-modules-extra"
 
@@ -44,3 +44,21 @@ done
 install -m 0644 ${WORKDIR}/system-auth ${D}${sysconfdir}/pam.d
 
 }
+
+PROVIDES += 'pam'
+RPROVIDES_${PN}  += "pam"
+
+RPROVIDES_${PN} += "libpam-runtime"
+RPROVIDES_${PN}-modules-extra += "pam-plugin-faildelay"
+RPROVIDES_${PN}-modules-extra += "pam-plugin-securetty"
+RPROVIDES_${PN}-modules-extra += "pam-plugin-nologin"
+RPROVIDES_${PN}-modules-extra += "pam-plugin-env"
+RPROVIDES_${PN}-modules-extra += "pam-plugin-group"
+RPROVIDES_${PN}-modules-extra += "pam-plugin-limits"
+RPROVIDES_${PN}-modules-extra += "pam-plugin-lastlog"
+RPROVIDES_${PN}-modules-extra += "pam-plugin-motd"
+RPROVIDES_${PN}-modules-extra += "pam-plugin-mail"
+RPROVIDES_${PN}-modules-extra += "pam-plugin-shells"
+RPROVIDES_${PN}-modules-extra += "pam-plugin-rootok"
+RPROVIDES_${PN}-modules-extra += "pam-plugin-keyinit"
+RPROVIDES_${PN}-modules-extra += "pam-plugin-loginuid"
