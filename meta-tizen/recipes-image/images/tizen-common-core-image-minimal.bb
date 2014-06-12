@@ -16,7 +16,7 @@ DEPENDS += " tar-replacement-native "
 
 IMAGE_INSTALL += "connman"
 IMAGE_INSTALL += "weston-common"
-IMAGE_INSTALL += "mesa-driver-i965"
+IMAGE_INSTALL += "mesa-megadriver"
 IMAGE_INSTALL += "meta"
 IMAGE_INSTALL += "libpam"
 IMAGE_INSTALL += "weston-common-tz-launcher"
