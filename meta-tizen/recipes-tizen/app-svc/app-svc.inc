@@ -43,6 +43,7 @@ DEPENDS += "libsoup-2.4"
 DEPENDS += "sqlite3"
 DEPENDS += "ecore"
 DEPENDS += "libprivilege-control"
+DEPENDS += "tizen-platform-config"
 
 do_prep() {
  cd ${S}
@@ -111,8 +112,8 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  # Create database
- mkdir -p ${D}/opt/dbspace
- sqlite3 ${D}/opt/dbspace/.appsvc.db < data/appsvc_db.sql
+ mkdir -p ${D}/usr/dbspace
+ sqlite3 ${D}/usr/dbspace/.appsvc.db < data/appsvc_db.sql
  
  mkdir -p ${D}/usr/share/license
  cp LICENSE ${D}/usr/share/license/app-svc
@@ -120,11 +121,23 @@ do_install() {
  
 }
 
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
 
 app-svc_files = ""
 app-svc_files += "app-svc.manifest"
-app-svc_files += "%verify(not md5 mtime size) %attr(664,root,app) /opt/dbspace/.appsvc.db"
-app-svc_files += "%verify(not md5 mtime size) %attr(664,root,app) /opt/dbspace/.appsvc.db-journal"
+app-svc_files += "%verify(not md5 mtime size) %attr(664,root,users) /usr/dbspace/.appsvc.db"
+app-svc_files += "%verify(not md5 mtime size) %attr(664,root,users) /usr/dbspace/.appsvc.db-journal"
 app-svc_files += "/usr/bin/appsvc_test"
 app-svc_files += "${prefix}/lib/libappsvc.so.0"
 app-svc_files += "${prefix}/lib/libappsvc.so.0.1.0"
