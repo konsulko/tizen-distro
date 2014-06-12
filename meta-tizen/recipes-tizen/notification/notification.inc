@@ -12,6 +12,9 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
+#PROVIDES by notification-service-dev 
+
+
 #PROVIDES by notification 
 
 
@@ -19,9 +22,13 @@ PROVIDES = ""
 
 
 RDEPENDS = ""
+#RDEPENDS of notification-service-dev (${PN}-service-dev)
+RDEPENDS_${PN}-service-dev += "notification"
+
 #RDEPENDS of notification (${PN})
 RDEPENDS_${PN} += "sqlite3"
 RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "libtzplatform-config"
 
 #RDEPENDS of notification-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "notification"
@@ -34,13 +41,16 @@ DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "eina"
 DEPENDS += "dbus"
+DEPENDS += "app-svc"
+DEPENDS += "tizen-platform-config"
 DEPENDS += "bundle"
+DEPENDS += "com-core"
 DEPENDS += "ail"
 DEPENDS += "dlog"
 DEPENDS += "ecore"
 DEPENDS += "sqlite3"
 DEPENDS += "heynoti"
-DEPENDS += "com-core"
+DEPENDS += "vconf"
 DEPENDS += "libslp-db-util"
 
 do_prep() {
@@ -97,6 +107,7 @@ do_install() {
  rm -rf ${D} 
  mkdir -p ${D} 
  
+ rm -rf ${D}
  
    oe_runmake \
          DESTDIR=${D} \
@@ -113,19 +124,48 @@ do_install() {
  
 }
 
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+    ${prefix}/share/notification/notification_DB_init.sh
+
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+PACKAGES += " notification-service-dev "
+
+notification-service-dev_files = ""
+notification-service-dev_files += "${prefix}/include/notification/service/notification_ipc.h"
+notification-service-dev_files += "${prefix}/include/notification/service/notification_noti.h"
+notification-service-dev_files += "${prefix}/include/notification/service/notification_setting_service.h"
+notification-service-dev_files += "${prefix}/lib/pkgconfig/notification-service.pc"
 
 notification_files = ""
 notification_files += "notification.manifest"
 notification_files += "${prefix}/lib/libnotification.so*"
+notification_files += "${prefix}/share/notification/notification_DB_init.sh"
 notification_files += "/usr/share/license/notification"
 
 notification-dev_files = ""
-notification-dev_files += "${prefix}/include/notification/*.h"
+notification-dev_files += "${prefix}/include/notification/notification.h"
+notification-dev_files += "${prefix}/include/notification/notification_error.h"
+notification-dev_files += "${prefix}/include/notification/notification_type.h"
+notification-dev_files += "${prefix}/include/notification/notification_list.h"
+notification-dev_files += "${prefix}/include/notification/notification_status.h"
+notification-dev_files += "${prefix}/include/notification/notification_setting.h"
 notification-dev_files += "${prefix}/lib/pkgconfig/notification.pc"
 
+FILES_${PN}-service-dev = "${notification-service-dev_files}"
 FILES_${PN} = "${notification_files}"
 FILES_${PN}-dev = "${notification-dev_files}"
 
+PKG_notification-service-dev= "notification-service-dev"
 PKG_notification= "notification"
 PKG_notification-dev= "notification-dev"
 
