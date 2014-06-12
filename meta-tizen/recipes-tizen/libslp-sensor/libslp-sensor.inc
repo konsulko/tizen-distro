@@ -100,8 +100,8 @@ do_install() {
  
 }
 
-PACKAGES += " sensor "
-PACKAGES += " sensor-dev "
+PACKAGES += " libsensor "
+PACKAGES += " libsensor-dev "
 
 sensor_files = ""
 sensor_files += "sensor.manifest"
@@ -116,8 +116,8 @@ sensor-dev_files += "${prefix}/lib/pkgconfig/sensor.pc"
 FILES_${PN} = "${sensor_files}"
 FILES_${PN}-dev = "${sensor-dev_files}"
 
-PKG_sensor= "sensor"
-PKG_sensor-dev= "sensor-dev"
+PKG_libsensor= "libsensor"
+PKG_libsensor-dev= "libsensor-dev"
 
 require libslp-sensor-extraconf.inc
 
