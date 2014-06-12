@@ -1,0 +1,12 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 89bc993..053de5e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -7,7 +7,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
+ 
+ PROJECT(package-manager C)
+-INCLUDE(TizenCommon)
+ 
+ SET(VERSION 0.1.68)
+ SET(VERSION_MAJOR 0)
