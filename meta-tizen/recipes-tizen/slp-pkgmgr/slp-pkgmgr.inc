@@ -70,6 +70,7 @@ DEPENDS += "app-core"
 DEPENDS += "ail"
 DEPENDS += "bundle"
 DEPENDS += "ecore"
+DEPENDS += "tizen-platform-config"
 
 do_prep() {
  cd ${S}
@@ -146,9 +147,50 @@ do_install() {
  
  mkdir -p ${D}${sysconfdir}/package-manager/server
  
- 
  /usr/share/spec2yocto/macro/lib/find-lang.sh ${D} package-manager
  
+ 
+ 
+}
+
+pkg_postinst_pkgmgr-installer() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postinst_pkgmgr-server() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+    # For pkgmgr-install:
+    # Update mime database to support package mime types
+    update-mime-database /usr/share/mime
+
+}
+
+pkg_postinst_pkgmgr-client() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_pkgmgr-client() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_pkgmgr-installer() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
 }
 
 PACKAGES += " pkgmgr-client "
@@ -161,16 +203,16 @@ PACKAGES += " pkgmgr-installer "
 
 pkgmgr-client_files = ""
 pkgmgr-client_files += "pkgmgr-client.manifest"
-pkgmgr-client_files += "/etc/package-manager"
-pkgmgr-client_files += "/etc/package-manager/pkg_path.conf"
+pkgmgr-client_files += "${sysconfdir}/package-manager"
+pkgmgr-client_files += "${sysconfdir}/package-manager/pkg_path.conf"
 pkgmgr-client_files += "${prefix}/lib/libpkgmgr-client.so.*"
 
 pkgmgr_files = ""
 pkgmgr_files += "pkgmgr.manifest"
 pkgmgr_files += "${sysconfdir}/package-manager/backend"
 pkgmgr_files += "${sysconfdir}/package-manager/backendlib"
-pkgmgr_files += "/etc/opt/upgrade"
-pkgmgr_files += "/etc/opt/upgrade/pkgmgr.patch.sh"
+pkgmgr_files += "${sysconfdir}/opt/upgrade"
+pkgmgr_files += "${sysconfdir}/opt/upgrade/pkgmgr.patch.sh"
 pkgmgr_files += "${prefix}/bin/pkgcmd"
 pkgmgr_files += "${prefix}/bin/pkg_initdb"
 pkgmgr_files += "${prefix}/bin/pkg_getsize"
