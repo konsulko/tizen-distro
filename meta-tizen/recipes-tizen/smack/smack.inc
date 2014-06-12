@@ -115,6 +115,18 @@ do_install() {
  
 }
 
+pkg_postinst_libsmack() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_libsmack() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
 PACKAGES += " libsmack "
 PACKAGES += " smack-docs "
 
