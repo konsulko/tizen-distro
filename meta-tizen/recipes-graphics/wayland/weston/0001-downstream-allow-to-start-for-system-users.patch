@@ -1,0 +1,26 @@
+From: Philippe Coval <philippe.coval@open.eurogiciel.org>
+Date: Tue, 10 Jun 2014 15:01:27 +0200
+Subject: downstream: allow to start for system users
+
+Change-Id: I1529784d5dd9ce30e595de80c66d895d97338ff8
+Signed-off-by: Philippe Coval <philippe.coval@open.eurogiciel.org>
+---
+ src/launcher-util.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/launcher-util.c b/src/launcher-util.c
+index ac764dc..f53bb33 100644
+--- a/src/launcher-util.c
++++ b/src/launcher-util.c
+@@ -409,7 +409,11 @@ weston_launcher_connect(struct weston_compositor *compositor, int tty,
+ 					  seat_id, tty);
+ 		if (r < 0) {
+ 			launcher->logind = NULL;
++#ifdef LOCAL_CONFIG_WESTON_ALLOW_SYS_UID
++			if (geteuid() <= 499) { /* 499 = SYS_UID_MAX in login.defs, but it should be parsed */
++#else
+ 			if (geteuid() == 0) {
++#endif
+ 				if (setup_tty(launcher, tty) == -1) {
+ 					free(launcher);
+ 					return NULL;
