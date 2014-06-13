@@ -20,6 +20,8 @@ SRC_URI += " file://0002-Add-_DBUS_GNUC_WARN_UNUSED_RESULT-similar-to-GLib-s.pat
              file://0013-Enforce-smack-policy-from-conf-file.patch \
            "
 
+DEPENDS += "smack"
+
 do_install_append() {
 	mkdir -p ${D}${systemd_unitdir}/user
 	install -m 0644 ${WORKDIR}/dbus-user.service ${D}${systemd_unitdir}/user/dbus.service
