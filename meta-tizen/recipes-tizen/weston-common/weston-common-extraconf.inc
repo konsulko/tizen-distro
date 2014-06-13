@@ -26,6 +26,17 @@ do_compile_append() {
 }
 
 do_install_append() {
+
+    # user 'display' must own /dev/tty7 for weston to start correctly
+    cat >${D}${sysconfdir}/udev/rules.d/99-tty.rules <<'EOF'
+    SUBSYSTEM=="tty", KERNEL=="tty7", OWNER="display", SMACK="*"
+EOF
+
+    # user 'display' must also be able to access /dev/input/event*
+    cat >${D}${sysconfdir}/udev/rules.d/99-input.rules <<'EOF'
+    SUBSYSTEM=="input", KERNEL=="event*", MODE="0660", GROUP="input", SMACK="*"
+EOF
+
     install -m 755 uid.sh ${D}/etc/profile.d
 
     mkdir -p ${D}/lib/systemd/user/default.target.wants
