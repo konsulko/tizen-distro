@@ -64,6 +64,7 @@ DEPENDS += "glib-2.0"
 DEPENDS += "system-info"
 DEPENDS += "common"
 DEPENDS += "sqlite3"
+DEPENDS += "tizen-platform-config"
 DEPENDS += "libslp-db-util"
 
 do_prep() {
@@ -135,8 +136,8 @@ do_install() {
  
  mkdir -p ${D}${prefix}/bin
  cp res/usr/bin/* ${D}${prefix}/bin/
- mkdir -p ${D}/opt/dbspace
- cp res/opt/dbspace/.privacylist.db /${D}/opt/dbspace/
+ mkdir -p ${D}/usr/dbspace
+ cp res/opt/dbspace/.privacylist.db /${D}/usr/dbspace
  mkdir -p ${D}${prefix}/share/privacy-manager/
  cp res/usr/share/privacy-manager/privacy-filter-list.ini ${D}${prefix}/share/privacy-manager/
  
@@ -158,6 +159,50 @@ do_install() {
  
 }
 
+pkg_postinst_privacy-manager-client() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postinst_privacy-manager-server() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+    echo "Check privacy DB"
+    if [ ! -f /usr/dbspace/.privacy.db ]
+    then
+    	echo "Create privacy DB"
+    	${prefix}/bin/privacy_manager_create_clean_db.sh
+    fi
+    chsmack -a 'User' /usr/dbspace/.privacy.db*
+
+}
+
+pkg_postinst_capi-security-privacy-manager() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_capi-security-privacy-manager() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_privacy-manager-client() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
 PACKAGES += " privacy-manager-client "
 PACKAGES += " privacy-manager-server "
 PACKAGES += " privacy-manager-server-dev "
@@ -174,7 +219,7 @@ privacy-manager-client_files += "${sysconfdir}/package-manager/parserlib/libpriv
 privacy-manager-server_files = ""
 privacy-manager-server_files += "privacy-manager-server.manifest"
 privacy-manager-server_files += "${prefix}/lib/libprivacy-manager-server.so*"
-privacy-manager-server_files += "/opt/dbspace/.privacylist.db"
+privacy-manager-server_files += "/usr/dbspace/.privacylist.db"
 privacy-manager-server_files += "/usr/bin/*"
 
 privacy-manager-server-dev_files = ""

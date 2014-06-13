@@ -11,7 +11,7 @@ privacy-manager-client_files += "${prefix}/lib/systemd/system/multi-user.target.
 privacy-manager-server_files = ""
 privacy-manager-server_files += "privacy-manager-server.manifest"
 privacy-manager-server_files += "${prefix}/lib/libprivacy-manager-server.so.*"
-privacy-manager-server_files += "/opt/dbspace/.privacylist.db"
+privacy-manager-server_files += "${prefix}/dbspace/.privacylist.db"
 privacy-manager-server_files += "${prefix}/bin/*"
 
 privacy-manager-server-dev_files = ""
