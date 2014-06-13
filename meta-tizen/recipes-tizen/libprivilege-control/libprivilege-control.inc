@@ -33,6 +33,7 @@ DEPENDS = ""
 #DEPENDS of libprivilege-control 
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
+DEPENDS += "tizen-platform-config"
 DEPENDS += "dlog"
 DEPENDS += "libiri"
 DEPENDS += "smack"
@@ -80,7 +81,9 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON . -DCMAKE_BUILD_TYPE=RELEASE \
-          -DCMAKE_VERBOSE_MAKEFILE=ON
+          -DCMAKE_VERBOSE_MAKEFILE=ON \
+ 	-DTZ_SYS_DB=/usr/dbspace \
+ 	-DTZ_SYS_HOME=/home
  
  VERBOSE=1 make -j16
  
@@ -110,9 +113,26 @@ do_install() {
  
  mkdir -p ${D}/usr/lib/systemd/system/multi-user.target.wants
  ln -sf /usr/lib/systemd/system/smack-rules.service ${D}/usr/lib/systemd/system/multi-user.target.wants/smack-rules.service
- mkdir -p ${D}/opt/dbspace
+ mkdir -p ${D}/usr/dbspace
+ 
+ sed -i 's|TZ_SYS_DB|/usr/dbspace|g' ${S}/packaging/libprivilege-control.manifest
  
  
+}
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+    /usr/share/privilege-control/db/updater.sh
+    chsmack -a 'System' /usr/dbspace/.rules-db.db3*
+
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
 }
 
 PACKAGES += " libprivilege-control-conf "
@@ -120,7 +140,6 @@ PACKAGES += " libprivilege-control-conf "
 libprivilege-control_files = ""
 libprivilege-control_files += "libprivilege-control.manifest"
 libprivilege-control_files += "${prefix}/lib/*.so.*"
-libprivilege-control_files += "${prefix}/bin/slp-su"
 libprivilege-control_files += "${prefix}/lib/librules-db-sql-udf.so"
 libprivilege-control_files += "/usr/lib/systemd/system/smack-rules.service"
 libprivilege-control_files += "/usr/bin/api_feature_loader"
@@ -131,11 +150,11 @@ libprivilege-control_files += "/usr/share/privilege-control/db/updater.sh"
 libprivilege-control_files += "/usr/share/privilege-control/db/updates/*"
 libprivilege-control_files += "/usr/share/privilege-control/db/load-rules-db.sql"
 libprivilege-control_files += "/etc/opt/upgrade/220.libprivilege-updater.patch.sh"
-libprivilege-control_files += "%dir /opt/dbspace"
+libprivilege-control_files += "%dir /usr/dbspace"
 
 libprivilege-control-conf_files = ""
 libprivilege-control-conf_files += "libprivilege-control.manifest"
-libprivilege-control-conf_files += "/opt/dbspace/.privilege_control*.db"
+libprivilege-control-conf_files += "/usr/dbspace/.privilege_control*.db"
 
 libprivilege-control-dev_files = ""
 libprivilege-control-dev_files += "libprivilege-control.manifest"
