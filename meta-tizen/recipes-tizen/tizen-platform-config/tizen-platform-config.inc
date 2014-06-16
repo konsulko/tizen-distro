@@ -115,6 +115,18 @@ do_install() {
  
 }
 
+pkg_postinst_libtzplatform-config() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_libtzplatform-config() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
 PACKAGES += " libtzplatform-config-dev "
 PACKAGES += " tizen-platform-config-tools "
 PACKAGES += " libtzplatform-config "
