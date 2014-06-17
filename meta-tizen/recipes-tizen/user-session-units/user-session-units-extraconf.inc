@@ -1,7 +1,5 @@
 FILESEXTRAPATHS_append := "${THISDIR}/user-session-units"
 
-SRC_URI += "file://0001-Modify-user-session-.service-for-the-yocto-build.patch"
-
 do_install_append() {
     rm -f ${D}/lib/systemd/user/dbus.socket
 
