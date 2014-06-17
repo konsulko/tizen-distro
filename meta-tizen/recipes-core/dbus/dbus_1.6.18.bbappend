@@ -33,3 +33,4 @@ FILES_${PN} += "${systemd_unitdir}/user/dbus.service \
               "
 
 EXTRA_OECONF += " --enable-smack "
+
