@@ -54,7 +54,7 @@ do_compile() {
  -Duse_kerberos=0 \
  -Duse_system_bzip2=1 \
  -Duse_system_libexif=1 \
- -Duse_system_libxml=1 \
+ -Duse_system_libxml=0 \
  -Duse_system_nspr=1 \
  -Denable_hidpi=1
  
