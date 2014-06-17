@@ -12,10 +12,10 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by libsystemd 
+#PROVIDES by libsystemd
 
 
-#PROVIDES by systemd 
+#PROVIDES by systemd
 # the PROVIDES rules is ignore "SysVinit = 2.86-24"
 PROVIDES += "SysVinit"
 RPROVIDES_systemd += "SysVinit"
@@ -33,19 +33,19 @@ PROVIDES += "udev"
 RPROVIDES_systemd += "udev"
 
 
-#PROVIDES by libgudev-dev 
+#PROVIDES by libgudev-dev
 
 
-#PROVIDES by systemd-dev 
+#PROVIDES by systemd-dev
 # the PROVIDES rules is ignore "libudev-dev = 208"
 PROVIDES += "libudev-dev"
 RPROVIDES_systemd-dev += "libudev-dev"
 
 
-#PROVIDES by libgudev 
+#PROVIDES by libgudev
 
 
-#PROVIDES by systemd-analyze 
+#PROVIDES by systemd-analyze
 
 
 RDEPENDS = ""
@@ -71,7 +71,7 @@ RDEPENDS_${PN}-analyze += "systemd"
 
 
 DEPENDS = ""
-#DEPENDS of systemd 
+#DEPENDS of systemd
 DEPENDS += "kmod"
 DEPENDS_append_class-native = " intltool-native"
 DEPENDS_append_class-target = " intltool-native"
@@ -97,8 +97,8 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
  cp ${S}/packaging/systemd.manifest .
- 
- 
+
+
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -112,11 +112,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
- 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
    
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
@@ -168,9 +167,9 @@ do_compile() {
  make -j16 \
          systemunitdir=/lib/systemd/system \
          userunitdir=/lib/systemd/user
- 
- 
- 
+
+
+
 }
 
 do_install() {
@@ -179,24 +178,24 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
- 
- 
+ rm -rf ${D}
+ mkdir -p ${D}
+
+
    oe_runmake \
          DESTDIR=${D} \
          INSTALL_ROOT=${D} \
          BINDIR=${prefix}/bin \
-   install  
-   rm -f ${D}${infodir}/dir 
-   find ${D} -regex ".*\.la$" | xargs rm -f -- 
+   install
+   rm -f ${D}${infodir}/dir
+   find ${D} -regex ".*\.la$" | xargs rm -f --
    find ${D} -regex ".*\.a$" | xargs rm -f --
- 
+
  # udev links
  /usr/bin/mkdir -p ${D}/${prefix}/sbin
  /usr/bin/ln -sf ../bin/udevadm ${D}${prefix}/sbin/udevadm
  /usr/bin/mkdir -p ${D}${prefix}/lib/firmware/updates
- 
+
  # Create SysV compatibility symlinks. systemctl/systemd are smart
  # enough to detect in which way they are called.
  /usr/bin/ln -s ../lib/systemd/systemd ${D}${prefix}/sbin/init
@@ -207,31 +206,31 @@ do_install() {
  /usr/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/shutdown
  /usr/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/telinit
  /usr/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/runlevel
- 
+
  # legacy links
  /usr/bin/ln -s loginctl ${D}${prefix}/bin/systemd-loginctl
- 
+
  # We create all wants links manually at installation time to make sure
  # they are not owned and hence overriden by rpm after the used deleted
  # them.
  /usr/bin/rm -r ${D}${sysconfdir}/systemd/system/*.target.wants
- 
+
  # Make sure the ghost-ing below works
  /usr/bin/touch ${D}${sysconfdir}/systemd/system/runlevel2.target
  /usr/bin/touch ${D}${sysconfdir}/systemd/system/runlevel3.target
  /usr/bin/touch ${D}${sysconfdir}/systemd/system/runlevel4.target
  /usr/bin/touch ${D}${sysconfdir}/systemd/system/runlevel5.target
- 
+
  # Make sure these directories are properly owned
  /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system/basic.target.wants
  /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system/default.target.wants
  /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system/dbus.target.wants
  /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system/syslog.target.wants
- 
+
  # Make sure the user generators dir exists too
  /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system-generators
  /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/user-generators
- 
+
  # Create new-style configuration files so that we can ghost-own them
  /usr/bin/touch ${D}${sysconfdir}/hostname
  /usr/bin/touch ${D}${sysconfdir}/vconsole.conf
@@ -241,39 +240,39 @@ do_install() {
  /usr/bin/touch ${D}${sysconfdir}/timezone
  #/usr/bin/mkdir -p ${D}${sysconfdir}/X11/xorg.conf.d
  #/usr/bin/touch ${D}${sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
- 
+
  /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system-preset/
  /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/user-preset/
- 
+
  # Make sure the shutdown/sleep drop-in dirs exist
  /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system-shutdown/
  /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system-sleep/
- 
+
  # Make sure the NTP units dir exists
  /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/ntp-units.d/
- 
+
  # Install modprobe fragment
  /usr/bin/mkdir -p ${D}${sysconfdir}/modprobe.d/
- 
+
  # Enable readahead services
  /usr/bin/ln -s ../systemd-readahead-collect.service ${D}${prefix}/lib/systemd/system/default.target.wants/
  /usr/bin/ln -s ../systemd-readahead-replay.service ${D}${prefix}/lib/systemd/system/default.target.wants/
- 
+
  # Fix the dangling /var/lock -> /run/lock symlink
  install -Dm644 tmpfiles.d/legacy.conf ${D}${prefix}/lib/tmpfiles.d/legacy.conf
- 
+
  install -m644 ${S}/packaging/pamconsole-tmp.conf ${D}${prefix}/lib/tmpfiles.d/
- 
+
  rm -rf ${D}/${prefix}/lib/systemd/user/default.target
- 
+
  rm -rf ${D}/${prefix}/share/doc/packages/systemd
- 
+
  # Move macros to the proper location for Tizen
  mkdir -p ${D}${sysconfdir}/rpm
  install -m644 src/core/macros.systemd ${D}${sysconfdir}/rpm/macros.systemd
  rm -f ${D}${prefix}/lib/rpm/macros.d/macros.systemd
- 
- 
+
+
 }
 
 pkg_preinst_${PN}() {

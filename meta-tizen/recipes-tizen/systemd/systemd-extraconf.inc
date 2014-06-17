@@ -54,6 +54,7 @@ do_configure_prepend() {
     rm -f ${S}/docs/gtk-doc.make
     echo 'EXTRA_DIST =' > ${S}/docs/gtk-doc.make
 
+    sed -i 's!@MKDIR_P@!/bin/mkdir -p!g' ${S}/units/kmod-static-nodes.service.in
     sed -i 's!@KMOD@!/bin/kmod!g' ${S}/units/kmod-static-nodes.service.in
     sed -i 's!@KILL@!/bin/kill!g' ${S}/units/user/systemd-exit.service.in
 }
