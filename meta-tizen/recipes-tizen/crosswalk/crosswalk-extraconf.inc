@@ -1,4 +1,5 @@
 inherit gettext
+FILES_${PN}-dbg += "${systemd-dbg_files}"
 
 do_compile() {
  cd ${S}
@@ -60,7 +61,11 @@ do_compile() {
  -Denable_hidpi=1
  
  ninja -j16 -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
- 
- 
- 
+  
 }
+
+crosswalk-dbg_files += "/usr/lib/xwalk/.debug"
+crosswalk-dbg_files += "/usr/lib/xwalk/.debug/libffmpegsumo.so"
+crosswalk-dbg_files += "/usr/lib/xwalk/.debug/xwalk"
+
+FILES_${PN}-dbg += "${crosswalk-dbg_files}"
