@@ -22,7 +22,7 @@ do_compile() {
  #       failed to set dynamic section sizes: Memory exhausted
  # For now, work around it by passing a GNU ld-specific flag that optimizes the
  # linker for memory usage.
- export LDFLAGS="${LDFLAGS} -Wl,--no-keep-memory"
+ export LDFLAGS="${LDFLAGS} -Wl,--no-keep-memory,--no-fatal-warnings"
  
  # Support building in a non-standard directory, possibly outside ${WORKDIR}.
  # Since the build root is erased every time a new build is performed, one way
@@ -37,6 +37,7 @@ do_compile() {
  fi
  
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=1"
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Dlinux_use_bundled_binutils=0 -Dlinux_use_bundled_gold=0 -Ddisable_fatal_linker_warnings=1"
  
 
  export GYP_GENERATORS='ninja'
