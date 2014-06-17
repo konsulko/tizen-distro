@@ -117,7 +117,7 @@ index 56b3228..bf32e1a 100644
  			goto err_x11_input;
  		x = pixman_region32_extents(&output->base.region)->x2;
 diff --git a/src/compositor.h b/src/compositor.h
-index 057f8be..4fb8adc 100644
+index d646ebe..f1e2e02 100644
 --- a/src/compositor.h
 +++ b/src/compositor.h
 @@ -199,6 +199,7 @@ struct weston_output {
@@ -128,7 +128,7 @@ index 057f8be..4fb8adc 100644
  	int destroying;
  
  	char *make, *model, *serial_number;
-@@ -614,6 +615,8 @@ struct weston_compositor {
+@@ -617,6 +618,8 @@ struct weston_compositor {
  	struct wl_list axis_binding_list;
  	struct wl_list debug_binding_list;
  
