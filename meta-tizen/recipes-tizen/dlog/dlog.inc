@@ -27,7 +27,6 @@ PROVIDES = ""
 RDEPENDS = ""
 #RDEPENDS of dlogutil (${PN}util)
 RDEPENDS_${PN}util += "libdlog"
-RDEPENDS_${PN}util += "systemd"
 
 #RDEPENDS of libdlog-dev (lib${PN}-dev)
 RDEPENDS_lib${PN}-dev += "libdlog"
@@ -35,6 +34,7 @@ RDEPENDS_lib${PN}-dev += "libdlog"
 
 DEPENDS = ""
 #DEPENDS of dlog 
+DEPENDS += "systemd"
 DEPENDS += "tizen-platform-config"
 
 do_prep() {
@@ -102,8 +102,7 @@ do_compile() {
          --localstatedir=${localstatedir} \
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
-         --infodir=${infodir} --disable-static \
- --without-systemd-journal
+         --infodir=${infodir} --disable-static
  
  make -j16
  
@@ -129,22 +128,9 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/etc/dump.d/default.d
- cp dlog_dump.sh ${D}/etc/dump.d/default.d/dlog_dump.sh
- mkdir -p ${D}/usr/bin/
+ mkdir -p ${D}/etc/dlog
+ cp platformlog.conf ${D}/etc/dlog/platformlog.conf
  cp dlogctrl ${D}/usr/bin/dlogctrl
- 
- mkdir -p ${D}/lib/systemd/system/multi-user.target.wants
- 
- install -m 0644 ${S}/packaging/dlog-main.service ${D}/lib/systemd/system
- install -m 0644 ${S}/packaging/dlog-radio.service ${D}/lib/systemd/system
- 
- 
- mkdir -p ${D}//lib/systemd/system/multi-user.target.wants 
- ln -s ../dlog-main.service  ${D}//lib/systemd/system/multi-user.target.wants/dlog-main.service  
- 
- mkdir -p ${D}//lib/systemd/system/multi-user.target.wants 
- ln -s ../dlog-radio.service  ${D}//lib/systemd/system/multi-user.target.wants/dlog-radio.service  
  
  
 }
@@ -153,34 +139,6 @@ pkg_postinst_libdlog() {
     #!/bin/sh -e
 
     /sbin/ldconfig
-}
-
-pkg_postinst_dlogutil() {
-    #!/bin/sh -e
-
-    systemctl daemon-reload
-    if [ $1 == 1 ]; then
-        systemctl restart dlog-main.service
-        systemctl restart dlog-radio.service
-    fi
-
-}
-
-pkg_prerm_dlogutil() {
-    #!/bin/sh -e
-
-    if [ $1 == 0 ]; then
-        systemctl stop dlog-main.service
-        systemctl stop dlog-radio.service
-    fi
-
-}
-
-pkg_postrm_dlogutil() {
-    #!/bin/sh -e
-
-    systemctl daemon-reload
-
 }
 
 pkg_postrm_libdlog() {
@@ -195,17 +153,12 @@ PACKAGES += " libdlog-dev "
 
 libdlog_files = ""
 libdlog_files += "dlog.manifest"
+libdlog_files += "/etc/dlog/platformlog.conf"
 libdlog_files += "${prefix}/lib/libdlog.so.*"
 
 dlogutil_files = ""
 dlogutil_files += "dlog.manifest"
-dlogutil_files += "/etc/dump.d/default.d/dlog_dump.sh"
-dlogutil_files += "${prefix}/bin/dlogutil"
 dlogutil_files += "${prefix}/bin/dlogctrl"
-dlogutil_files += "/lib/systemd/system/dlog-main.service"
-dlogutil_files += "/lib/systemd/system/dlog-radio.service"
-dlogutil_files += "/lib/systemd/system/multi-user.target.wants/dlog-main.service"
-dlogutil_files += "/lib/systemd/system/multi-user.target.wants/dlog-radio.service"
 
 libdlog-dev_files = ""
 libdlog-dev_files += "dlog.manifest"
