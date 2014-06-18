@@ -15,3 +15,5 @@ do_install_append() {
 }
 
 FILES_${PN} += " ${prefix}/lib/systemd/user/weston.target"
+
+EXTRA_OECONF += "--enable-sys-uid"
