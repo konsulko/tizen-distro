@@ -1,7 +1,7 @@
 From f1243d3d99e20052e9c4b5dca513164a4283ae53 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
 Date: Wed, 18 Jun 2014 11:29:40 +0200
-Subject: [PATCH] meta-tizen: Yocto: correct paths to ln and chmod
+Subject: [PATCH] Yocto: correct paths to ln and chmod
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
