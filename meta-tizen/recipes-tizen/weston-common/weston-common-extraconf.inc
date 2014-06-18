@@ -2,7 +2,7 @@ inherit useradd
 
 FILESEXTRAPATHS_append := "${THISDIR}/weston-common"
 
-SRC_URI += "file://0001-Fix-path-to-binary-ln-and-chmod.patch"
+SRC_URI += "file://0001-Yocto-correct-paths-to-ln-and-chmod.patch"
 SRC_URI += "file://0002-Add-a-script-to-export-UID.patch"
 SRC_URI += "file://0003-Automatically-restart-display-manager.patch"
 SRC_URI += "file://0004-Modifications-for-yocto-build.patch"
