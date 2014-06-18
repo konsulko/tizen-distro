@@ -54,3 +54,5 @@ EXTRA_OECONF_append_class-target = " \
 EXTRA_OECONF_append_class-native = " \
 "
 
+
+RDEPENDS_ecore = "ecore-audio ecore-input-evas ecore-input ecore-imf-evas ecore-imf ecore-file ecore-con ecore-ipc ecore-evas"
