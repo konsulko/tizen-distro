@@ -1,0 +1,29 @@
+From 48779d5214c204ba248211ba6adbf250e3114ffb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
+Date: Thu, 19 Jun 2014 09:03:57 +0200
+Subject: [PATCH] meta-tizen: [PATCH] link to the pthread library
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Kévin THIERRY <kevin.thierry@open.eurogiciel.org>
+---
+ src/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 2b9af87..1b67cc6 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -54,7 +54,7 @@ ADD_EXECUTABLE(${TARGET_SECURITY_SERVER} ${SECURITY_SERVER_SOURCES})
+ TARGET_LINK_LIBRARIES(${TARGET_SECURITY_SERVER}
+     ${SECURITY_SERVER_DEP_LIBRARIES}
+     ${TARGET_SERVER_COMMON}
+-    -lcap
++    -lcap -lpthread
+     )
+ 
+ ################################################################################
+-- 
+1.8.1.4
+
