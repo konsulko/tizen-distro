@@ -48,19 +48,18 @@ RDEPENDS_${PN}-dev += "pam"
 DEPENDS = ""
 #DEPENDS of pam
 DEPENDS += "flex"
-DEPENDS += "gcc"
-DEPENDS += "zlib"
-DEPENDS += "db"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
+DEPENDS += "zlib"
+DEPENDS += "db"
 DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
 DEPENDS += "smack"
-DEPENDS_append_class-native = " bison-native"
-DEPENDS_append_class-target = " bison-native"
-DEPENDS += "net-tools"
 DEPENDS_append_class-native = " libtool"
 DEPENDS_append_class-target = " libtool-cross"
+DEPENDS += "net-tools"
+DEPENDS_append_class-native = " bison-native"
+DEPENDS_append_class-target = " bison-native"
 DEPENDS_append_class-native = " autoconf-native"
 DEPENDS_append_class-target = " autoconf-native"
 
@@ -69,9 +68,9 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n Linux-PAM-1.1.6
  cp ${S}/packaging/pam.manifest .
-
-
-
+ 
+ 
+ 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -89,13 +88,13 @@ do_compile() {
  CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
  FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
-
+ 
  CFLAGS="-fPIC -O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables " ; export CFLAGS
-
-
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ;
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ 
+ 
+   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
    autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
          --target=x86_64-tizen-linux \
          --program-prefix= \
@@ -119,11 +118,11 @@ do_compile() {
          --with-db-uniquename=_pam \
          --with-libiconv-prefix=/usr \
          --enable-read-both-confs &&
-
+ 
  make  CFLAGS="$CFLAGS -lfl -lcrypt"
-
-
-
+ 
+ 
+ 
 }
 
 do_install() {
@@ -134,34 +133,34 @@ do_install() {
  unset DISPLAY
  rm -rf ${D}
  mkdir -p ${D}
-
-
+ 
+ 
    oe_runmake \
          DESTDIR=${D} \
          INSTALL_ROOT=${D} \
          BINDIR=${prefix}/bin \
-   install
-   rm -f ${D}${infodir}/dir
-   find ${D} -regex ".*\.la$" | xargs rm -f --
+   install  
+   rm -f ${D}${infodir}/dir 
+   find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
-
+ 
  # RPM uses docs from source tree
  rm -rf ${D}${prefix}/share/doc/Linux-PAM
  # Included in setup package
  rm -f ${D}${sysconfdir}/environment
-
+ 
  for phase in auth acct passwd session ; do
  	ln -sf pam_unix.so ${D}${prefix}/lib/security/pam_unix_${phase}.so
  done
-
+ 
  # Install default pam configuration files
  install -d -m 0755 ${D}${sysconfdir}/pam.d
  install -m 0644 ${S}/packaging/system-auth ${D}${sysconfdir}/pam.d/
  install -m 0644 ${S}/packaging/other ${D}${sysconfdir}/pam.d/
-
+ 
  /usr/share/spec2yocto/macro/lib/find-lang.sh ${D} Linux-PAM
-
-
+ 
+ 
 }
 
 pkg_postinst_${PN}() {
@@ -183,8 +182,11 @@ pkg_postrm_${PN}() {
     /sbin/ldconfig
 }
 
-PACKAGES += "pam-modules-extra"
-PACKAGES += "pam-docs"
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
+PACKAGES += " pam-modules-extra "
+PACKAGES += " pam-dev "
+PACKAGES += " pam "
+PACKAGES += " pam-docs "
 
 pam-modules-extra_files = ""
 pam-modules-extra_files += "pam.manifest"
@@ -236,7 +238,7 @@ pam_files += "${sysconfdir}/security/limits.conf"
 pam_files += "${prefix}/lib/libpam.so.*"
 pam_files += "${prefix}/lib/libpam_misc.so.*"
 pam_files += "${prefix}/lib/libpamc.so.*"
-#pam_files += "${prefix}/lib/security"
+pam_files += "${prefix}/lib/security"
 pam_files += "${prefix}/lib/security/pam_deny.so"
 pam_files += "${prefix}/lib/security/pam_env.so"
 pam_files += "${prefix}/lib/security/pam_keyinit.so"
@@ -269,19 +271,17 @@ pam-docs_files = ""
 
 pam-locale_files = ""
 
-FILES_pam-modules-extra += "${pam-modules-extra_files}"
-FILES_${PN}-dev += "${pam-dev_files}"
-FILES_${PN} += "${pam_files}"
-FILES_${PN}-docs += "${pam-docs_files}"
-FILES_${PN}-locale += "${pam-locale_files}"
+FILES_${PN}-modules-extra = "${pam-modules-extra_files}"
+FILES_${PN}-dev = "${pam-dev_files}"
+FILES_${PN} = "${pam_files}"
+FILES_${PN}-docs = "${pam-docs_files}"
+FILES_${PN}-locale = "${pam-locale_files}"
 
-FILES_${PN} += "toto"
-
-#PKG_pam-modules-extra= "pam-modules_extra"
-#PKG_pam-dev= "pam-dev"
-#PKG_pam= "pam"
-#PKG_pam-docs= "pam-docs"
-#PKG_pam-locale= "pam-locale"
+PKG_pam-modules-extra= "pam-modules-extra"
+PKG_pam-dev= "pam-dev"
+PKG_pam= "pam"
+PKG_pam-docs= "pam-docs"
+PKG_pam-locale= "pam-locale"
 
 require pam-extraconf.inc
 

@@ -36,8 +36,8 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n sensor-0.5.27
  cp ${S}/packaging/sensor.manifest ${S}/packaging/sensor-devel.manifest .
-
-
+ 
+ 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -55,11 +55,11 @@ do_compile() {
  CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
  FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
-
-
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ;
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export FFLAGS ;
+ 
+ 
+   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export FFLAGS ; 
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
          -DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
@@ -70,12 +70,12 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON .
-
-
+ 
+ 
  make -j16
-
-
-
+ 
+ 
+ 
 }
 
 do_install() {
@@ -86,18 +86,18 @@ do_install() {
  unset DISPLAY
  rm -rf ${D}
  mkdir -p ${D}
-
-
+ 
+ 
    oe_runmake \
          DESTDIR=${D} \
          INSTALL_ROOT=${D} \
          BINDIR=${prefix}/bin \
-   install
-   rm -f ${D}${infodir}/dir
-   find ${D} -regex ".*\.la$" | xargs rm -f --
+   install  
+   rm -f ${D}${infodir}/dir 
+   find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
-
-
+ 
+ 
 }
 
 pkg_postinst_${PN}() {
@@ -112,7 +112,7 @@ pkg_postrm_${PN}() {
     /sbin/ldconfig
 }
 
-PACKAGES = "${PN}-dbg ${PN}-doc"
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " sensor "
 PACKAGES += " sensor-dev "
 

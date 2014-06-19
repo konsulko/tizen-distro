@@ -12,13 +12,13 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by libhaptic 
+#PROVIDES by libhaptic
 
 
-#PROVIDES by libhaptic-dev 
+#PROVIDES by libhaptic-dev
 
 
-#PROVIDES by libhaptic-plugin-dev 
+#PROVIDES by libhaptic-plugin-dev
 
 
 RDEPENDS = ""
@@ -27,7 +27,7 @@ RDEPENDS_${PN}-dev += "libhaptic"
 
 
 DEPENDS = ""
-#DEPENDS of libhaptic 
+#DEPENDS of libhaptic
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "vconf"
@@ -53,10 +53,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  cp ${S}/packaging/libhaptic.manifest .
  
@@ -85,8 +85,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  
    oe_runmake \
@@ -115,6 +115,9 @@ pkg_postrm_${PN}() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
+PACKAGES += " libhaptic "
+PACKAGES += " libhaptic-dev "
 PACKAGES += " libhaptic-plugin-dev "
 
 libhaptic_files = ""

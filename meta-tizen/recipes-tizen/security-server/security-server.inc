@@ -12,25 +12,25 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by libsecurity-manager-client 
+#PROVIDES by libsecurity-manager-client
 
 
-#PROVIDES by security-server 
+#PROVIDES by security-server
 
 
-#PROVIDES by libsecurity-server-client 
+#PROVIDES by libsecurity-server-client
 
 
-#PROVIDES by libsecurity-server-client-dev 
+#PROVIDES by libsecurity-server-client-dev
 
 
-#PROVIDES by libsecurity-manager-client-dev 
+#PROVIDES by libsecurity-manager-client-dev
 
 
-#PROVIDES by security-server-dev 
+#PROVIDES by security-server-dev
 
 
-#PROVIDES by security-server-certs 
+#PROVIDES by security-server-certs
 
 
 RDEPENDS = ""
@@ -60,7 +60,7 @@ RDEPENDS_${PN}-certs += "security-server"
 
 
 DEPENDS = ""
-#DEPENDS of security-server 
+#DEPENDS of security-server
 DEPENDS += "systemd"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
@@ -94,10 +94,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
  export LDFLAGS+="-Wl,--rpath=${prefix}/lib"
@@ -130,8 +130,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  rm -rf ${D}
  mkdir -p ${D}/usr/share/license
@@ -226,8 +226,10 @@ pkg_postrm_libsecurity-server-client() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " libsecurity-manager-client "
 PACKAGES += " libsecurity-manager-client-dev "
+PACKAGES += " security-server "
 PACKAGES += " libsecurity-server-client "
 PACKAGES += " libsecurity-server-client-dev "
 

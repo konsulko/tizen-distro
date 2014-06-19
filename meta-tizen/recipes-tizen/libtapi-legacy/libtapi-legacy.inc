@@ -12,10 +12,10 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by libtapi-dev 
+#PROVIDES by libtapi-dev
 
 
-#PROVIDES by libtapi 
+#PROVIDES by libtapi
 # the PROVIDES rules is ignore "libslp-tapi  "
 PROVIDES += "libslp-tapi"
 RPROVIDES_libtapi += "libslp-tapi"
@@ -27,7 +27,7 @@ RDEPENDS_libtapi-dev += "libtapi"
 
 
 DEPENDS = ""
-#DEPENDS of libtapi 
+#DEPENDS of libtapi
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "security-server"
@@ -56,10 +56,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
@@ -88,8 +88,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  rm -rf ${D}
  
@@ -119,6 +119,7 @@ pkg_postrm_${PN}() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " libtapi-dev "
 PACKAGES += " libtapi "
 
@@ -133,8 +134,8 @@ libtapi_files += "libtapi.manifest"
 libtapi_files += "${prefix}/lib/*.so.*"
 libtapi_files += "${prefix}/bin/tapitest-legacy"
 
-FILES_${PN}-dev = "${libtapi-dev_files}"
-FILES_${PN} = "${libtapi_files}"
+FILES_libtapi-dev = "${libtapi-dev_files}"
+FILES_libtapi = "${libtapi_files}"
 
 PKG_libtapi-dev= "libtapi-dev"
 PKG_libtapi= "libtapi"

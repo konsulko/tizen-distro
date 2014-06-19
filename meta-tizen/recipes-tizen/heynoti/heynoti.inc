@@ -12,10 +12,10 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by heynoti 
+#PROVIDES by heynoti
 
 
-#PROVIDES by heynoti-dev 
+#PROVIDES by heynoti-dev
 
 
 RDEPENDS = ""
@@ -24,7 +24,7 @@ RDEPENDS_${PN}-dev += "heynoti"
 
 
 DEPENDS = ""
-#DEPENDS of heynoti 
+#DEPENDS of heynoti
 DEPENDS += "ecore"
 DEPENDS += "tizen-platform-config"
 DEPENDS_append_class-native = " cmake-native"
@@ -53,10 +53,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
@@ -86,8 +86,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  
    oe_runmake \
@@ -118,6 +118,9 @@ pkg_postrm_${PN}() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
+PACKAGES += " heynoti "
+PACKAGES += " heynoti-dev "
 
 heynoti_files = ""
 heynoti_files += "heynoti.manifest"

@@ -14,6 +14,7 @@ do_compile() {
 
 
 }
+INSANE_SKIP_${PN}-dev = "staticdev"
 
 BBCLASSEXTEND += " nativesdk "
 

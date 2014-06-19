@@ -12,10 +12,10 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by capi-appfw-application-dev 
+#PROVIDES by capi-appfw-application-dev
 
 
-#PROVIDES by capi-appfw-application 
+#PROVIDES by capi-appfw-application
 
 
 RDEPENDS = ""
@@ -24,7 +24,7 @@ RDEPENDS_capi-appfw-${PN}-dev += "capi-appfw-application"
 
 
 DEPENDS = ""
-#DEPENDS of capi-appfw-application 
+#DEPENDS of capi-appfw-application
 DEPENDS += "aul-1"
 DEPENDS += "sqlite3"
 DEPENDS_append_class-native = " cmake-native"
@@ -60,10 +60,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 0.1.0 | awk 'BEGIN {FS="."}{print $1}'`
  
@@ -94,8 +94,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  rm -rf ${D}
  
@@ -126,6 +126,7 @@ pkg_postrm_${PN}() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " capi-appfw-application-dev "
 PACKAGES += " capi-appfw-application "
 
@@ -141,8 +142,8 @@ capi-appfw-application_files += "${prefix}/lib/libcapi-appfw-application.so.*"
 capi-appfw-application_files += "capi-appfw-application.manifest"
 capi-appfw-application_files += "/usr/share/license/capi-appfw-application"
 
-FILES_${PN}-dev = "${capi-appfw-application-dev_files}"
-FILES_${PN} = "${capi-appfw-application_files}"
+FILES_capi-appfw-${PN}-dev = "${capi-appfw-application-dev_files}"
+FILES_capi-appfw-${PN} = "${capi-appfw-application_files}"
 
 PKG_capi-appfw-application-dev= "capi-appfw-application-dev"
 PKG_capi-appfw-application= "capi-appfw-application"

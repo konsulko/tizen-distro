@@ -12,10 +12,10 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by capi-media-sound-manager-dev 
+#PROVIDES by capi-media-sound-manager-dev
 
 
-#PROVIDES by capi-media-sound-manager 
+#PROVIDES by capi-media-sound-manager
 
 
 RDEPENDS = ""
@@ -24,7 +24,7 @@ RDEPENDS_capi-media-${PN}-dev += "capi-media-sound-manager"
 
 
 DEPENDS = ""
-#DEPENDS of capi-media-sound-manager 
+#DEPENDS of capi-media-sound-manager
 DEPENDS += "libmm-sound"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
@@ -53,10 +53,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 0.1.1 | awk 'BEGIN {FS="."}{print $1}'`
  
@@ -87,8 +87,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  
    oe_runmake \
@@ -115,6 +115,7 @@ pkg_postrm_${PN}() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " capi-media-sound-manager-dev "
 PACKAGES += " capi-media-sound-manager "
 
@@ -129,8 +130,8 @@ capi-media-sound-manager_files += "capi-media-sound-manager.manifest"
 capi-media-sound-manager_files += "${prefix}/lib/libcapi-media-sound-manager.so.*"
 capi-media-sound-manager_files += "capi-media-sound-manager.manifest"
 
-FILES_${PN}-dev = "${capi-media-sound-manager-dev_files}"
-FILES_${PN} = "${capi-media-sound-manager_files}"
+FILES_capi-media-${PN}-dev = "${capi-media-sound-manager-dev_files}"
+FILES_capi-media-${PN} = "${capi-media-sound-manager_files}"
 
 PKG_capi-media-sound-manager-dev= "capi-media-sound-manager-dev"
 PKG_capi-media-sound-manager= "capi-media-sound-manager"

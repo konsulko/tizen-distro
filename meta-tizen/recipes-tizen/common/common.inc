@@ -12,10 +12,10 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by capi-base-common-dev 
+#PROVIDES by capi-base-common-dev
 
 
-#PROVIDES by capi-base-common 
+#PROVIDES by capi-base-common
 
 
 RDEPENDS = ""
@@ -24,7 +24,7 @@ RDEPENDS_capi-base-${PN}-dev += "capi-base-common"
 
 
 DEPENDS = ""
-#DEPENDS of capi-base-common 
+#DEPENDS of capi-base-common
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 
@@ -48,10 +48,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
@@ -79,8 +79,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  
    oe_runmake \
@@ -95,6 +95,7 @@ do_install() {
  
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " capi-base-common-dev "
 PACKAGES += " capi-base-common "
 
@@ -106,8 +107,8 @@ capi-base-common-dev_files += "${prefix}/lib/pkgconfig/capi-base-common.pc"
 capi-base-common_files = ""
 capi-base-common_files += "capi-base-common.manifest"
 
-FILES_${PN}-dev = "${capi-base-common-dev_files}"
-FILES_${PN} = "${capi-base-common_files}"
+FILES_capi-base-${PN}-dev = "${capi-base-common-dev_files}"
+FILES_capi-base-${PN} = "${capi-base-common_files}"
 
 PKG_capi-base-common-dev= "capi-base-common-dev"
 PKG_capi-base-common= "capi-base-common"

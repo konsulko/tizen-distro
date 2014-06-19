@@ -12,16 +12,16 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by pkgmgr-info-parser 
+#PROVIDES by pkgmgr-info-parser
 
 
-#PROVIDES by pkgmgr-info-parser-dev 
+#PROVIDES by pkgmgr-info-parser-dev
 
 
-#PROVIDES by pkgmgr-info 
+#PROVIDES by pkgmgr-info
 
 
-#PROVIDES by pkgmgr-info-dev 
+#PROVIDES by pkgmgr-info-dev
 
 
 RDEPENDS = ""
@@ -37,7 +37,7 @@ RDEPENDS_${PN}-parser-dev += "pkgmgr-info"
 
 
 DEPENDS = ""
-#DEPENDS of pkgmgr-info 
+#DEPENDS of pkgmgr-info
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "libxml2"
@@ -68,10 +68,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
@@ -99,8 +99,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  
    oe_runmake \
@@ -142,8 +142,11 @@ pkg_postrm_pkgmgr-info-parser() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " pkgmgr-info-parser "
 PACKAGES += " pkgmgr-info-parser-dev "
+PACKAGES += " pkgmgr-info-dev "
+PACKAGES += " pkgmgr-info "
 
 pkgmgr-info-parser_files = ""
 pkgmgr-info-parser_files += "pkgmgr-info.manifest"

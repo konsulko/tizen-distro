@@ -1,6 +1,6 @@
-DESCRIPTION = "Common Meta Data"
+DESCRIPTION = "The definition of default ac domains"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Base/Configuration"
+SECTION = "Security/Access Control"
 LICENSE = "GPL-2.0"
 
 SRC_URI = ""
@@ -12,7 +12,7 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by meta-common
+#PROVIDES by default-ac-domains
 
 
 RDEPENDS = ""
@@ -43,7 +43,7 @@ do_compile() {
  FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- make
+ cp ${S}/packaging/default-ac-domains.manifest .
  
  
  
@@ -59,32 +59,18 @@ do_install() {
  mkdir -p ${D}
  
  
-   oe_runmake \
-         DESTDIR=${D} \
-         INSTALL_ROOT=${D} \
-         BINDIR=${prefix}/bin \
-   install  
-   rm -f ${D}${infodir}/dir 
-   find ${D} -regex ".*\.la$" | xargs rm -f -- 
-   find ${D} -regex ".*\.a$" | xargs rm -f --
- 
- 
  
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " meta-common "
+PACKAGES += " default-ac-domains "
 
-meta-common_files = ""
-meta-common_files += "${prefix}/share/package-groups/common/*.yaml"
-meta-common_files += "${prefix}/share/image-configurations/common/*.yaml"
-meta-common_files += "${prefix}/share/image-configurations/common/configs/*.yaml"
-meta-common_files += "${prefix}/share/image-configurations/common/partitions"
-meta-common_files += "${prefix}/share/image-configurations/common/scripts"
+default-ac-domains_files = ""
+default-ac-domains_files += "default-ac-domains.manifest"
 
-FILES_${PN}-common = "${meta-common_files}"
+FILES_${PN} = "${default-ac-domains_files}"
 
-PKG_meta-common= "meta-common"
+PKG_default-ac-domains= "default-ac-domains"
 
-require meta-extraconf.inc
+require default-ac-domains-extraconf.inc
 

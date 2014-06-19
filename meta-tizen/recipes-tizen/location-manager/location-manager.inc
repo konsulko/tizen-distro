@@ -12,10 +12,10 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by capi-location-manager-dev 
+#PROVIDES by capi-location-manager-dev
 
 
-#PROVIDES by capi-location-manager 
+#PROVIDES by capi-location-manager
 
 
 RDEPENDS = ""
@@ -24,7 +24,7 @@ RDEPENDS_capi-${PN}-dev += "capi-location-manager"
 
 
 DEPENDS = ""
-#DEPENDS of capi-location-manager 
+#DEPENDS of capi-location-manager
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "common"
@@ -52,10 +52,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 0.1.11 | awk 'BEGIN {FS="."}{print $1}'`
  
@@ -85,8 +85,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  
    oe_runmake \
@@ -113,6 +113,7 @@ pkg_postrm_${PN}() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " capi-location-manager-dev "
 PACKAGES += " capi-location-manager "
 
@@ -127,8 +128,8 @@ capi-location-manager_files += "capi-location-manager.manifest"
 capi-location-manager_files += "capi-location-manager.manifest"
 capi-location-manager_files += "${prefix}/lib/libcapi-location-manager.so.*"
 
-FILES_${PN}-dev = "${capi-location-manager-dev_files}"
-FILES_${PN} = "${capi-location-manager_files}"
+FILES_capi-${PN}-dev = "${capi-location-manager-dev_files}"
+FILES_capi-${PN} = "${capi-location-manager_files}"
 
 PKG_capi-location-manager-dev= "capi-location-manager-dev"
 PKG_capi-location-manager= "capi-location-manager"

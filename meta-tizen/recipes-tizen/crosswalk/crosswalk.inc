@@ -12,13 +12,13 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by crosswalk 
+#PROVIDES by crosswalk
 
 
 RDEPENDS = ""
 
 DEPENDS = ""
-#DEPENDS of crosswalk 
+#DEPENDS of crosswalk
 DEPENDS += "libhaptic"
 DEPENDS += "cairo"
 DEPENDS += "expat"
@@ -60,6 +60,7 @@ DEPENDS += "libexif"
 DEPENDS_append_class-native = " bison-native"
 DEPENDS_append_class-target = " bison-native"
 DEPENDS += "pciutils"
+DEPENDS += "binutils"
 
 do_prep() {
  cd ${S}
@@ -71,7 +72,7 @@ do_prep() {
  cp ${S}/packaging/crosswalk.manifest .
  cp ${S}/packaging/crosswalk.xml.in .
  cp ${S}/packaging/crosswalk.png .
- sed "s/@VERSION@/7.35.139.0/g" crosswalk.xml.in > crosswalk.xml
+ sed "s/@VERSION@/7.36.152.0/g" crosswalk.xml.in > crosswalk.xml
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.in > xwalk
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.service.in > xwalk.service
  
@@ -79,10 +80,13 @@ do_prep() {
  cp -a src/LICENSE LICENSE.chromium
  cp -a src/xwalk/LICENSE LICENSE.xwalk
  
- cat ${S}/packaging/crosswalk-do-not-look-for-gtk2-when-using-aura.patch | patch -s  -p0 --fuzz=2
- #patch1
  cat ${S}/packaging/Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch | patch -s  -p0 --fuzz=2
  #patch9
+ 
+ # The profiles using Wayland (and thus Ozone) do not need this patch.
+ 
+ cat ${S}/packaging/crosswalk-tizen-ozonewl-xdgshell150.patch | patch -s  -p0 --fuzz=2
+ #patch11
  
  
 }
@@ -98,10 +102,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
  # For ffmpeg on ia32. The original CFLAGS set by the gyp and config files in
@@ -131,10 +135,18 @@ do_compile() {
  
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=1"
  
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1"
+ # Force gold binary from chroot ld.gold provided by binutils-gold
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1 -Dlinux_use_bundled_binutils=0 -Dlinux_use_bundled_gold=0 "
  
  # Linking fails in Tizen Common when fatal ld warnings are enabled. XWALK-1379.
  
+ # For building for arm in OBS, we need :
+ # -> to unset sysroot value.
+ # sysroot variable is automatically set for cross compilation to use arm-sysroot provided by Chromium project
+ # sysroot usage is not needed, we need to use arm libraries from the virtualized environment.
+ #
+ # Crosswalk build fails if the fpu selected in the gcc option is different from neon in case of arm7 compilation
+ # So force it.
  
  # --no-parallel is added because chroot does not mount a /dev/shm, this will
  # cause python multiprocessing.SemLock error.
@@ -168,8 +180,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  # Binaries.
  install -p -D xwalk ${D}${prefix}/bin/xwalk
@@ -203,6 +215,8 @@ pkg_postinst_${PN}() {
 
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
+PACKAGES += " crosswalk "
 
 crosswalk_files = ""
 crosswalk_files += "crosswalk.manifest"

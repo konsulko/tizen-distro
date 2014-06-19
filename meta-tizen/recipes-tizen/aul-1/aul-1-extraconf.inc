@@ -1,4 +1,8 @@
-SRC_URI += "file://Removing-Ecore-or-EFL-related-packages-depedencies.patch "
+SRC_URI += "file://CMakeLists.txt.patch \
+            file://am_daemon.patch \
+            file://include.patch \
+            file://test.patch \
+           "
 
 RDEPENDS = ""
 #RDEPENDS of aul (aul)
@@ -10,7 +14,7 @@ RDEPENDS_aul-dev += "aul"
 
 
 DEPENDS = ""
-#DEPENDS of aul 
+#DEPENDS of aul
 DEPENDS += "pkgmgr-info"
 DEPENDS += "librua"
 DEPENDS_append_class-native = " cmake-native"

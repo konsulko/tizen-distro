@@ -12,10 +12,10 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by aul 
+#PROVIDES by aul
 
 
-#PROVIDES by aul-dev 
+#PROVIDES by aul-dev
 
 
 RDEPENDS = ""
@@ -28,7 +28,7 @@ RDEPENDS_aul-dev += "aul"
 
 
 DEPENDS = ""
-#DEPENDS of aul 
+#DEPENDS of aul
 DEPENDS += "pkgmgr-info"
 DEPENDS += "librua"
 DEPENDS_append_class-native = " cmake-native"
@@ -67,10 +67,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
  
@@ -86,7 +86,8 @@ do_compile() {
          -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON . -DWITH_WAYLAND=On
+         -DBUILD_SHARED_LIBS:BOOL=ON . \
+  -DWITH_WAYLAND=On \
  
  make -j16
  
@@ -100,8 +101,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  rm -rf ${D}
  
@@ -122,25 +123,54 @@ do_install() {
  ln -sf ../../init.d/launchpad_run ${D}/${sysconfdir}/rc.d/rc3.d/S34launchpad_run
  ln -sf ../../init.d/launchpad_run ${D}/${sysconfdir}/rc.d/rc4.d/S80launchpad_run
  
- mkdir -p ${D}%{TZ_SYS_DB}
- sqlite3 ${D}%{TZ_SYS_DB}/.mida.db < ${D}/usr/share/aul/mida_db.sql
+ mkdir -p ${D}/usr/dbspace
+ sqlite3 ${D}/usr/dbspace/.mida.db < ${D}/usr/share/aul/mida_db.sql
  rm -rf ${D}/usr/share/aul/mida_db.sql
  
  mkdir -p ${D}/usr/lib/systemd/system/graphical.target.wants
+ mkdir -p ${D}/usr/lib/systemd/user/default.target.wants
  install -m 0644 ${S}/packaging/launchpad-preload@.service ${D}/usr/lib/systemd/system/launchpad-preload@.service
  install -m 0644 ${S}/packaging/ac.service ${D}/usr/lib/systemd/system/ac.service
  ln -s ../launchpad-preload@.service ${D}/usr/lib/systemd/system/graphical.target.wants/launchpad-preload@5000.service
  ln -s ../ac.service ${D}/usr/lib/systemd/system/graphical.target.wants/ac.service
  
- mkdir -p ${D}%{TZ_SYS_SMACK}/accesses.d
- 
- mkdir -p ${D}/usr/share/license
- cp LICENSE ${D}/usr/share/license/aul
- 
+ install -m 0644 ${S}/packaging/amd_session_agent.service ${D}/usr/lib/systemd/user/amd_session_agent.service
+ ln -s ../amd_session_agent.service ${D}/usr/lib/systemd/user/default.target.wants/amd_session_agent.service
  
  
 }
 
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+    systemctl daemon-reload
+    if [ $1 == 1 ]; then
+        systemctl restart launchpad-preload@5000.service
+        systemctl restart ac.service
+    fi
+
+}
+
+pkg_prerm_${PN}() {
+    #!/bin/sh -e
+
+    if [ $1 == 0 ]; then
+        systemctl stop launchpad-preload@5000.service
+        systemctl stop ac.service
+    fi
+
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+    systemctl daemon-reload
+
+}
+
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " aul "
 PACKAGES += " aul-dev "
 
@@ -153,33 +183,34 @@ aul_files += "${prefix}/bin/aul_service.sh"
 aul_files += "${prefix}/bin/aul_service_test.sh"
 aul_files += "${sysconfdir}/rc.d/rc3.d/S34launchpad_run"
 aul_files += "${sysconfdir}/rc.d/rc4.d/S80launchpad_run"
-aul_files += "%attr(0644,root,%{TZ_SYS_USER_GROUP}) %{TZ_SYS_DB}/.mida.db"
-aul_files += "%attr(0644,root,%{TZ_SYS_USER_GROUP}) %{TZ_SYS_DB}/.mida.db-journal"
+aul_files += "%attr(0644,root,users) /usr/dbspace/.mida.db"
+aul_files += "%attr(0644,root,users) /usr/dbspace/.mida.db-journal"
 aul_files += "${prefix}/bin/aul_mime.sh"
 aul_files += "${prefix}/bin/aul_test"
 aul_files += "${prefix}/bin/launch_app"
 aul_files += "${prefix}/bin/open_app"
+aul_files += "${prefix}/bin/amd_session_agent"
 aul_files += "/usr/share/aul/miregex/*"
 aul_files += "/usr/share/aul/service/*"
 aul_files += "/usr/share/aul/preload_list.txt"
 aul_files += "/usr/share/aul/preexec_list.txt"
-aul_files += "${prefix}/bin/launchpad_preloading_preinitializing_daemon"
 aul_files += "/usr/lib/systemd/system/graphical.target.wants/launchpad-preload@5000.service"
 aul_files += "/usr/lib/systemd/system/graphical.target.wants/ac.service"
 aul_files += "/usr/lib/systemd/system/launchpad-preload@.service"
 aul_files += "/usr/lib/systemd/system/ac.service"
+aul_files += "/usr/lib/systemd/user/amd_session_agent.service"
+aul_files += "/usr/lib/systemd/user/default.target.wants/amd_session_agent.service"
 aul_files += "/usr/bin/amd"
 aul_files += "/usr/bin/daemon-manager-release-agent"
 aul_files += "/usr/bin/daemon-manager-launch-agent"
-aul_files += "/usr/share/license/aul"
 
 aul-dev_files = ""
 aul-dev_files += "/usr/include/aul/*.h"
 aul-dev_files += "${prefix}/lib/*.so"
 aul-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 
-FILES_${PN} = "${aul_files}"
-FILES_${PN}-dev = "${aul-dev_files}"
+FILES_aul = "${aul_files}"
+FILES_aul-dev = "${aul-dev_files}"
 
 PKG_aul= "aul"
 PKG_aul-dev= "aul-dev"

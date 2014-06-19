@@ -1,5 +1,5 @@
 SRC_URI += "file://fix-include-directories-in-CMakeList.txt.patch"
-
+SRC_URI += "file://fix-include-directories-in-CMakeList_2.patch"
 
 privacy-manager-client_files = ""
 privacy-manager-client_files += "privacy-manager-client.manifest"

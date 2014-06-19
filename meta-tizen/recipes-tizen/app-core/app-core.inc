@@ -12,22 +12,22 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by app-core-efl 
+#PROVIDES by app-core-efl
 
 
-#PROVIDES by app-core-template 
+#PROVIDES by app-core-template
 
 
-#PROVIDES by app-core 
+#PROVIDES by app-core
 
 
-#PROVIDES by app-core-common-dev 
+#PROVIDES by app-core-common-dev
 
 
-#PROVIDES by app-core-common 
+#PROVIDES by app-core-common
 
 
-#PROVIDES by app-core-efl-dev 
+#PROVIDES by app-core-efl-dev
 
 
 RDEPENDS = ""
@@ -50,7 +50,7 @@ RDEPENDS_${PN}-efl-dev += "app-core-common-dev"
 
 
 DEPENDS = ""
-#DEPENDS of app-core 
+#DEPENDS of app-core
 DEPENDS += "aul-1"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
@@ -84,10 +84,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
  
@@ -120,8 +120,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  rm -rf ${D}
  
@@ -164,6 +164,7 @@ pkg_postrm_app-core-common() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " app-core-efl-dev "
 PACKAGES += " app-core-efl "
 PACKAGES += " app-core-common "

@@ -12,25 +12,25 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by pkgmgr-client 
+#PROVIDES by pkgmgr-client
 
 
-#PROVIDES by pkgmgr 
+#PROVIDES by pkgmgr
 
 
-#PROVIDES by pkgmgr-server 
+#PROVIDES by pkgmgr-server
 
 
-#PROVIDES by pkgmgr-types-dev 
+#PROVIDES by pkgmgr-types-dev
 
 
-#PROVIDES by pkgmgr-client-dev 
+#PROVIDES by pkgmgr-client-dev
 
 
-#PROVIDES by pkgmgr-installer-dev 
+#PROVIDES by pkgmgr-installer-dev
 
 
-#PROVIDES by pkgmgr-installer 
+#PROVIDES by pkgmgr-installer
 
 
 RDEPENDS = ""
@@ -55,7 +55,7 @@ RDEPENDS_pkgmgr-installer += "pkgmgr"
 
 
 DEPENDS = ""
-#DEPENDS of pkgmgr 
+#DEPENDS of pkgmgr
 DEPENDS += "pkgmgr-info"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
@@ -92,10 +92,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
@@ -125,8 +125,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  
    oe_runmake \
@@ -193,6 +193,7 @@ pkg_postrm_pkgmgr-installer() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " pkgmgr-client "
 PACKAGES += " pkgmgr "
 PACKAGES += " pkgmgr-server "
@@ -260,13 +261,13 @@ pkgmgr-installer_files += "${prefix}/lib/libpkgmgr_installer.so.*"
 pkgmgr-installer_files += "${prefix}/lib/libpkgmgr_installer_status_broadcast_server.so.*"
 pkgmgr-installer_files += "${prefix}/lib/libpkgmgr_installer_client.so.*"
 
-FILES_${PN}-client = "${pkgmgr-client_files}"
-FILES_${PN} = "${pkgmgr_files}"
-FILES_${PN}-server = "${pkgmgr-server_files}"
-FILES_${PN}-types-dev = "${pkgmgr-types-dev_files}"
-FILES_${PN}-client-dev = "${pkgmgr-client-dev_files}"
-FILES_${PN}-installer-dev = "${pkgmgr-installer-dev_files}"
-FILES_${PN}-installer = "${pkgmgr-installer_files}"
+FILES_pkgmgr-client = "${pkgmgr-client_files}"
+FILES_pkgmgr = "${pkgmgr_files}"
+FILES_pkgmgr-server = "${pkgmgr-server_files}"
+FILES_pkgmgr-types-dev = "${pkgmgr-types-dev_files}"
+FILES_pkgmgr-client-dev = "${pkgmgr-client-dev_files}"
+FILES_pkgmgr-installer-dev = "${pkgmgr-installer-dev_files}"
+FILES_pkgmgr-installer = "${pkgmgr-installer_files}"
 
 PKG_pkgmgr-client= "pkgmgr-client"
 PKG_pkgmgr= "pkgmgr"

@@ -12,16 +12,16 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by weston-common 
+#PROVIDES by weston-common
 # the PROVIDES rules is ignore "weston-startup  "
 PROVIDES += "weston-startup"
 RPROVIDES_weston-common += "weston-startup"
 
 
-#PROVIDES by weston-common-config 
+#PROVIDES by weston-common-config
 
 
-#PROVIDES by weston-common-tz-launcher 
+#PROVIDES by weston-common-tz-launcher
 
 
 RDEPENDS = ""
@@ -32,7 +32,7 @@ RDEPENDS_${PN} += "shadow"
 
 
 DEPENDS = ""
-#DEPENDS of weston-common 
+#DEPENDS of weston-common
 DEPENDS += "weston"
 DEPENDS += "libxkbcommon"
 DEPENDS += "cairo"
@@ -73,10 +73,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
@@ -110,8 +110,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  
  #install tz-launcher
@@ -185,9 +185,10 @@ pkg_preinst_${PN}() {
     getent group weston-launch >/dev/null || ${prefix}/sbin/groupadd -r -o weston-launch
     # create user 'display'
     getent passwd display >/dev/null || ${prefix}/sbin/useradd -r -g display -d /run/display -s /bin/false -c "Display daemon" display
-    # add user 'display' to groups 'weston-launch' and 'input'
+    # add user 'display' to groups 'weston-launch', 'input' and 'video'
     groupmod -A display weston-launch
     groupmod -A display input
+    groupmod -A display video
     # setup display manager service
     mkdir -p /lib/systemd/system/graphical.target.wants/
     ln -sf ../display-manager.path  /lib/systemd/system/graphical.target.wants/
@@ -205,7 +206,9 @@ pkg_postrm_${PN}() {
 
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " weston-common-tz-launcher "
+PACKAGES += " weston-common "
 PACKAGES += " weston-common-config "
 
 weston-common-tz-launcher_files = ""

@@ -12,16 +12,16 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by lua 
+#PROVIDES by lua
 
 
-#PROVIDES by lua-dev 
+#PROVIDES by lua-dev
 
 
-#PROVIDES by liblua 
+#PROVIDES by liblua
 
 
-#PROVIDES by lua-doc 
+#PROVIDES by lua-doc
 
 
 RDEPENDS = ""
@@ -30,7 +30,7 @@ RDEPENDS_${PN}-dev += "lua"
 
 
 DEPENDS = ""
-#DEPENDS of lua 
+#DEPENDS of lua
 DEPENDS_append_class-native = " readline-native"
 DEPENDS_append_class-target = " readline-native"
 DEPENDS_append_class-native = " pkgconfig-native"
@@ -56,10 +56,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  sed -i 's:LUA_ROOT2 "LIBDIR/lua/5.1/":LUA_ROOT2 \"lib/lua/5.1/":' src/luaconf.h
  make -j16 -C src CC="${CC}" MYCFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -fPIC -DLUA_USE_LINUX" MYLIBS="-Wl,-E -ldl -lreadline -lhistory -lncurses" V=5.1 all
@@ -74,8 +74,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  make install INSTALL_TOP="${D}${prefix}" INSTALL_LIB="${D}${prefix}/lib" INSTALL_CMOD=${D}${prefix}/lib/lua/5.1 INSTALL_MAN="${D}${mandir}/man1"
  install -D -m644 etc/lua.pc ${D}${prefix}/lib/pkgconfig/lua.pc
@@ -106,6 +106,9 @@ pkg_postrm_liblua() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
+PACKAGES += " lua "
+PACKAGES += " lua-dev "
 PACKAGES += " liblua "
 
 lua_files = ""

@@ -36,9 +36,9 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
  cp ${S}/packaging/capi-system-sensor.manifest .
-
-
-
+ 
+ 
+ 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -52,16 +52,16 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -I%_fmoddir}" ; export FFLAGS ;
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
-
+ 
  MAJORVER=`echo 0.1.17 | awk 'BEGIN {FS="."}{print $1}'`
-
-   CFLAGS="${CFLAGS:--O2 -g}" ; export CFLAGS ;
-   CXXFLAGS="${CXXFLAGS:--O2 -g}" ; export CXXFLAGS ;
-   FFLAGS="${FFLAGS:--O2 -g}" ; export FFLAGS ;
+ 
+   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export FFLAGS ; 
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
          -DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
@@ -72,12 +72,12 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON . -DFULLVER=0.1.17 -DMAJORVER=${MAJORVER}
-
-
+ 
+ 
  make -j16
-
-
-
+ 
+ 
+ 
 }
 
 do_install() {
@@ -88,24 +88,37 @@ do_install() {
  unset DISPLAY
  rm -rf ${D}
  mkdir -p ${D}
-
+ 
  rm -rf ${D}
-
+ 
    oe_runmake \
          DESTDIR=${D} \
          INSTALL_ROOT=${D} \
          BINDIR=${prefix}/bin \
-   install
-   rm -f ${D}${infodir}/dir
-   find ${D} -regex ".*\.la$" | xargs rm -f --
+   install  
+   rm -f ${D}${infodir}/dir 
+   find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
-
+ 
  mkdir -p ${D}/usr/share/license
  cp LICENSE ${D}/usr/share/license/capi-system-sensor
-
-
+ 
+ 
 }
-PACKAGES = "${PN}-dbg ${PN}-doc"
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+}
+
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " capi-system-sensor-dev "
 PACKAGES += " capi-system-sensor "
 
@@ -120,10 +133,8 @@ capi-system-sensor_files = ""
 capi-system-sensor_files += "capi-system-sensor.manifest"
 capi-system-sensor_files += "${prefix}/lib/libcapi-system-sensor.so.*"
 
-FILES_capi-system-sensor-dev = "${capi-system-sensor-dev_files}"
-FILES_capi-system-sensor = "${capi-system-sensor_files}"
-
-FILES_sensor = ""
+FILES_capi-system-${PN}-dev = "${capi-system-sensor-dev_files}"
+FILES_capi-system-${PN} = "${capi-system-sensor_files}"
 
 PKG_capi-system-sensor-dev= "capi-system-sensor-dev"
 PKG_capi-system-sensor= "capi-system-sensor"

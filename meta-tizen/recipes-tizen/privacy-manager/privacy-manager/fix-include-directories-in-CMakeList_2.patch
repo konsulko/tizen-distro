@@ -1,0 +1,27 @@
+diff --git a/server/CMakeLists.txt b/server/CMakeLists.txt
+index ec51d1a..bba409f 100644
+--- a/server/CMakeLists.txt
++++ b/server/CMakeLists.txt
+@@ -26,7 +26,7 @@ SET(server_src_dir "${CMAKE_SOURCE_DIR}/server/src")
+ SET(server_include_dir "${CMAKE_SOURCE_DIR}/server/inc/")
+ SET(common_src_dir "${CMAKE_SOURCE_DIR}/common/src/")
+ SET(common_include_dir "${CMAKE_SOURCE_DIR}/common/inc/")
+-SET(dbus_include_dir "/usr/include/dbus-1.0")
++SET(dbus_include_dir "${pkg_INCLUDE_DIRS}/dbus-1.0")
+ 
+ ## Additional flag
+ ADD_DEFINITIONS("-fvisibility=hidden")
+@@ -43,11 +43,11 @@ ENDIF(FILTER_LISTED_PKG)
+ INCLUDE_DIRECTORIES(
+ 	${pkgs_INCLUDE_DIRS}
+ 	${server_include_dir}
+-	${common_include_dir} 
++	${common_include_dir}
+ 	${dbus_include_dir}
+ 	)
+ 
+-SET(PRIVACY_MANAGER_SERVER_SOURCES 
++SET(PRIVACY_MANAGER_SERVER_SOURCES
+ 	${common_src_dir}/SocketConnection.cpp
+ 	${common_src_dir}/SocketStream.cpp
+ 	${common_src_dir}/PrivacyDb.cpp

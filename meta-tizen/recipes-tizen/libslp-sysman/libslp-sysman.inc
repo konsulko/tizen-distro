@@ -12,13 +12,13 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by sysman-internal-dev 
+#PROVIDES by sysman-internal-dev
 
 
-#PROVIDES by sysman-dev 
+#PROVIDES by sysman-dev
 
 
-#PROVIDES by sysman 
+#PROVIDES by sysman
 
 
 RDEPENDS = ""
@@ -30,7 +30,7 @@ RDEPENDS_sysman-dev += "sysman"
 
 
 DEPENDS = ""
-#DEPENDS of sysman 
+#DEPENDS of sysman
 DEPENDS += "libdevice-node"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
@@ -56,10 +56,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  cp ${S}/packaging/sysman.manifest .
  
@@ -90,8 +90,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  rm -rf ${D}
  
@@ -126,6 +126,7 @@ pkg_postrm_${PN}() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " sysman-internal-dev "
 PACKAGES += " sysman-dev "
 PACKAGES += " sysman "
@@ -150,9 +151,9 @@ sysman_files += "${sysconfdir}/rc.d/init.d/*"
 sysman_files += "${sysconfdir}/rc.d/rc3.d/*"
 sysman_files += "${sysconfdir}/rc.d/rc5.d/*"
 
-FILES_${PN}-internal-dev = "${sysman-internal-dev_files}"
-FILES_${PN}-dev = "${sysman-dev_files}"
-FILES_${PN} = "${sysman_files}"
+FILES_sysman-internal-dev = "${sysman-internal-dev_files}"
+FILES_sysman-dev = "${sysman-dev_files}"
+FILES_sysman = "${sysman_files}"
 
 PKG_sysman-internal-dev= "sysman-internal-dev"
 PKG_sysman-dev= "sysman-dev"

@@ -12,10 +12,10 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by libcom-core 
+#PROVIDES by libcom-core
 
 
-#PROVIDES by libcom-core-dev 
+#PROVIDES by libcom-core-dev
 
 
 RDEPENDS = ""
@@ -24,7 +24,7 @@ RDEPENDS_lib${PN}-dev += "libcom-core"
 
 
 DEPENDS = ""
-#DEPENDS of libcom-core 
+#DEPENDS of libcom-core
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
 DEPENDS_append_class-native = " cmake-native"
@@ -53,10 +53,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
  
@@ -85,8 +85,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  rm -rf ${D}
  
@@ -115,6 +115,7 @@ pkg_postrm_libcom-core() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " libcom-core "
 PACKAGES += " libcom-core-dev "
 
@@ -132,8 +133,8 @@ libcom-core-dev_files += "${prefix}/include/com-core/com-core_thread.h"
 libcom-core-dev_files += "${prefix}/include/com-core/secure_socket.h"
 libcom-core-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 
-FILES_${PN} = "${libcom-core_files}"
-FILES_${PN}-dev = "${libcom-core-dev_files}"
+FILES_lib${PN} = "${libcom-core_files}"
+FILES_lib${PN}-dev = "${libcom-core-dev_files}"
 
 PKG_libcom-core= "libcom-core"
 PKG_libcom-core-dev= "libcom-core-dev"

@@ -12,10 +12,10 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by capi-system-info-dev 
+#PROVIDES by capi-system-info-dev
 
 
-#PROVIDES by capi-system-info 
+#PROVIDES by capi-system-info
 
 
 RDEPENDS = ""
@@ -24,7 +24,7 @@ RDEPENDS_capi-${PN}-dev += "capi-system-info"
 
 
 DEPENDS = ""
-#DEPENDS of capi-system-info 
+#DEPENDS of capi-system-info
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
@@ -55,10 +55,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 0.2.0 | awk 'BEGIN {FS="."}{print $1}'`
  
@@ -88,8 +88,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  
    oe_runmake \
@@ -118,6 +118,7 @@ pkg_postrm_${PN}() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " capi-system-info-dev "
 PACKAGES += " capi-system-info "
 
@@ -133,8 +134,8 @@ capi-system-info_files += "${prefix}/lib/libcapi-system-info.so.*"
 capi-system-info_files += "${sysconfdir}/make_info_file.sh"
 capi-system-info_files += "system-info.manifest"
 
-FILES_${PN}-dev = "${capi-system-info-dev_files}"
-FILES_${PN} = "${capi-system-info_files}"
+FILES_capi-${PN}-dev = "${capi-system-info-dev_files}"
+FILES_capi-${PN} = "${capi-system-info_files}"
 
 PKG_capi-system-info-dev= "capi-system-info-dev"
 PKG_capi-system-info= "capi-system-info"

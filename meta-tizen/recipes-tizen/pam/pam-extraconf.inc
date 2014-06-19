@@ -17,7 +17,7 @@ pam-dbg_files += "${prefix}/lib/security/.debug/*"
 pam-dbg_files += "${prefix}/lib/security/pam_filter/.debug/*"
 
 FILES_${PN}-dbg += "${pam-dbg_files}"
-INSANE_SKIP_${PN} = "pam-modules-extra"
+INSANE_SKIP_pam-modules-extra = "dev-so"
 
 pam-dev_files += "${prefix}/lib/security/pam_unix_acct.so"
 pam-dev_files += "${prefix}/lib/security/pam_unix_auth.so"

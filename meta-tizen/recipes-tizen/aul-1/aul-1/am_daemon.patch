@@ -1,0 +1,205 @@
+diff --git a/am_daemon/amd_key.c b/am_daemon/amd_key.c
+index 4725889..3943b70 100755
+--- a/am_daemon/amd_key.c
++++ b/am_daemon/amd_key.c
+@@ -19,16 +19,16 @@
+  *
+  */
+
+-#include <Ecore.h>
+-#include <Evas.h>
+-#include <Ecore_Input.h>
+-#ifdef X11
+-#include <Ecore_X.h>
+-#include <utilX.h>
+-#endif
+-#ifdef WAYLAND
+-#include <Ecore_Wayland.h>
+-#endif
++//#include <Ecore.h>
++//#include <Evas.h>
++//#include <Ecore_Input.h>
++//#ifdef X11
++//#include <Ecore_X.h>
++//#include <utilX.h>
++//#endif
++//#ifdef WAYLAND
++//#include <Ecore_Wayland.h>
++//#endif
+ #include <aul.h>
+ #include <glib.h>
+
+@@ -37,7 +37,7 @@
+ #include "app_sock.h"
+ #include "launch.h"
+
+-static struct {
++/*static struct {
+ 	Evas_Object *win;
+ 	Ecore_Event_Handler *key_up;
+ 	Ecore_Event_Handler *key_down;
+@@ -45,14 +45,14 @@ static struct {
+ 	.win = NULL,
+ 	.key_up = NULL,
+ 	.key_down = NULL,
+-};
++};*/
+
+ GSList *key_pid_list = NULL;
+
+-static Eina_Bool __key_release_cb(void *data, int type, void *event);
+-static Eina_Bool __key_press_cb(void *data, int type, void *event);
++//static Eina_Bool __key_release_cb(void *data, int type, void *event);
++//static Eina_Bool __key_press_cb(void *data, int type, void *event);
+
+-static Eina_Bool __key_release_cb(void *data, int type, void *event)
++/*static Eina_Bool __key_release_cb(void *data, int type, void *event)
+ {
+ 	Evas_Event_Key_Up *ev = event;
+ 	int ret;
+@@ -83,10 +83,10 @@ static Eina_Bool __key_release_cb(void *data, int type, void *event)
+ 	}
+
+ 	return ECORE_CALLBACK_RENEW;
+-}
++}*/
+
+
+-static Eina_Bool __key_press_cb(void *data, int type, void *event)
++/*static Eina_Bool __key_press_cb(void *data, int type, void *event)
+ {
+ 	Evas_Event_Key_Down *ev = event;
+ 	int ret;
+@@ -117,7 +117,7 @@ static Eina_Bool __key_press_cb(void *data, int type, void *event)
+ 	}
+
+ 	return ECORE_CALLBACK_RENEW;
+-}
++}*/
+
+ int _register_key_event(int pid)
+ {
+@@ -171,7 +171,7 @@ int _unregister_key_event(int pid)
+
+ int _key_init()
+ {
+-#ifdef X11
++/*#ifdef X11
+ 	key_info.win = ecore_x_window_input_new(0, 0, 0, 1, 1);
+ 	if (!key_info.win) {
+ 		_D("Failed to create hidden window");
+@@ -198,7 +198,7 @@ int _key_init()
+ 	if (!key_info.key_down) {
+ 		_D("Failed to register a key down event handler");
+ 	}
+-#endif // X11
++#endif // X11*/
+
+ 	return 0;
+ }
+diff --git a/am_daemon/amd_main.c b/am_daemon/amd_main.c
+index 4b29192..8c60700 100755
+--- a/am_daemon/amd_main.c
++++ b/am_daemon/amd_main.c
+@@ -24,16 +24,16 @@
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <string.h>
+-#include <Ecore.h>
+-#include <Ecore_Input.h>
+-#include <Evas.h>
+-#ifdef X11
+-#include <Ecore_X.h>
+-#include <utilX.h>
+-#endif
+-#ifdef WAYLAND
+-#include <Ecore_Wayland.h>
+-#endif
++//#include <Ecore.h>
++//#include <Ecore_Input.h>
++//#include <Evas.h>
++//#ifdef X11
++//#include <Ecore_X.h>
++//#include <utilX.h>
++//#endif
++//#ifdef WAYLAND
++//#include <Ecore_Wayland.h>
++//#endif
+ #include <aul.h>
+ #include <vconf.h>
+ #include <app-checker-server.h>
+@@ -258,16 +258,16 @@ static int __init()
+
+ 	int ret;
+
+-	ecore_init();
+-	evas_init();
+-	ecore_event_init();
+-#ifdef X11
++	//ecore_init();
++	//evas_init();
++	//ecore_event_init();
++/*#ifdef X11
+ 	ret = ecore_x_init(NULL);
+ 	_D("ecore_x_init initialized %d times\n", ret);
+ #endif
+ #ifdef WAYLAND
+     ecore_wl_init(NULL);
+-#endif
++#endif*/
+
+ 	appinfo_init(&amd.af);
+ 	cgutil_create(MOUNT_PATH, AGENT_PATH, &amd.cg);
+@@ -321,7 +321,7 @@ int main(int argc, char *argv[])
+
+ 	g_idle_add(__amd_ready, NULL);
+
+-	ecore_main_loop_begin();
++	//ecore_main_loop_begin();
+
+ 	return 0;
+ }
+diff --git a/am_daemon/amd_status.c b/am_daemon/amd_status.c
+index d1e70f0..551139a 100755
+--- a/am_daemon/amd_status.c
++++ b/am_daemon/amd_status.c
+@@ -24,7 +24,7 @@
+ #include <glib.h>
+ #include <aul.h>
+ #include <string.h>
+-#include <Ecore.h>
++//#include <Ecore.h>
+
+ #include "amd_config.h"
+ #include "amd_status.h"
+@@ -69,7 +69,7 @@ int _status_add_app_info_list(char *appid, char *app_path, int pid, int pad_pid)
+ 	return 0;
+ }
+
+-static Eina_Bool __app_terminate_timer_cb(void *data)
++static int __app_terminate_timer_cb(void *data)
+ {
+ 	int pid = (int)data;
+ 	int ret = 0;
+@@ -80,7 +80,7 @@ static Eina_Bool __app_terminate_timer_cb(void *data)
+ 	if (ret == -1)
+ 		_D("send SIGKILL: %s", strerror(errno));
+
+-	return ECORE_CALLBACK_CANCEL;
++	return ret;
+ }
+
+ int _status_update_app_info_list(int pid, int status)
+@@ -93,10 +93,10 @@ int _status_update_app_info_list(int pid, int status)
+ 		info_t = (app_status_info_t *)iter->data;
+ 		if(pid == info_t->pid) {
+ 			info_t->status = status;
+-			if(status == STATUS_DYING) {
++			/*if(status == STATUS_DYING) {
+ 				if(info_t->pad_pid != DEBUG_LAUNCHPAD_PID)
+ 					ecore_timer_add(2, __app_terminate_timer_cb, info_t->pid);
+-			}
++			}*/
+ 			break;
+ 		}
+ 	}

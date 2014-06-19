@@ -87,15 +87,13 @@ DEPENDS += "file"
 DEPENDS += "popt"
 DEPENDS += "uthash"
 DEPENDS += "nss"
-DEPENDS_append_class-native = " gcc"
-DEPENDS_append_class-target = " gcc"
+DEPENDS += "bzip2"
 DEPENDS += "lua"
 DEPENDS += "elfutils"
 DEPENDS += "patch"
 inherit pythonnative
 DEPENDS += "libcap"
 DEPENDS += "ncurses"
-DEPENDS += "bzip2"
 DEPENDS += "smack"
 DEPENDS_append_class-native = " libtool"
 DEPENDS_append_class-target = " libtool-cross"
@@ -128,8 +126,8 @@ do_prep() {
  cp -a ${S}/packaging/rpm-tizen_macros tizen_macros
  rm -f m4/libtool.m4
  rm -f m4/lt*.m4
-
-
+ 
+ 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -147,19 +145,16 @@ do_compile() {
  CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
  FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
-
+ 
  CPPFLAGS="$CPPFLAGS `pkg-config --cflags nss`"
  export CPPFLAGS
  export CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -ffunction-sections"
  export LDFLAGS="${LDFLAGS} -Wl,-Bsymbolic-functions -ffunction-sections"
-
- BUILDTARGET="--host=x86_64-linux-gnu "
- BUILDTARGET+="--build=x86_64-tizen-linux "
-
-
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ;
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ 
+ 
+   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
    autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
          --target=x86_64-tizen-linux \
          --program-prefix= \
@@ -182,13 +177,12 @@ do_compile() {
      --with-cap \
      --enable-shared \
      --enable-python \
-     --with-msm \
-     $BUILDTARGET
-
+     --with-msm 
+ 
  make -j16
-
-
-
+ 
+ 
+ 
 }
 
 do_install() {
@@ -199,18 +193,18 @@ do_install() {
  unset DISPLAY
  rm -rf ${D}
  mkdir -p ${D}
-
+ 
  mkdir -p ${D}${prefix}/lib
  mkdir -p ${D}${prefix}/share/locale
  ln -s ../share/locale ${D}${prefix}/lib/locale
-
+ 
    oe_runmake \
          DESTDIR=${D} \
          INSTALL_ROOT=${D} \
          BINDIR=${prefix}/bin \
-   install
-   rm -f ${D}${infodir}/dir
-   find ${D} -regex ".*\.la$" | xargs rm -f --
+   install  
+   rm -f ${D}${infodir}/dir 
+   find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  install -m 644 db3/db.h ${D}${prefix}/include/rpm
  mkdir -p ${D}${sysconfdir}/rpm
@@ -264,38 +258,60 @@ do_install() {
  popd
  rm -f ${D}${prefix}/lib/*.la
  rm -f ${D}${prefix}/lib/rpm-plugins/*.la
-
-
-  _target="";
-  _symlinks=0;
-
-  fdupes -q -n -r ${D}${prefix}/lib/rpm/platform |
-   while read _file; do
-     if test -z "$_target" ; then
-       _target="$_file";
-     else
-       if test -z "$_file" ; then
- 	_target="";
- 	continue ;
+ 
+ 
+  _target=""; 
+  _symlinks=0; 
+   
+  fdupes -q -n -r ${D}${prefix}/lib/rpm/platform | 
+   while read _file; do 
+     if test -z "$_target" ; then 
+       _target="$_file"; 
+     else 
+       if test -z "$_file" ; then 
+ 	_target=""; 
+ 	continue ; 
+       fi ; 
+       if test "$_symlinks" = 1; then 
+         ln -sf "${_target#${D}}" "$_file"; 
+       else 
+         ln -f "$_target" "$_file"; 
        fi ;
-       if test "$_symlinks" = 1; then
-         ln -sf "${_target#${D}}" "$_file";
-       else
-         ln -f "$_target" "$_file";
-       fi ;
-     fi ;
-  done
-
+     fi ; 
+  done 
+ 
  sh ${D}${prefix}/lib/rpm/find-lang.sh ${D} rpm
+ 
+ 
+ 
+}
 
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
 
+    /sbin/ldconfig
+    test -f ${localstatedir}/lib/rpm/Packages || rpm --initdb
+    rm -f ${localstatedir}/lib/rpm/Filemd5s \
+          ${localstatedir}/lib/rpm/Filedigests \
+          ${localstatedir}/lib/rpm/Requireversion \
+          ${localstatedir}/lib/rpm/Provideversion
 
 }
 
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    /sbin/ldconfig
+
+}
+
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " rpm-security-plugin "
 PACKAGES += " python-rpm "
 PACKAGES += " rpm-build "
+PACKAGES += " rpm-dev "
 PACKAGES += " rpm-docs "
+PACKAGES += " rpm "
 
 rpm-security-plugin_files = ""
 rpm-security-plugin_files += "rpm.manifest"
