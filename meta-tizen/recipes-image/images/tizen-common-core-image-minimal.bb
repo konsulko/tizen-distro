@@ -25,4 +25,4 @@ IMAGE_INSTALL += "user-session-units"
 IMAGE_INSTALL += "default-ac-domains"
 IMAGE_INSTALL += "desktop-skin"
 
-#IMAGE_INSTALL += "crosswalk"
+IMAGE_INSTALL += "crosswalk"

@@ -1,17 +1,16 @@
+From 39acb736bd9dd5cfe6d25345e49e3e7b9b3e69f1 Mon Sep 17 00:00:00 2001
+From: Xavier Roche <xavier.roche@open.eurogiciel.org>
+Date: Thu, 19 Jun 2014 15:42:14 +0200
+Subject: [PATCH] meta-tizen: Fix lib Install dir
 
-From 61c10122d3655e89c289f89e610230591d2d080c Mon Sep 17 00:00:00 2001
-From: Xavier Roche <xavrock.os@gmail.com>
-Date: Mon, 26 May 2014 15:51:18 +0200
-Subject: [PATCH] meta-tizen: Fix lib install dir for Yocto build
-
-Signed-off-by: Xavier Roche <xavrock.os@gmail.com>
+Signed-off-by: Xavier Roche <xavier.roche@open.eurogiciel.org>
 ---
- CMakeLists.txt                              |    3 ---
- build/security-server/CMakeLists.txt        |    2 +-
- build/security-server/security-server.pc.in |    2 +-
- src/CMakeLists.txt                          |    2 +-
- src/server/CMakeLists.txt                   |    2 +-
- 5 files changed, 4 insertions(+), 7 deletions(-)
+ CMakeLists.txt                              | 3 ---
+ build/security-server/CMakeLists.txt        | 2 +-
+ build/security-server/security-server.pc.in | 2 +-
+ src/CMakeLists.txt                          | 5 +++--
+ src/server/CMakeLists.txt                   | 3 ++-
+ 5 files changed, 7 insertions(+), 8 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 476b94a..516c6bf 100644
@@ -51,10 +50,24 @@ index 608cb2d..df49caf 100644
  
  Name: security-server
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index b0270d4..87e9b3e 100644
+index b0270d4..634cf3c 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -93,7 +93,7 @@ TARGET_LINK_LIBRARIES(${TARGET_SECURITY_CLIENT}
+@@ -51,7 +51,7 @@ ADD_EXECUTABLE(${TARGET_SECURITY_SERVER} ${SECURITY_SERVER_SOURCES})
+ TARGET_LINK_LIBRARIES(${TARGET_SECURITY_SERVER}
+     ${SECURITY_SERVER_DEP_LIBRARIES}
+     ${TARGET_SERVER_COMMON}
+-    -lcap
++    -lcap -lpthread
+     )
+ 
+ ################################################################################
+@@ -89,11 +89,12 @@ SET_TARGET_PROPERTIES(
+ TARGET_LINK_LIBRARIES(${TARGET_SECURITY_CLIENT}
+     ${SECURITY_SERVER_DEP_LIBRARIES}
+     ${TARGET_SERVER_COMMON}
++    -lpthread
+     )
  
  ################################################################################
  
@@ -64,10 +77,15 @@ index b0270d4..87e9b3e 100644
  INSTALL(TARGETS ${TARGET_SECURITY_SERVER} DESTINATION bin)
  
 diff --git a/src/server/CMakeLists.txt b/src/server/CMakeLists.txt
-index 2cd6177..0fad220 100644
+index 2cd6177..b86b473 100644
 --- a/src/server/CMakeLists.txt
 +++ b/src/server/CMakeLists.txt
-@@ -49,5 +49,5 @@ TARGET_LINK_LIBRARIES(${TARGET_SERVER_COMMON}
+@@ -45,9 +45,10 @@ SET_TARGET_PROPERTIES(
+ 
+ TARGET_LINK_LIBRARIES(${TARGET_SERVER_COMMON}
+     ${COMMON_DEP_LIBRARIES}
++    -lpthread
+     )
  
  ################################################################################
  
@@ -75,5 +93,5 @@ index 2cd6177..0fad220 100644
 +INSTALL(TARGETS ${TARGET_SERVER_COMMON} DESTINATION lib)
  
 -- 
-1.7.9.5
+1.8.4.5
 
