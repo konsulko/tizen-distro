@@ -1,0 +1,30 @@
+diff --git a/include/dlog.h b/include/dlog.h
+index 65f5c4f..4aeba2b 100644
+--- a/include/dlog.h
++++ b/include/dlog.h
+@@ -256,7 +256,7 @@ typedef enum {
+ #define COMPATIBILITY_ON
+ 
+ #ifdef COMPATIBILITY_ON
+-#define LOG_ON() _get_logging_on()
++#define LOG_ON() 1
+ #if LOG_NDEBUG
+ #define LOGV(format, arg...) (0)
+ #else
+@@ -332,7 +332,7 @@ typedef enum {
+  * @param[in]	log_id	log device id
+  * @param[in]	prio	priority
+  * @param[in]	tag	tag
+- * @param[in]	fmt	format string 
++ * @param[in]	fmt	format string
+  * @return			Operation result
+  * @retval		0>=	Success
+  * @retval              -1	Error
+@@ -369,7 +369,6 @@ int __dlog_print(log_id_t log_id, int prio, const char *tag, const char *fmt, ..
+  * @endcode
+   */
+ int __dlog_vprint(log_id_t log_id, int prio, const char *tag, const char *fmt, va_list ap);
+-int _get_logging_on(void);
+ #ifdef __cplusplus
+ }
+ #endif /* __cplusplus */
