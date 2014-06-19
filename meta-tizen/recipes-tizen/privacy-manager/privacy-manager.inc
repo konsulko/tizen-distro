@@ -12,22 +12,22 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by privacy-manager-client 
+#PROVIDES by privacy-manager-client
 
 
-#PROVIDES by privacy-manager-server 
+#PROVIDES by privacy-manager-server
 
 
-#PROVIDES by privacy-manager-server-dev 
+#PROVIDES by privacy-manager-server-dev
 
 
-#PROVIDES by capi-security-privacy-manager 
+#PROVIDES by capi-security-privacy-manager
 
 
-#PROVIDES by privacy-manager-client-dev 
+#PROVIDES by privacy-manager-client-dev
 
 
-#PROVIDES by capi-security-privacy-manager-dev 
+#PROVIDES by capi-security-privacy-manager-dev
 
 
 RDEPENDS = ""
@@ -51,7 +51,7 @@ RDEPENDS_capi-security-${PN}-dev += "capi-security-privacy-manager"
 
 
 DEPENDS = ""
-#DEPENDS of privacy-manager-server 
+#DEPENDS of privacy-manager-server
 DEPENDS += "pkgmgr-info"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
@@ -92,10 +92,10 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ; 
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
- LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
  
@@ -131,8 +131,8 @@ do_install() {
  LANG=C
  export LANG
  unset DISPLAY
- rm -rf ${D} 
- mkdir -p ${D} 
+ rm -rf ${D}
+ mkdir -p ${D}
  
  mkdir -p ${D}${prefix}/bin
  cp res/usr/bin/* ${D}${prefix}/bin/
@@ -203,6 +203,7 @@ pkg_postrm_privacy-manager-client() {
     /sbin/ldconfig
 }
 
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " privacy-manager-client "
 PACKAGES += " privacy-manager-server "
 PACKAGES += " privacy-manager-server-dev "
@@ -241,12 +242,12 @@ capi-security-privacy-manager-dev_files += "${prefix}/include/privacymgr/*.h"
 capi-security-privacy-manager-dev_files += "${prefix}/lib/libcapi-security-privacy-manager.so"
 capi-security-privacy-manager-dev_files += "${prefix}/lib/pkgconfig/capi-security-privacy-manager.pc"
 
-FILES_privacy-manager-client = "${privacy-manager-client_files}"
-FILES_${PN} = "${privacy-manager-server_files}"
-FILES_${PN}-dev = "${privacy-manager-server-dev_files}"
-FILES_capi-security-privacy-manager = "${capi-security-privacy-manager_files}"
-FILES_privacy-manager-client-dev = "${privacy-manager-client-dev_files}"
-FILES_capi-security-privacy-manager-dev = "${capi-security-privacy-manager-dev_files}"
+FILES_${PN}-client = "${privacy-manager-client_files}"
+FILES_${PN}-server = "${privacy-manager-server_files}"
+FILES_${PN}-server-dev = "${privacy-manager-server-dev_files}"
+FILES_capi-security-${PN} = "${capi-security-privacy-manager_files}"
+FILES_${PN}-client-dev = "${privacy-manager-client-dev_files}"
+FILES_capi-security-${PN}-dev = "${capi-security-privacy-manager-dev_files}"
 
 PKG_privacy-manager-client= "privacy-manager-client"
 PKG_privacy-manager-server= "privacy-manager-server"
