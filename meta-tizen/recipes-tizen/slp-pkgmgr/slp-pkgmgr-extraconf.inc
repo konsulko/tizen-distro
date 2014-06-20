@@ -1,25 +1,8 @@
-SRC_URI="file://001-Remove-including-of-TizenCommon-in-CMakeList.patch"
+#inherit cmake
 
-pkgmgr_files += "/package-manager"
-pkgmgr_files += "/package-manager/pkg_path.conf"
-pkgmgr_files += "/opt"
-pkgmgr_files += "/usr/share/dbus-1"
-pkgmgr_files += "/usr/share/dbus-1/system-services"
-pkgmgr_files += "/usr/share/dbus-1/system-services/org.tizen.slp.pkgmgr.service"
-pkgmgr_files += "/usr/lib/libpkgmgr_installer_client.so.0.1.0"
-pkgmgr_files += "/usr/lib/libpkgmgr_installer.so.0.1.0"
-pkgmgr_files += "/usr/lib/libpkgmgr-client.so.0.1.68"
-pkgmgr_files += "/usr/lib/libpkgmgr_installer_status_broadcast_server.so.0"
-pkgmgr_files += "/usr/lib/libpkgmgr_installer.so.0"
-pkgmgr_files += "/usr/lib/libpkgmgr_installer_status_broadcast_server.so.0.1.0"
-pkgmgr_files += "/usr/lib/libpkgmgr_installer_client.so.0"
-pkgmgr_files += "/usr/lib/libpkgmgr-client.so.0"
-pkgmgr_files += "/opt/upgrade"
-pkgmgr_files += "/opt/upgrade/pkgmgr.patch.sh"
-pkgmgr_files += "/etc/package-manager/server"
-pkgmgr_files += "/dbus-1/system.d"
-pkgmgr_files += "/dbus-1/system.d/org.tizen.slp.pkgmgr.conf"
+#B = "${S}"
 
-pkgmgr_files += "/package-manager/server"
-pkgmgr_files += "/package-manager/queue_status"
-pkgmgr_files += "/usr/bin/pkgmgr-server"
+
+
+
+
