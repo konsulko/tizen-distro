@@ -36,10 +36,10 @@ RDEPENDS_${PN}-efl += "eglibc"
 
 #RDEPENDS of app-core-common-dev (${PN}-common-dev)
 RDEPENDS_${PN}-common-dev += "elementary"
-RDEPENDS_${PN}-common-dev += "aul-1"
 RDEPENDS_${PN}-common-dev += "app-core-common"
 RDEPENDS_${PN}-common-dev += "vconf"
 RDEPENDS_${PN}-common-dev += "libslp-sensor"
+RDEPENDS_${PN}-common-dev += "aul"
 
 #RDEPENDS of app-core-common (${PN}-common)
 RDEPENDS_${PN}-common += "eglibc"
@@ -51,11 +51,11 @@ RDEPENDS_${PN}-efl-dev += "app-core-common-dev"
 
 DEPENDS = ""
 #DEPENDS of app-core
-DEPENDS += "aul-1"
+DEPENDS += "librua"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
-DEPENDS += "librua"
 DEPENDS += "tizen-platform-config"
+DEPENDS += "aul"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "libslp-sensor"

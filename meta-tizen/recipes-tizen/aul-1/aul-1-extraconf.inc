@@ -4,6 +4,9 @@ SRC_URI += "file://CMakeLists.txt.patch \
             file://test.patch \
            "
 
+#PROVIDES by aul
+PROVIDES += "aul"
+
 RDEPENDS = ""
 #RDEPENDS of aul (aul)
 RDEPENDS_aul += "eglibc"

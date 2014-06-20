@@ -1,1 +1,2 @@
 
+RPROVIDES_sensor += "libslp-sensor"
