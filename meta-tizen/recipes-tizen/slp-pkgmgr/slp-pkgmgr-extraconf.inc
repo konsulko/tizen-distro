@@ -1,8 +1,1 @@
-#inherit cmake
-
-#B = "${S}"
-
-
-
-
-
+SRC_URI += "file://Add_extralib.diff"
