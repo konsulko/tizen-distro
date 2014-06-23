@@ -193,71 +193,71 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  # udev links
- /usr/bin/mkdir -p ${D}/${prefix}/sbin
- /usr/bin/ln -sf ../bin/udevadm ${D}${prefix}/sbin/udevadm
- /usr/bin/mkdir -p ${D}${prefix}/lib/firmware/updates
+ ${prefix}/bin/mkdir -p ${D}/${prefix}/sbin
+ ${prefix}/bin/ln -sf ../bin/udevadm ${D}${prefix}/sbin/udevadm
+ ${prefix}/bin/mkdir -p ${D}${prefix}/lib/firmware/updates
  
  # Create SysV compatibility symlinks. systemctl/systemd are smart
  # enough to detect in which way they are called.
- /usr/bin/ln -s ../lib/systemd/systemd ${D}${prefix}/sbin/init
- /usr/bin/ln -s ../lib/systemd/systemd ${D}${prefix}/bin/systemd
- /usr/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/reboot
- /usr/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/halt
- /usr/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/poweroff
- /usr/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/shutdown
- /usr/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/telinit
- /usr/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/runlevel
+ ${prefix}/bin/ln -s ../lib/systemd/systemd ${D}${prefix}/sbin/init
+ ${prefix}/bin/ln -s ../lib/systemd/systemd ${D}${prefix}/bin/systemd
+ ${prefix}/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/reboot
+ ${prefix}/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/halt
+ ${prefix}/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/poweroff
+ ${prefix}/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/shutdown
+ ${prefix}/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/telinit
+ ${prefix}/bin/ln -s ../bin/systemctl ${D}${prefix}/sbin/runlevel
  
  # legacy links
- /usr/bin/ln -s loginctl ${D}${prefix}/bin/systemd-loginctl
+ ${prefix}/bin/ln -s loginctl ${D}${prefix}/bin/systemd-loginctl
  
  # We create all wants links manually at installation time to make sure
  # they are not owned and hence overriden by rpm after the used deleted
  # them.
- /usr/bin/rm -r ${D}${sysconfdir}/systemd/system/*.target.wants
+ ${prefix}/bin/rm -r ${D}${sysconfdir}/systemd/system/*.target.wants
  
  # Make sure the ghost-ing below works
- /usr/bin/touch ${D}${sysconfdir}/systemd/system/runlevel2.target
- /usr/bin/touch ${D}${sysconfdir}/systemd/system/runlevel3.target
- /usr/bin/touch ${D}${sysconfdir}/systemd/system/runlevel4.target
- /usr/bin/touch ${D}${sysconfdir}/systemd/system/runlevel5.target
+ ${prefix}/bin/touch ${D}${sysconfdir}/systemd/system/runlevel2.target
+ ${prefix}/bin/touch ${D}${sysconfdir}/systemd/system/runlevel3.target
+ ${prefix}/bin/touch ${D}${sysconfdir}/systemd/system/runlevel4.target
+ ${prefix}/bin/touch ${D}${sysconfdir}/systemd/system/runlevel5.target
  
  # Make sure these directories are properly owned
- /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system/basic.target.wants
- /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system/default.target.wants
- /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system/dbus.target.wants
- /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system/syslog.target.wants
+ ${prefix}/bin/mkdir -p ${D}${prefix}/lib/systemd/system/basic.target.wants
+ ${prefix}/bin/mkdir -p ${D}${prefix}/lib/systemd/system/default.target.wants
+ ${prefix}/bin/mkdir -p ${D}${prefix}/lib/systemd/system/dbus.target.wants
+ ${prefix}/bin/mkdir -p ${D}${prefix}/lib/systemd/system/syslog.target.wants
  
  # Make sure the user generators dir exists too
- /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system-generators
- /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/user-generators
+ ${prefix}/bin/mkdir -p ${D}${prefix}/lib/systemd/system-generators
+ ${prefix}/bin/mkdir -p ${D}${prefix}/lib/systemd/user-generators
  
  # Create new-style configuration files so that we can ghost-own them
- /usr/bin/touch ${D}${sysconfdir}/hostname
- /usr/bin/touch ${D}${sysconfdir}/vconsole.conf
- /usr/bin/touch ${D}${sysconfdir}/locale.conf
- /usr/bin/touch ${D}${sysconfdir}/machine-id
- /usr/bin/touch ${D}${sysconfdir}/machine-info
- /usr/bin/touch ${D}${sysconfdir}/timezone
- #/usr/bin/mkdir -p ${D}${sysconfdir}/X11/xorg.conf.d
- #/usr/bin/touch ${D}${sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
+ ${prefix}/bin/touch ${D}${sysconfdir}/hostname
+ ${prefix}/bin/touch ${D}${sysconfdir}/vconsole.conf
+ ${prefix}/bin/touch ${D}${sysconfdir}/locale.conf
+ ${prefix}/bin/touch ${D}${sysconfdir}/machine-id
+ ${prefix}/bin/touch ${D}${sysconfdir}/machine-info
+ ${prefix}/bin/touch ${D}${sysconfdir}/timezone
+ #${prefix}/bin/mkdir -p ${D}${sysconfdir}/X11/xorg.conf.d
+ #${prefix}/bin/touch ${D}${sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
  
- /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system-preset/
- /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/user-preset/
+ ${prefix}/bin/mkdir -p ${D}${prefix}/lib/systemd/system-preset/
+ ${prefix}/bin/mkdir -p ${D}${prefix}/lib/systemd/user-preset/
  
  # Make sure the shutdown/sleep drop-in dirs exist
- /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system-shutdown/
- /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/system-sleep/
+ ${prefix}/bin/mkdir -p ${D}${prefix}/lib/systemd/system-shutdown/
+ ${prefix}/bin/mkdir -p ${D}${prefix}/lib/systemd/system-sleep/
  
  # Make sure the NTP units dir exists
- /usr/bin/mkdir -p ${D}${prefix}/lib/systemd/ntp-units.d/
+ ${prefix}/bin/mkdir -p ${D}${prefix}/lib/systemd/ntp-units.d/
  
  # Install modprobe fragment
- /usr/bin/mkdir -p ${D}${sysconfdir}/modprobe.d/
+ ${prefix}/bin/mkdir -p ${D}${sysconfdir}/modprobe.d/
  
  # Enable readahead services
- /usr/bin/ln -s ../systemd-readahead-collect.service ${D}${prefix}/lib/systemd/system/default.target.wants/
- /usr/bin/ln -s ../systemd-readahead-replay.service ${D}${prefix}/lib/systemd/system/default.target.wants/
+ ${prefix}/bin/ln -s ../systemd-readahead-collect.service ${D}${prefix}/lib/systemd/system/default.target.wants/
+ ${prefix}/bin/ln -s ../systemd-readahead-replay.service ${D}${prefix}/lib/systemd/system/default.target.wants/
  
  # Fix the dangling /var/lock -> /run/lock symlink
  install -Dm644 tmpfiles.d/legacy.conf ${D}${prefix}/lib/tmpfiles.d/legacy.conf
@@ -279,24 +279,24 @@ do_install() {
 pkg_preinst_${PN}() {
     #!/bin/sh -e
 
-    /usr/bin/getent group cdrom >/dev/null 2>&1 || /usr/sbin/groupadd -r -g 11 cdrom >/dev/null 2>&1 || :
-    /usr/bin/getent group tape >/dev/null 2>&1 || /usr/sbin/groupadd -r -g 33 tape >/dev/null 2>&1 || :
-    /usr/bin/getent group dialout >/dev/null 2>&1 || /usr/sbin/groupadd -r -g 18 dialout >/dev/null 2>&1 || :
-    /usr/bin/getent group floppy >/dev/null 2>&1 || /usr/sbin/groupadd -r -g 19 floppy >/dev/null 2>&1 || :
-    /usr/bin/systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
+    ${D}${prefix}/bin/getent group cdrom >/dev/null 2>&1 || ${D}${prefix}/sbin/groupadd -r -g 11 cdrom >/dev/null 2>&1 || :
+    ${D}${prefix}/bin/getent group tape >/dev/null 2>&1 || ${D}${prefix}/sbin/groupadd -r -g 33 tape >/dev/null 2>&1 || :
+    ${D}${prefix}/bin/getent group dialout >/dev/null 2>&1 || ${D}${prefix}/sbin/groupadd -r -g 18 dialout >/dev/null 2>&1 || :
+    ${D}${prefix}/bin/getent group floppy >/dev/null 2>&1 || ${D}${prefix}/sbin/groupadd -r -g 19 floppy >/dev/null 2>&1 || :
+    ${D}${prefix}/bin/systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
     # Rename configuration files that changed their names
-    /usr/bin/mv -n ${sysconfdir}/systemd/systemd-logind.conf ${sysconfdir}/systemd/logind.conf >/dev/null 2>&1 || :
-    /usr/bin/mv -n ${sysconfdir}/systemd/systemd-journald.conf ${sysconfdir}/systemd/journald.conf >/dev/null 2>&1 || :
+    ${D}${prefix}/bin/mv -n ${sysconfdir}/systemd/systemd-logind.conf ${sysconfdir}/systemd/logind.conf >/dev/null 2>&1 || :
+    ${D}${prefix}/bin/mv -n ${sysconfdir}/systemd/systemd-journald.conf ${sysconfdir}/systemd/journald.conf >/dev/null 2>&1 || :
 
 }
 
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    /usr/bin/systemd-machine-id-setup > /dev/null 2>&1 || :
-    /usr/lib/systemd/systemd-random-seed save > /dev/null 2>&1 || :
-    /usr/bin/systemctl daemon-reexec > /dev/null 2>&1 || :
-    /usr/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
+    ${D}${prefix}/bin/systemd-machine-id-setup > /dev/null 2>&1 || :
+    ${D}${prefix}/lib/systemd/systemd-random-seed save > /dev/null 2>&1 || :
+    ${D}${prefix}/bin/systemctl daemon-reexec > /dev/null 2>&1 || :
+    ${D}${prefix}/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
 
 }
 
@@ -316,12 +316,12 @@ pkg_prerm_${PN}() {
     #!/bin/sh -e
 
     if [ $1 -eq 0 ] ; then
-            /usr/bin/systemctl disable \
+            ${D}${prefix}/bin/systemctl disable \
                     getty@.service \
                     remote-fs.target \
                     systemd-readahead-replay.service \
                     systemd-readahead-collect.service >/dev/null 2>&1 || :
-            /usr/bin/rm -f /etc/systemd/system/default.target >/dev/null 2>&1 || :
+            ${D}${prefix}/bin/rm -f ${sysconfdir}/systemd/system/default.target >/dev/null 2>&1 || :
     fi
 
 }
@@ -342,8 +342,8 @@ pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     if [ $1 -ge 1 ] ; then
-            /usr/bin/systemctl daemon-reload > /dev/null 2>&1 || :
-            /usr/bin/systemctl try-restart systemd-logind.service >/dev/null 2>&1 || :
+            ${D}${prefix}/bin/systemctl daemon-reload > /dev/null 2>&1 || :
+            ${D}${prefix}/bin/systemctl try-restart systemd-logind.service >/dev/null 2>&1 || :
     fi
 
 }
@@ -445,7 +445,7 @@ systemd_files += "${prefix}/bin/udevadm"
 systemd_files += "${prefix}/lib/sysctl.d/*.conf"
 systemd_files += "${prefix}/lib/systemd/systemd"
 systemd_files += "${prefix}/lib/systemd/system"
-systemd_files += "/usr/lib/systemd/system/basic.target.wants"
+systemd_files += "${prefix}/lib/systemd/system/basic.target.wants"
 systemd_files += "${prefix}/lib/systemd/user"
 systemd_files += "${prefix}/lib/systemd/user/bluetooth.target"
 systemd_files += "${prefix}/lib/systemd/user/exit.target"

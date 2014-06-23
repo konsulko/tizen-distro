@@ -43,6 +43,7 @@ DEPENDS += "flex"
 DEPENDS += "freetype"
 DEPENDS += "gperf"
 inherit pythonnative
+DEPENDS += "tizen-platform-config"
 DEPENDS += "pkgmgr-info"
 DEPENDS += "glib-2.0"
 DEPENDS += "libdrm"
@@ -72,7 +73,7 @@ do_prep() {
  cp ${S}/packaging/crosswalk.manifest .
  cp ${S}/packaging/crosswalk.xml.in .
  cp ${S}/packaging/crosswalk.png .
- sed "s/@VERSION@/7.36.152.0/g" crosswalk.xml.in > crosswalk.xml
+ sed "s/@VERSION@/8.36.155.0/g" crosswalk.xml.in > crosswalk.xml
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.in > xwalk
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.service.in > xwalk.service
  
@@ -133,12 +134,13 @@ do_compile() {
     ln -s "${BUILDDIR_NAME}" src/out
  fi
  
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=1"
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=0"
  
  # Force gold binary from chroot ld.gold provided by binutils-gold
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1 -Dlinux_use_bundled_binutils=0 -Dlinux_use_bundled_gold=0 "
  
  # Linking fails in Tizen Common when fatal ld warnings are enabled. XWALK-1379.
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
  
  # For building for arm in OBS, we need :
  # -> to unset sysroot value.
