@@ -82,7 +82,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON . -DCMAKE_BUILD_TYPE=RELEASE \
           -DCMAKE_VERBOSE_MAKEFILE=ON \
- 	-DTZ_SYS_DB=/usr/dbspace \
+ 	-DTZ_SYS_DB=${prefix}/dbspace \
  	-DTZ_SYS_HOME=/home
  
  VERBOSE=1 make -j16
@@ -113,9 +113,9 @@ do_install() {
  
  mkdir -p ${D}/usr/lib/systemd/system/multi-user.target.wants
  ln -sf /usr/lib/systemd/system/smack-rules.service ${D}/usr/lib/systemd/system/multi-user.target.wants/smack-rules.service
- mkdir -p ${D}/usr/dbspace
+ mkdir -p ${D}${prefix}/dbspace
  
- sed -i 's|TZ_SYS_DB|/usr/dbspace|g' ${S}/packaging/libprivilege-control.manifest
+ sed -i 's|TZ_SYS_DB|${prefix}/dbspace|g' ${S}/packaging/libprivilege-control.manifest
  
  
 }
@@ -123,16 +123,16 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
     /usr/share/privilege-control/db/updater.sh
-    chsmack -a 'System' /usr/dbspace/.rules-db.db3*
+    chsmack -a 'System' ${D}${prefix}/dbspace/.rules-db.db3*
 
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
@@ -153,11 +153,11 @@ libprivilege-control_files += "/usr/share/privilege-control/db/updater.sh"
 libprivilege-control_files += "/usr/share/privilege-control/db/updates/*"
 libprivilege-control_files += "/usr/share/privilege-control/db/load-rules-db.sql"
 libprivilege-control_files += "/etc/opt/upgrade/220.libprivilege-updater.patch.sh"
-libprivilege-control_files += "%dir /usr/dbspace"
+libprivilege-control_files += "%dir ${prefix}/dbspace"
 
 libprivilege-control-conf_files = ""
 libprivilege-control-conf_files += "libprivilege-control.manifest"
-libprivilege-control-conf_files += "/usr/dbspace/.privilege_control*.db"
+libprivilege-control-conf_files += "${prefix}/dbspace/.privilege_control*.db"
 
 libprivilege-control-dev_files = ""
 libprivilege-control-dev_files += "libprivilege-control.manifest"

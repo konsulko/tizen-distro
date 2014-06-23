@@ -118,13 +118,13 @@ do_install() {
 pkg_postinst_libtzplatform-config() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postrm_libtzplatform-config() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

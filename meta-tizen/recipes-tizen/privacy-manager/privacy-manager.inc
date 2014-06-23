@@ -136,8 +136,8 @@ do_install() {
  
  mkdir -p ${D}${prefix}/bin
  cp res/usr/bin/* ${D}${prefix}/bin/
- mkdir -p ${D}/usr/dbspace
- cp res/opt/dbspace/.privacylist.db /${D}/usr/dbspace
+ mkdir -p ${D}${prefix}/dbspace
+ cp res/opt/dbspace/.privacylist.db /${D}${prefix}/dbspace
  mkdir -p ${D}${prefix}/share/privacy-manager/
  cp res/usr/share/privacy-manager/privacy-filter-list.ini ${D}${prefix}/share/privacy-manager/
  
@@ -162,45 +162,45 @@ do_install() {
 pkg_postinst_privacy-manager-client() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postinst_privacy-manager-server() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
     echo "Check privacy DB"
-    if [ ! -f /usr/dbspace/.privacy.db ]
+    if [ ! -f ${D}${prefix}/dbspace/.privacy.db ]
     then
     	echo "Create privacy DB"
-    	${prefix}/bin/privacy_manager_create_clean_db.sh
+    	${D}${prefix}/bin/privacy_manager_create_clean_db.sh
     fi
-    chsmack -a 'User' /usr/dbspace/.privacy.db*
+    chsmack -a 'User' ${D}${prefix}/dbspace/.privacy.db*
 
 }
 
 pkg_postinst_capi-security-privacy-manager() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postrm_capi-security-privacy-manager() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postrm_privacy-manager-client() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
@@ -220,7 +220,7 @@ privacy-manager-client_files += "${sysconfdir}/package-manager/parserlib/libpriv
 privacy-manager-server_files = ""
 privacy-manager-server_files += "privacy-manager-server.manifest"
 privacy-manager-server_files += "${prefix}/lib/libprivacy-manager-server.so*"
-privacy-manager-server_files += "/usr/dbspace/.privacylist.db"
+privacy-manager-server_files += "${prefix}/dbspace/.privacylist.db"
 privacy-manager-server_files += "/usr/bin/*"
 
 privacy-manager-server-dev_files = ""

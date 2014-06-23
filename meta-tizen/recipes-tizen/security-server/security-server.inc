@@ -185,13 +185,13 @@ pkg_postinst_${PN}() {
 pkg_postinst_libsecurity-server-client() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postinst_libsecurity-manager-client() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_prerm_${PN}() {
@@ -207,7 +207,7 @@ pkg_prerm_${PN}() {
 pkg_postrm_libsecurity-manager-client() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postrm_${PN}() {
@@ -223,7 +223,7 @@ pkg_postrm_${PN}() {
 pkg_postrm_libsecurity-server-client() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

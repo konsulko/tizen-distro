@@ -113,7 +113,7 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  # create the directory for hosting Read-Write application manifest files
- mkdir -p ${D}/usr/share/packages
+ mkdir -p ${D}${prefix}/share/packages
  
  
 }
@@ -121,25 +121,25 @@ do_install() {
 pkg_postinst_pkgmgr-info-parser() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postrm_pkgmgr-info-parser() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
@@ -175,7 +175,7 @@ pkgmgr-info-dev_files += "${prefix}/lib/libpkgmgr-info.so"
 pkgmgr-info_files = ""
 pkgmgr-info_files += "pkgmgr-info.manifest"
 pkgmgr-info_files += "${prefix}/lib/libpkgmgr-info.so.*"
-pkgmgr-info_files += "/usr/share/packages"
+pkgmgr-info_files += "${prefix}/share/packages"
 
 FILES_${PN}-parser = "${pkgmgr-info-parser_files}"
 FILES_${PN}-parser-dev = "${pkgmgr-info-parser-dev_files}"

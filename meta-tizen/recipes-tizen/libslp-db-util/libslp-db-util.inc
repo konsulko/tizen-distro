@@ -102,13 +102,13 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

@@ -84,7 +84,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    ln -s tizen_common.png ${prefix}/share/backgrounds/tizen/current
+    ln -s tizen_common.png ${D}${prefix}/share/backgrounds/tizen/current
 
 }
 

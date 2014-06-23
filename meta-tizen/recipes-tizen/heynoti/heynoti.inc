@@ -99,7 +99,7 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}/usr/share/noti
+ mkdir -p ${D}${prefix}/share/noti
  mkdir -p ${D}/usr/share/license
  install LICENSE ${D}/usr/share/license/heynoti
  
@@ -109,13 +109,13 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
@@ -127,7 +127,7 @@ heynoti_files += "heynoti.manifest"
 heynoti_files += "${prefix}/lib/libheynoti.so.0"
 heynoti_files += "${prefix}/lib/libheynoti.so.0.0.2"
 heynoti_files += "${prefix}/bin/heynotitool"
-heynoti_files += "/usr/share/noti"
+heynoti_files += "${prefix}/share/noti"
 heynoti_files += "/usr/share/license/heynoti"
 
 heynoti-dev_files = ""

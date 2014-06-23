@@ -112,8 +112,8 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  # Create database
- mkdir -p ${D}/usr/dbspace
- sqlite3 ${D}/usr/dbspace/.appsvc.db < data/appsvc_db.sql
+ mkdir -p ${D}${prefix}/dbspace
+ sqlite3 ${D}${prefix}/dbspace/.appsvc.db < data/appsvc_db.sql
  
  mkdir -p ${D}/usr/share/license
  cp LICENSE ${D}/usr/share/license/app-svc
@@ -124,13 +124,13 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
@@ -139,8 +139,8 @@ PACKAGES += " app-svc-dev "
 
 app-svc_files = ""
 app-svc_files += "app-svc.manifest"
-app-svc_files += "%verify(not md5 mtime size) %attr(664,root,users) /usr/dbspace/.appsvc.db"
-app-svc_files += "%verify(not md5 mtime size) %attr(664,root,users) /usr/dbspace/.appsvc.db-journal"
+app-svc_files += "%verify(not md5 mtime size) %attr(664,root,users) ${prefix}/dbspace/.appsvc.db"
+app-svc_files += "%verify(not md5 mtime size) %attr(664,root,users) ${prefix}/dbspace/.appsvc.db-journal"
 app-svc_files += "/usr/bin/appsvc_test"
 app-svc_files += "${prefix}/lib/libappsvc.so.0"
 app-svc_files += "${prefix}/lib/libappsvc.so.0.1.0"

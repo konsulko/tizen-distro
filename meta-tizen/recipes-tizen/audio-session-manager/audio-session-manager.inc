@@ -143,7 +143,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
     vconftool set -t int memory/Sound/SoundStatus "0" -g 29 -f -i
 
 }
@@ -151,7 +151,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

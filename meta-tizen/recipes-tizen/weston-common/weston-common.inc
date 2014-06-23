@@ -180,11 +180,11 @@ pkg_preinst_${PN}() {
     #!/bin/sh -e
 
     # create groups 'display' and 'weston-launch'
-    getent group display >/dev/null || ${prefix}/sbin/groupadd -r -o display
-    getent group input >/dev/null || ${prefix}/sbin/groupadd -r -o input
-    getent group weston-launch >/dev/null || ${prefix}/sbin/groupadd -r -o weston-launch
+    getent group display >/dev/null || ${D}${prefix}/sbin/groupadd -r -o display
+    getent group input >/dev/null || ${D}${prefix}/sbin/groupadd -r -o input
+    getent group weston-launch >/dev/null || ${D}${prefix}/sbin/groupadd -r -o weston-launch
     # create user 'display'
-    getent passwd display >/dev/null || ${prefix}/sbin/useradd -r -g display -d /run/display -s /bin/false -c "Display daemon" display
+    getent passwd display >/dev/null || ${D}${prefix}/sbin/useradd -r -g display -d /run/display -s /bin/false -c "Display daemon" display
     # add user 'display' to groups 'weston-launch', 'input' and 'video'
     groupmod -A display weston-launch
     groupmod -A display input

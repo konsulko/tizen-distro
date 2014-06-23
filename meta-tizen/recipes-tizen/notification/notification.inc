@@ -127,15 +127,15 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
-    ${prefix}/share/notification/notification_DB_init.sh
+    ldconfig
+    ${D}${prefix}/share/notification/notification_DB_init.sh
 
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

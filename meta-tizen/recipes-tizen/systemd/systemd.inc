@@ -303,13 +303,13 @@ pkg_postinst_${PN}() {
 pkg_postinst_libgudev() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postinst_libsystemd() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_prerm_${PN}() {
@@ -329,13 +329,13 @@ pkg_prerm_${PN}() {
 pkg_postrm_libgudev() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postrm_libsystemd() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postrm_${PN}() {

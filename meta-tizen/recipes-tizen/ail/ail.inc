@@ -107,8 +107,8 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}/usr/dbspace/
- mkdir -p ${D}/usr/share/applications/
+ mkdir -p ${D}${prefix}/dbspace/
+ mkdir -p ${D}${prefix}/share/applications/
  
  
 }
@@ -116,16 +116,16 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
     vconftool set -t string db/ail/ail_info "0" -f -s system::vconf_inhouse
     vconftool set -t string db/menuscreen/desktop "0" -f -s system::vconf_inhouse
     vconftool set -t string db/menu_widget/language "en_US.utf8" -f -s system::vconf_inhouse
-    chsmack -a User /usr/kdb/db/ail
-    chsmack -a User /usr/kdb/db/ail/ail_info
-    chsmack -a User /usr/kdb/db/menuscreen
-    chsmack -a User /usr/kdb/db/menuscreen/desktop
-    chsmack -a User /usr/kdb/db/menu_widget
-    chsmack -a User /usr/kdb/db/menu_widget/language
+    chsmack -a User ${D}${prefix}/kdb/db/ail
+    chsmack -a User ${D}${prefix}/kdb/db/ail/ail_info
+    chsmack -a User ${D}${prefix}/kdb/db/menuscreen
+    chsmack -a User ${D}${prefix}/kdb/db/menuscreen/desktop
+    chsmack -a User ${D}${prefix}/kdb/db/menu_widget
+    chsmack -a User ${D}${prefix}/kdb/db/menu_widget/language
     CHDBGID="6010"
     update_DAC_for_db_file()
     {
@@ -142,21 +142,21 @@ pkg_postinst_${PN}() {
             fi
     }
     ail_initdb
-    mkdir -p /usr/share/applications
-    mkdir -p /usr/share/applications
-    mkdir -p /usr/dbspace
-    update_DAC_for_db_file /usr/dbspace/.app_info.db
-    update_DAC_for_db_file /usr/dbspace/.app_info.db-journal
-    chsmack -a 'User' /usr/dbspace/.app_info.db*
+    mkdir -p ${D}${prefix}/share/applications
+    mkdir -p ${D}${prefix}/share/applications
+    mkdir -p ${D}${prefix}/dbspace
+    update_DAC_for_db_file ${D}${prefix}/dbspace/.app_info.db
+    update_DAC_for_db_file ${D}${prefix}/dbspace/.app_info.db-journal
+    chsmack -a 'User' ${D}${prefix}/dbspace/.app_info.db*
 
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
     if [ $1 == 0 ]; then
-    rm -f /usr/dbspace/.app_info.db*
+    rm -f ${D}${prefix}/dbspace/.app_info.db*
     fi
 
 }
@@ -167,7 +167,7 @@ PACKAGES += " ail-dev "
 
 ail_files = ""
 ail_files += "ail.manifest"
-ail_files += "/usr/share/applications"
+ail_files += "${prefix}/share/applications"
 ail_files += "${prefix}/bin/ail_initdb"
 ail_files += "${prefix}/bin/ail_initdb"
 ail_files += "${prefix}/bin/ail_fota"

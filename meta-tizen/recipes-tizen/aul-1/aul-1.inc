@@ -123,8 +123,8 @@ do_install() {
  ln -sf ../../init.d/launchpad_run ${D}/${sysconfdir}/rc.d/rc3.d/S34launchpad_run
  ln -sf ../../init.d/launchpad_run ${D}/${sysconfdir}/rc.d/rc4.d/S80launchpad_run
  
- mkdir -p ${D}/usr/dbspace
- sqlite3 ${D}/usr/dbspace/.mida.db < ${D}/usr/share/aul/mida_db.sql
+ mkdir -p ${D}${prefix}/dbspace
+ sqlite3 ${D}${prefix}/dbspace/.mida.db < ${D}/usr/share/aul/mida_db.sql
  rm -rf ${D}/usr/share/aul/mida_db.sql
  
  mkdir -p ${D}/usr/lib/systemd/system/graphical.target.wants
@@ -143,7 +143,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
     systemctl daemon-reload
     if [ $1 == 1 ]; then
         systemctl restart launchpad-preload@5000.service
@@ -165,7 +165,7 @@ pkg_prerm_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
     systemctl daemon-reload
 
 }
@@ -183,8 +183,8 @@ aul_files += "${prefix}/bin/aul_service.sh"
 aul_files += "${prefix}/bin/aul_service_test.sh"
 aul_files += "${sysconfdir}/rc.d/rc3.d/S34launchpad_run"
 aul_files += "${sysconfdir}/rc.d/rc4.d/S80launchpad_run"
-aul_files += "%attr(0644,root,users) /usr/dbspace/.mida.db"
-aul_files += "%attr(0644,root,users) /usr/dbspace/.mida.db-journal"
+aul_files += "%attr(0644,root,users) ${prefix}/dbspace/.mida.db"
+aul_files += "%attr(0644,root,users) ${prefix}/dbspace/.mida.db-journal"
 aul_files += "${prefix}/bin/aul_mime.sh"
 aul_files += "${prefix}/bin/aul_test"
 aul_files += "${prefix}/bin/launch_app"

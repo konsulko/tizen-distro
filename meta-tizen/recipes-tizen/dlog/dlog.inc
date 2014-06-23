@@ -128,9 +128,9 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/etc/dlog
- cp platformlog.conf ${D}/etc/dlog/platformlog.conf
- cp dlogctrl ${D}/usr/bin/dlogctrl
+ mkdir -p ${D}${sysconfdir}/dlog
+ cp platformlog.conf ${D}${sysconfdir}/dlog/platformlog.conf
+ cp dlogctrl ${D}${prefix}/bin/dlogctrl
  
  
 }
@@ -138,13 +138,13 @@ do_install() {
 pkg_postinst_libdlog() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 pkg_postrm_libdlog() {
     #!/bin/sh -e
 
-    /sbin/ldconfig
+    ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
@@ -154,7 +154,7 @@ PACKAGES += " libdlog-dev "
 
 libdlog_files = ""
 libdlog_files += "dlog.manifest"
-libdlog_files += "/etc/dlog/platformlog.conf"
+libdlog_files += "${sysconfdir}/dlog/platformlog.conf"
 libdlog_files += "${prefix}/lib/libdlog.so.*"
 
 dlogutil_files = ""
