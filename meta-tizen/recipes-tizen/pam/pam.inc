@@ -158,7 +158,7 @@ do_install() {
  install -m 0644 ${S}/packaging/system-auth ${D}${sysconfdir}/pam.d/
  install -m 0644 ${S}/packaging/other ${D}${sysconfdir}/pam.d/
  
- /usr/share/spec2yocto/macro/lib/find-lang.sh ${D} Linux-PAM
+ #find_lang Linux-PAM
  
  
 }

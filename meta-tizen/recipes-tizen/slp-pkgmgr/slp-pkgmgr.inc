@@ -147,7 +147,7 @@ do_install() {
  
  mkdir -p ${D}${sysconfdir}/package-manager/server
  
- /usr/share/spec2yocto/macro/lib/find-lang.sh ${D} package-manager
+ #find_lang package-manager
  
  
  

@@ -38,12 +38,12 @@ capi-security-privacy-manager-dev_files += "${prefix}/lib/pkgconfig/capi-securit
 
 INSANE_SKIP_${PN} = "already-stripped"
 
-FILES_privacy-manager-client = "${privacy-manager-client_files}"
+FILES_${PN}-client = "${privacy-manager-client_files}"
 FILES_${PN} = "${privacy-manager-server_files}"
 FILES_${PN}-dev = "${privacy-manager-server-dev_files}"
-FILES_capi-security-privacy-manager = "${capi-security-privacy-manager_files}"
-FILES_privacy-manager-client-dev = "${privacy-manager-client-dev_files}"
-FILES_capi-security-privacy-manager-dev = "${capi-security-privacy-manager-dev_files}"
+FILES_capi-security-${PN} = "${capi-security-privacy-manager_files}"
+FILES_${PN}-client-dev = "${privacy-manager-client-dev_files}"
+FILES_capi-security-${PN}-dev = "${capi-security-privacy-manager-dev_files}"
 
 PKG_privacy-manager-client= "privacy-manager-client"
 PKG_privacy-manager-server= "privacy-manager-server"
