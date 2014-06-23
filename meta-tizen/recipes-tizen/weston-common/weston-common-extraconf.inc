@@ -18,13 +18,6 @@ USERADD_PARAM_${PN} += " -d /home/bob   -m -u 5002   -g users   -G users,display
 USERADD_PARAM_${PN} += " -d /home/carole -m -u 5003   -g users   -G users,display -r -s /bin/sh carole; "
 USERADD_PARAM_${PN} += " -d /home/guest -m -u 9999   -g users   -G users,display -r -s /bin/sh guest "
 
-do_compile_append() {
-
-    # Comment on of those two lines to define the desktop background:
-    sed -i 's@background-image=/usr/share/backgrounds/tizen/golfe-morbihan.jpg@background-image=/usr/share/backgrounds/tizen/tizen_common.png@g' ${S}/weston.ini
-    # sed -i 's@background-image=/usr/share/backgrounds/tizen/tizen_common.png@background-image=/usr/share/backgrounds/tizen/golfe-morbihan.jpg@g' ${S}/weston.ini
-}
-
 do_install_append() {
 
     # user 'display' must own /dev/tty7 for weston to start correctly
