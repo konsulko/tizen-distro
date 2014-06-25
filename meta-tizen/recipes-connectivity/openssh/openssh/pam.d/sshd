@@ -1,0 +1,10 @@
+#%PAM-1.0
+auth	 requisite	pam_nologin.so
+auth     include        system-auth
+account  requisite      pam_nologin.so
+account  include        system-auth
+password include        system-auth
+session	 required	pam_loginuid.so
+session  include        system-auth
+session  optional       pam_lastlog.so   silent noupdate showfailed
+session  required       pam_smack.so
