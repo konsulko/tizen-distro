@@ -1,0 +1,13 @@
+diff --git a/Makefile.am b/Makefile.am
+index d068e30..5c83b0b 100755
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS = -I m4
+ SUBDIRS = .
+ 
+ AM_CPPFLAGS = $(FMS_DEBUG_FLAGS)
+-
++AUTOMAKE_OPTIONS = subdir-objects
+ AM_LDFLAGS=-Wl,--as-needed -Wl,--hash-style=both
+ 
+ ### pkgconfig ###

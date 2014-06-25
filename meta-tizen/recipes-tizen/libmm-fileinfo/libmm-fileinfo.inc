@@ -1,7 +1,7 @@
 DESCRIPTION = "Media Fileinfo"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
-LICENSE = "Apache License 2.0"
+LICENSE = "Apache License, Version 2.0"
 
 SRC_URI = ""
 
@@ -35,8 +35,8 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
  cp ${S}/packaging/libmm-fileinfo.manifest .
-
-
+ 
+ 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -54,15 +54,15 @@ do_compile() {
  CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
  FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
-
+ 
  CFLAGS="${CFLAGS} -D_MM_PROJECT_FLOATER -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" "
  export CFLAGS
-
-
-
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ;
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ 
+ 
+   
+   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
    autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
          --target=x86_64-tizen-linux \
          --program-prefix= \
@@ -79,11 +79,11 @@ do_compile() {
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
          --infodir=${infodir}.sh
-
-
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ;
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
+ 
+ 
+   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
    autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
          --target=x86_64-tizen-linux \
          --program-prefix= \
@@ -99,12 +99,12 @@ do_compile() {
          --localstatedir=${localstatedir} \
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
-         --infodir=${infodir} --disable-testmode --disable-dump --enable-dyn --disable-iommap  --disable-drm --disable-gtk
-
+         --infodir=${infodir} --disable-testmode --disable-dump --enable-dyn --disable-iommap  --disable-drm --disable-gtk         
+ 
  make
-
-
-
+ 
+ 
+ 
 }
 
 do_install() {
@@ -115,21 +115,21 @@ do_install() {
  unset DISPLAY
  rm -rf ${D}
  mkdir -p ${D}
-
-
+ 
+ 
    oe_runmake \
          DESTDIR=${D} \
          INSTALL_ROOT=${D} \
          BINDIR=${prefix}/bin \
-   install
-   rm -f ${D}${infodir}/dir
-   find ${D} -regex ".*\.la$" | xargs rm -f --
+   install  
+   rm -f ${D}${infodir}/dir 
+   find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  mkdir -p ${D}/${prefix}/share/license
  cp -rf ${WORKDIR}/libmm-fileinfo-0.6.0/LICENSE.APLv2.0 ${D}/${prefix}/share/license/libmm-fileinfo
-
-
-
+ 
+ 
+ 
 }
 
 pkg_postinst_${PN}() {

@@ -1,0 +1,1 @@
+SRC_URI += "file://Makefile.am.diff"
