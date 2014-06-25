@@ -46,8 +46,8 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
  cp ${S}/packaging/libmm-utility.manifest .
- 
- 
+
+
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -66,14 +66,13 @@ do_compile() {
  FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- ./autogen.sh
- 
+
  CFLAGS="$CFLAGS -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" -D_MM_PROJECT_FLOATER" \
  LDFLAGS+="-Wl,--rpath=${prefix}/lib -Wl,--hash-style=both -Wl,--as-needed" \
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
+
+   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ;
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
    autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
          --target=x86_64-tizen-linux \
          --program-prefix= \
@@ -91,12 +90,12 @@ do_compile() {
          --mandir=${mandir} \
          --infodir=${infodir}
  make -j16
- 
+
  sed -i -e "s#@IMGP_REQPKG@#$IMGP_REQPKG#g" imgp/mmutil-imgp.pc
  sed -i -e "s#@JPEG_REQPKG@#$JPEG_REQPKG#g" jpeg/mmutil-jpeg.pc
- 
- 
- 
+
+
+
 }
 
 do_install() {
@@ -107,21 +106,21 @@ do_install() {
  unset DISPLAY
  rm -rf ${D}
  mkdir -p ${D}
- 
+
  rm -rf ${D}
- 
+
    oe_runmake \
          DESTDIR=${D} \
          INSTALL_ROOT=${D} \
          BINDIR=${prefix}/bin \
-   install  
-   rm -f ${D}${infodir}/dir 
-   find ${D} -regex ".*\.la$" | xargs rm -f -- 
+   install
+   rm -f ${D}${infodir}/dir
+   find ${D} -regex ".*\.la$" | xargs rm -f --
    find ${D} -regex ".*\.a$" | xargs rm -f --
  mkdir -p ${D}/usr/share/license
  cp LICENSE ${D}/usr/share/license/libmm-utility
- 
- 
+
+
 }
 
 pkg_postinst_${PN}() {
