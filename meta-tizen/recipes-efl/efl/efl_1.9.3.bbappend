@@ -2,8 +2,8 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/efl"
 
 
 
-DEPENDS_class-native = "sensor mesa freetype-native libxext-native libpng-native jpeg-native tiff-native libfribidi-native glib-2.0-native dbus-native "
-DEPENDS = " sensor mesa virtual/libiconv tslib curl glib-2.0 gnutls pkgconfig zlib jpeg openssl libsndfile1 dbus libexif librsvg libcheck freetype libpng tiff libxext virtual/libx11 libxrender fontconfig libfribidi giflib udev libxcursor libxcomposite libxinerama libxrandr libxtst libxscrnsaver efl-native"
+DEPENDS_class-native = "sensor mesa freetype-native  libpng-native jpeg-native tiff-native libfribidi-native glib-2.0-native dbus-native "
+DEPENDS = " sensor mesa virtual/libiconv tslib curl glib-2.0 gnutls pkgconfig zlib jpeg openssl libsndfile1 dbus libexif librsvg libcheck freetype libpng tiff   fontconfig libfribidi giflib udev efl-native"
 
 inherit efl gettext pkgconfig
 
@@ -48,7 +48,7 @@ EXTRA_OECONF_append_class-target = " \
       --enable-systemd \
       --enable-lua-old \
       --enable-i-really-know-what-i-am-doing-and-that-this-will-probably-break-things-and-i-will-fix-them-myself-and-send-patches-aaa \
-      --with-tests=none \ 
+      --with-tests=none \
       --with-bin-edje-cc=${STAGING_BINDIR_NATIVE}/edje_cc \
 "
 EXTRA_OECONF_append_class-native = " \
