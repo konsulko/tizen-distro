@@ -16,3 +16,8 @@ IMAGE_INSTALL += "ttf-dejavu-sans-condensed"
 IMAGE_INSTALL += "ttf-dejavu-sans-mono"
 IMAGE_INSTALL += "ttf-dejavu-serif"
 IMAGE_INSTALL += "ttf-dejavu-serif-condensed"
+
+# Pango modules
+IMAGE_INSTALL += "pango-module-basic-fc"
+IMAGE_INSTALL += "pango-module-arabic-lang"
+IMAGE_INSTALL += "pango-module-indic-lang"
