@@ -73,7 +73,7 @@ do_prep() {
  cp ${S}/packaging/crosswalk.manifest .
  cp ${S}/packaging/crosswalk.xml.in .
  cp ${S}/packaging/crosswalk.png .
- sed "s/@VERSION@/8.36.155.0/g" crosswalk.xml.in > crosswalk.xml
+ sed "s/@VERSION@/8.36.161.0/g" crosswalk.xml.in > crosswalk.xml
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.in > xwalk
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.service.in > xwalk.service
  

@@ -125,6 +125,9 @@ pkg_postinst_${PN}() {
 
     ldconfig
     systemctl daemon-reload
+    chsmack -a 'User' ${D}${prefix}/kdb
+    chsmack -a 'User' ${D}${prefix}/kdb/db
+    chsmack -a 'User' ${D}${prefix}/kdb/db/.backup
 
 }
 
@@ -152,7 +155,7 @@ vconf_files += "${prefix}/bin/vconftool"
 vconf_files += "${prefix}/bin/vconf-init"
 vconf_files += "${prefix}/kdb/kdb_first_boot"
 vconf_files += "${prefix}/lib/*.so.*"
-vconf_files += "%attr(777,root,root) ${prefix}/kdb/db"
+vconf_files += "%attr(777,root,users) ${prefix}/kdb/db"
 vconf_files += "%attr(777,root,root) ${prefix}/kdb/db/.backup"
 vconf_files += "/lib/systemd/system/basic.target.wants/vconf-setup.service"
 vconf_files += "/lib/systemd/system/vconf-setup.service"

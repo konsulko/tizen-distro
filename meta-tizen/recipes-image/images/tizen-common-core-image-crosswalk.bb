@@ -7,7 +7,7 @@ LICENSE = "MIT"
 DESCRIPTION = "A weston image with Tizen common ."
 
 IMAGE_INSTALL += "crosswalk"
-IMAGE_INSTALL += "tizen-extensions-crosswalk"
+#IMAGE_INSTALL += "tizen-extensions-crosswalk"
 IMAGE_INSTALL += "tzdata"
 
 IMAGE_INSTALL += "ttf-dejavu-common"

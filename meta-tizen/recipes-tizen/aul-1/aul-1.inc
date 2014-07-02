@@ -51,6 +51,7 @@ do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
+ sed -i 's|TZ_SYS_DB|${prefix}/dbspace|g' ${S}/packaging/aul.manifest
  cp ${S}/packaging/aul.manifest .
  
  

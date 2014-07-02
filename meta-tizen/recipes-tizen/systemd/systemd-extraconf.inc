@@ -47,9 +47,9 @@ do_install_append() {
  install -m 0644 ${WORKDIR}/user@.service ${D}/usr/lib/systemd/system/
 }
 
-EXTRA_OECONF = " --disable-manpages \
-                 --without-python \
-               "
+EXTRA_OECONF += "--disable-manpages"
+EXTRA_OECONF += "--without-python"
+
 GTKDOC_DOCDIR = "${S}/docs/"
 
 do_configure_prepend() {

@@ -15,6 +15,9 @@ PROVIDES = ""
 #PROVIDES by tizen-extensions-crosswalk-bluetooth-demo
 
 
+#PROVIDES by tizen-extensions-crosswalk-audiosystem-demo
+
+
 #PROVIDES by tizen-extensions-crosswalk
 
 
@@ -27,6 +30,9 @@ PROVIDES = ""
 RDEPENDS = ""
 #RDEPENDS of tizen-extensions-crosswalk-bluetooth-demo (${PN}-bluetooth-demo)
 RDEPENDS_${PN}-bluetooth-demo += "tizen-extensions-crosswalk"
+
+#RDEPENDS of tizen-extensions-crosswalk-audiosystem-demo (${PN}-audiosystem-demo)
+RDEPENDS_${PN}-audiosystem-demo += "tizen-extensions-crosswalk"
 
 #RDEPENDS of tizen-extensions-crosswalk (${PN})
 RDEPENDS_${PN} += "crosswalk"
@@ -58,6 +64,7 @@ DEPENDS += "power"
 inherit pythonnative
 DEPENDS += "evas"
 DEPENDS += "tizen-platform-config"
+DEPENDS += "pulseaudio"
 DEPENDS += "pkgmgr-info"
 DEPENDS += "favorites"
 DEPENDS += "device"
@@ -136,6 +143,7 @@ do_install() {
  install -m 755 -D ${S}/packaging/tizen-extensions-crosswalk-bluetooth-demo ${D}${prefix}/bin/tizen-extensions-crosswalk-bluetooth-demo
  install -m 755 -D ${S}/packaging/tizen-extensions-crosswalk-examples ${D}${prefix}/bin/tizen-extensions-crosswalk-examples
  install -m 755 -D ${S}/packaging/tizen-extensions-crosswalk-system-info-demo ${D}${prefix}/bin/tizen-extensions-crosswalk-system-info-demo
+ install -m 755 -D ${S}/packaging/tizen-extensions-crosswalk-audiosystem-demo ${D}${prefix}/bin/tizen-extensions-crosswalk-audiosystem-demo
  
  # Extensions.
  mkdir -p ${D}${prefix}/lib/tizen-extensions-crosswalk
@@ -169,19 +177,37 @@ do_install() {
  install -p -m 644 demos/system_info/js/*.js ${D}${prefix}/share/tizen-extensions-crosswalk/demos/system_info/js
  install -p -m 644 demos/system_info/images/*.png ${D}${prefix}/share/tizen-extensions-crosswalk/demos/system_info/images
  
+ # Demos - audiosystem api 
+ mkdir -p ${D}${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem
+ mkdir -p ${D}${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/css
+ mkdir -p ${D}${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/css/ui-lightness
+ mkdir -p ${D}${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/css/ui-lightness/images
+ mkdir -p ${D}${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/js
+ mkdir -p ${D}${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/images
+ 
+ install -p -m 644 demos/audiosystem/*.html ${D}${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem
+ install -p -m 644 demos/audiosystem/css/*.css ${D}${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/css
+ install -p -m 644 demos/audiosystem/css/ui-lightness/*.css ${D}${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/css/ui-lightness
+ install -p -m 644 demos/audiosystem/css/ui-lightness/images/* ${D}${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/css/ui-lightness/images
+ install -p -m 644 demos/audiosystem/js/*.js ${D}${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/js
+ install -p -m 644 demos/audiosystem/images/*.png ${D}${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/images
+ 
  # register to the package manager
  install -m 644 -D tizen-extensions-crosswalk-examples.xml ${D}${prefix}/share/packages/tizen-extensions-crosswalk-examples.xml
  install -m 644 -D tizen-extensions-crosswalk-bluetooth-demo.xml ${D}${prefix}/share/packages/tizen-extensions-crosswalk-bluetooth-demo.xml
  install -m 644 -D tizen-extensions-crosswalk-system-info-demo.xml ${D}${prefix}/share/packages/tizen-extensions-crosswalk-system-info-demo.xml
+ install -m 644 -D tizen-extensions-crosswalk-audiosystem-demo.xml ${D}${prefix}/share/packages/tizen-extensions-crosswalk-audiosystem-demo.xml
  install -p -D tizen-extensions-crosswalk.png ${D}${prefix}/share/icons/default/small/tizen-extensions-crosswalk-examples.png
  install -p -D tizen-extensions-crosswalk.png ${D}${prefix}/share/icons/default/small/tizen-extensions-crosswalk-bluetooth-demo.png
  install -p -D tizen-extensions-crosswalk.png ${D}${prefix}/share/icons/default/small/tizen-extensions-crosswalk-system-info-demo.png
+ install -p -D tizen-extensions-crosswalk.png ${D}${prefix}/share/icons/default/small/tizen-extensions-crosswalk-audiosystem-demo.png
  
  
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " tizen-extensions-crosswalk-bluetooth-demo "
+PACKAGES += " tizen-extensions-crosswalk-audiosystem-demo "
 PACKAGES += " tizen-extensions-crosswalk "
 PACKAGES += " tizen-extensions-crosswalk-examples "
 PACKAGES += " tizen-extensions-crosswalk-system-info-demo "
@@ -194,6 +220,17 @@ tizen-extensions-crosswalk-bluetooth-demo_files += "${prefix}/share/tizen-extens
 tizen-extensions-crosswalk-bluetooth-demo_files += "${prefix}/share/tizen-extensions-crosswalk/demos/tizen/css/*.css"
 tizen-extensions-crosswalk-bluetooth-demo_files += "${prefix}/share/tizen-extensions-crosswalk/demos/tizen/js/*.js"
 tizen-extensions-crosswalk-bluetooth-demo_files += "${prefix}/share/tizen-extensions-crosswalk/demos/tizen/images/*.png"
+
+tizen-extensions-crosswalk-audiosystem-demo_files = ""
+tizen-extensions-crosswalk-audiosystem-demo_files += "${prefix}/bin/tizen-extensions-crosswalk-audiosystem-demo"
+tizen-extensions-crosswalk-audiosystem-demo_files += "${prefix}/share/packages/tizen-extensions-crosswalk-audiosystem-demo.xml"
+tizen-extensions-crosswalk-audiosystem-demo_files += "${prefix}/share/icons/default/small/tizen-extensions-crosswalk-audiosystem-demo.png"
+tizen-extensions-crosswalk-audiosystem-demo_files += "${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/index.html"
+tizen-extensions-crosswalk-audiosystem-demo_files += "${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/css/*.css"
+tizen-extensions-crosswalk-audiosystem-demo_files += "${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/css/ui-lightness/*.css"
+tizen-extensions-crosswalk-audiosystem-demo_files += "${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/css/ui-lightness/images/*"
+tizen-extensions-crosswalk-audiosystem-demo_files += "${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/js/*.js"
+tizen-extensions-crosswalk-audiosystem-demo_files += "${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/images/*"
 
 tizen-extensions-crosswalk_files = ""
 tizen-extensions-crosswalk_files += "${prefix}/bin/tizen-extensions-crosswalk"
@@ -216,11 +253,13 @@ tizen-extensions-crosswalk-system-info-demo_files += "${prefix}/share/tizen-exte
 tizen-extensions-crosswalk-system-info-demo_files += "${prefix}/share/tizen-extensions-crosswalk/demos/system_info/images/*.png"
 
 FILES_${PN}-bluetooth-demo = "${tizen-extensions-crosswalk-bluetooth-demo_files}"
+FILES_${PN}-audiosystem-demo = "${tizen-extensions-crosswalk-audiosystem-demo_files}"
 FILES_${PN} = "${tizen-extensions-crosswalk_files}"
 FILES_${PN}-examples = "${tizen-extensions-crosswalk-examples_files}"
 FILES_${PN}-system-info-demo = "${tizen-extensions-crosswalk-system-info-demo_files}"
 
 PKG_tizen-extensions-crosswalk-bluetooth-demo= "tizen-extensions-crosswalk-bluetooth-demo"
+PKG_tizen-extensions-crosswalk-audiosystem-demo= "tizen-extensions-crosswalk-audiosystem-demo"
 PKG_tizen-extensions-crosswalk= "tizen-extensions-crosswalk"
 PKG_tizen-extensions-crosswalk-examples= "tizen-extensions-crosswalk-examples"
 PKG_tizen-extensions-crosswalk-system-info-demo= "tizen-extensions-crosswalk-system-info-demo"
