@@ -53,9 +53,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir }" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
 
  CPPFLAGS="$CPPFLAGS `pkg-config --cflags nss`"
@@ -65,10 +62,6 @@ do_compile() {
 
  BUILDTARGET="--host=x86_64-linux-gnu "
 
-
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ;
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables} " ; export CXXFLAGS ;
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir } " ; export FFLAGS ;
    export CFLAGS+=" -DRPM_VENDOR_OE "
    autoreconf -i -f
    ./configure   --host=${HOST_SYS} \
@@ -99,8 +92,6 @@ do_compile() {
      $BUILDTARGET
 
  make -j16
-
-
 
 }
 
