@@ -1,0 +1,25 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 28d168d..9dd6e52 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -17,7 +17,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
+ 
+ INCLUDE(FindPkgConfig)
+ pkg_check_modules(glib_pkg REQUIRED gobject-2.0)
+-pkg_check_modules(pkgs REQUIRED glib-2.0 dlog libtzplatform-config vconf-internal-keys)
++pkg_check_modules(pkgs REQUIRED glib-2.0 libtzplatform-config vconf-internal-keys)
+ 
+ FOREACH(flag ${pkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+diff --git a/include/vconf-log.h b/include/vconf-log.h
+index fa53102..f70d1e1 100755
+--- a/include/vconf-log.h
++++ b/include/vconf-log.h
+@@ -26,7 +26,6 @@
+ #include <unistd.h>
+ #include <stdlib.h>
+ 
+-#define VCONF_DLOG_OUT
+ 
+ /************** Error ***************/
+ #ifdef VCONF_SYSLOG_OUT
