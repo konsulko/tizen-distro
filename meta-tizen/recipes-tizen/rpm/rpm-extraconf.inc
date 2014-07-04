@@ -14,6 +14,7 @@ DEPENDS += "smack-native"
 DEPENDS += "acl-native"
 DEPENDS += "lua-native"
 DEPENDS += "python-native"
+DEPENDS_remove = "make"
 
 CFLAGS_append = " -DRPM_VENDOR_OE "
 
