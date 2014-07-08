@@ -25,15 +25,11 @@ do_compile_prepend() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir }" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
 
  ### BUILD BEGIN ###
  CPPFLAGS="$CPPFLAGS `pkg-config --cflags nss`"
  export CPPFLAGS
- export CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -ffunction-sections"
  export LDFLAGS="${LDFLAGS} -Wl,-Bsymbolic-functions -ffunction-sections"
 
  export CCFLAGS+=" -fPIC "
@@ -58,7 +54,6 @@ do_compile() {
 
  CPPFLAGS="$CPPFLAGS `pkg-config --cflags nss`"
  export CPPFLAGS
- export CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -ffunction-sections"
  export LDFLAGS="${LDFLAGS} -Wl,-Bsymbolic-functions -ffunction-sections"
 
  BUILDTARGET="--host=x86_64-linux-gnu "
@@ -92,7 +87,7 @@ do_compile() {
      --with-msm \
      $BUILDTARGET
 
- make -j16
+ oe_runmake ${PARALLEL_MAKE}
 
 }
 

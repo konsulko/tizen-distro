@@ -3,16 +3,16 @@ do_compile() {
  cd ${S}
  LANG=C
  export LANG
- unset DISPLAY
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
-
+ unset DISPLAY 
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ; 
+ 
  ./autogen.sh
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -fvisibility=hidden -DMM_DEBUG_FLAG -DSEPARATE_SPEAKER_AND_WIRED_ACCESSORY -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\""; export CFLAGS
-
-   autoreconf -v --install --force
+ CFLAGS="-DMM_DEBUG_FLAG -DSEPARATE_SPEAKER_AND_WIRED_ACCESSORY -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\""; export CFLAGS
+ 
+   autoreconf -v --install --force  
    ./configure --host=${HOST_SYS} \
          --prefix=${prefix} --enable-pulse --enable-security
- make -j16
+ oe_runmake ${PARALLEL_MAKE}
 
 }
 

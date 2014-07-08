@@ -5,10 +5,8 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
 
-
  cp -f ${PKG_CONFIG_SYSROOT_DIR}${datadir}/libtool/config/config.guess ${WORKDIR}
  cp -f ${PKG_CONFIG_SYSROOT_DIR}${datadir}/libtool/config/config.sub ${WORKDIR}
-
 
    autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
          --target=x86_64-tizen-linux \

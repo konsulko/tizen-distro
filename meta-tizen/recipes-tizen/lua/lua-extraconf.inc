@@ -1,17 +1,13 @@
-do_compile() {
- cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
-
- sed -i 's:LUA_ROOT2 "LIBDIR/lua/5.1/":LUA_ROOT2 \"lib/lua/5.1/":' src/luaconf.h
- make -j1 -C src CC="${CC}" MYCFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -fPIC -DLUA_USE_LINUX" MYLDFLAGS='${LDFLAGS}' MYLIBS="-Wl,-E -ldl -lreadline -lhistory -lncurses" V=5.1 all
-
-
-
-}
 INSANE_SKIP_${PN}-dev = "staticdev"
 
-BBCLASSEXTEND += " nativesdk "
+EXTRA_OEMAKE = "'CC=${CC} -fPIC' 'MYCFLAGS=${CFLAGS} -DLUA_USE_LINUX -fPIC' MYLDFLAGS='${LDFLAGS}'"
 
+do_compile() {
+    cd ${S}
+    LANG=C
+    export LANG
+    unset DISPLAY
+    LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+    sed -i 's:LUA_ROOT2 "LIBDIR/lua/5.1/":LUA_ROOT2 \"lib/lua/5.1/":' src/luaconf.h
+    oe_runmake ${PARALLEL_MAKE} -C src CC="${CC}" MYCFLAGS="${CFLAGS} -fPIC -DLUA_USE_LINUX" MYLIBS="-Wl,-E -ldl -lreadline -lhistory -lncurses" V=5.1 all
+}

@@ -1,5 +1,21 @@
 inherit gettext
-FILES_${PN}-dbg += "${systemd-dbg_files}"
+
+FILESEXTRAPATHS_prepend := "${THISDIR}/crosswalk"
+
+SRC_URI += "\
+            file://include.gypi \
+            file://oe-defaults.gypi \
+            "
+
+# This comes from the chromium recipe:
+# http://layers.openembedded.org/layerindex/recipe/4969/
+# It allows architecture specific configuration
+COMPATIBLE_MACHINE = "(-)"
+COMPATIBLE_MACHINE_i586 = "(.*)"
+COMPATIBLE_MACHINE_x86-64 = "(.*)"
+COMPATIBLE_MACHINE_armv6 = "(.*)"
+COMPATIBLE_MACHINE_armv7a = "(.*)"
+COMPATIBLE_MACHINE_romley-ivb = "(.*)"
 
 do_compile() {
  cd ${S}
@@ -36,7 +52,7 @@ do_compile() {
 
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=1"
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Dlinux_use_bundled_binutils=0 -Dlinux_use_bundled_gold=0 -Ddisable_fatal_linker_warnings=1"
-
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -I${WORKDIR}/oe-defaults.gypi -I${WORKDIR}/include.gypi"
 
  export GYP_GENERATORS='ninja'
  ./src/xwalk/gyp_xwalk src/xwalk/xwalk.gyp \
@@ -53,7 +69,7 @@ do_compile() {
  -Duse_kerberos=0 \
  -Denable_hidpi=1
 
- ninja -j16 -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
+ ninja ${PARALLEL_MAKE} -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
 
 }
 

@@ -1,0 +1,30 @@
+From 08d9a48423ff699e20eda48e07d78387f5aecb73 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
+Date: Mon, 7 Jul 2014 14:01:46 +0200
+Subject: [PATCH] meta-tizen: [yocto] Correct libdl linking issue
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Change-Id: Icedff39ddd6e458d0e567a519ba53ba51c5683b9
+Signed-off-by: Kévin THIERRY <kevin.thierry@open.eurogiciel.org>
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 61416f8..a476415 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -24,7 +24,7 @@ INCLUDE(FindPkgConfig)
+ pkg_check_modules(pkgs REQUIRED dlog glib-2.0)
+ pkg_check_modules(libpkgs REQUIRED dlog glib-2.0)
+ 
+-FIND_LIBRARY(LIB_DL dl)
++FIND_LIBRARY(LIB_DL NAMES dl libdl.so.2)
+ 
+ FOREACH(flag ${libpkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+-- 
+1.8.1.4
+

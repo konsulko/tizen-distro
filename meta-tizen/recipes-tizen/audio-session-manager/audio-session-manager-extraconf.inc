@@ -4,8 +4,7 @@ do_compile() {
  export LANG
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
-
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -fvisibility=hidden -DMM_DEBUG_FLAG -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\"" ; export CFLAGS
+ CFLAGS="-DMM_DEBUG_FLAG -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\"" ; export CFLAGS
 
    autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
          --target=x86_64-tizen-linux \
@@ -23,7 +22,7 @@ do_compile() {
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
          --infodir=${infodir} --disable-static --enable-security
- make -j16
+ oe_runmake
 
 
 
