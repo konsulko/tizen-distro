@@ -58,6 +58,9 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  CFLAGS+=" -fpic"
@@ -117,12 +120,12 @@ pkg_postinst_${PN}() {
     vconftool set -t string db/ail/ail_info "0" -f -s system::vconf_inhouse
     vconftool set -t string db/menuscreen/desktop "0" -f -s system::vconf_inhouse
     vconftool set -t string db/menu_widget/language "en_US.utf8" -f -s system::vconf_inhouse
-    chsmack -a User ${D}${prefix}/kdb/db/ail
-    chsmack -a User ${D}${prefix}/kdb/db/ail/ail_info
-    chsmack -a User ${D}${prefix}/kdb/db/menuscreen
-    chsmack -a User ${D}${prefix}/kdb/db/menuscreen/desktop
-    chsmack -a User ${D}${prefix}/kdb/db/menu_widget
-    chsmack -a User ${D}${prefix}/kdb/db/menu_widget/language
+    chsmack -a User $D${prefix}/kdb/db/ail
+    chsmack -a User $D${prefix}/kdb/db/ail/ail_info
+    chsmack -a User $D${prefix}/kdb/db/menuscreen
+    chsmack -a User $D${prefix}/kdb/db/menuscreen/desktop
+    chsmack -a User $D${prefix}/kdb/db/menu_widget
+    chsmack -a User $D${prefix}/kdb/db/menu_widget/language
     CHDBGID="6010"
     update_DAC_for_db_file()
     {
@@ -139,12 +142,12 @@ pkg_postinst_${PN}() {
             fi
     }
     ail_initdb
-    mkdir -p ${D}${prefix}/share/applications
-    mkdir -p ${D}${prefix}/share/applications
-    mkdir -p ${D}${prefix}/dbspace
-    update_DAC_for_db_file ${D}${prefix}/dbspace/.app_info.db
-    update_DAC_for_db_file ${D}${prefix}/dbspace/.app_info.db-journal
-    chsmack -a 'User' ${D}${prefix}/dbspace/.app_info.db*
+    mkdir -p $D${prefix}/share/applications
+    mkdir -p $D${prefix}/share/applications
+    mkdir -p $D${prefix}/dbspace
+    update_DAC_for_db_file $D${prefix}/dbspace/.app_info.db
+    update_DAC_for_db_file $D${prefix}/dbspace/.app_info.db-journal
+    chsmack -a 'User' $D${prefix}/dbspace/.app_info.db*
 
 }
 
@@ -153,7 +156,7 @@ pkg_postrm_${PN}() {
 
     ldconfig
     if [ $1 == 0 ]; then
-    rm -f ${D}${prefix}/dbspace/.app_info.db*
+    rm -f $D${prefix}/dbspace/.app_info.db*
     fi
 
 }

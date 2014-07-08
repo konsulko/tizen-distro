@@ -1,0 +1,33 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index eb292f3..b57a806 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -14,7 +14,6 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
+ INCLUDE(FindPkgConfig)
+ pkg_check_modules(pkgs REQUIRED 
+ 	sqlite3 
+-	dlog
+ 	glib-2.0
+ 	icu-i18n
+ )
+@@ -29,7 +28,7 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
+ 
+ ADD_DEFINITIONS("-DPREFIX=\"${PREFIX}\"")
+ ADD_DEFINITIONS("-DFACTORYFS=\"$ENV{FACTORYFS}\"")
+-ADD_DEFINITIONS("-DDB_UTIL_USING_PLATFORM_DBG")
++#ADD_DEFINITIONS("-DDB_UTIL_USING_PLATFORM_DBG")
+ ADD_DEFINITIONS("-DDB_UTIL_ENABLE_TRACE")
+ ##ADD_DEFINITIONS("-DDB_UTIL_ENABLE_DEVDEBUG")
+ 
+diff --git a/db-util.pc.in b/db-util.pc.in
+index a1df72b..5f7e6f6 100644
+--- a/db-util.pc.in
++++ b/db-util.pc.in
+@@ -8,6 +8,6 @@ includedir=@INCLUDEDIR@
+ Name: db-util
+ Description: DB Utility
+ Version: @VERSION@
+-Requires: sqlite3 dlog glib-2.0 icu-i18n
++Requires: sqlite3  glib-2.0 icu-i18n
+ Libs: -L${libdir} -lSLP-db-util
+ Cflags: -I${includedir}

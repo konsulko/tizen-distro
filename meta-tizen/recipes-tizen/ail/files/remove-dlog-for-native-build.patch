@@ -1,0 +1,52 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index cf9de2c..a03506e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -33,7 +33,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
+ 
+ INCLUDE(FindPkgConfig)
+ 
+-pkg_check_modules(LPKGS REQUIRED glib-2.0 sqlite3 dlog db-util xdgmime vconf libtzplatform-config)
++pkg_check_modules(LPKGS REQUIRED glib-2.0 sqlite3 db-util xdgmime vconf libtzplatform-config)
+ STRING(REPLACE ";" " " EXTRA_CFLAGS "${LPKGS_CFLAGS}")
+ SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} -fvisibility=hidden")
+ 
+diff --git a/initdb/CMakeLists.txt b/initdb/CMakeLists.txt
+index 73474d8..040a8cb 100755
+--- a/initdb/CMakeLists.txt
++++ b/initdb/CMakeLists.txt
+@@ -3,7 +3,7 @@
+ SET(INITDB ail_initdb)
+ SET(SRCS src/initdb.c)
+ 
+-pkg_check_modules(INITDB_PKGS REQUIRED vconf dlog db-util sqlite3)
++pkg_check_modules(INITDB_PKGS REQUIRED vconf db-util sqlite3)
+ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
+ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src)
+ 
+diff --git a/src/ail_private.h b/src/ail_private.h
+index efa2f66..867152b 100755
+--- a/src/ail_private.h
++++ b/src/ail_private.h
+@@ -36,7 +36,7 @@
+ #undef LOG_TAG
+ #define LOG_TAG "AIL"
+ 
+-#if 1
++#if 0
+ #include <dlog.h>
+ #define _E(fmt, arg...) LOGE("[%s,%d] "fmt,__FUNCTION__,__LINE__,##arg)
+ #define _D(fmt, arg...) LOGD("[%s,%d] "fmt,__FUNCTION__,__LINE__,##arg)
+diff --git a/tool/CMakeLists.txt b/tool/CMakeLists.txt
+index e898c7e..be1bbfa 100755
+--- a/tool/CMakeLists.txt
++++ b/tool/CMakeLists.txt
+@@ -15,7 +15,7 @@ SET(FILTERSRCS src/ail_filter.c)
+ SET(PKG ail_package)
+ SET(PKGSRCS src/ail_package.c)
+ 
+-pkg_check_modules(INITDB_PKGS REQUIRED vconf dlog db-util sqlite3)
++pkg_check_modules(INITDB_PKGS REQUIRED vconf db-util sqlite3)
+ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
+ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src)
+ 
