@@ -145,7 +145,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" != "x" ] && ldconfig
+    [ "x\$D" == "x" ] && ldconfig
     systemctl daemon-reload
     if [ $1 == 1 ]; then
         systemctl restart launchpad-preload@5000.service
@@ -167,7 +167,7 @@ pkg_prerm_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" != "x" ] && ldconfig
+    [ "x\$D" == "x" ] && ldconfig
     systemctl daemon-reload
 
 }

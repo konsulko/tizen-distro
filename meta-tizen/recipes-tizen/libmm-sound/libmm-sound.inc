@@ -144,7 +144,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" != "x" ] && ldconfig
+    [ "x\$D" == "x" ] && ldconfig
     /usr/bin/vconftool set -t int memory/Sound/ASMReady 0 -g 29 -f -i
     /usr/bin/vconftool set -t int file/private/sound/volume/system 5 -g 29 -f
     /usr/bin/vconftool set -t int file/private/sound/volume/notification 7 -g 29 -f
@@ -161,7 +161,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" != "x" ] && ldconfig
+    [ "x\$D" == "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

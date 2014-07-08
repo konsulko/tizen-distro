@@ -151,7 +151,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" != "x" ] && ldconfig
+    [ "x\$D" == "x" ] && ldconfig
     vconftool set -tf int db/bluetooth/status "0" -g 6520
     vconftool set -tf int file/private/bt-service/flight_mode_deactivated "0" -g 6520 -i
     vconftool set -tf string memory/bluetooth/sco_headset_name "" -g 6520 -i
@@ -163,7 +163,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" != "x" ] && ldconfig
+    [ "x\$D" == "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

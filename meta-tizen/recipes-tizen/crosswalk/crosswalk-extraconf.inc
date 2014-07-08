@@ -62,3 +62,11 @@ crosswalk-dbg_files += "/usr/lib/xwalk/.debug/libffmpegsumo.so"
 crosswalk-dbg_files += "/usr/lib/xwalk/.debug/xwalk"
 
 FILES_${PN}-dbg += "${crosswalk-dbg_files}"
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    mkdir -p $D/opt/share/icons/default/small
+    mkdir -p $D/opt/share/packages
+
+}

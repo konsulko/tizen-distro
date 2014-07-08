@@ -9,3 +9,14 @@ DEPENDS_class-target += "vconf-native"
 do_install_append_class-native() {
  sed -i "s@source /etc/tizen-platform.conf@source ${sysconfdir}/tizen-platform.conf@g" ${D}${prefix}/bin/vconf-init
 }
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    [ "x\$D" == "x" ] && ldconfig
+    [ "x\$D" == "x" ] && systemctl daemon-reload
+    chsmack -a 'User' $D${prefix}/kdb
+    chsmack -a 'User' $D${prefix}/kdb/db
+    chsmack -a 'User' $D${prefix}/kdb/db/.backup
+
+}

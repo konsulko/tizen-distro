@@ -159,7 +159,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" != "x" ] && ldconfig
+    [ "x\$D" == "x" ] && ldconfig
     if [ $1 -eq 1 ] ; then 
             # Initial installation 
             /usr/bin/systemctl preset download-provider.service >/dev/null 2>&1 || : 
@@ -182,7 +182,7 @@ pkg_prerm_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" != "x" ] && ldconfig
+    [ "x\$D" == "x" ] && ldconfig
     /usr/bin/systemctl daemon-reload >/dev/null 2>&1 || : 
 
 }
