@@ -25,3 +25,5 @@ CORE_IMAGE_BASE_INSTALL += "user-session-units"
 CORE_IMAGE_BASE_INSTALL += "default-ac-domains"
 CORE_IMAGE_BASE_INSTALL += "desktop-skin"
 CORE_IMAGE_BASE_INSTALL += "rpm-security-plugin"
+
+export SYSROOT = "${IMAGE_ROOTFS}"
