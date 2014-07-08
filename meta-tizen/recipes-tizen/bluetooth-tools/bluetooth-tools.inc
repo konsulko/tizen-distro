@@ -72,7 +72,8 @@ do_compile() {
          -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON . -DCMAKE_INSTALL_PREFIX=${prefix}
+         -DBUILD_SHARED_LIBS:BOOL=ON \
+         ${EXTRA_OECMAKE} . -DCMAKE_INSTALL_PREFIX=${prefix}
  make -j16
  
  

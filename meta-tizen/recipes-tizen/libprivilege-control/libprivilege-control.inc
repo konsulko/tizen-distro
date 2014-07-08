@@ -80,7 +80,8 @@ do_compile() {
          -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON . -DCMAKE_BUILD_TYPE=RELEASE \
+         -DBUILD_SHARED_LIBS:BOOL=ON \
+         ${EXTRA_OECMAKE} . -DCMAKE_BUILD_TYPE=RELEASE \
           -DCMAKE_VERBOSE_MAKEFILE=ON \
  	-DTZ_SYS_DB=${prefix}/dbspace \
  	-DTZ_SYS_HOME=/home

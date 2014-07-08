@@ -67,7 +67,8 @@ do_compile() {
          -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON .  -DFULLVER=1.0 -DMAJORVER=${MAJORVER}
+         -DBUILD_SHARED_LIBS:BOOL=ON \
+         ${EXTRA_OECMAKE} .  -DFULLVER=1.0 -DMAJORVER=${MAJORVER}
  # Call make instruction with smp support
  make -j16
  

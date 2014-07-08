@@ -103,7 +103,8 @@ do_compile() {
          -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON . \
+         -DBUILD_SHARED_LIBS:BOOL=ON \
+         ${EXTRA_OECMAKE} . \
  -DTZ_SYS_USER_GROUP=users \
   -DLIBNOTIFY_SUPPORT=Off \
   -DLIBNOTIFICATION_SUPPORT=Off
