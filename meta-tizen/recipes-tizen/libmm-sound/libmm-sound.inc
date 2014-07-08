@@ -100,7 +100,7 @@ do_compile() {
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
          --infodir=${infodir} --prefix=/usr --enable-pulse --enable-security
- make -j16
+ make ${PARALLEL_MAKE}
  
  
  

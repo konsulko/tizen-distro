@@ -80,7 +80,7 @@ do_compile() {
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
          --infodir=${infodir} --enable-gnome --enable-enlightenment
- oe_runmake -j16
+ oe_runmake ${PARALLEL_MAKE}
  
  
  

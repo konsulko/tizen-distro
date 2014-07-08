@@ -84,7 +84,7 @@ do_compile() {
          --mandir=${mandir} \
          --infodir=${infodir}  --enable-dlog --enable-debug
  
- make -j16
+ make 
  
  
  

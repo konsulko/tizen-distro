@@ -154,7 +154,7 @@ do_compile() {
          --with-sysvinit-path= \
          --with-sysvrcnd-path= \
          --with-smack-run-label=System
- oe_runmake -j16 \
+ oe_runmake ${PARALLEL_MAKE} \
          systemunitdir=/lib/systemd/system \
          userunitdir=/lib/systemd/user
  

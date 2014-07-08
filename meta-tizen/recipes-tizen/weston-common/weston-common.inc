@@ -98,7 +98,7 @@ do_compile() {
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
          --infodir=${infodir}
- make -j16
+ make ${PARALLEL_MAKE}
  
  
  

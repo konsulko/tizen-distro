@@ -68,9 +68,6 @@ do_compile() {
  
  MAJORVER=`echo 1.2.2.1 | awk 'BEGIN {FS="."}{print $1}'`
  
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export FFLAGS ; 
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
          -DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
@@ -84,7 +81,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . -DFULLVER=1.2.2.1 -DMAJORVER=${MAJORVER}
  
  # Call make instruction with smp support
- make -j16
+ make 
  
  
  

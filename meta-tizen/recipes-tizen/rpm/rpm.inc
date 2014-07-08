@@ -179,7 +179,7 @@ do_compile() {
      --enable-python \
      --with-msm 
  
- make -j16
+ make ${PARALLEL_MAKE}
  
  
  

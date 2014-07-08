@@ -72,7 +72,7 @@ do_compile() {
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
          --infodir=${infodir} --disable-static --enable-dlog
- make -j16
+ make 
  
  
  

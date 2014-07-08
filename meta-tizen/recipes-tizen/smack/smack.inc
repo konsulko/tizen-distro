@@ -84,7 +84,7 @@ do_compile() {
          --mandir=${mandir} \
          --infodir=${infodir} --with-systemdsystemunitdir=/lib/systemd/system
  
- make -j16
+ make ${PARALLEL_MAKE}
  
  
  

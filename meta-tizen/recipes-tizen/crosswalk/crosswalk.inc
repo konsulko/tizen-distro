@@ -170,7 +170,7 @@ do_compile() {
  -Duse_system_nspr=1 \
  -Denable_hidpi=1
  
- ninja -j16 -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
+ ninja ${PARALLEL_MAKE} -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
  
  
  

@@ -84,7 +84,7 @@ do_compile() {
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
          --infodir=${infodir} --disable-static
- oe_runmake -j16
+ oe_runmake ${PARALLEL_MAKE}
  
  exit 0
  oe_runmake check
