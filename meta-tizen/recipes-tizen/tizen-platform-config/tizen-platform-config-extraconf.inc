@@ -5,11 +5,11 @@ do_configure() {
  sed -i 's@wrappersrcdir=.*@wrappersrcdir=$(PKG_CONFIG_SYSROOT_DIR)$(datadir)@' ${S}/src/Makefile.am
 }
 
-do_install_append_class-native() {
- sed -i "s@=/home@=${D}/home@g" ${D}${sysconfdir}/tizen-platform.conf
- sed -i "s@=/opt@=${D}/opt@g" ${D}${sysconfdir}/tizen-platform.conf
- sed -i "s@=/usr@=${D}/usr@g" ${D}${sysconfdir}/tizen-platform.conf
- sed -i "s@=/etc@=${D}/etc@g" ${D}${sysconfdir}/tizen-platform.conf
- sed -i "s@=/root@=${D}/root@g" ${D}${sysconfdir}/tizen-platform.conf
+do_install_append() {
+ sed -i "s@=/home@=\$SYSROOT/home@g" ${D}${sysconfdir}/tizen-platform.conf
+ sed -i "s@=/opt@=\$SYSROOT/opt@g" ${D}${sysconfdir}/tizen-platform.conf
+ sed -i "s@=/usr@=\$SYSROOT/usr@g" ${D}${sysconfdir}/tizen-platform.conf
+ sed -i "s@=/etc@=\$SYSROOT/etc@g" ${D}${sysconfdir}/tizen-platform.conf
+ sed -i "s@=/root@=\$SYSROOT/root@g" ${D}${sysconfdir}/tizen-platform.conf
 }
 
