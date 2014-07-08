@@ -112,12 +112,18 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
    
+   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
    autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=${TARGET_SYS} \
+         --target=x86_64-tizen-linux \
          --program-prefix= \
          --prefix=${prefix} \
          --exec-prefix=${prefix} \
@@ -133,8 +139,11 @@ do_compile() {
          --mandir=${mandir} \
          --infodir=${infodir}
  
+   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
    autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=${TARGET_SYS} \
+         --target=x86_64-tizen-linux \
          --program-prefix= \
          --prefix=${prefix} \
          --exec-prefix=${prefix} \
@@ -270,24 +279,24 @@ do_install() {
 pkg_preinst_${PN}() {
     #!/bin/sh -e
 
-    ${D}${prefix}/bin/getent group cdrom >/dev/null 2>&1 || ${D}${prefix}/sbin/groupadd -r -g 11 cdrom >/dev/null 2>&1 || :
-    ${D}${prefix}/bin/getent group tape >/dev/null 2>&1 || ${D}${prefix}/sbin/groupadd -r -g 33 tape >/dev/null 2>&1 || :
-    ${D}${prefix}/bin/getent group dialout >/dev/null 2>&1 || ${D}${prefix}/sbin/groupadd -r -g 18 dialout >/dev/null 2>&1 || :
-    ${D}${prefix}/bin/getent group floppy >/dev/null 2>&1 || ${D}${prefix}/sbin/groupadd -r -g 19 floppy >/dev/null 2>&1 || :
-    ${D}${prefix}/bin/systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
+    $D${prefix}/bin/getent group cdrom >/dev/null 2>&1 || $D${prefix}/sbin/groupadd -r -g 11 cdrom >/dev/null 2>&1 || :
+    $D${prefix}/bin/getent group tape >/dev/null 2>&1 || $D${prefix}/sbin/groupadd -r -g 33 tape >/dev/null 2>&1 || :
+    $D${prefix}/bin/getent group dialout >/dev/null 2>&1 || $D${prefix}/sbin/groupadd -r -g 18 dialout >/dev/null 2>&1 || :
+    $D${prefix}/bin/getent group floppy >/dev/null 2>&1 || $D${prefix}/sbin/groupadd -r -g 19 floppy >/dev/null 2>&1 || :
+    $D${prefix}/bin/systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
     # Rename configuration files that changed their names
-    ${D}${prefix}/bin/mv -n ${sysconfdir}/systemd/systemd-logind.conf ${sysconfdir}/systemd/logind.conf >/dev/null 2>&1 || :
-    ${D}${prefix}/bin/mv -n ${sysconfdir}/systemd/systemd-journald.conf ${sysconfdir}/systemd/journald.conf >/dev/null 2>&1 || :
+    $D${prefix}/bin/mv -n ${sysconfdir}/systemd/systemd-logind.conf ${sysconfdir}/systemd/logind.conf >/dev/null 2>&1 || :
+    $D${prefix}/bin/mv -n ${sysconfdir}/systemd/systemd-journald.conf ${sysconfdir}/systemd/journald.conf >/dev/null 2>&1 || :
 
 }
 
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    ${D}${prefix}/bin/systemd-machine-id-setup > /dev/null 2>&1 || :
-    ${D}${prefix}/lib/systemd/systemd-random-seed save > /dev/null 2>&1 || :
-    ${D}${prefix}/bin/systemctl daemon-reexec > /dev/null 2>&1 || :
-    ${D}${prefix}/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
+    $D${prefix}/bin/systemd-machine-id-setup > /dev/null 2>&1 || :
+    $D${prefix}/lib/systemd/systemd-random-seed save > /dev/null 2>&1 || :
+    $D${prefix}/bin/systemctl daemon-reexec > /dev/null 2>&1 || :
+    $D${prefix}/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
 
 }
 
@@ -307,12 +316,12 @@ pkg_prerm_${PN}() {
     #!/bin/sh -e
 
     if [ $1 -eq 0 ] ; then
-            ${D}${prefix}/bin/systemctl disable \
+            $D${prefix}/bin/systemctl disable \
                     getty@.service \
                     remote-fs.target \
                     systemd-readahead-replay.service \
                     systemd-readahead-collect.service >/dev/null 2>&1 || :
-            ${D}${prefix}/bin/rm -f ${sysconfdir}/systemd/system/default.target >/dev/null 2>&1 || :
+            $D${prefix}/bin/rm -f ${sysconfdir}/systemd/system/default.target >/dev/null 2>&1 || :
     fi
 
 }
@@ -333,8 +342,8 @@ pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     if [ $1 -ge 1 ] ; then
-            ${D}${prefix}/bin/systemctl daemon-reload > /dev/null 2>&1 || :
-            ${D}${prefix}/bin/systemctl try-restart systemd-logind.service >/dev/null 2>&1 || :
+            $D${prefix}/bin/systemctl daemon-reload > /dev/null 2>&1 || :
+            $D${prefix}/bin/systemctl try-restart systemd-logind.service >/dev/null 2>&1 || :
     fi
 
 }

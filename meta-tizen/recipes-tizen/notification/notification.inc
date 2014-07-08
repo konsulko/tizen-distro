@@ -73,6 +73,9 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -125,7 +128,7 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     ldconfig
-    ${D}${prefix}/share/notification/notification_DB_init.sh
+    $D${prefix}/share/notification/notification_DB_init.sh
 
 }
 

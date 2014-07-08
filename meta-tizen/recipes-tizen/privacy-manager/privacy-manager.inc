@@ -92,6 +92,9 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -167,12 +170,12 @@ pkg_postinst_privacy-manager-server() {
 
     ldconfig
     echo "Check privacy DB"
-    if [ ! -f ${D}${prefix}/dbspace/.privacy.db ]
+    if [ ! -f $D${prefix}/dbspace/.privacy.db ]
     then
     	echo "Create privacy DB"
-    	${D}${prefix}/bin/privacy_manager_create_clean_db.sh
+    	$D${prefix}/bin/privacy_manager_create_clean_db.sh
     fi
-    chsmack -a 'User' ${D}${prefix}/dbspace/.privacy.db*
+    chsmack -a 'User' $D${prefix}/dbspace/.privacy.db*
 
 }
 

@@ -60,6 +60,9 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -122,7 +125,7 @@ pkg_postinst_${PN}() {
 
     ldconfig
     /usr/share/privilege-control/db/updater.sh
-    chsmack -a 'System' ${D}${prefix}/dbspace/.rules-db.db3*
+    chsmack -a 'System' $D${prefix}/dbspace/.rules-db.db3*
 
 }
 

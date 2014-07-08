@@ -76,3 +76,16 @@ RPROVIDES_${PN}-modules-extra += "pam-plugin-shells"
 RPROVIDES_${PN}-modules-extra += "pam-plugin-rootok"
 RPROVIDES_${PN}-modules-extra += "pam-plugin-keyinit"
 RPROVIDES_${PN}-modules-extra += "pam-plugin-loginuid"
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    ldconfig
+    if [ ! -a $D/var/log/faillog ] ; then
+    	/usr/bin/install -m 600 /dev/null $D/var/log/faillog
+    fi
+    if [ ! -a $D/var/log/tallylog ] ; then
+    	/usr/bin/install -m 600 /dev/null $D/var/log/tallylog
+    fi
+
+}

@@ -73,11 +73,17 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
+ CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
+ CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
+ FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
+   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
+   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
+   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
    autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=${TARGET_SYS} \
+         --target=x86_64-tizen-linux \
          --program-prefix= \
          --prefix=${prefix} \
          --exec-prefix=${prefix} \
@@ -174,11 +180,11 @@ pkg_preinst_${PN}() {
     #!/bin/sh -e
 
     # create groups 'display' and 'weston-launch'
-    getent group display >/dev/null || ${D}${prefix}/sbin/groupadd -r -o display
-    getent group input >/dev/null || ${D}${prefix}/sbin/groupadd -r -o input
-    getent group weston-launch >/dev/null || ${D}${prefix}/sbin/groupadd -r -o weston-launch
+    getent group display >/dev/null || $D${prefix}/sbin/groupadd -r -o display
+    getent group input >/dev/null || $D${prefix}/sbin/groupadd -r -o input
+    getent group weston-launch >/dev/null || $D${prefix}/sbin/groupadd -r -o weston-launch
     # create user 'display'
-    getent passwd display >/dev/null || ${D}${prefix}/sbin/useradd -r -g display -d /run/display -s /bin/false -c "Display daemon" display
+    getent passwd display >/dev/null || $D${prefix}/sbin/useradd -r -g display -d /run/display -s /bin/false -c "Display daemon" display
     # add user 'display' to groups 'weston-launch', 'input' and 'video'
     groupmod -A display weston-launch
     groupmod -A display input

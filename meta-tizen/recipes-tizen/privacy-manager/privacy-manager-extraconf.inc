@@ -51,3 +51,8 @@ PKG_privacy-manager-server-dev= "privacy-manager-server-dev"
 PKG_capi-security-privacy-manager= "capi-security-privacy-manager"
 PKG_privacy-manager-client-dev= "privacy-manager-client-dev"
 PKG_capi-security-privacy-manager-dev= "capi-security-privacy-manager-dev"
+
+do_configure() {
+ sed -i 's@source /etc/tizen-platform.conf@source $D/etc/tizen-platform.conf@' ${S}/res/usr/bin/privacy_manager_create_clean_db.sh
+ sed -i 's@/usr/bin@${TZ_SYS_DB}@' ${S}/res/usr/bin/privacy_manager_create_clean_db.sh
+}
