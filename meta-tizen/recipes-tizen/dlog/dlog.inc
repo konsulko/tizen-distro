@@ -138,13 +138,13 @@ do_install() {
 pkg_postinst_libdlog() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 }
 
 pkg_postrm_libdlog() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

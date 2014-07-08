@@ -149,7 +149,7 @@ do_install() {
 pkg_postinst_libavsysaudio() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 
 }
 
@@ -175,7 +175,7 @@ pkg_prerm_${PN}() {
 pkg_postrm_libavsysaudio() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 
 }
 

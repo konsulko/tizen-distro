@@ -157,19 +157,19 @@ do_install() {
 pkg_postinst_pkgmgr-installer() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 }
 
 pkg_postinst_pkgmgr-server() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 }
 
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
     # For pkgmgr-install:
     # Update mime database to support package mime types
     update-mime-database /usr/share/mime
@@ -179,19 +179,19 @@ pkg_postinst_${PN}() {
 pkg_postinst_pkgmgr-client() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 }
 
 pkg_postrm_pkgmgr-client() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 }
 
 pkg_postrm_pkgmgr-installer() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

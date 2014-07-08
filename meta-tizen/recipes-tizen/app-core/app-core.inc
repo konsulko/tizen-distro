@@ -144,25 +144,25 @@ do_install() {
 pkg_postinst_app-core-common() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 }
 
 pkg_postinst_app-core-efl() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 }
 
 pkg_postrm_app-core-efl() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 }
 
 pkg_postrm_app-core-common() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

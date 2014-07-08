@@ -117,7 +117,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
     vconftool set -t string db/ail/ail_info "0" -f -s system::vconf_inhouse
     vconftool set -t string db/menuscreen/desktop "0" -f -s system::vconf_inhouse
     vconftool set -t string db/menu_widget/language "en_US.utf8" -f -s system::vconf_inhouse
@@ -155,7 +155,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
     if [ $1 == 0 ]; then
     rm -f $D${prefix}/dbspace/.app_info.db*
     fi

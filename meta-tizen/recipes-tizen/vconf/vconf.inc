@@ -124,7 +124,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
     systemctl daemon-reload
     chsmack -a 'User' $D${prefix}/kdb
     chsmack -a 'User' $D${prefix}/kdb/db
@@ -135,7 +135,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
     systemctl daemon-reload
 
 }

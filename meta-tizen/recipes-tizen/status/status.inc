@@ -121,7 +121,7 @@ pkg_postinst_${PN}() {
         vconftool set -t int memory/private/libstatus/vr/pid -1 -i -g 5000
         vconftool set -t string memory/private/libstatus/message "" -i -g 5000
     }
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
     init_vconf
 
 }
@@ -129,7 +129,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    ldconfig
+    [ "x\$D" != "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
