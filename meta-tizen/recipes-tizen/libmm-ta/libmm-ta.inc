@@ -32,7 +32,6 @@ do_prep() {
  cp ${S}/packaging/libmm-ta.manifest .
  
  
- 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -52,8 +51,6 @@ do_compile() {
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
- 
-   
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
    CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
    FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
@@ -73,27 +70,7 @@ do_compile() {
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
          --infodir=${infodir} --disable-static
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} --disable-static
- make -j16
+ oe_runmake -j16
  
  
  
@@ -118,9 +95,6 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- 
- 
- 
  
  
 }

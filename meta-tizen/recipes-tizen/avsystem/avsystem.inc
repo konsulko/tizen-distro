@@ -47,7 +47,6 @@ do_prep() {
  cp ${S}/packaging/avsystem.manifest .
  
  
- 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -67,7 +66,6 @@ do_compile() {
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
-   
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
    CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
    FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
@@ -86,30 +84,9 @@ do_compile() {
          --localstatedir=${localstatedir} \
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
-         --infodir=${infodir}
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} \
- 	--enable-audiotest
- 
- make -j16
+         --infodir=${infodir}  \
+              --enable-audiotest
+ oe_runmake -j16
  
  
  
@@ -139,9 +116,9 @@ do_install() {
  mkdir -m 755 -p ${D}/${sysconfdir}/rc.d/rc4.d/
  ln -s ../init.d/snd_init ${D}/${sysconfdir}/rc.d/rc4.d/S15snd_init
  
- mkdir -m 755 -p ${D}/usr/lib/systemd/system/multi-user.target.wants
- install -m 0644 ${S}/packaging/avsystem.service ${D}/usr/lib/systemd/system/avsystem.service
- ln -s ../avsystem.service ${D}/usr/lib/systemd/system/multi-user.target.wants/avsystem.service
+ mkdir -m 755 -p ${D}/lib/systemd/system/multi-user.target.wants
+ install -m 0644 ${S}/packaging/avsystem.service ${D}/lib/systemd/system/avsystem.service
+ ln -s ../avsystem.service ${D}/lib/systemd/system/multi-user.target.wants/avsystem.service
  
  
 }
@@ -197,8 +174,8 @@ avsystem_files += "${sysconfdir}/rc.d/init.d/snd_init"
 avsystem_files += "${sysconfdir}/rc.d/rc3.d/S15snd_init"
 avsystem_files += "${sysconfdir}/rc.d/rc4.d/S15snd_init"
 avsystem_files += "${prefix}/bin/*"
-avsystem_files += "/usr/lib/systemd/system/avsystem.service"
-avsystem_files += "/usr/lib/systemd/system/multi-user.target.wants/avsystem.service"
+avsystem_files += "/lib/systemd/system/avsystem.service"
+avsystem_files += "/lib/systemd/system/multi-user.target.wants/avsystem.service"
 
 avsystem-dev_files = ""
 avsystem-dev_files += "avsystem.manifest"

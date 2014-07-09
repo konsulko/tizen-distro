@@ -13,7 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by ail
-# the PROVIDES rules is ignore "libail = 0.2.80-1"
+# the PROVIDES rules is ignore "libail = 0.2.80-0"
 PROVIDES += "libail"
 RPROVIDES_ail += "libail"
 
@@ -81,9 +81,9 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} .  -DBUILD_PKGTYPE=rpm \
- 		  -DSMACK=Off
+           -DSMACK=Off
  
- make -j16
+ oe_runmake -j16
  
  
  
@@ -142,7 +142,7 @@ pkg_postinst_${PN}() {
                     echo "Failed to change the perms of $@"
             fi
     }
-    ail_initdb
+    ail_initdb 2>/dev/null
     mkdir -p $D${prefix}/share/applications
     mkdir -p $D${prefix}/share/applications
     mkdir -p $D${prefix}/dbspace
@@ -157,7 +157,7 @@ pkg_postrm_${PN}() {
 
     [ "x\$D" == "x" ] && ldconfig
     if [ $1 == 0 ]; then
-    rm -f $D${prefix}/dbspace/.app_info.db*
+        rm -f $D${prefix}/dbspace/.app_info.db*
     fi
 
 }

@@ -73,28 +73,9 @@ do_compile() {
  FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- 
- 
-   
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir}
+ rm -rf autom4te.cache
+ rm -f aclocal.m4 ltmain.sh
+ mkdir -p m4
  
    CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
    CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
@@ -115,8 +96,7 @@ do_compile() {
          --sharedstatedir=${prefix}/com \
          --mandir=${mandir} \
          --infodir=${infodir} --prefix=${prefix} --disable-static
- 
- make -j16
+ oe_runmake -j16
  
  
  
@@ -141,9 +121,9 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}/usr/lib/systemd/system/multi-user.target.wants
- install -m 644 ${S}/packaging/media-server.service ${D}/usr/lib/systemd/system/media-server.service
- ln -s ../media-server.service ${D}/usr/lib/systemd/system/multi-user.target.wants/media-server.service
+ mkdir -p ${D}/lib/systemd/system/multi-user.target.wants
+ install -m 644 ${S}/packaging/media-server.service ${D}/lib/systemd/system/media-server.service
+ ln -s ../media-server.service ${D}/lib/systemd/system/multi-user.target.wants/media-server.service
  mkdir -p ${D}${prefix}/data/data-media/Camera
  mkdir -p ${D}${prefix}/data/data-media/Downloads
  mkdir -p ${D}${prefix}/data/data-media/Images
@@ -203,8 +183,8 @@ media-server_files += "media-server.manifest"
 media-server_files += "${prefix}/bin/media-server"
 media-server_files += "${prefix}/bin/media-scanner"
 media-server_files += "${prefix}/bin/mediadb-update"
-media-server_files += "/usr/lib/systemd/system/media-server.service"
-media-server_files += "/usr/lib/systemd/system/multi-user.target.wants/media-server.service"
+media-server_files += "/lib/systemd/system/media-server.service"
+media-server_files += "/lib/systemd/system/multi-user.target.wants/media-server.service"
 media-server_files += "${prefix}/bin/media-data-sdk_create_db.sh"
 media-server_files += "${prefix}/data/data-media/*"
 media-server_files += "${prefix}/data/data-media/file-manager-service/.thumb/*"
