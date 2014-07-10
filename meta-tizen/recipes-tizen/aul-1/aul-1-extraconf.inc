@@ -34,3 +34,7 @@ DEPENDS += "libprivilege-control"
 DEPENDS += "app-checker"
 DEPENDS += "vconf"
 DEPENDS += "privacy-manager"
+
+do_configure_prepend() {
+    sed -i 's!/usr/bin/mkdir!/bin/mkdir -p!g' ${S}/packaging/ac.service
+}
