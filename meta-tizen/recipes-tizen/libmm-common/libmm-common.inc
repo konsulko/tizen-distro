@@ -1,6 +1,6 @@
 DESCRIPTION = "Multimedia Framework Common Library"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Multimedia Framework/Libraries"
+SECTION = "Multimedia/Libraries"
 LICENSE = "Apache-2.0"
 
 SRC_URI = ""
@@ -50,11 +50,9 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  
-  ./autogen.sh
   CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" " 
   autotools_do_configure
-  make ${PARALLEL_MAKE}
+  oe_runmake ${PARALLEL_MAKE}
   
   
   
@@ -79,7 +77,6 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- 
  
  
 }
