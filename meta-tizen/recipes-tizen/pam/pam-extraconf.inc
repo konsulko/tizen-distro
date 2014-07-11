@@ -1,48 +1,26 @@
-
 SRC_URI += "file://system-auth"
-
-
-EXTRA_OECONF = "--with-db-uniquename=_pam \
-                --disable-nis \
-                --disable-regenerate-docu \
-                --disable-prelude"
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
-
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=${TARGET_SYS} \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} \
-         --libdir=${prefix}/lib \
-         --includedir=${prefix}/include/security \
-         --enable-isadir=../..${prefix}/lib/security \
-         --disable-audit \
-         --with-db-uniquename=_pam \
-         --with-libiconv-prefix=/usr \
-         --enable-read-both-confs &&
- 
- make  CFLAGS="$CFLAGS -lfl -lcrypt"
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  
+  autotools_do_configure
+  
+  make  CFLAGS="$CFLAGS -lfl -lcrypt"
+  
+  
+  
 }
+EXTRA_OECONF = " --libdir=${prefix}/lib --includedir=${prefix}/include/security --enable-isadir=../..${prefix}/lib/security --disable-audit --with-db-uniquename=_pam --with-libiconv-prefix=/usr --enable-read-both-confs "
+EXTRA_OECONF += "--disable-nis \
+                 --disable-regenerate-docu \
+                 --disable-prelude"
+
+
 
 PACKAGECONFIG[audit] = "--enable-audit,--disable-audit,audit,"
 
