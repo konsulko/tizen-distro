@@ -56,9 +56,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  sed -i 's:LUA_ROOT2 "LIBDIR/lua/5.1/":LUA_ROOT2 \"lib/lua/5.1/":' src/luaconf.h
@@ -112,7 +109,6 @@ PACKAGES += " lua-dev "
 PACKAGES += " liblua "
 
 lua_files = ""
-lua_files += "lua.manifest"
 lua_files += "${mandir}/man1/lua5.1.1*"
 lua_files += "${mandir}/man1/luac5.1.1*"
 lua_files += "${prefix}/bin/lua"
@@ -123,9 +119,14 @@ lua_files += "${prefix}/lib/lua/5.1"
 lua_files += "${prefix}/share/lua"
 lua_files += "${prefix}/share/lua/5.1"
 lua_files += "${sysconfdir}/rpm/macros.lua"
+MANIFESTFILES_${PN} = "lua.manifest"
+DIRFILES_${PN} = ""
+DIRFILES_${PN} += "${prefix}/lib/lua"
+DIRFILES_${PN} += "${prefix}/lib/lua/5.1"
+DIRFILES_${PN} += "${prefix}/share/lua"
+DIRFILES_${PN} += "${prefix}/share/lua/5.1"
 
 lua-dev_files = ""
-lua-dev_files += "lua.manifest"
 lua-dev_files += "${prefix}/include/lauxlib.h"
 lua-dev_files += "${prefix}/include/lua.h"
 lua-dev_files += "${prefix}/include/lua.hpp"
@@ -134,14 +135,15 @@ lua-dev_files += "${prefix}/include/lualib.h"
 lua-dev_files += "${prefix}/lib/pkgconfig/lua.pc"
 lua-dev_files += "${prefix}/lib/liblua.a"
 lua-dev_files += "${prefix}/lib/liblua.so"
+MANIFESTFILES_${PN}-dev = "lua.manifest"
 
 liblua_files = ""
-liblua_files += "lua.manifest"
 liblua_files += "${prefix}/lib/liblua.so.5.1"
+MANIFESTFILES_lib${PN} = "lua.manifest"
 
 lua-doc_files = ""
-lua-doc_files += "lua.manifest"
 lua-doc_files += "doc/*"
+MANIFESTFILES_${PN}-doc = "lua.manifest"
 
 FILES_${PN} = "${lua_files}"
 FILES_${PN}-dev = "${lua-dev_files}"

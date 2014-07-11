@@ -56,9 +56,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 0.0.29 | awk 'BEGIN {FS="."}{print $1}'`
@@ -121,16 +118,16 @@ PACKAGES += " capi-appfw-package-manager-dev "
 PACKAGES += " capi-appfw-package-manager "
 
 capi-appfw-package-manager-dev_files = ""
-capi-appfw-package-manager-dev_files += "capi-appfw-package-manager.manifest"
 capi-appfw-package-manager-dev_files += "${prefix}/include/appfw/package_manager.h"
 capi-appfw-package-manager-dev_files += "${prefix}/include/appfw/package_info.h"
 capi-appfw-package-manager-dev_files += "${prefix}/lib/libcapi-appfw-package-manager.so"
 capi-appfw-package-manager-dev_files += "${prefix}/lib/pkgconfig/*.pc"
+MANIFESTFILES_capi-appfw-${PN}-dev = "capi-appfw-package-manager.manifest"
 
 capi-appfw-package-manager_files = ""
-capi-appfw-package-manager_files += "capi-appfw-package-manager.manifest"
 capi-appfw-package-manager_files += "${prefix}/lib/libcapi-appfw-package-manager.so.*"
 capi-appfw-package-manager_files += "${prefix}/bin/pkgmgr_tool"
+MANIFESTFILES_capi-appfw-${PN} = "capi-appfw-package-manager.manifest"
 
 FILES_capi-appfw-${PN}-dev = "${capi-appfw-package-manager-dev_files}"
 FILES_capi-appfw-${PN} = "${capi-appfw-package-manager_files}"

@@ -54,39 +54,19 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} --disable-static
- oe_runmake -j16
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  
+  autotools_do_configure
+  oe_runmake 
+  
+  
+  
 }
+EXTRA_OECONF += " --disable-static"
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -131,19 +111,21 @@ PACKAGES += " dlogutil "
 PACKAGES += " libdlog-dev "
 
 libdlog_files = ""
-libdlog_files += "dlog.manifest"
 libdlog_files += "${sysconfdir}/dlog/platformlog.conf"
 libdlog_files += "${prefix}/lib/libdlog.so.*"
+CONFFILES_lib${PN} = ""
+CONFFILES_lib${PN} += "${sysconfdir}/dlog/platformlog.conf"
+MANIFESTFILES_lib${PN} = "dlog.manifest"
 
 dlogutil_files = ""
-dlogutil_files += "dlog.manifest"
 dlogutil_files += "${prefix}/bin/dlogctrl"
+MANIFESTFILES_${PN}util = "dlog.manifest"
 
 libdlog-dev_files = ""
-libdlog-dev_files += "dlog.manifest"
 libdlog-dev_files += "${prefix}/include/dlog/dlog.h"
 libdlog-dev_files += "${prefix}/lib/pkgconfig/dlog.pc"
 libdlog-dev_files += "${prefix}/lib/libdlog.so"
+MANIFESTFILES_lib${PN}-dev = "dlog.manifest"
 
 FILES_lib${PN} = "${libdlog_files}"
 FILES_${PN}util = "${dlogutil_files}"

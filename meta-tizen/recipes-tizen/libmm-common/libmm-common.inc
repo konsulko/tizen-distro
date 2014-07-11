@@ -45,41 +45,21 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- 
- ./autogen.sh
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" " 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir}
- make ${PARALLEL_MAKE}
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  
+  ./autogen.sh
+  CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" " 
+  autotools_do_configure
+  make ${PARALLEL_MAKE}
+  
+  
+  
 }
+EXTRA_OECONF += ""
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -121,7 +101,6 @@ PACKAGES += " libmm-common-dev "
 PACKAGES += " libmm-common "
 
 libmm-common-dev_files = ""
-libmm-common-dev_files += "libmm-common.manifest"
 libmm-common-dev_files += "${prefix}/include/mmf/SLP_MultimediaFW_PG.h"
 libmm-common-dev_files += "${prefix}/include/mmf/mm_types.h"
 libmm-common-dev_files += "${prefix}/include/mmf/mm_error.h"
@@ -132,10 +111,11 @@ libmm-common-dev_files += "${prefix}/include/mmf/mm_debug.h"
 libmm-common-dev_files += "${prefix}/include/mmf/mm.h"
 libmm-common-dev_files += "${prefix}/lib/pkgconfig/mm-common.pc"
 libmm-common-dev_files += "${prefix}/lib/libmmfcommon.so"
+MANIFESTFILES_${PN}-dev = "libmm-common.manifest"
 
 libmm-common_files = ""
-libmm-common_files += "libmm-common.manifest"
 libmm-common_files += "${prefix}/lib/libmmfcommon.so.*"
+MANIFESTFILES_${PN} = "libmm-common.manifest"
 
 FILES_${PN}-dev = "${libmm-common-dev_files}"
 FILES_${PN} = "${libmm-common_files}"

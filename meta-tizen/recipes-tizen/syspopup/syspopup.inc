@@ -69,9 +69,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -159,15 +156,14 @@ PACKAGES += " syspopup-caller-dev "
 PACKAGES += " syspopup-caller "
 
 syspopup-dev_files = ""
-syspopup-dev_files += "syspopup-devel.manifest"
 syspopup-dev_files += "${prefix}/include/SLP_SYSPOPUP_PG.h"
 syspopup-dev_files += "${prefix}/include/syspopup.h"
 syspopup-dev_files += "${prefix}/lib/libsyspopup.so"
 syspopup-dev_files += "${prefix}/lib/pkgconfig/syspopup.pc"
 syspopup-dev_files += "/usr/share/license/syspopup-devel"
+MANIFESTFILES_${PN}-dev = "syspopup-devel.manifest"
 
 syspopup_files = ""
-syspopup_files += "syspopup.manifest"
 syspopup_files += "${prefix}/share/icons/default/small/org.tizen.syspopup-app.png"
 syspopup_files += "${prefix}/bin/sp_test"
 syspopup_files += "${prefix}/bin/syspopup-app"
@@ -177,18 +173,19 @@ syspopup_files += "${prefix}/share/popup_noti_term"
 syspopup_files += "${prefix}/dbspace/.syspopup.db"
 syspopup_files += "${prefix}/dbspace/.syspopup.db-journal"
 syspopup_files += "/usr/share/license/syspopup"
+MANIFESTFILES_${PN} = "syspopup.manifest"
 
 syspopup-caller-dev_files = ""
-syspopup-caller-dev_files += "syspopup-caller-devel.manifest"
 syspopup-caller-dev_files += "${prefix}/lib/libsyspopup_caller.so"
 syspopup-caller-dev_files += "${prefix}/include/syspopup_caller.h"
 syspopup-caller-dev_files += "${prefix}/lib/pkgconfig/syspopup-caller.pc"
 syspopup-caller-dev_files += "/usr/share/license/syspopup-caller-devel"
+MANIFESTFILES_${PN}-caller-dev = "syspopup-caller-devel.manifest"
 
 syspopup-caller_files = ""
-syspopup-caller_files += "syspopup-caller.manifest"
 syspopup-caller_files += "${prefix}/lib/libsyspopup_caller.so.0.1.0"
 syspopup-caller_files += "/usr/share/license/syspopup-caller"
+MANIFESTFILES_${PN}-caller = "syspopup-caller.manifest"
 
 FILES_${PN}-dev = "${syspopup-dev_files}"
 FILES_${PN} = "${syspopup_files}"

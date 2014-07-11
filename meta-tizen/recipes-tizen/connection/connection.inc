@@ -54,9 +54,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  unset LD_AS_NEEDED
@@ -124,15 +121,15 @@ PACKAGES += " capi-network-connection-dev "
 PACKAGES += " capi-network-connection "
 
 capi-network-connection-dev_files = ""
-capi-network-connection-dev_files += "capi-network-connection.manifest"
 capi-network-connection-dev_files += "${prefix}/include/network/*.h"
 capi-network-connection-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 capi-network-connection-dev_files += "${prefix}/lib/libcapi-network-connection.so"
+MANIFESTFILES_capi-network-${PN}-dev = "capi-network-connection.manifest"
 
 capi-network-connection_files = ""
-capi-network-connection_files += "capi-network-connection.manifest"
 capi-network-connection_files += "${prefix}/lib/libcapi-network-connection.so.*"
 capi-network-connection_files += "${prefix}/share/license/capi-network-connection"
+MANIFESTFILES_capi-network-${PN} = "capi-network-connection.manifest"
 
 FILES_capi-network-${PN}-dev = "${capi-network-connection-dev_files}"
 FILES_capi-network-${PN} = "${capi-network-connection_files}"

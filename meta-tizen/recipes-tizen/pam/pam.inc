@@ -81,49 +81,22 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- CFLAGS="-fPIC -O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables " ; export CFLAGS
- 
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} \
-         --libdir=${prefix}/lib \
-         --includedir=${prefix}/include/security \
-         --enable-isadir=../..${prefix}/lib/security \
-         --disable-audit \
-         --with-db-uniquename=_pam \
-         --with-libiconv-prefix=/usr \
-         --enable-read-both-confs &&
- 
- make  CFLAGS="$CFLAGS -lfl -lcrypt"
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  CFLAGS="-fPIC -O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables " ; export CFLAGS
+  
+  
+  autotools_do_configure
+  
+  make  CFLAGS="$CFLAGS -lfl -lcrypt"
+  
+  
+  
 }
+EXTRA_OECONF += " --libdir=${prefix}/lib --includedir=${prefix}/include/security --enable-isadir=../..${prefix}/lib/security --disable-audit --with-db-uniquename=_pam --with-libiconv-prefix=/usr --enable-read-both-confs &&"
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -189,7 +162,6 @@ PACKAGES += " pam "
 PACKAGES += " pam-docs "
 
 pam-modules-extra_files = ""
-pam-modules-extra_files += "pam.manifest"
 pam-modules-extra_files += "${prefix}/lib/security/pam_access.so"
 pam-modules-extra_files += "${prefix}/lib/security/pam_debug.so"
 pam-modules-extra_files += "${prefix}/lib/security/pam_echo.so"
@@ -217,17 +189,17 @@ pam-modules-extra_files += "${prefix}/lib/security/pam_unix_passwd.so"
 pam-modules-extra_files += "${prefix}/lib/security/pam_unix_session.so"
 pam-modules-extra_files += "${prefix}/lib/security/pam_warn.so"
 pam-modules-extra_files += "${prefix}/lib/security/pam_smack.so"
+MANIFESTFILES_${PN}-modules-extra = "pam.manifest"
 
 pam-dev_files = ""
-pam-dev_files += "pam.manifest"
 pam-dev_files += "${prefix}/include/security/*"
 pam-dev_files += "${prefix}/lib/libpam.so"
 pam-dev_files += "${prefix}/lib/libpam_misc.so"
 pam-dev_files += "${prefix}/lib/libpamc.so"
 pam-dev_files += "${prefix}/lib/security/pam_tally2.so"
+MANIFESTFILES_${PN}-dev = "pam.manifest"
 
 pam_files = ""
-pam_files += "pam.manifest"
 pam_files += "/sbin/pam_tally"
 pam_files += "/sbin/pam_tally2"
 pam_files += "/sbin/pam_timestamp_check"
@@ -266,6 +238,11 @@ pam_files += "${sysconfdir}/security/time.conf"
 pam_files += "${sysconfdir}/pam.d"
 pam_files += "${sysconfdir}/pam.d/system-auth"
 pam_files += "${sysconfdir}/pam.d/other"
+MANIFESTFILES_${PN} = "pam.manifest"
+DIRFILES_${PN} = ""
+DIRFILES_${PN} += "${prefix}/lib/security"
+DIRFILES_${PN} += "${sysconfdir}/security"
+DIRFILES_${PN} += "${sysconfdir}/pam.d"
 
 pam-docs_files = ""
 

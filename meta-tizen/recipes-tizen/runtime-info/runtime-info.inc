@@ -53,9 +53,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 0.0.3 | awk 'BEGIN {FS="."}{print $1}'`
@@ -118,14 +115,14 @@ PACKAGES += " capi-system-runtime-info-dev "
 PACKAGES += " capi-system-runtime-info "
 
 capi-system-runtime-info-dev_files = ""
-capi-system-runtime-info-dev_files += "capi-system-runtime-info-devel.manifest"
 capi-system-runtime-info-dev_files += "${prefix}/include/system/*.h"
 capi-system-runtime-info-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 capi-system-runtime-info-dev_files += "${prefix}/lib/lib*.so"
+MANIFESTFILES_capi-system-${PN}-dev = "capi-system-runtime-info-devel.manifest"
 
 capi-system-runtime-info_files = ""
-capi-system-runtime-info_files += "capi-system-runtime-info.manifest"
 capi-system-runtime-info_files += "${prefix}/lib/lib*.so.*"
+MANIFESTFILES_capi-system-${PN} = "capi-system-runtime-info.manifest"
 
 FILES_capi-system-${PN}-dev = "${capi-system-runtime-info-dev_files}"
 FILES_capi-system-${PN} = "${capi-system-runtime-info_files}"

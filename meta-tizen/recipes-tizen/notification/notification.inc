@@ -73,9 +73,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -90,7 +87,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} .
- make -j16
+ make 
  
  
  
@@ -148,10 +145,10 @@ notification-service-dev_files += "${prefix}/include/notification/service/notifi
 notification-service-dev_files += "${prefix}/lib/pkgconfig/notification-service.pc"
 
 notification_files = ""
-notification_files += "notification.manifest"
 notification_files += "${prefix}/lib/libnotification.so*"
 notification_files += "${prefix}/share/notification/notification_DB_init.sh"
 notification_files += "/usr/share/license/notification"
+MANIFESTFILES_${PN} = "notification.manifest"
 
 notification-dev_files = ""
 notification-dev_files += "${prefix}/include/notification/notification.h"

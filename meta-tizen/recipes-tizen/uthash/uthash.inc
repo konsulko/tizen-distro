@@ -42,9 +42,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  #empty
@@ -73,11 +70,11 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " uthash-dev "
 
 uthash-dev_files = ""
-uthash-dev_files += "uthash.manifest"
 uthash-dev_files += "${prefix}/include/utarray.h"
 uthash-dev_files += "${prefix}/include/uthash.h"
 uthash-dev_files += "${prefix}/include/utlist.h"
 uthash-dev_files += "${prefix}/include/utstring.h"
+MANIFESTFILES_${PN}-dev = "uthash.manifest"
 
 FILES_${PN}-dev = "${uthash-dev_files}"
 

@@ -53,9 +53,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -70,7 +67,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DARCH=i586
- make -j16
+ make 
  
  
  
@@ -115,15 +112,15 @@ PACKAGES += " capi-network-tethering-dev "
 PACKAGES += " capi-network-tethering "
 
 capi-network-tethering-dev_files = ""
-capi-network-tethering-dev_files += "capi-network-tethering.manifest"
 capi-network-tethering-dev_files += "${prefix}/include/network/*.h"
 capi-network-tethering-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 capi-network-tethering-dev_files += "${prefix}/lib/*.so"
+MANIFESTFILES_capi-network-${PN}-dev = "capi-network-tethering.manifest"
 
 capi-network-tethering_files = ""
-capi-network-tethering_files += "capi-network-tethering.manifest"
 capi-network-tethering_files += "${prefix}/lib/*.so.*"
 capi-network-tethering_files += "/etc/config/connectivity/sysinfo-tethering.xml"
+MANIFESTFILES_capi-network-${PN} = "capi-network-tethering.manifest"
 
 FILES_capi-network-${PN}-dev = "${capi-network-tethering-dev_files}"
 FILES_capi-network-${PN} = "${capi-network-tethering_files}"

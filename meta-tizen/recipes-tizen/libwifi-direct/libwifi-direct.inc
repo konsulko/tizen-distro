@@ -55,9 +55,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -120,17 +117,17 @@ PACKAGES += " libwifi-direct "
 PACKAGES += " libwifi-direct-dev "
 
 libwifi-direct_files = ""
-libwifi-direct_files += "libwifi-direct.manifest"
 libwifi-direct_files += "${prefix}/lib/libwifi-direct.so"
 libwifi-direct_files += "${prefix}/lib/libwifi-direct.so.0"
 libwifi-direct_files += "${prefix}/lib/libwifi-direct.so.0.0"
 libwifi-direct_files += "/usr/share/license/libwifi-direct"
+MANIFESTFILES_${PN} = "libwifi-direct.manifest"
 
 libwifi-direct-dev_files = ""
-libwifi-direct-dev_files += "libwifi-direct.manifest"
 libwifi-direct-dev_files += "${prefix}/lib/pkgconfig/wifi-direct.pc"
 libwifi-direct-dev_files += "${prefix}/include/wifi-direct/wifi-direct.h"
 libwifi-direct-dev_files += "${prefix}/include/wifi-direct/wifi-direct-internal.h"
+MANIFESTFILES_${PN}-dev = "libwifi-direct.manifest"
 
 FILES_${PN} = "${libwifi-direct_files}"
 FILES_${PN}-dev = "${libwifi-direct-dev_files}"

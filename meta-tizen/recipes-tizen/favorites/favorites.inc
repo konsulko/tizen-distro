@@ -57,9 +57,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -74,7 +71,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DTZ_SYS_SHARE=${prefix}/share
- make -j16
+ make 
  
  
  
@@ -131,15 +128,15 @@ PACKAGES += " capi-web-favorites "
 PACKAGES += " capi-web-favorites-dev "
 
 capi-web-favorites_files = ""
-capi-web-favorites_files += "capi-web-favorites.manifest"
 capi-web-favorites_files += "${prefix}/lib/libcapi-web-favorites.so"
 capi-web-favorites_files += "${prefix}/share/capi-web-favorites/internet_bookmark_DB_init.sh"
 capi-web-favorites_files += "${prefix}/share/capi-web-favorites/browser_history_DB_init.sh"
+MANIFESTFILES_capi-web-${PN} = "capi-web-favorites.manifest"
 
 capi-web-favorites-dev_files = ""
-capi-web-favorites-dev_files += "capi-web-favorites.manifest"
 capi-web-favorites-dev_files += "${prefix}/include/web/*.h"
 capi-web-favorites-dev_files += "${prefix}/lib/pkgconfig/*.pc"
+MANIFESTFILES_capi-web-${PN}-dev = "capi-web-favorites.manifest"
 
 FILES_capi-web-${PN} = "${capi-web-favorites_files}"
 FILES_capi-web-${PN}-dev = "${capi-web-favorites-dev_files}"

@@ -55,9 +55,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 0.2.0 | awk 'BEGIN {FS="."}{print $1}'`
@@ -73,8 +70,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DFULLVER=0.2.0 -DMAJORVER=${MAJORVER} -DENABLE_WAYLAND=TRUE
- 
- make ${PARALLEL_MAKE}
+ oe_runmake ${PARALLEL_MAKE}
  
  
  
@@ -121,16 +117,15 @@ PACKAGES += " capi-system-info-dev "
 PACKAGES += " capi-system-info "
 
 capi-system-info-dev_files = ""
-capi-system-info-dev_files += "capi-system-info.manifest"
 capi-system-info-dev_files += "${prefix}/include/system/system_info.h"
 capi-system-info-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 capi-system-info-dev_files += "${prefix}/lib/libcapi-system-info.so"
+MANIFESTFILES_capi-${PN}-dev = "capi-system-info.manifest"
 
 capi-system-info_files = ""
-capi-system-info_files += "capi-system-info.manifest"
 capi-system-info_files += "${prefix}/lib/libcapi-system-info.so.*"
 capi-system-info_files += "${sysconfdir}/make_info_file.sh"
-capi-system-info_files += "system-info.manifest"
+MANIFESTFILES_capi-${PN} = "capi-system-info.manifest"
 
 FILES_capi-${PN}-dev = "${capi-system-info-dev_files}"
 FILES_capi-${PN} = "${capi-system-info_files}"

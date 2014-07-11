@@ -58,9 +58,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  CFLAGS+=" -fpic"
@@ -164,7 +161,6 @@ PACKAGES += " ail "
 PACKAGES += " ail-dev "
 
 ail_files = ""
-ail_files += "ail.manifest"
 ail_files += "${prefix}/share/applications"
 ail_files += "${prefix}/bin/ail_initdb"
 ail_files += "${prefix}/bin/ail_initdb"
@@ -175,12 +171,15 @@ ail_files += "${prefix}/bin/ail_package"
 ail_files += "${prefix}/share/install-info/*"
 ail_files += "${prefix}/lib/libail.so.0"
 ail_files += "${prefix}/lib/libail.so.0.1.0"
+MANIFESTFILES_${PN} = "ail.manifest"
+DIRFILES_${PN} = ""
+DIRFILES_${PN} += "${prefix}/share/applications"
 
 ail-dev_files = ""
-ail-dev_files += "ail.manifest"
 ail-dev_files += "${prefix}/include/ail.h"
 ail-dev_files += "${prefix}/lib/libail.so"
 ail-dev_files += "${prefix}/lib/pkgconfig/ail.pc"
+MANIFESTFILES_${PN}-dev = "ail.manifest"
 
 FILES_${PN} = "${ail_files}"
 FILES_${PN}-dev = "${ail-dev_files}"

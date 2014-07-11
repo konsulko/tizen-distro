@@ -38,7 +38,6 @@ do_prep() {
  cp ${S}/packaging/capi-location-manager.manifest .
  
  
- 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -52,9 +51,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 0.1.11 | awk 'BEGIN {FS="."}{print $1}'`
@@ -70,8 +66,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DFULLVER=0.1.11 -DMAJORVER=${MAJORVER}
- 
- make 
+ oe_runmake 
  
  
  
@@ -116,15 +111,14 @@ PACKAGES += " capi-location-manager-dev "
 PACKAGES += " capi-location-manager "
 
 capi-location-manager-dev_files = ""
-capi-location-manager-dev_files += "capi-location-manager.manifest"
 capi-location-manager-dev_files += "${prefix}/include/location/*.h"
 capi-location-manager-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 capi-location-manager-dev_files += "${prefix}/lib/libcapi-location-manager.so"
+MANIFESTFILES_capi-${PN}-dev = "capi-location-manager.manifest"
 
 capi-location-manager_files = ""
-capi-location-manager_files += "capi-location-manager.manifest"
-capi-location-manager_files += "capi-location-manager.manifest"
 capi-location-manager_files += "${prefix}/lib/libcapi-location-manager.so.*"
+MANIFESTFILES_capi-${PN} = "capi-location-manager.manifest"
 
 FILES_capi-${PN}-dev = "${capi-location-manager-dev_files}"
 FILES_capi-${PN} = "${capi-location-manager_files}"

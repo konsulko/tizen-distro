@@ -1,6 +1,6 @@
 DESCRIPTION = "An Application library in SLP C API"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "API"
+SECTION = "System/API"
 LICENSE = "Apache-2.0"
 
 SRC_URI = ""
@@ -60,9 +60,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 0.1.0 | awk 'BEGIN {FS="."}{print $1}'`
@@ -78,9 +75,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DFULLVER=0.1.0 -DMAJORVER=${MAJORVER}
- 
- 
- make 
+ oe_runmake 
  
  
  
@@ -105,9 +100,8 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- 
- mkdir -p ${D}/usr/share/license
- cp LICENSE ${D}/usr/share/license/capi-appfw-application
+ mkdir -p ${D}${prefix}/share/license
+ cp LICENSE ${D}${prefix}/share/license/capi-appfw-application
  
  
 }
@@ -129,16 +123,15 @@ PACKAGES += " capi-appfw-application-dev "
 PACKAGES += " capi-appfw-application "
 
 capi-appfw-application-dev_files = ""
-capi-appfw-application-dev_files += "capi-appfw-application.manifest"
 capi-appfw-application-dev_files += "${prefix}/include/appfw/*.h"
 capi-appfw-application-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 capi-appfw-application-dev_files += "${prefix}/lib/libcapi-appfw-application.so"
+MANIFESTFILES_capi-appfw-${PN}-dev = "capi-appfw-application.manifest"
 
 capi-appfw-application_files = ""
-capi-appfw-application_files += "capi-appfw-application.manifest"
 capi-appfw-application_files += "${prefix}/lib/libcapi-appfw-application.so.*"
-capi-appfw-application_files += "capi-appfw-application.manifest"
-capi-appfw-application_files += "/usr/share/license/capi-appfw-application"
+capi-appfw-application_files += "${prefix}/share/license/capi-appfw-application"
+MANIFESTFILES_capi-appfw-${PN} = "capi-appfw-application.manifest"
 
 FILES_capi-appfw-${PN}-dev = "${capi-appfw-application-dev_files}"
 FILES_capi-appfw-${PN} = "${capi-appfw-application_files}"

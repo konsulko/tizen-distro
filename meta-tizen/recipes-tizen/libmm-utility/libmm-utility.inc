@@ -1,7 +1,7 @@
 DESCRIPTION = "Multimedia Framework Utility Library"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
-LICENSE = "Apache"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -36,7 +36,6 @@ DEPENDS = ""
 #DEPENDS of libmm-utility
 DEPENDS += "libmm-common"
 DEPENDS += "libjpeg-turbo"
-DEPENDS += "tizen-platform-config"
 DEPENDS += "libmm-log"
 DEPENDS += "glib-2.0"
 DEPENDS += "libmm-ta"
@@ -58,46 +57,23 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- ./autogen.sh
- 
- CFLAGS="$CFLAGS -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" -D_MM_PROJECT_FLOATER" \
- LDFLAGS+="-Wl,--rpath=${prefix}/lib -Wl,--hash-style=both -Wl,--as-needed" \
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir}
- make 
- 
- sed -i -e "s#@IMGP_REQPKG@#$IMGP_REQPKG#g" imgp/mmutil-imgp.pc
- sed -i -e "s#@JPEG_REQPKG@#$JPEG_REQPKG#g" jpeg/mmutil-jpeg.pc
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  mkdir -p m4
+  CFLAGS="$CFLAGS -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" -D_MM_PROJECT_FLOATER"   LDFLAGS+="-Wl,--rpath=${prefix}/lib -Wl,--hash-style=both -Wl,--as-needed"   
+  autotools_do_configure
+  oe_runmake 
+  
+  sed -i -e "s#@IMGP_REQPKG@#$IMGP_REQPKG#g" imgp/mmutil-imgp.pc
+  sed -i -e "s#@JPEG_REQPKG@#$JPEG_REQPKG#g" jpeg/mmutil-jpeg.pc
+  
+  
+  
 }
+EXTRA_OECONF += ""
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -118,8 +94,8 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/usr/share/license
- cp LICENSE ${D}/usr/share/license/libmm-utility
+ mkdir -p ${D}${prefix}/share/license
+ cp LICENSE ${D}${prefix}/share/license/libmm-utility
  
  
 }
@@ -142,19 +118,18 @@ PACKAGES += " libmm-utility-dev "
 PACKAGES += " libmm-utility-tool "
 
 libmm-utility_files = ""
-libmm-utility_files += "libmm-utility.manifest"
-libmm-utility_files += "/usr/share/license/libmm-utility"
-libmm-utility_files += "libmm-utility.manifest"
+libmm-utility_files += "${prefix}/share/license/libmm-utility"
 libmm-utility_files += "${prefix}/lib/*.so*"
+MANIFESTFILES_${PN} = "libmm-utility.manifest"
 
 libmm-utility-dev_files = ""
-libmm-utility-dev_files += "libmm-utility.manifest"
 libmm-utility-dev_files += "${prefix}/include/*"
 libmm-utility-dev_files += "${prefix}/lib/pkgconfig/*"
+MANIFESTFILES_${PN}-dev = "libmm-utility.manifest"
 
 libmm-utility-tool_files = ""
-libmm-utility-tool_files += "libmm-utility.manifest"
 libmm-utility-tool_files += "${prefix}/bin/*_testsuite"
+MANIFESTFILES_${PN}-tool = "libmm-utility.manifest"
 
 FILES_${PN} = "${libmm-utility_files}"
 FILES_${PN}-dev = "${libmm-utility-dev_files}"

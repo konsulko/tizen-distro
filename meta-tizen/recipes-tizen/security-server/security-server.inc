@@ -94,9 +94,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -232,19 +229,18 @@ PACKAGES += " libsecurity-server-client "
 PACKAGES += " libsecurity-server-client-dev "
 
 libsecurity-manager-client_files = ""
-libsecurity-manager-client_files += "libsecurity-manager-client.manifest"
 libsecurity-manager-client_files += "${prefix}/lib/libsecurity-manager-client.so.*"
 libsecurity-manager-client_files += "${prefix}/share/license/libsecurity-manager-client"
+MANIFESTFILES_libsecurity-manager-client = "libsecurity-manager-client.manifest"
 
 libsecurity-manager-client-dev_files = ""
-libsecurity-manager-client-dev_files += "security-server.manifest"
 libsecurity-manager-client-dev_files += "${prefix}/lib/libsecurity-manager-client.so"
 libsecurity-manager-client-dev_files += "${prefix}/lib/libsecurity-server-commons.so"
 libsecurity-manager-client-dev_files += "${prefix}/include/security-manager/security-manager.h"
 libsecurity-manager-client-dev_files += "${prefix}/lib/pkgconfig/security-manager.pc"
+MANIFESTFILES_libsecurity-manager-client-dev = "security-server.manifest"
 
 security-server_files = ""
-security-server_files += "security-server.manifest"
 security-server_files += "/usr/bin/security-server"
 security-server_files += "${prefix}/lib/libsecurity-server-commons.so.*"
 security-server_files += "/usr/lib/systemd/system/multi-user.target.wants/security-server.service"
@@ -272,18 +268,19 @@ security-server_files += "/usr/lib/systemd/system/security-server-password-reset
 security-server_files += "/usr/lib/systemd/system/sockets.target.wants/security-manager-installer.socket"
 security-server_files += "/usr/lib/systemd/system/security-manager-installer.socket"
 security-server_files += "${prefix}/share/license/security-server"
+MANIFESTFILES_${PN} = "security-server.manifest"
 
 libsecurity-server-client_files = ""
-libsecurity-server-client_files += "libsecurity-server-client.manifest"
 libsecurity-server-client_files += "${prefix}/lib/libsecurity-server-client.so.*"
 libsecurity-server-client_files += "${prefix}/share/license/libsecurity-server-client"
+MANIFESTFILES_lib${PN}-client = "libsecurity-server-client.manifest"
 
 libsecurity-server-client-dev_files = ""
-libsecurity-server-client-dev_files += "security-server.manifest"
 libsecurity-server-client-dev_files += "${prefix}/lib/libsecurity-server-client.so"
 libsecurity-server-client-dev_files += "${prefix}/lib/libsecurity-server-commons.so"
 libsecurity-server-client-dev_files += "${prefix}/include/security-server/security-server.h"
 libsecurity-server-client-dev_files += "${prefix}/lib/pkgconfig/security-server.pc"
+MANIFESTFILES_lib${PN}-client-dev = "security-server.manifest"
 
 FILES_libsecurity-manager-client = "${libsecurity-manager-client_files}"
 FILES_libsecurity-manager-client-dev = "${libsecurity-manager-client-dev_files}"

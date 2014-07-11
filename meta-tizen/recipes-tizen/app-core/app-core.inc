@@ -84,9 +84,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -169,27 +166,27 @@ PACKAGES += " app-core-common "
 PACKAGES += " app-core-common-dev "
 
 app-core-efl-dev_files = ""
-app-core-efl-dev_files += "app-core.manifest"
 app-core-efl-dev_files += "${prefix}/include/appcore/appcore-efl.h"
 app-core-efl-dev_files += "${prefix}/lib/libappcore-efl.so"
 app-core-efl-dev_files += "${prefix}/lib/pkgconfig/appcore-efl.pc"
+MANIFESTFILES_${PN}-efl-dev = "app-core.manifest"
 
 app-core-efl_files = ""
-app-core-efl_files += "app-core.manifest"
 app-core-efl_files += "${prefix}/lib/libappcore-efl.so.*"
+MANIFESTFILES_${PN}-efl = "app-core.manifest"
 
 app-core-common_files = ""
-app-core-common_files += "app-core.manifest"
 app-core-common_files += "${prefix}/lib/libappcore-common.so.*"
 app-core-common_files += "${prefix}/lib/systemd/user/core-efl.target"
 app-core-common_files += "${prefix}/lib/systemd/user/core-efl.target.wants/"
+MANIFESTFILES_${PN}-common = "app-core.manifest"
 
 app-core-common-dev_files = ""
-app-core-common-dev_files += "app-core.manifest"
 app-core-common-dev_files += "${prefix}/lib/libappcore-common.so"
 app-core-common-dev_files += "${prefix}/lib/pkgconfig/appcore-common.pc"
 app-core-common-dev_files += "${prefix}/include/appcore/appcore-common.h"
 app-core-common-dev_files += "${prefix}/include/SLP_Appcore_PG.h"
+MANIFESTFILES_${PN}-common-dev = "app-core.manifest"
 
 FILES_${PN}-efl-dev = "${app-core-efl-dev_files}"
 FILES_${PN}-efl = "${app-core-efl_files}"

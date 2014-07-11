@@ -68,9 +68,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -85,7 +82,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . 
- make -j16
+ make 
  
  
  
@@ -147,7 +144,6 @@ PACKAGES += " pkgmgr-info-dev "
 PACKAGES += " pkgmgr-info "
 
 pkgmgr-info-parser_files = ""
-pkgmgr-info-parser_files += "pkgmgr-info.manifest"
 pkgmgr-info-parser_files += "${prefix}/lib/libpkgmgr_parser.so.*"
 pkgmgr-info-parser_files += "${sysconfdir}/package-manager/preload/preload_list.txt"
 pkgmgr-info-parser_files += "${sysconfdir}/package-manager/preload/manifest.xsd"
@@ -156,24 +152,35 @@ pkgmgr-info-parser_files += "${sysconfdir}/package-manager/parser_path.conf"
 pkgmgr-info-parser_files += "${sysconfdir}/package-manager/parserlib/metadata/mdparser_list.txt"
 pkgmgr-info-parser_files += "${sysconfdir}/package-manager/parserlib/category/category_parser_list.txt"
 pkgmgr-info-parser_files += "${sysconfdir}/package-manager/parserlib/tag_parser_list.txt"
+CONFFILES_${PN}-parser = ""
+CONFFILES_${PN}-parser += "${sysconfdir}/package-manager/preload/preload_list.txt"
+CONFFILES_${PN}-parser += "${sysconfdir}/package-manager/preload/manifest.xsd"
+CONFFILES_${PN}-parser += "${sysconfdir}/package-manager/preload/xml.xsd"
+CONFFILES_${PN}-parser += "${sysconfdir}/package-manager/parser_path.conf"
+CONFFILES_${PN}-parser += "${sysconfdir}/package-manager/parserlib/metadata/mdparser_list.txt"
+CONFFILES_${PN}-parser += "${sysconfdir}/package-manager/parserlib/category/category_parser_list.txt"
+CONFFILES_${PN}-parser += "${sysconfdir}/package-manager/parserlib/tag_parser_list.txt"
+MANIFESTFILES_${PN}-parser = "pkgmgr-info.manifest"
 
 pkgmgr-info-parser-dev_files = ""
-pkgmgr-info-parser-dev_files += "pkgmgr-info.manifest"
 pkgmgr-info-parser-dev_files += "${prefix}/include/pkgmgr/pkgmgr_parser.h"
 pkgmgr-info-parser-dev_files += "${prefix}/include/pkgmgr/pkgmgr_parser_db.h"
 pkgmgr-info-parser-dev_files += "${prefix}/lib/pkgconfig/pkgmgr-parser.pc"
 pkgmgr-info-parser-dev_files += "${prefix}/lib/libpkgmgr_parser.so"
+MANIFESTFILES_${PN}-parser-dev = "pkgmgr-info.manifest"
 
 pkgmgr-info-dev_files = ""
-pkgmgr-info-dev_files += "pkgmgr-info.manifest"
 pkgmgr-info-dev_files += "${prefix}/include/pkgmgr-info.h"
 pkgmgr-info-dev_files += "${prefix}/lib/pkgconfig/pkgmgr-info.pc"
 pkgmgr-info-dev_files += "${prefix}/lib/libpkgmgr-info.so"
+MANIFESTFILES_${PN}-dev = "pkgmgr-info.manifest"
 
 pkgmgr-info_files = ""
-pkgmgr-info_files += "pkgmgr-info.manifest"
 pkgmgr-info_files += "${prefix}/lib/libpkgmgr-info.so.*"
 pkgmgr-info_files += "${prefix}/share/packages"
+MANIFESTFILES_${PN} = "pkgmgr-info.manifest"
+DIRFILES_${PN} = ""
+DIRFILES_${PN} += "${prefix}/share/packages"
 
 FILES_${PN}-parser = "${pkgmgr-info-parser_files}"
 FILES_${PN}-parser-dev = "${pkgmgr-info-parser-dev_files}"

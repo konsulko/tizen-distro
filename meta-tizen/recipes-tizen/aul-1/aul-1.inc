@@ -68,9 +68,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -174,7 +171,6 @@ PACKAGES += " aul "
 PACKAGES += " aul-dev "
 
 aul_files = ""
-aul_files += "aul.manifest"
 aul_files += "${prefix}/lib/libaul.so.0"
 aul_files += "${prefix}/lib/libaul.so.0.1.0"
 aul_files += "${sysconfdir}/init.d/launchpad_run"
@@ -202,6 +198,7 @@ aul_files += "/usr/lib/systemd/user/default.target.wants/amd_session_agent.servi
 aul_files += "/usr/bin/amd"
 aul_files += "/usr/bin/daemon-manager-release-agent"
 aul_files += "/usr/bin/daemon-manager-launch-agent"
+MANIFESTFILES_aul = "aul.manifest"
 
 aul-dev_files = ""
 aul-dev_files += "/usr/include/aul/*.h"

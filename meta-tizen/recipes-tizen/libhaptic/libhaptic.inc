@@ -53,9 +53,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  cp ${S}/packaging/libhaptic.manifest .
@@ -71,7 +68,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} .
- make -j16
+ make 
  
  
  
@@ -119,22 +116,22 @@ PACKAGES += " libhaptic-dev "
 PACKAGES += " libhaptic-plugin-dev "
 
 libhaptic_files = ""
-libhaptic_files += "libhaptic.manifest"
 libhaptic_files += "${prefix}/lib/libhaptic.so.*"
 libhaptic_files += "${prefix}/share/license/haptic"
+MANIFESTFILES_${PN} = "libhaptic.manifest"
 
 libhaptic-dev_files = ""
-libhaptic-dev_files += "libhaptic.manifest"
 libhaptic-dev_files += "${prefix}/include/haptic/haptic.h"
 libhaptic-dev_files += "${prefix}/include/haptic/SLP_HAPTIC_PG.h"
 libhaptic-dev_files += "${prefix}/lib/libhaptic.so"
 libhaptic-dev_files += "${prefix}/lib/pkgconfig/haptic.pc"
+MANIFESTFILES_${PN}-dev = "libhaptic.manifest"
 
 libhaptic-plugin-dev_files = ""
-libhaptic-plugin-dev_files += "libhaptic.manifest"
 libhaptic-plugin-dev_files += "${prefix}/include/haptic/haptic_module.h"
 libhaptic-plugin-dev_files += "${prefix}/include/haptic/haptic_plugin_intf.h"
 libhaptic-plugin-dev_files += "${prefix}/lib/pkgconfig/haptic-plugin.pc"
+MANIFESTFILES_${PN}-plugin-dev = "libhaptic.manifest"
 
 FILES_${PN} = "${libhaptic_files}"
 FILES_${PN}-dev = "${libhaptic-dev_files}"

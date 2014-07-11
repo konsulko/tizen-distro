@@ -44,40 +44,20 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=noarch-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir}
- cp ${S}/packaging/hwdata.manifest .
- 
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  
+  autotools_do_configure
+  cp ${S}/packaging/hwdata.manifest .
+  
+  
+  
+  
 }
+EXTRA_OECONF += ""
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -113,10 +93,12 @@ PACKAGES += " hwdata "
 PACKAGES += " hwdata-ivi "
 
 hwdata_files = ""
-hwdata_files += "hwdata.manifest"
 hwdata_files += "${sysconfdir}/modprobe.d/blacklist.conf"
 hwdata_files += "${prefix}/share/hwdata"
 hwdata_files += "${prefix}/share/hwdata/*"
+MANIFESTFILES_${PN} = "hwdata.manifest"
+DIRFILES_${PN} = ""
+DIRFILES_${PN} += "${prefix}/share/hwdata"
 
 hwdata-ivi_files = ""
 hwdata-ivi_files += "${sysconfdir}/modprobe.d/video.conf"

@@ -51,9 +51,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -68,7 +65,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} .
- make -j16
+ make 
  
  
  
@@ -113,15 +110,15 @@ PACKAGES += " bundle-dev "
 PACKAGES += " bundle "
 
 bundle-dev_files = ""
-bundle-dev_files += "bundle.manifest"
 bundle-dev_files += "${prefix}/include/bundle.h"
 bundle-dev_files += "${prefix}/include/SLP_bundle_PG.h"
 bundle-dev_files += "${prefix}/lib/pkgconfig/bundle.pc"
 bundle-dev_files += "${prefix}/lib/libbundle.so"
+MANIFESTFILES_${PN}-dev = "bundle.manifest"
 
 bundle_files = ""
-bundle_files += "bundle.manifest"
 bundle_files += "${prefix}/lib/libbundle.so.*"
+MANIFESTFILES_${PN} = "bundle.manifest"
 
 FILES_${PN}-dev = "${bundle-dev_files}"
 FILES_${PN} = "${bundle_files}"

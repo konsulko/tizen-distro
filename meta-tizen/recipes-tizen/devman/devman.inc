@@ -61,9 +61,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  cp ${S}/packaging/devman.manifest .
@@ -79,7 +76,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} .
- make -j16
+ make 
  
  
  
@@ -125,24 +122,24 @@ PACKAGES += " libdevman-haptic-dev "
 PACKAGES += " libdevman "
 
 libdevman-dev_files = ""
-libdevman-dev_files += "devman.manifest"
 libdevman-dev_files += "${prefix}/include/devman/devman.h"
 libdevman-dev_files += "${prefix}/include/devman/devman_managed.h"
 libdevman-dev_files += "${prefix}/include/devman/devman_image.h"
 libdevman-dev_files += "${prefix}/include/devman/devman_haptic.h"
 libdevman-dev_files += "${prefix}/lib/pkgconfig/devman.pc"
 libdevman-dev_files += "${prefix}/lib/libdevman.so"
+MANIFESTFILES_lib${PN}-dev = "devman.manifest"
 
 libdevman-haptic-dev_files = ""
-libdevman-haptic-dev_files += "devman.manifest"
 libdevman-haptic-dev_files += "${prefix}/include/devman/devman_haptic_ext.h"
 libdevman-haptic-dev_files += "${prefix}/include/devman/devman_haptic_ext_core.h"
 libdevman-haptic-dev_files += "${prefix}/lib/pkgconfig/devman_haptic.pc"
+MANIFESTFILES_lib${PN}-haptic-dev = "devman.manifest"
 
 libdevman_files = ""
-libdevman_files += "devman.manifest"
 libdevman_files += "${prefix}/bin/display_wd"
 libdevman_files += "${prefix}/lib/libdevman.so.*"
+MANIFESTFILES_lib${PN} = "devman.manifest"
 
 FILES_lib${PN}-dev = "${libdevman-dev_files}"
 FILES_lib${PN}-haptic-dev = "${libdevman-haptic-dev_files}"

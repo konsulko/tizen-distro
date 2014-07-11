@@ -56,42 +56,22 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} --disable-static
- oe_runmake ${PARALLEL_MAKE}
- 
- exit 0
- oe_runmake check
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  
+  autotools_do_configure
+  oe_runmake ${PARALLEL_MAKE}
+  
+  exit 0
+  oe_runmake check
+  
+  
+  
 }
+EXTRA_OECONF += " --disable-static"
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -134,25 +114,29 @@ PACKAGES += " tizen-platform-config "
 PACKAGES += " libtzplatform-config "
 
 libtzplatform-config-dev_files = ""
-libtzplatform-config-dev_files += "tizen-platform-config.manifest"
 libtzplatform-config-dev_files += "LGPL-2.0 LGPL_2.0"
 libtzplatform-config-dev_files += "${prefix}/lib/*.so"
 libtzplatform-config-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 libtzplatform-config-dev_files += "${prefix}/include/*.h"
 libtzplatform-config-dev_files += "${sysconfdir}/rpm/macros.tizen-platform"
+CONFFILES_libtzplatform-config-dev = ""
+CONFFILES_libtzplatform-config-dev += "${sysconfdir}/rpm/macros.tizen-platform"
+MANIFESTFILES_libtzplatform-config-dev = "tizen-platform-config.manifest"
 
 tizen-platform-config-tools_files = ""
-tizen-platform-config-tools_files += "tizen-platform-config.manifest"
 tizen-platform-config-tools_files += "${prefix}/bin/*"
+MANIFESTFILES_${PN}-tools = "tizen-platform-config.manifest"
 
 tizen-platform-config_files = ""
-tizen-platform-config_files += "tizen-platform-config.manifest"
 tizen-platform-config_files += "LGPL-2.0 MIT"
 tizen-platform-config_files += "${sysconfdir}/tizen-platform.conf"
+CONFFILES_${PN} = ""
+CONFFILES_${PN} += "${sysconfdir}/tizen-platform.conf"
+MANIFESTFILES_${PN} = "tizen-platform-config.manifest"
 
 libtzplatform-config_files = ""
-libtzplatform-config_files += "tizen-platform-config.manifest"
 libtzplatform-config_files += "${prefix}/lib/*.so.*"
+MANIFESTFILES_libtzplatform-config = "tizen-platform-config.manifest"
 
 FILES_libtzplatform-config-dev = "${libtzplatform-config-dev_files}"
 FILES_${PN}-tools = "${tizen-platform-config-tools_files}"

@@ -103,9 +103,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -221,7 +218,6 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " crosswalk "
 
 crosswalk_files = ""
-crosswalk_files += "crosswalk.manifest"
 crosswalk_files += "${prefix}/bin/xwalk"
 crosswalk_files += "${prefix}/bin/xwalkctl"
 crosswalk_files += "${prefix}/bin/xwalk-launcher"
@@ -234,6 +230,7 @@ crosswalk_files += "/usr/share/packages/crosswalk.xml"
 crosswalk_files += "/usr/share/icons/default/small/crosswalk.png"
 crosswalk_files += "/usr/share/dbus-1/services/org.crosswalkproject.Runtime1.service"
 crosswalk_files += "/usr/lib/systemd/user/xwalk.service"
+MANIFESTFILES_${PN} = "crosswalk.manifest"
 
 FILES_${PN} = "${crosswalk_files}"
 

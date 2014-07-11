@@ -45,9 +45,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -96,9 +93,9 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " vconf-internal-keys-dev "
 
 vconf-internal-keys-dev_files = ""
-vconf-internal-keys-dev_files += "vconf-internal-keys.manifest"
 vconf-internal-keys-dev_files += "${prefix}/include/vconf/*"
 vconf-internal-keys-dev_files += "${prefix}/lib/pkgconfig/*.pc"
+MANIFESTFILES_${PN}-dev = "vconf-internal-keys.manifest"
 
 FILES_${PN}-dev = "${vconf-internal-keys-dev_files}"
 

@@ -38,7 +38,6 @@ do_prep() {
  #setup -q
  
  
- 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -52,9 +51,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  cp ${S}/packaging/capi-system-device.manifest .
@@ -71,8 +67,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DFULLVER=0.1.0 -DMAJORVER=${MAJORVER}
- 
- make 
+ oe_runmake 
  
  
  
@@ -117,15 +112,14 @@ PACKAGES += " capi-system-device-dev "
 PACKAGES += " capi-system-device "
 
 capi-system-device-dev_files = ""
-capi-system-device-dev_files += "capi-system-device.manifest"
 capi-system-device-dev_files += "${prefix}/include/system/device.h"
 capi-system-device-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 capi-system-device-dev_files += "${prefix}/lib/libcapi-system-device.so"
+MANIFESTFILES_capi-system-${PN}-dev = "capi-system-device.manifest"
 
 capi-system-device_files = ""
-capi-system-device_files += "capi-system-device.manifest"
-capi-system-device_files += "capi-system-device.manifest"
 capi-system-device_files += "${prefix}/lib/libcapi-system-device.so.*"
+MANIFESTFILES_capi-system-${PN} = "capi-system-device.manifest"
 
 FILES_capi-system-${PN}-dev = "${capi-system-device-dev_files}"
 FILES_capi-system-${PN} = "${capi-system-device_files}"

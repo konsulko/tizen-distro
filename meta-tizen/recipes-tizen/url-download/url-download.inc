@@ -51,9 +51,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -116,16 +113,16 @@ PACKAGES += " capi-web-url-download "
 PACKAGES += " capi-web-url-download-dev "
 
 capi-web-url-download_files = ""
-capi-web-url-download_files += "capi-web-url-download.manifest"
 capi-web-url-download_files += "${prefix}/lib/libcapi-web-url-download.so.*"
 capi-web-url-download_files += "/usr/share/license/capi-web-url-download"
+MANIFESTFILES_capi-web-${PN} = "capi-web-url-download.manifest"
 
 capi-web-url-download-dev_files = ""
-capi-web-url-download-dev_files += "capi-web-url-download.manifest"
 capi-web-url-download-dev_files += "${prefix}/lib/libcapi-web-url-download.so"
 capi-web-url-download-dev_files += "${prefix}/lib/pkgconfig/capi-web-url-download.pc"
 capi-web-url-download-dev_files += "${prefix}/include/web/download.h"
 capi-web-url-download-dev_files += "${prefix}/include/web/download_doc.h"
+MANIFESTFILES_capi-web-${PN}-dev = "capi-web-url-download.manifest"
 
 FILES_capi-web-${PN} = "${capi-web-url-download_files}"
 FILES_capi-web-${PN}-dev = "${capi-web-url-download-dev_files}"

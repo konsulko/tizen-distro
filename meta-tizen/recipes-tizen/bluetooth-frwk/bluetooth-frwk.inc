@@ -82,9 +82,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -170,7 +167,6 @@ PACKAGES += " bluetooth-frwk-service "
 PACKAGES += " bluetooth-frwk "
 
 bluetooth-frwk-dev_files = ""
-bluetooth-frwk-dev_files += "bluetooth-frwk.manifest"
 bluetooth-frwk-dev_files += "${prefix}/include/bt-service/bluetooth-api.h"
 bluetooth-frwk-dev_files += "${prefix}/include/bt-service/bluetooth-hid-api.h"
 bluetooth-frwk-dev_files += "${prefix}/include/bt-service/bluetooth-audio-api.h"
@@ -178,15 +174,15 @@ bluetooth-frwk-dev_files += "${prefix}/include/bt-service/bluetooth-telephony-ap
 bluetooth-frwk-dev_files += "${prefix}/include/bt-service/bluetooth-media-control.h"
 bluetooth-frwk-dev_files += "${prefix}/lib/pkgconfig/bluetooth-api.pc"
 bluetooth-frwk-dev_files += "${prefix}/lib/libbluetooth-api.so"
+MANIFESTFILES_${PN}-dev = "bluetooth-frwk.manifest"
 
 bluetooth-frwk-core_files = ""
-bluetooth-frwk-core_files += "bluetooth-frwk.manifest"
 bluetooth-frwk-core_files += "${prefix}/share/dbus-1/system-services/org.projectx.bt_core.service"
 bluetooth-frwk-core_files += "${prefix}/bin/bt-core"
 bluetooth-frwk-core_files += "${sysconfdir}/dbus-1/system.d/bluetooth-frwk-core.conf"
+MANIFESTFILES_${PN}-core = "bluetooth-frwk.manifest"
 
 bluetooth-frwk-service_files = ""
-bluetooth-frwk-service_files += "bluetooth-frwk.manifest"
 bluetooth-frwk-service_files += "${prefix}/share/dbus-1/system-services/org.projectx.bt.service"
 bluetooth-frwk-service_files += "${sysconfdir}/rc.d/init.d/bluetooth-frwk-service"
 bluetooth-frwk-service_files += "${sysconfdir}/rc.d/rc3.d/S80bluetooth-frwk-service"
@@ -196,10 +192,11 @@ bluetooth-frwk-service_files += "/lib/systemd/user/tizen-middleware.target.wants
 bluetooth-frwk-service_files += "/lib/systemd/user/bluetooth-frwk-service.service"
 bluetooth-frwk-service_files += "/opt/var/lib/bluetooth/auto-pair-blacklist"
 bluetooth-frwk-service_files += "${sysconfdir}/dbus-1/system.d/bluetooth-frwk-service.conf"
+MANIFESTFILES_${PN}-service = "bluetooth-frwk.manifest"
 
 bluetooth-frwk_files = ""
-bluetooth-frwk_files += "bluetooth-frwk.manifest"
 bluetooth-frwk_files += "${prefix}/lib/libbluetooth-api.so.*"
+MANIFESTFILES_${PN} = "bluetooth-frwk.manifest"
 
 FILES_${PN}-dev = "${bluetooth-frwk-dev_files}"
 FILES_${PN}-core = "${bluetooth-frwk-core_files}"

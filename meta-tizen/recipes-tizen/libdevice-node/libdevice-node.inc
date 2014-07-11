@@ -49,9 +49,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -66,7 +63,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} .
- make -j16
+ make 
  
  
  
@@ -112,7 +109,7 @@ PACKAGES += " libdevice-node-dev "
 
 libdevice-node_files = ""
 libdevice-node_files += "${prefix}/lib/*.so.*"
-libdevice-node_files += "libdevice-node.manifest"
+MANIFESTFILES_${PN} = "libdevice-node.manifest"
 
 libdevice-node-dev_files = ""
 libdevice-node-dev_files += "${prefix}/include/device-node/*.h"

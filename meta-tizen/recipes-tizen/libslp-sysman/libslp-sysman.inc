@@ -56,9 +56,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  cp ${S}/packaging/sysman.manifest .
@@ -130,24 +127,24 @@ PACKAGES += " sysman-dev "
 PACKAGES += " sysman "
 
 sysman-internal-dev_files = ""
-sysman-internal-dev_files += "sysman.manifest"
 sysman-internal-dev_files += "${prefix}/include/sysman/sysman-internal.h"
+MANIFESTFILES_sysman-internal-dev = "sysman.manifest"
 
 sysman-dev_files = ""
-sysman-dev_files += "sysman.manifest"
 sysman-dev_files += "${prefix}/include/sysman/sysman.h"
 sysman-dev_files += "${prefix}/include/sysman/sysman_managed.h"
 sysman-dev_files += "${prefix}/include/sysman/SLP_sysman_PG.h"
 sysman-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 sysman-dev_files += "${prefix}/lib/*.so"
+MANIFESTFILES_sysman-dev = "sysman.manifest"
 
 sysman_files = ""
-sysman_files += "sysman.manifest"
 sysman_files += "${prefix}/lib/*.so.*"
 sysman_files += "${prefix}/bin/*"
 sysman_files += "${sysconfdir}/rc.d/init.d/*"
 sysman_files += "${sysconfdir}/rc.d/rc3.d/*"
 sysman_files += "${sysconfdir}/rc.d/rc5.d/*"
+MANIFESTFILES_sysman = "sysman.manifest"
 
 FILES_sysman-internal-dev = "${sysman-internal-dev_files}"
 FILES_sysman-dev = "${sysman-dev_files}"

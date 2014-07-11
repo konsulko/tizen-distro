@@ -45,9 +45,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  make prefix=${prefix}  ${PARALLEL_MAKE} CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -fPIC"
@@ -106,14 +103,14 @@ PACKAGES += " iniparser-dev "
 PACKAGES += " iniparser "
 
 iniparser-dev_files = ""
-iniparser-dev_files += "iniparser.manifest"
 iniparser-dev_files += "${prefix}/include/*.h"
 iniparser-dev_files += "${prefix}/lib/*.so"
 iniparser-dev_files += "${prefix}/lib/pkgconfig/*.pc"
+MANIFESTFILES_${PN}-dev = "iniparser.manifest"
 
 iniparser_files = ""
-iniparser_files += "iniparser.manifest"
 iniparser_files += "${prefix}/lib/*.so.*"
+MANIFESTFILES_${PN} = "iniparser.manifest"
 
 FILES_${PN}-dev = "${iniparser-dev_files}"
 FILES_${PN} = "${iniparser_files}"

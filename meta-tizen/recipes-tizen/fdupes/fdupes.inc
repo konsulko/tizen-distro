@@ -39,9 +39,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  make
@@ -70,11 +67,11 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " fdupes "
 
 fdupes_files = ""
-fdupes_files += "fdupes.manifest"
 fdupes_files += "CHANGES"
 fdupes_files += "${prefix}/bin/fdupes"
 fdupes_files += "${mandir}/*/*"
 fdupes_files += "${sysconfdir}/rpm"
+MANIFESTFILES_${PN} = "fdupes.manifest"
 
 FILES_${PN} = "${fdupes_files}"
 

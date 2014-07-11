@@ -64,9 +64,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -143,11 +140,10 @@ PACKAGES += " vconf "
 PACKAGES += " vconf-dev "
 
 vconf-keys-dev_files = ""
-vconf-keys-dev_files += "vconf.manifest"
 vconf-keys-dev_files += "${prefix}/include/vconf/vconf-keys.h"
+MANIFESTFILES_${PN}-keys-dev = "vconf.manifest"
 
 vconf_files = ""
-vconf_files += "vconf.manifest"
 vconf_files += "${sysconfdir}/preconf.d/vconf-setup"
 vconf_files += "${prefix}/bin/vconftool"
 vconf_files += "${prefix}/bin/vconf-init"
@@ -158,12 +154,16 @@ vconf_files += "%attr(777,root,root) ${prefix}/kdb/db/.backup"
 vconf_files += "/lib/systemd/system/basic.target.wants/vconf-setup.service"
 vconf_files += "/lib/systemd/system/vconf-setup.service"
 vconf_files += "${prefix}/lib/tmpfiles.d/vconf-setup.conf"
+MANIFESTFILES_${PN} = "vconf.manifest"
+DIRFILES_${PN} = ""
+DIRFILES_${PN} += "%attr(777,root,users) ${prefix}/kdb/db"
+DIRFILES_${PN} += "%attr(777,root,root) ${prefix}/kdb/db/.backup"
 
 vconf-dev_files = ""
-vconf-dev_files += "vconf.manifest"
 vconf-dev_files += "${prefix}/include/vconf/vconf.h"
 vconf-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 vconf-dev_files += "${prefix}/lib/*.so"
+MANIFESTFILES_${PN}-dev = "vconf.manifest"
 
 FILES_${PN}-keys-dev = "${vconf-keys-dev_files}"
 FILES_${PN} = "${vconf_files}"

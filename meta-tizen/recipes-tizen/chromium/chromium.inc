@@ -48,9 +48,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 1.0 | awk 'BEGIN {FS="."}{print $1}'`
@@ -112,13 +109,13 @@ PACKAGES += " chromium "
 PACKAGES += " chromium-dev "
 
 chromium_files = ""
-chromium_files += "chromium.manifest"
 chromium_files += "${prefix}/lib/libchromium.so*"
+MANIFESTFILES_${PN} = "chromium.manifest"
 
 chromium-dev_files = ""
-chromium-dev_files += "chromium.manifest"
 chromium-dev_files += "${prefix}/include/chromium/*"
 chromium-dev_files += "${prefix}/lib/pkgconfig/chromium.pc"
+MANIFESTFILES_${PN}-dev = "chromium.manifest"
 
 FILES_${PN} = "${chromium_files}"
 FILES_${PN}-dev = "${chromium-dev_files}"

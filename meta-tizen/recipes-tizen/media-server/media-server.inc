@@ -65,42 +65,22 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- rm -rf autom4te.cache
- rm -f aclocal.m4 ltmain.sh
- mkdir -p m4
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} --prefix=${prefix} --disable-static
- oe_runmake -j16
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  rm -rf autom4te.cache
+  rm -f aclocal.m4 ltmain.sh
+  mkdir -p m4
+  
+  autotools_do_configure
+  oe_runmake 
+  
+  
+  
 }
+EXTRA_OECONF += " --prefix=${prefix} --disable-static"
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -173,13 +153,12 @@ PACKAGES += " media-server "
 PACKAGES += " libmedia-utils "
 
 libmedia-utils-dev_files = ""
-libmedia-utils-dev_files += "libmedia-utils-devel.manifest"
 libmedia-utils-dev_files += "${prefix}/lib/libmedia-utils.so"
 libmedia-utils-dev_files += "${prefix}/lib/pkgconfig/libmedia-utils.pc"
 libmedia-utils-dev_files += "${prefix}/include/media-utils/*.h"
+MANIFESTFILES_libmedia-utils-dev = "libmedia-utils-devel.manifest"
 
 media-server_files = ""
-media-server_files += "media-server.manifest"
 media-server_files += "${prefix}/bin/media-server"
 media-server_files += "${prefix}/bin/media-scanner"
 media-server_files += "${prefix}/bin/mediadb-update"
@@ -188,11 +167,12 @@ media-server_files += "/lib/systemd/system/multi-user.target.wants/media-server.
 media-server_files += "${prefix}/bin/media-data-sdk_create_db.sh"
 media-server_files += "${prefix}/data/data-media/*"
 media-server_files += "${prefix}/data/data-media/file-manager-service/.thumb/*"
+MANIFESTFILES_${PN} = "media-server.manifest"
 
 libmedia-utils_files = ""
-libmedia-utils_files += "libmedia-utils.manifest"
 libmedia-utils_files += "${prefix}/lib/libmedia-utils.so.0"
 libmedia-utils_files += "${prefix}/lib/libmedia-utils.so.0.0.0"
+MANIFESTFILES_libmedia-utils = "libmedia-utils.manifest"
 
 FILES_libmedia-utils-dev = "${libmedia-utils-dev_files}"
 FILES_${PN} = "${media-server_files}"

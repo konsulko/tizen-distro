@@ -57,40 +57,19 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir}  \
-              --enable-audiotest
- oe_runmake -j16
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  
+  autotools_do_configure
+  oe_runmake 
+  
+  
+  
 }
+EXTRA_OECONF += " --enable-audiotest"
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -169,23 +148,23 @@ PACKAGES += " avsystem-dev "
 PACKAGES += " libavsysaudio "
 
 avsystem_files = ""
-avsystem_files += "avsystem.manifest"
 avsystem_files += "${sysconfdir}/rc.d/init.d/snd_init"
 avsystem_files += "${sysconfdir}/rc.d/rc3.d/S15snd_init"
 avsystem_files += "${sysconfdir}/rc.d/rc4.d/S15snd_init"
 avsystem_files += "${prefix}/bin/*"
 avsystem_files += "/lib/systemd/system/avsystem.service"
 avsystem_files += "/lib/systemd/system/multi-user.target.wants/avsystem.service"
+MANIFESTFILES_${PN} = "avsystem.manifest"
 
 avsystem-dev_files = ""
-avsystem-dev_files += "avsystem.manifest"
 avsystem-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 avsystem-dev_files += "${prefix}/lib/*.so"
 avsystem-dev_files += "${prefix}/include/avsystem/*.h"
+MANIFESTFILES_${PN}-dev = "avsystem.manifest"
 
 libavsysaudio_files = ""
-libavsysaudio_files += "avsystem.manifest"
 libavsysaudio_files += "${prefix}/lib/lib*.so.*"
+MANIFESTFILES_libavsysaudio = "avsystem.manifest"
 
 FILES_${PN} = "${avsystem_files}"
 FILES_${PN}-dev = "${avsystem-dev_files}"

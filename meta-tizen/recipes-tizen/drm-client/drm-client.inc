@@ -51,9 +51,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -115,14 +112,14 @@ PACKAGES += " drm-client-dev "
 PACKAGES += " drm-client "
 
 drm-client-dev_files = ""
-drm-client-dev_files += "drm-client.manifest"
 drm-client-dev_files += "${prefix}/include/drm-client/*"
 drm-client-dev_files += "${prefix}/lib/*.so"
 drm-client-dev_files += "${prefix}/lib/pkgconfig/drm-client.pc"
+MANIFESTFILES_${PN}-dev = "drm-client.manifest"
 
 drm-client_files = ""
-drm-client_files += "drm-client.manifest"
 drm-client_files += "${prefix}/lib/*.so.*"
+MANIFESTFILES_${PN} = "drm-client.manifest"
 
 FILES_${PN}-dev = "${drm-client-dev_files}"
 FILES_${PN} = "${drm-client_files}"

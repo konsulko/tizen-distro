@@ -45,40 +45,20 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- CFLAGS="$CFLAGS -Wp,-D_FORTIFY_SOURCE=0"
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir}
- oe_runmake ${PARALLEL_MAKE}
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  CFLAGS="$CFLAGS -Wp,-D_FORTIFY_SOURCE=0"
+  
+  autotools_do_configure
+  oe_runmake ${PARALLEL_MAKE} 
+  
+  
+  
 }
+EXTRA_OECONF += ""
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -119,14 +99,14 @@ PACKAGES += " libmm-session "
 PACKAGES += " libmm-session-dev "
 
 libmm-session_files = ""
-libmm-session_files += "libmm-session.manifest"
 libmm-session_files += "${prefix}/lib/libmmfsession.so.*"
+MANIFESTFILES_${PN} = "libmm-session.manifest"
 
 libmm-session-dev_files = ""
-libmm-session-dev_files += "libmm-session.manifest"
 libmm-session-dev_files += "${prefix}/include/mmf/*.h"
 libmm-session-dev_files += "${prefix}/lib/libmmfsession.so"
 libmm-session-dev_files += "${prefix}/lib/pkgconfig/mm-session.pc"
+MANIFESTFILES_${PN}-dev = "libmm-session.manifest"
 
 FILES_${PN} = "${libmm-session_files}"
 FILES_${PN}-dev = "${libmm-session-dev_files}"

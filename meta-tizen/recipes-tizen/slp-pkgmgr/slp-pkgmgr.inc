@@ -92,9 +92,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -201,13 +198,16 @@ PACKAGES += " pkgmgr-installer-dev "
 PACKAGES += " pkgmgr-installer "
 
 pkgmgr-client_files = ""
-pkgmgr-client_files += "pkgmgr-client.manifest"
 pkgmgr-client_files += "${sysconfdir}/package-manager"
 pkgmgr-client_files += "${sysconfdir}/package-manager/pkg_path.conf"
 pkgmgr-client_files += "${prefix}/lib/libpkgmgr-client.so.*"
+CONFFILES_pkgmgr-client = ""
+CONFFILES_pkgmgr-client += "${sysconfdir}/package-manager/pkg_path.conf"
+MANIFESTFILES_pkgmgr-client = "pkgmgr-client.manifest"
+DIRFILES_pkgmgr-client = ""
+DIRFILES_pkgmgr-client += "${sysconfdir}/package-manager"
 
 pkgmgr_files = ""
-pkgmgr_files += "pkgmgr.manifest"
 pkgmgr_files += "${sysconfdir}/package-manager/backend"
 pkgmgr_files += "${sysconfdir}/package-manager/backendlib"
 pkgmgr_files += "${sysconfdir}/opt/upgrade"
@@ -223,29 +223,36 @@ pkgmgr_files += "${prefix}/share/packages"
 pkgmgr_files += "${prefix}/share/packages/org.tizen.pkgmgr-install.xml"
 pkgmgr_files += "${prefix}/share/mime/packages/mime.wac.xml"
 pkgmgr_files += "${prefix}/share/mime/packages/mime.tpk.xml"
+MANIFESTFILES_pkgmgr = "pkgmgr.manifest"
+DIRFILES_pkgmgr = ""
+DIRFILES_pkgmgr += "${sysconfdir}/package-manager/backend"
+DIRFILES_pkgmgr += "${sysconfdir}/package-manager/backendlib"
+DIRFILES_pkgmgr += "${sysconfdir}/opt/upgrade"
+DIRFILES_pkgmgr += "${prefix}/share/packages"
 
 pkgmgr-server_files = ""
-pkgmgr-server_files += "pkgmgr-server.manifest"
 pkgmgr-server_files += "${prefix}/share/dbus-1/system-services/org.tizen.slp.pkgmgr.service"
 pkgmgr-server_files += "${sysconfdir}/dbus-1/system.d/org.tizen.slp.pkgmgr.conf"
 pkgmgr-server_files += "${prefix}/bin/pkgmgr-server"
 pkgmgr-server_files += "${sysconfdir}/package-manager/server"
+CONFFILES_pkgmgr-server = ""
+CONFFILES_pkgmgr-server += "${sysconfdir}/dbus-1/system.d/org.tizen.slp.pkgmgr.conf"
+MANIFESTFILES_pkgmgr-server = "pkgmgr-server.manifest"
 
 pkgmgr-types-dev_files = ""
-pkgmgr-types-dev_files += "pkgmgr-types-devel.manifest"
 pkgmgr-types-dev_files += "${prefix}/include/package-manager-types.h"
 pkgmgr-types-dev_files += "${prefix}/include/package-manager-plugin.h"
 pkgmgr-types-dev_files += "${prefix}/lib/pkgconfig/pkgmgr-types.pc"
+MANIFESTFILES_pkgmgr-types-dev = "pkgmgr-types-devel.manifest"
 
 pkgmgr-client-dev_files = ""
-pkgmgr-client-dev_files += "pkgmgr-client-devel.manifest"
 pkgmgr-client-dev_files += "${prefix}/include/package-manager.h"
 pkgmgr-client-dev_files += "${prefix}/include/pkgmgr-dbinfo.h"
 pkgmgr-client-dev_files += "${prefix}/lib/pkgconfig/pkgmgr.pc"
 pkgmgr-client-dev_files += "${prefix}/lib/libpkgmgr-client.so"
+MANIFESTFILES_pkgmgr-client-dev = "pkgmgr-client-devel.manifest"
 
 pkgmgr-installer-dev_files = ""
-pkgmgr-installer-dev_files += "pkgmgr-installer-devel.manifest"
 pkgmgr-installer-dev_files += "${prefix}/include/pkgmgr"
 pkgmgr-installer-dev_files += "${prefix}/include/pkgmgr/pkgmgr_installer.h"
 pkgmgr-installer-dev_files += "${prefix}/lib/pkgconfig/pkgmgr-installer-status-broadcast-server.pc"
@@ -254,12 +261,15 @@ pkgmgr-installer-dev_files += "${prefix}/lib/pkgconfig/pkgmgr-installer-client.p
 pkgmgr-installer-dev_files += "${prefix}/lib/libpkgmgr_installer.so"
 pkgmgr-installer-dev_files += "${prefix}/lib/libpkgmgr_installer_client.so"
 pkgmgr-installer-dev_files += "${prefix}/lib/libpkgmgr_installer_status_broadcast_server.so"
+MANIFESTFILES_pkgmgr-installer-dev = "pkgmgr-installer-devel.manifest"
+DIRFILES_pkgmgr-installer-dev = ""
+DIRFILES_pkgmgr-installer-dev += "${prefix}/include/pkgmgr"
 
 pkgmgr-installer_files = ""
-pkgmgr-installer_files += "pkgmgr-installer.manifest"
 pkgmgr-installer_files += "${prefix}/lib/libpkgmgr_installer.so.*"
 pkgmgr-installer_files += "${prefix}/lib/libpkgmgr_installer_status_broadcast_server.so.*"
 pkgmgr-installer_files += "${prefix}/lib/libpkgmgr_installer_client.so.*"
+MANIFESTFILES_pkgmgr-installer = "pkgmgr-installer.manifest"
 
 FILES_pkgmgr-client = "${pkgmgr-client_files}"
 FILES_pkgmgr = "${pkgmgr_files}"

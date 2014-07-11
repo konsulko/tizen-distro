@@ -70,39 +70,19 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir}
- make ${PARALLEL_MAKE}
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  
+  autotools_do_configure
+  make ${PARALLEL_MAKE}
+  
+  
+  
 }
+EXTRA_OECONF += ""
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -212,12 +192,11 @@ PACKAGES += " weston-common "
 PACKAGES += " weston-common-config "
 
 weston-common-tz-launcher_files = ""
-weston-common-tz-launcher_files += "weston-common.manifest"
 weston-common-tz-launcher_files += "${prefix}/bin/tz-launcher"
 weston-common-tz-launcher_files += "${prefix}/bin/wl-pre"
+MANIFESTFILES_${PN}-tz-launcher = "weston-common.manifest"
 
 weston-common_files = ""
-weston-common_files += "weston-common.manifest"
 weston-common_files += "/lib/systemd/system/display-manager-run.service"
 weston-common_files += "/lib/systemd/system/display-manager.service"
 weston-common_files += "/lib/systemd/system/display-manager.path"
@@ -227,10 +206,17 @@ weston-common_files += "/lib/systemd/user/weston-user.service"
 weston-common_files += "${sysconfdir}/profile.d/*"
 weston-common_files += "${sysconfdir}/udev/rules.d/*"
 weston-common_files += "${prefix}/share/applications/*.desktop"
+CONFFILES_${PN} = ""
+CONFFILES_${PN} += "${sysconfdir}/sysconfig/*"
+CONFFILES_${PN} += "${sysconfdir}/profile.d/*"
+CONFFILES_${PN} += "${sysconfdir}/udev/rules.d/*"
+MANIFESTFILES_${PN} = "weston-common.manifest"
 
 weston-common-config_files = ""
-weston-common-config_files += "weston-common.manifest"
 weston-common-config_files += "${sysconfdir}/xdg/weston/weston.ini"
+CONFFILES_${PN}-config = ""
+CONFFILES_${PN}-config += "${sysconfdir}/xdg/weston/weston.ini"
+MANIFESTFILES_${PN}-config = "weston-common.manifest"
 
 FILES_${PN}-tz-launcher = "${weston-common-tz-launcher_files}"
 FILES_${PN} = "${weston-common_files}"

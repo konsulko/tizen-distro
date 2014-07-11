@@ -76,9 +76,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -141,21 +138,21 @@ PACKAGES += " libmedia-thumbnail-dev "
 PACKAGES += " libmedia-thumbnail-test "
 
 libmedia-thumbnail_files = ""
-libmedia-thumbnail_files += "libmedia-thumbnail.manifest"
 libmedia-thumbnail_files += "${prefix}/lib/libmedia-thumbnail.so"
 libmedia-thumbnail_files += "${prefix}/lib/libmedia-thumbnail.so.*"
 libmedia-thumbnail_files += "${prefix}/lib/libmedia-hash.so"
 libmedia-thumbnail_files += "${prefix}/lib/libmedia-hash.so.1"
 libmedia-thumbnail_files += "${prefix}/lib/libmedia-hash.so.1.0.0"
+MANIFESTFILES_${PN} = "libmedia-thumbnail.manifest"
 
 media-thumbnail-server_files = ""
-media-thumbnail-server_files += "media-thumbnail-server.manifest"
 media-thumbnail-server_files += "${prefix}/bin/media-thumbnail-server"
+MANIFESTFILES_media-thumbnail-server = "media-thumbnail-server.manifest"
 
 libmedia-thumbnail-dev_files = ""
-libmedia-thumbnail-dev_files += "libmedia-thumbnail-devel.manifest"
 libmedia-thumbnail-dev_files += "${prefix}/lib/pkgconfig/media-thumbnail.pc"
 libmedia-thumbnail-dev_files += "${prefix}/include/media-thumbnail/*.h"
+MANIFESTFILES_${PN}-dev = "libmedia-thumbnail-devel.manifest"
 
 libmedia-thumbnail-test_files = ""
 libmedia-thumbnail-test_files += "${prefix}/bin/test-thumb"

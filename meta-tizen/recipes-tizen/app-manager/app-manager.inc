@@ -1,6 +1,6 @@
 DESCRIPTION = "Application Manager API"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "API/C API"
+SECTION = "Application Framework/API"
 LICENSE = "Apache-2.0"
 
 SRC_URI = ""
@@ -43,7 +43,6 @@ do_prep() {
  cp ${S}/packaging/capi-appfw-app-manager.manifest .
  
  
- 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -57,9 +56,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 0.1.0 | awk 'BEGIN {FS="."}{print $1}'`
@@ -75,8 +71,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DFULLVER=0.1.0 -DMAJORVER=${MAJORVER}
- 
- make 
+ oe_runmake 
  
  
  
@@ -102,9 +97,6 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}/usr/share/license
- cp LICENSE ${D}/usr/share/license/capi-appfw-app-manager
- 
  
 }
 
@@ -125,16 +117,14 @@ PACKAGES += " capi-appfw-app-manager "
 PACKAGES += " capi-appfw-app-manager-dev "
 
 capi-appfw-app-manager_files = ""
-capi-appfw-app-manager_files += "capi-appfw-app-manager.manifest"
 capi-appfw-app-manager_files += "${prefix}/lib/libcapi-appfw-app-manager.so.*"
-capi-appfw-app-manager_files += "capi-appfw-app-manager.manifest"
-capi-appfw-app-manager_files += "/usr/share/license/capi-appfw-app-manager"
+MANIFESTFILES_capi-appfw-${PN} = "capi-appfw-app-manager.manifest"
 
 capi-appfw-app-manager-dev_files = ""
-capi-appfw-app-manager-dev_files += "capi-appfw-app-manager.manifest"
 capi-appfw-app-manager-dev_files += "${prefix}/include/appfw/*.h"
 capi-appfw-app-manager-dev_files += "${prefix}/lib/libcapi-appfw-app-manager.so"
 capi-appfw-app-manager-dev_files += "${prefix}/lib/pkgconfig/*.pc"
+MANIFESTFILES_capi-appfw-${PN}-dev = "capi-appfw-app-manager.manifest"
 
 FILES_capi-appfw-${PN} = "${capi-appfw-app-manager_files}"
 FILES_capi-appfw-${PN}-dev = "${capi-appfw-app-manager-dev_files}"

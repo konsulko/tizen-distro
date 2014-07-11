@@ -109,58 +109,29 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- if which gtkdocize >/dev/null 2>/dev/null; then
-         gtkdocize --docdir docs/ --flavour no-tmpl
-         gtkdocargs=--enable-gtk-doc
- else
-         echo "You don't have gtk-doc installed, and thus won't be able to generate the documentation."
-         rm -f docs/gtk-doc.make
-         echo 'EXTRA_DIST =' > docs/gtk-doc.make
- fi
- 
- intltoolize --force --automake
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} \
-         --enable-bootchart \
-         --libexecdir=${prefix}/lib \
-         --docdir=${prefix}/share/doc/packages/systemd \
-         --disable-static \
-         --with-sysvinit-path= \
-         --with-sysvrcnd-path= \
-         --with-smack-run-label=System
- oe_runmake ${PARALLEL_MAKE} \
-         systemunitdir=/lib/systemd/system \
-         userunitdir=/lib/systemd/user
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  if which gtkdocize >/dev/null 2>/dev/null; then
+          gtkdocize --docdir docs/ --flavour no-tmpl
+          gtkdocargs=--enable-gtk-doc
+  else
+          echo "You don't have gtk-doc installed, and thus won't be able to generate the documentation."
+          rm -f docs/gtk-doc.make
+          echo 'EXTRA_DIST =' > docs/gtk-doc.make
+  fi
+  
+  intltoolize --force --automake
+  
+  autotools_do_configure
+  oe_runmake ${PARALLEL_MAKE}           systemunitdir=/lib/systemd/system           userunitdir=/lib/systemd/user
+  
+  
+  
 }
+EXTRA_OECONF += " --enable-bootchart --libexecdir=${prefix}/lib --docdir=${prefix}/share/doc/packages/systemd --disable-static --with-sysvinit-path= --with-sysvrcnd-path= --with-smack-run-label=System"
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -346,7 +317,6 @@ PACKAGES += " libgudev "
 PACKAGES += " systemd-analyze "
 
 libsystemd_files = ""
-libsystemd_files += "systemd.manifest"
 libsystemd_files += "${prefix}/lib/security/pam_systemd.so"
 libsystemd_files += "${prefix}/lib/libsystemd-daemon.so.*"
 libsystemd_files += "${prefix}/lib/libsystemd-login.so.*"
@@ -354,9 +324,9 @@ libsystemd_files += "${prefix}/lib/libsystemd-journal.so.*"
 libsystemd_files += "${prefix}/lib/libsystemd-id128.so.*"
 libsystemd_files += "${prefix}/lib/libudev.so.*"
 libsystemd_files += "${prefix}/lib/libnss_myhostname.so.2"
+MANIFESTFILES_lib${PN} = "systemd.manifest"
 
 systemd_files = ""
-systemd_files += "systemd.manifest"
 systemd_files += "${sysconfdir}/systemd/bootchart.conf"
 systemd_files += "${sysconfdir}/pam.d/systemd-user"
 systemd_files += "${prefix}/bin/bootctl"
@@ -488,17 +458,57 @@ systemd_files += "${prefix}/share/polkit-1/actions/org.freedesktop.locale1.polic
 systemd_files += "${prefix}/share/polkit-1/actions/org.freedesktop.timedate1.policy"
 systemd_files += "${prefix}/share/pkgconfig/systemd.pc"
 systemd_files += "${prefix}/share/pkgconfig/udev.pc"
+CONFFILES_${PN} = ""
+CONFFILES_${PN} += "${sysconfdir}/systemd/bootchart.conf"
+CONFFILES_${PN} += "${sysconfdir}/pam.d/systemd-user"
+CONFFILES_${PN} += "${sysconfdir}/rpm/macros.systemd"
+MANIFESTFILES_${PN} = "systemd.manifest"
+DIRFILES_${PN} = ""
+DIRFILES_${PN} += "${prefix}/lib/kernel"
+DIRFILES_${PN} += "${prefix}/lib/kernel/install.d"
+DIRFILES_${PN} += "${sysconfdir}/systemd"
+DIRFILES_${PN} += "${sysconfdir}/systemd/system"
+DIRFILES_${PN} += "${sysconfdir}/systemd/user"
+DIRFILES_${PN} += "${sysconfdir}/tmpfiles.d"
+DIRFILES_${PN} += "${sysconfdir}/sysctl.d"
+DIRFILES_${PN} += "${sysconfdir}/modules-load.d"
+DIRFILES_${PN} += "${sysconfdir}/binfmt.d"
+DIRFILES_${PN} += "${prefix}/share/zsh/site-functions"
+DIRFILES_${PN} += "${sysconfdir}/udev"
+DIRFILES_${PN} += "${sysconfdir}/udev/rules.d"
+DIRFILES_${PN} += "${prefix}/lib/systemd"
+DIRFILES_${PN} += "${prefix}/lib/systemd/system"
+DIRFILES_${PN} += "${prefix}/lib/systemd/system-generators"
+DIRFILES_${PN} += "${prefix}/lib/systemd/user-generators"
+DIRFILES_${PN} += "${prefix}/lib/systemd/system-preset"
+DIRFILES_${PN} += "${prefix}/lib/systemd/user-preset"
+DIRFILES_${PN} += "${prefix}/lib/systemd/system-shutdown"
+DIRFILES_${PN} += "${prefix}/lib/systemd/system-sleep"
+DIRFILES_${PN} += "${prefix}/lib/tmpfiles.d"
+DIRFILES_${PN} += "${prefix}/lib/sysctl.d"
+DIRFILES_${PN} += "${prefix}/lib/modules-load.d"
+DIRFILES_${PN} += "${prefix}/lib/binfmt.d"
+DIRFILES_${PN} += "${prefix}/lib/firmware"
+DIRFILES_${PN} += "${prefix}/lib/firmware/updates"
+DIRFILES_${PN} += "${prefix}/share/systemd"
+DIRFILES_${PN} += "${prefix}/lib/systemd/system/basic.target.wants"
+DIRFILES_${PN} += "${prefix}/lib/systemd/user"
+DIRFILES_${PN} += "${prefix}/lib/systemd/catalog"
+DIRFILES_${PN} += "${prefix}/share/polkit-1"
+DIRFILES_${PN} += "${prefix}/share/polkit-1/actions"
 
 libgudev-dev_files = ""
-libgudev-dev_files += "systemd.manifest"
 libgudev-dev_files += "${prefix}/lib/libgudev-1.0.so"
 libgudev-dev_files += "${prefix}/include/gudev-1.0"
 libgudev-dev_files += "${prefix}/include/gudev-1.0/gudev"
 libgudev-dev_files += "${prefix}/include/gudev-1.0/gudev/*.h"
 libgudev-dev_files += "${prefix}/lib/pkgconfig/gudev-1.0*"
+MANIFESTFILES_libgudev-dev = "systemd.manifest"
+DIRFILES_libgudev-dev = ""
+DIRFILES_libgudev-dev += "${prefix}/include/gudev-1.0"
+DIRFILES_libgudev-dev += "${prefix}/include/gudev-1.0/gudev"
 
 systemd-dev_files = ""
-systemd-dev_files += "systemd.manifest"
 systemd-dev_files += "${prefix}/lib/libsystemd-daemon.so"
 systemd-dev_files += "${prefix}/lib/libsystemd-login.so"
 systemd-dev_files += "${prefix}/lib/libsystemd-journal.so"
@@ -517,14 +527,17 @@ systemd-dev_files += "${prefix}/lib/pkgconfig/libsystemd-login.pc"
 systemd-dev_files += "${prefix}/lib/pkgconfig/libsystemd-journal.pc"
 systemd-dev_files += "${prefix}/lib/pkgconfig/libsystemd-id128.pc"
 systemd-dev_files += "${prefix}/lib/pkgconfig/libudev.pc"
+MANIFESTFILES_${PN}-dev = "systemd.manifest"
+DIRFILES_${PN}-dev = ""
+DIRFILES_${PN}-dev += "${prefix}/include/systemd"
 
 libgudev_files = ""
-libgudev_files += "systemd.manifest"
 libgudev_files += "${prefix}/lib/libgudev-1.0.so.*"
+MANIFESTFILES_libgudev = "systemd.manifest"
 
 systemd-analyze_files = ""
-systemd-analyze_files += "systemd.manifest"
 systemd-analyze_files += "${prefix}/bin/systemd-analyze"
+MANIFESTFILES_${PN}-analyze = "systemd.manifest"
 
 FILES_lib${PN} = "${libsystemd_files}"
 FILES_${PN} = "${systemd_files}"

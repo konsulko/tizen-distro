@@ -52,9 +52,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  cp ${S}/packaging/capi-system-power.manifest .
@@ -71,9 +68,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DFULLVER=0.1.1 -DMAJORVER=${MAJORVER}
- 
- 
- make 
+ oe_runmake 
  
  
  
@@ -118,15 +113,14 @@ PACKAGES += " capi-system-power "
 PACKAGES += " capi-system-power-dev "
 
 capi-system-power_files = ""
-capi-system-power_files += "capi-system-power.manifest"
-capi-system-power_files += "capi-system-power.manifest"
 capi-system-power_files += "${prefix}/lib/libcapi-system-power.so.*"
+MANIFESTFILES_capi-system-${PN} = "capi-system-power.manifest"
 
 capi-system-power-dev_files = ""
-capi-system-power-dev_files += "capi-system-power.manifest"
 capi-system-power-dev_files += "${prefix}/include/system/power.h"
 capi-system-power-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 capi-system-power-dev_files += "${prefix}/lib/libcapi-system-power.so"
+MANIFESTFILES_capi-system-${PN}-dev = "capi-system-power.manifest"
 
 FILES_capi-system-${PN} = "${capi-system-power_files}"
 FILES_capi-system-${PN}-dev = "${capi-system-power-dev_files}"

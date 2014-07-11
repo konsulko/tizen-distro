@@ -59,40 +59,20 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -fvisibility=hidden -DMM_DEBUG_FLAG -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\"" ; export CFLAGS
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} --disable-static --enable-security 
- make -j16
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -fvisibility=hidden -DMM_DEBUG_FLAG -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\"" ; export CFLAGS
+  
+  autotools_do_configure
+  oe_runmake 
+  
+  
+  
 }
+EXTRA_OECONF += " --disable-static --enable-security "
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -136,22 +116,21 @@ PACKAGES += " audio-session-manager "
 PACKAGES += " audio-session-manager-sdk-dev "
 
 audio-session-manager-dev_files = ""
-audio-session-manager-dev_files += "audio-session-manager.manifest"
 audio-session-manager-dev_files += "${prefix}/include/mmf/audio-session-manager-types.h"
 audio-session-manager-dev_files += "${prefix}/include/mmf/audio-session-manager.h"
+MANIFESTFILES_${PN}-dev = "audio-session-manager.manifest"
 
 audio-session-manager_files = ""
-audio-session-manager_files += "audio-session-manager.manifest"
-audio-session-manager_files += "audio-session-manager.manifest"
 audio-session-manager_files += "${prefix}/lib/libaudio-session-mgr.so.*"
 audio-session-manager_files += "${prefix}/bin/asm_testsuite"
+MANIFESTFILES_${PN} = "audio-session-manager.manifest"
 
 audio-session-manager-sdk-dev_files = ""
-audio-session-manager-sdk-dev_files += "audio-session-manager.manifest"
 audio-session-manager-sdk-dev_files += "${prefix}/include/mmf/audio-session-manager-types.h"
 audio-session-manager-sdk-dev_files += "${prefix}/include/mmf/audio-session-manager.h"
 audio-session-manager-sdk-dev_files += "${prefix}/lib/libaudio-session-mgr.so"
 audio-session-manager-sdk-dev_files += "${prefix}/lib/pkgconfig/audio-session-mgr.pc"
+MANIFESTFILES_${PN}-sdk-dev = "audio-session-manager.manifest"
 
 FILES_${PN}-dev = "${audio-session-manager-dev_files}"
 FILES_${PN} = "${audio-session-manager_files}"

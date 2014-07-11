@@ -53,9 +53,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -121,19 +118,19 @@ PACKAGES += " heynoti "
 PACKAGES += " heynoti-dev "
 
 heynoti_files = ""
-heynoti_files += "heynoti.manifest"
 heynoti_files += "${prefix}/lib/libheynoti.so.0"
 heynoti_files += "${prefix}/lib/libheynoti.so.0.0.2"
 heynoti_files += "${prefix}/bin/heynotitool"
 heynoti_files += "${prefix}/share/noti"
 heynoti_files += "/usr/share/license/heynoti"
+MANIFESTFILES_${PN} = "heynoti.manifest"
 
 heynoti-dev_files = ""
-heynoti-dev_files += "heynoti.manifest"
 heynoti-dev_files += "${prefix}/include/heynoti/SLP_Heynoti_PG.h"
 heynoti-dev_files += "${prefix}/include/heynoti/heynoti.h"
 heynoti-dev_files += "${prefix}/lib/pkgconfig/heynoti.pc"
 heynoti-dev_files += "${prefix}/lib/libheynoti.so"
+MANIFESTFILES_${PN}-dev = "heynoti.manifest"
 
 FILES_${PN} = "${heynoti_files}"
 FILES_${PN}-dev = "${heynoti-dev_files}"

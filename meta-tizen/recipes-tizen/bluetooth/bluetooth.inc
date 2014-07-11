@@ -54,9 +54,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 0.1.39 | awk 'BEGIN {FS="."}{print $1}'`
@@ -119,14 +116,14 @@ PACKAGES += " capi-network-bluetooth-dev "
 PACKAGES += " capi-network-bluetooth "
 
 capi-network-bluetooth-dev_files = ""
-capi-network-bluetooth-dev_files += "capi-network-bluetooth-devel.manifest"
 capi-network-bluetooth-dev_files += "${prefix}/include/network/bluetooth.h"
 capi-network-bluetooth-dev_files += "${prefix}/lib/pkgconfig/capi-network-bluetooth.pc"
 capi-network-bluetooth-dev_files += "${prefix}/lib/libcapi-network-bluetooth.so"
+MANIFESTFILES_capi-network-${PN}-dev = "capi-network-bluetooth-devel.manifest"
 
 capi-network-bluetooth_files = ""
-capi-network-bluetooth_files += "capi-network-bluetooth.manifest"
 capi-network-bluetooth_files += "${prefix}/lib/libcapi-network-bluetooth.so.*"
+MANIFESTFILES_capi-network-${PN} = "capi-network-bluetooth.manifest"
 
 FILES_capi-network-${PN}-dev = "${capi-network-bluetooth-dev_files}"
 FILES_capi-network-${PN} = "${capi-network-bluetooth_files}"

@@ -58,7 +58,6 @@ do_prep() {
  cp ${S}/packaging/alarm-manager.manifest .
  
  
- 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -69,44 +68,23 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- dbus-binding-tool --mode=glib-server --prefix=alarm_manager ./alarm_mgr.xml > ./include/alarm-skeleton.h
- dbus-binding-tool --mode=glib-client --prefix=alarm_manager ./alarm_mgr.xml > ./include/alarm-stub.h
- dbus-binding-tool --mode=glib-server --prefix=alarm_client ./alarm-expire.xml > ./include/alarm-expire-skeleton.h
- dbus-binding-tool --mode=glib-client --prefix=alarm_client ./alarm-expire.xml > ./include/alarm-expire-stub.h
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} --disable-static
- oe_runmake ${PARALLEL_MAKE}
- 
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  dbus-binding-tool --mode=glib-server --prefix=alarm_manager ./alarm_mgr.xml > ./include/alarm-skeleton.h
+  dbus-binding-tool --mode=glib-client --prefix=alarm_manager ./alarm_mgr.xml > ./include/alarm-stub.h
+  dbus-binding-tool --mode=glib-server --prefix=alarm_client ./alarm-expire.xml > ./include/alarm-expire-skeleton.h
+  dbus-binding-tool --mode=glib-client --prefix=alarm_client ./alarm-expire.xml > ./include/alarm-expire-stub.h
+  
+  autotools_do_configure
+  oe_runmake ${PARALLEL_MAKE}
+  
+  
+  
 }
+EXTRA_OECONF += " --disable-static"
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -194,27 +172,26 @@ PACKAGES += " alarm-server "
 PACKAGES += " libalarm-dev "
 
 libalarm_files = ""
-libalarm_files += "alarm-manager.manifest"
-libalarm_files += "alarm-lib.manifest"
 libalarm_files += "${prefix}/lib/libalarm.so.0.0.0"
 libalarm_files += "${prefix}/lib/libalarm.so.0"
 libalarm_files += "${prefix}/share/license/libalarm"
+MANIFESTFILES_libalarm = "alarm-manager.manifest"
 
 alarm-server_files = ""
-alarm-server_files += "alarm-manager.manifest"
 alarm-server_files += "${prefix}/bin/alarm-server"
 alarm-server_files += "/lib/systemd/system/multi-user.target.wants/alarm-server.service"
 alarm-server_files += "/lib/systemd/system/alarm-server.service"
 alarm-server_files += "${sysconfdir}/dbus-1/system.d/alarm-service.conf"
 alarm-server_files += "${sysconfdir}/udev/rules.d/60-alarm-manager-rtc.rules"
 alarm-server_files += "${prefix}/share/license/alarm-server"
+MANIFESTFILES_alarm-server = "alarm-manager.manifest"
 
 libalarm-dev_files = ""
-libalarm-dev_files += "alarm-manager.manifest"
 libalarm-dev_files += "${prefix}/include/*.h"
 libalarm-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 libalarm-dev_files += "${prefix}/lib/libalarm.so"
 libalarm-dev_files += "${prefix}/share/license/libalarm-devel"
+MANIFESTFILES_libalarm-dev = "alarm-manager.manifest"
 
 FILES_libalarm = "${libalarm_files}"
 FILES_alarm-server = "${alarm-server_files}"

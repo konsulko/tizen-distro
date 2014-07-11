@@ -70,41 +70,21 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- ./autogen.sh
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -fvisibility=hidden -DMM_DEBUG_FLAG -DSEPARATE_SPEAKER_AND_WIRED_ACCESSORY -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\""; export CFLAGS
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} --prefix=/usr --enable-pulse --enable-security
- make ${PARALLEL_MAKE}
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  ./autogen.sh
+  CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -fvisibility=hidden -DMM_DEBUG_FLAG -DSEPARATE_SPEAKER_AND_WIRED_ACCESSORY -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\""; export CFLAGS
+  
+  autotools_do_configure
+  make ${PARALLEL_MAKE}
+  
+  
+  
 }
+EXTRA_OECONF += " --prefix=/usr --enable-pulse --enable-security"
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -171,16 +151,15 @@ PACKAGES += " libmm-sound-tool "
 PACKAGES += " libmm-sound-sdk-dev "
 
 libmm-sound-dev_files = ""
-libmm-sound-dev_files += "libmm-sound.manifest"
 libmm-sound-dev_files += "${prefix}/lib/libmmfkeysound.so"
 libmm-sound-dev_files += "${prefix}/lib/libmmfsound.so"
 libmm-sound-dev_files += "${prefix}/lib/libmmfsoundcommon.so"
 libmm-sound-dev_files += "${prefix}/include/mmf/mm_sound_private.h"
 libmm-sound-dev_files += "${prefix}/include/mmf/mm_sound_plugin.h"
 libmm-sound-dev_files += "${prefix}/include/mmf/mm_sound_plugin_hal.h"
+MANIFESTFILES_${PN}-dev = "libmm-sound.manifest"
 
 libmm-sound_files = ""
-libmm-sound_files += "libmm-sound.manifest"
 libmm-sound_files += "${prefix}/bin/sound_server"
 libmm-sound_files += "${prefix}/lib/libmmfsound.so.*"
 libmm-sound_files += "${prefix}/lib/libmmfsoundcommon.so.*"
@@ -198,16 +177,17 @@ libmm-sound_files += "/usr/share/sounds/sound-server/*"
 libmm-sound_files += "/usr/lib/systemd/system/multi-user.target.wants/sound-server.path"
 libmm-sound_files += "/usr/lib/systemd/system/sound-server.service"
 libmm-sound_files += "/usr/lib/systemd/system/sound-server.path"
+MANIFESTFILES_${PN} = "libmm-sound.manifest"
 
 libmm-sound-tool_files = ""
-libmm-sound-tool_files += "libmm-sound.manifest"
 libmm-sound-tool_files += "${prefix}/bin/mm_sound_testsuite"
+MANIFESTFILES_${PN}-tool = "libmm-sound.manifest"
 
 libmm-sound-sdk-dev_files = ""
-libmm-sound-sdk-dev_files += "libmm-sound.manifest"
 libmm-sound-sdk-dev_files += "${prefix}/include/mmf/mm_sound.h"
 libmm-sound-sdk-dev_files += "${prefix}/lib/pkgconfig/mm-keysound.pc"
 libmm-sound-sdk-dev_files += "${prefix}/lib/pkgconfig/mm-sound.pc"
+MANIFESTFILES_${PN}-sdk-dev = "libmm-sound.manifest"
 
 FILES_${PN}-dev = "${libmm-sound-dev_files}"
 FILES_${PN} = "${libmm-sound_files}"

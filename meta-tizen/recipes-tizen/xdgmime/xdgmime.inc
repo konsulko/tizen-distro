@@ -1,4 +1,4 @@
-DESCRIPTION = "Pkg xdgmime"
+DESCRIPTION = "Querying information about file type"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Applications/Other"
 LICENSE = "LGPL-2.0 and AFL-2.0"
@@ -48,9 +48,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -65,8 +62,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . 
- 
- make ${PARALLEL_MAKE}
+ oe_runmake ${PARALLEL_MAKE}
  
  
  
@@ -111,15 +107,14 @@ PACKAGES += " xdgmime-dev "
 PACKAGES += " xdgmime "
 
 xdgmime-dev_files = ""
-xdgmime-dev_files += "xdgmime.manifest"
 xdgmime-dev_files += "${prefix}/include/xdgmime.h"
 xdgmime-dev_files += "${prefix}/lib/libxdgmime.so"
 xdgmime-dev_files += "${prefix}/lib/pkgconfig/xdgmime.pc"
+MANIFESTFILES_${PN}-dev = "xdgmime.manifest"
 
 xdgmime_files = ""
-xdgmime_files += "xdgmime.manifest"
 xdgmime_files += "${prefix}/lib/libxdgmime.so.*"
-xdgmime_files += "xdgmime.manifest"
+MANIFESTFILES_${PN} = "xdgmime.manifest"
 
 FILES_${PN}-dev = "${xdgmime-dev_files}"
 FILES_${PN} = "${xdgmime_files}"

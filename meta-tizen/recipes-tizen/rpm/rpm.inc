@@ -138,52 +138,25 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- CPPFLAGS="$CPPFLAGS `pkg-config --cflags nss`"
- export CPPFLAGS
- export CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -ffunction-sections"
- export LDFLAGS="${LDFLAGS} -Wl,-Bsymbolic-functions -ffunction-sections"
- 
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} \
-     --disable-dependency-tracking \
-     --with-lua \
-     --with-acl \
-     --with-cap \
-     --enable-shared \
-     --enable-python \
-     --with-msm 
- 
- make ${PARALLEL_MAKE}
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  CPPFLAGS="$CPPFLAGS `pkg-config --cflags nss`"
+  export CPPFLAGS
+  export CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -ffunction-sections"
+  export LDFLAGS="${LDFLAGS} -Wl,-Bsymbolic-functions -ffunction-sections"
+  
+  
+  autotools_do_configure
+  
+  make ${PARALLEL_MAKE}
+  
+  
+  
 }
+EXTRA_OECONF += " --disable-dependency-tracking --with-lua --with-acl --with-cap --enable-shared --enable-python --with-msm "
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -314,17 +287,16 @@ PACKAGES += " rpm-docs "
 PACKAGES += " rpm "
 
 rpm-security-plugin_files = ""
-rpm-security-plugin_files += "rpm.manifest"
 rpm-security-plugin_files += "${prefix}/lib/rpm-plugins/msm.so"
 rpm-security-plugin_files += "${prefix}/lib/rpm-plugins/msm-device-sec-policy"
 rpm-security-plugin_files += "${sysconfdir}/device-sec-policy"
+MANIFESTFILES_${PN}-security-plugin = "rpm.manifest"
 
 python-rpm_files = ""
 python-rpm_files += "${prefix}/lib/python*/site-packages/rpm"
 python-rpm_files += "${prefix}/lib/python*/site-packages/rpm/transaction.py"
 
 rpm-build_files = ""
-rpm-build_files += "rpm.manifest"
 rpm-build_files += "${prefix}/bin/rpmbuild"
 rpm-build_files += "${prefix}/bin/gendiff"
 rpm-build_files += "${prefix}/bin/rpmspec"
@@ -344,9 +316,9 @@ rpm-build_files += "${prefix}/lib/rpm/*.prov"
 rpm-build_files += "${prefix}/lib/rpm/*.req"
 rpm-build_files += "${prefix}/lib/rpm/macros.*"
 rpm-build_files += "${prefix}/lib/rpm/fileattrs"
+MANIFESTFILES_${PN}-build = "rpm.manifest"
 
 rpm-dev_files = ""
-rpm-dev_files += "rpm.manifest"
 rpm-dev_files += "${prefix}/bin/rpmgraph"
 rpm-dev_files += "${prefix}/include/rpm"
 rpm-dev_files += "${prefix}/lib/librpm.so"
@@ -354,6 +326,7 @@ rpm-dev_files += "${prefix}/lib/librpmbuild.so"
 rpm-dev_files += "${prefix}/lib/librpmio.so"
 rpm-dev_files += "${prefix}/lib/librpmsign.so"
 rpm-dev_files += "${prefix}/lib/pkgconfig/rpm.pc"
+MANIFESTFILES_${PN}-dev = "rpm.manifest"
 
 rpm-locale_files = ""
 
@@ -361,7 +334,6 @@ rpm-docs_files = ""
 rpm-docs_files += "GROUPS"
 
 rpm_files = ""
-rpm_files += "rpm.manifest"
 rpm_files += "${sysconfdir}/rpm"
 rpm_files += "/bin/rpm"
 rpm_files += "${prefix}/bin/rpm2cpio"
@@ -394,6 +366,17 @@ rpm_files += "%attr(755,root,root) ${prefix}/src/packages/SRPMS"
 rpm_files += "%attr(755,root,root) ${prefix}/src/packages/RPMS"
 rpm_files += "%attr(755,root,root) ${prefix}/src/packages/BUILDROOT"
 rpm_files += "%attr(755,root,root) ${prefix}/src/packages/RPMS/*"
+MANIFESTFILES_${PN} = "rpm.manifest"
+DIRFILES_${PN} = ""
+DIRFILES_${PN} += "   ${prefix}/lib/rpm-plugins"
+DIRFILES_${PN} += "   ${localstatedir}/lib/rpm"
+DIRFILES_${PN} += "   %attr(755,root,root) ${prefix}/src/packages/BUILD"
+DIRFILES_${PN} += "   %attr(755,root,root) ${prefix}/src/packages/SPECS"
+DIRFILES_${PN} += "   %attr(755,root,root) ${prefix}/src/packages/SOURCES"
+DIRFILES_${PN} += "   %attr(755,root,root) ${prefix}/src/packages/SRPMS"
+DIRFILES_${PN} += "   %attr(755,root,root) ${prefix}/src/packages/RPMS"
+DIRFILES_${PN} += "   %attr(755,root,root) ${prefix}/src/packages/BUILDROOT"
+DIRFILES_${PN} += "   %attr(755,root,root) ${prefix}/src/packages/RPMS/*"
 
 FILES_${PN}-security-plugin = "${rpm-security-plugin_files}"
 FILES_python-${PN} = "${python-rpm_files}"

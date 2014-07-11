@@ -64,9 +64,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -81,7 +78,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . 
- make -j16
+ make 
  
  
  
@@ -131,12 +128,11 @@ PACKAGES += " libmedia-service-dev "
 PACKAGES += " libmedia-service "
 
 libmedia-service-dev_files = ""
-libmedia-service-dev_files += "libmedia-service.manifest"
 libmedia-service-dev_files += "${prefix}/lib/pkgconfig/libmedia-service.pc"
 libmedia-service-dev_files += "${prefix}/include/media-service/*.h"
+MANIFESTFILES_${PN}-dev = "libmedia-service.manifest"
 
 libmedia-service_files = ""
-libmedia-service_files += "libmedia-service.manifest"
 libmedia-service_files += "${prefix}/lib/libmedia-service.so"
 libmedia-service_files += "${prefix}/lib/libmedia-service.so.1"
 libmedia-service_files += "${prefix}/lib/libmedia-service.so.1.0.0"
@@ -147,6 +143,7 @@ libmedia-service_files += "${prefix}/lib/libmedia-content-plugin.so"
 libmedia-service_files += "${prefix}/lib/libmedia-content-plugin.so.1"
 libmedia-service_files += "${prefix}/lib/libmedia-content-plugin.so.1.0.0"
 libmedia-service_files += "${prefix}/share/license/libmedia-service"
+MANIFESTFILES_${PN} = "libmedia-service.manifest"
 
 FILES_${PN}-dev = "${libmedia-service-dev_files}"
 FILES_${PN} = "${libmedia-service_files}"

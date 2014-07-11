@@ -56,9 +56,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -122,15 +119,15 @@ PACKAGES += " libtapi-dev "
 PACKAGES += " libtapi "
 
 libtapi-dev_files = ""
-libtapi-dev_files += "libtapi.manifest"
 libtapi-dev_files += "${prefix}/include/telephony-client/*.h"
 libtapi-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 libtapi-dev_files += "${prefix}/lib/*.so"
+MANIFESTFILES_libtapi-dev = "libtapi.manifest"
 
 libtapi_files = ""
-libtapi_files += "libtapi.manifest"
 libtapi_files += "${prefix}/lib/*.so.*"
 libtapi_files += "${prefix}/bin/tapitest-legacy"
+MANIFESTFILES_libtapi = "libtapi.manifest"
 
 FILES_libtapi-dev = "${libtapi-dev_files}"
 FILES_libtapi = "${libtapi_files}"

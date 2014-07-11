@@ -55,9 +55,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  export LDFLAGS+="-Wl,--rpath=${prefix}/lib -Wl,--as-needed"
@@ -73,7 +70,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} .
- make -j16
+ make 
  
  
  
@@ -134,14 +131,14 @@ PACKAGES += " status "
 PACKAGES += " status-dev "
 
 status_files = ""
-status_files += "status.manifest"
 status_files += "${prefix}/lib/*.so*"
 status_files += "/usr/share/license/status"
+MANIFESTFILES_${PN} = "status.manifest"
 
 status-dev_files = ""
-status-dev_files += "status.manifest"
 status-dev_files += "${prefix}/include/status/*.h"
 status-dev_files += "${prefix}/lib/pkgconfig/*.pc"
+MANIFESTFILES_${PN}-dev = "status.manifest"
 
 FILES_${PN} = "${status_files}"
 FILES_${PN}-dev = "${status-dev_files}"

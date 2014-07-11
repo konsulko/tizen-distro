@@ -53,9 +53,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -71,7 +68,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} 
- make -j16
+ make 
  
  
  
@@ -118,18 +115,18 @@ PACKAGES += " libcom-core "
 PACKAGES += " libcom-core-dev "
 
 libcom-core_files = ""
-libcom-core_files += "libcom-core.manifest"
 libcom-core_files += "${prefix}/lib/*.so*"
 libcom-core_files += "${prefix}/share/license/*"
+MANIFESTFILES_lib${PN} = "libcom-core.manifest"
 
 libcom-core-dev_files = ""
-libcom-core-dev_files += "libcom-core.manifest"
 libcom-core-dev_files += "${prefix}/include/com-core/com-core.h"
 libcom-core-dev_files += "${prefix}/include/com-core/packet.h"
 libcom-core-dev_files += "${prefix}/include/com-core/com-core_packet.h"
 libcom-core-dev_files += "${prefix}/include/com-core/com-core_thread.h"
 libcom-core-dev_files += "${prefix}/include/com-core/secure_socket.h"
 libcom-core-dev_files += "${prefix}/lib/pkgconfig/*.pc"
+MANIFESTFILES_lib${PN}-dev = "libcom-core.manifest"
 
 FILES_lib${PN} = "${libcom-core_files}"
 FILES_lib${PN}-dev = "${libcom-core-dev_files}"

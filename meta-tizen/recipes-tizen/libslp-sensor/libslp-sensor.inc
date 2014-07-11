@@ -51,9 +51,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -115,14 +112,14 @@ PACKAGES += " sensor "
 PACKAGES += " sensor-dev "
 
 sensor_files = ""
-sensor_files += "sensor.manifest"
 sensor_files += "${prefix}/lib/libsensor.so.*"
+MANIFESTFILES_sensor = "sensor.manifest"
 
 sensor-dev_files = ""
-sensor-dev_files += "sensor-devel.manifest"
 sensor-dev_files += "${prefix}/include/sensor/*.h"
 sensor-dev_files += "${prefix}/lib/libsensor.so"
 sensor-dev_files += "${prefix}/lib/pkgconfig/sensor.pc"
+MANIFESTFILES_sensor-dev = "sensor-devel.manifest"
 
 FILES_sensor = "${sensor_files}"
 FILES_sensor-dev = "${sensor-dev_files}"

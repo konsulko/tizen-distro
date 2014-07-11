@@ -63,9 +63,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -137,31 +134,31 @@ PACKAGES += " app-checker "
 PACKAGES += " app-checker-dev "
 
 app-checker-server-dev_files = ""
-app-checker-server-dev_files += "app-checker.manifest"
 app-checker-server-dev_files += "${prefix}/lib/libapp-checker-server.so"
 app-checker-server-dev_files += "${prefix}/lib/pkgconfig/app-checker-server.pc"
 app-checker-server-dev_files += "${prefix}/include/app-checker/app-checker-server.h"
 app-checker-server-dev_files += "/usr/share/license/app-checker-server-devel"
+MANIFESTFILES_${PN}-server-dev = "app-checker.manifest"
 
 app-checker-server_files = ""
-app-checker-server_files += "app-checker.manifest"
 app-checker-server_files += "${prefix}/lib/libapp-checker-server.so.0"
 app-checker-server_files += "${prefix}/lib/libapp-checker-server.so.0.1.0"
 app-checker-server_files += "/usr/share/license/app-checker-server"
+MANIFESTFILES_${PN}-server = "app-checker.manifest"
 
 app-checker_files = ""
-app-checker_files += "app-checker.manifest"
 app-checker_files += "${prefix}/lib/libapp-checker.so.0"
 app-checker_files += "${prefix}/lib/libapp-checker.so.0.1.0"
 app-checker_files += "${prefix}/lib/ac-plugins"
 app-checker_files += "/usr/share/license/app-checker"
+MANIFESTFILES_${PN} = "app-checker.manifest"
 
 app-checker-dev_files = ""
-app-checker-dev_files += "app-checker.manifest"
 app-checker-dev_files += "${prefix}/lib/libapp-checker.so"
 app-checker-dev_files += "${prefix}/lib/pkgconfig/app-checker.pc"
 app-checker-dev_files += "${prefix}/include/app-checker/app-checker.h"
 app-checker-dev_files += "/usr/share/license/app-checker-devel"
+MANIFESTFILES_${PN}-dev = "app-checker.manifest"
 
 FILES_${PN}-server-dev = "${app-checker-server-dev_files}"
 FILES_${PN}-server = "${app-checker-server_files}"

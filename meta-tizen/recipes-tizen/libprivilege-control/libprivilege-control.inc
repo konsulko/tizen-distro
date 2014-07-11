@@ -60,9 +60,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -139,7 +136,6 @@ PACKAGES += " libprivilege-control-conf "
 PACKAGES += " libprivilege-control-dev "
 
 libprivilege-control_files = ""
-libprivilege-control_files += "libprivilege-control.manifest"
 libprivilege-control_files += "${prefix}/lib/*.so.*"
 libprivilege-control_files += "${prefix}/lib/librules-db-sql-udf.so"
 libprivilege-control_files += "/usr/lib/systemd/system/smack-rules.service"
@@ -152,16 +148,17 @@ libprivilege-control_files += "/usr/share/privilege-control/db/updates/*"
 libprivilege-control_files += "/usr/share/privilege-control/db/load-rules-db.sql"
 libprivilege-control_files += "/etc/opt/upgrade/220.libprivilege-updater.patch.sh"
 libprivilege-control_files += "%dir ${prefix}/dbspace"
+MANIFESTFILES_${PN} = "libprivilege-control.manifest"
 
 libprivilege-control-conf_files = ""
-libprivilege-control-conf_files += "libprivilege-control.manifest"
 libprivilege-control-conf_files += "${prefix}/dbspace/.privilege_control*.db"
+MANIFESTFILES_${PN}-conf = "libprivilege-control.manifest"
 
 libprivilege-control-dev_files = ""
-libprivilege-control-dev_files += "libprivilege-control.manifest"
 libprivilege-control-dev_files += "${prefix}/include/*.h"
 libprivilege-control-dev_files += "${prefix}/lib/*.so"
 libprivilege-control-dev_files += "${prefix}/lib/pkgconfig/*.pc"
+MANIFESTFILES_${PN}-dev = "libprivilege-control.manifest"
 
 FILES_${PN} = "${libprivilege-control_files}"
 FILES_${PN}-conf = "${libprivilege-control-conf_files}"

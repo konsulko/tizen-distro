@@ -53,9 +53,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -116,17 +113,17 @@ PACKAGES += " libtapi3 "
 PACKAGES += " libtapi3-dev "
 
 libtapi3_files = ""
-libtapi3_files += "libtapi.manifest"
 libtapi3_files += "${prefix}/lib/*.so*"
 libtapi3_files += "${prefix}/bin/tapitest"
+MANIFESTFILES_${PN}3 = "libtapi.manifest"
 
 libtapi3-dev_files = ""
-libtapi3-dev_files += "libtapi.manifest"
 libtapi3-dev_files += "${prefix}/include/tapi-3.0/*.h"
 libtapi3-dev_files += "${prefix}/include/tapi-3.0/common/*.h"
 libtapi3-dev_files += "${prefix}/include/tapi-3.0/private/*.h"
 libtapi3-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 libtapi3-dev_files += "${prefix}/lib/*.so"
+MANIFESTFILES_${PN}3-dev = "libtapi.manifest"
 
 FILES_${PN}3 = "${libtapi3_files}"
 FILES_${PN}3-dev = "${libtapi3-dev_files}"

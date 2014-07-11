@@ -51,9 +51,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  export CFLAGS+=" -fpie -fvisibility=hidden"
@@ -71,7 +68,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DCMAKE_INSTALL_PREFIX=${prefix}
- make -j16
+ make 
  
  
  
@@ -118,12 +115,11 @@ PACKAGES += " bluetooth-tools-no-firmware "
 PACKAGES += " bluetooth-tools "
 
 bluetooth-tools-no-firmware_files = ""
-bluetooth-tools-no-firmware_files += "bluetooth-tools.manifest"
 bluetooth-tools-no-firmware_files += "${prefix}/etc/bluetooth/bt-dev-end.sh"
 bluetooth-tools-no-firmware_files += "${prefix}/etc/bluetooth/bt-dev-start.sh"
+MANIFESTFILES_${PN}-no-firmware = "bluetooth-tools.manifest"
 
 bluetooth-tools_files = ""
-bluetooth-tools_files += "bluetooth-tools.manifest"
 bluetooth-tools_files += "${sysconfdir}/rc.d/init.d/bluetooth-address"
 bluetooth-tools_files += "${sysconfdir}/rc.d/rc3.d/S60bluetooth-address"
 bluetooth-tools_files += "${sysconfdir}/rc.d/rc5.d/S60bluetooth-address"
@@ -136,6 +132,7 @@ bluetooth-tools_files += "${prefix}/etc/bluetooth/bt-edutm-mode-on.sh"
 bluetooth-tools_files += "${prefix}/etc/bluetooth/bt-edutm-off.sh"
 bluetooth-tools_files += "/lib/systemd/system/multi-user.target.wants/bluetooth-address.service"
 bluetooth-tools_files += "/lib/systemd/system/bluetooth-address.service"
+MANIFESTFILES_${PN} = "bluetooth-tools.manifest"
 
 FILES_${PN}-no-firmware = "${bluetooth-tools-no-firmware_files}"
 FILES_${PN} = "${bluetooth-tools_files}"

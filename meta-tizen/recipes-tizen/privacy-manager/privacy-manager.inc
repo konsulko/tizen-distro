@@ -92,9 +92,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -210,16 +207,16 @@ PACKAGES += " privacy-manager-client-dev "
 PACKAGES += " capi-security-privacy-manager-dev "
 
 privacy-manager-client_files = ""
-privacy-manager-client_files += "privacy-manager-client.manifest"
 privacy-manager-client_files += "${prefix}/lib/libprivacy-manager-client.so*"
 privacy-manager-client_files += "${prefix}/share/privacy-manager/privacy-filter-list.ini"
 privacy-manager-client_files += "${sysconfdir}/package-manager/parserlib/libprivileges.so"
+MANIFESTFILES_${PN}-client = "privacy-manager-client.manifest"
 
 privacy-manager-server_files = ""
-privacy-manager-server_files += "privacy-manager-server.manifest"
 privacy-manager-server_files += "${prefix}/lib/libprivacy-manager-server.so*"
 privacy-manager-server_files += "${prefix}/dbspace/.privacylist.db"
 privacy-manager-server_files += "/usr/bin/*"
+MANIFESTFILES_${PN}-server = "privacy-manager-server.manifest"
 
 privacy-manager-server-dev_files = ""
 privacy-manager-server-dev_files += "${prefix}/include/privacy_manager/server/privacy_manager_daemon.h"
@@ -227,18 +224,18 @@ privacy-manager-server-dev_files += "${prefix}/lib/pkgconfig/privacy-manager-ser
 
 capi-security-privacy-manager_files = ""
 capi-security-privacy-manager_files += "${prefix}/lib/libcapi-security-privacy-manager.so.*"
-capi-security-privacy-manager_files += "capi-security-privacy-manager.manifest"
+MANIFESTFILES_capi-security-${PN} = "capi-security-privacy-manager.manifest"
 
 privacy-manager-client-dev_files = ""
-privacy-manager-client-dev_files += "privacy-manager-client-devel.manifest"
 privacy-manager-client-dev_files += "${prefix}/include/*"
 privacy-manager-client-dev_files += "${prefix}/lib/pkgconfig/privacy-manager-client.pc"
+MANIFESTFILES_${PN}-client-dev = "privacy-manager-client-devel.manifest"
 
 capi-security-privacy-manager-dev_files = ""
-capi-security-privacy-manager-dev_files += "capi-security-privacy-manager-devel.manifest"
 capi-security-privacy-manager-dev_files += "${prefix}/include/privacymgr/*.h"
 capi-security-privacy-manager-dev_files += "${prefix}/lib/libcapi-security-privacy-manager.so"
 capi-security-privacy-manager-dev_files += "${prefix}/lib/pkgconfig/capi-security-privacy-manager.pc"
+MANIFESTFILES_capi-security-${PN}-dev = "capi-security-privacy-manager-devel.manifest"
 
 FILES_${PN}-client = "${privacy-manager-client_files}"
 FILES_${PN}-server = "${privacy-manager-server_files}"

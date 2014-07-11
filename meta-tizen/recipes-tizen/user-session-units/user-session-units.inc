@@ -52,39 +52,19 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} --enable-gnome --enable-enlightenment
- oe_runmake ${PARALLEL_MAKE}
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  
+  autotools_do_configure
+  oe_runmake ${PARALLEL_MAKE}
+  
+  
+  
 }
+EXTRA_OECONF += " --enable-gnome --enable-enlightenment"
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -116,22 +96,24 @@ PACKAGES += " user-session-units "
 PACKAGES += " user-session-units-gnome "
 
 user-session-units-enlightenment_files = ""
-user-session-units-enlightenment_files += "user-session-units.manifest"
 user-session-units-enlightenment_files += "/lib/systemd/user/e17.target"
 user-session-units-enlightenment_files += "/lib/systemd/user/enlightenment.service"
 user-session-units-enlightenment_files += "/lib/systemd/user/e17.target.wants/enlightenment.service"
+MANIFESTFILES_${PN}-enlightenment = "user-session-units.manifest"
 
 user-session-units_files = ""
-user-session-units_files += "user-session-units.manifest"
 user-session-units_files += "${prefix}/bin/user-session-launch"
 user-session-units_files += "/lib/systemd/system/*"
 user-session-units_files += "${sysconfdir}/pam.d/user-session"
+CONFFILES_${PN} = ""
+CONFFILES_${PN} += "${sysconfdir}/pam.d/user-session"
+MANIFESTFILES_${PN} = "user-session-units.manifest"
 
 user-session-units-gnome_files = ""
-user-session-units-gnome_files += "user-session-units.manifest"
 user-session-units-gnome_files += "/lib/systemd/user/gnome.target"
 user-session-units-gnome_files += "/lib/systemd/user/gnome-session.service"
 user-session-units-gnome_files += "/lib/systemd/user/gnome.target.wants/gnome-session.service"
+MANIFESTFILES_${PN}-gnome = "user-session-units.manifest"
 
 FILES_${PN}-enlightenment = "${user-session-units-enlightenment_files}"
 FILES_${PN} = "${user-session-units_files}"

@@ -76,9 +76,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -192,7 +189,6 @@ PACKAGES += " download-provider "
 PACKAGES += " download-provider-dev "
 
 download-provider_files = ""
-download-provider_files += "download-provider.manifest"
 download-provider_files += "${prefix}/bin/download-provider"
 download-provider_files += "${prefix}/share/download-provider/images/*.png"
 download-provider_files += "${prefix}/share/download-provider/images/*.gif"
@@ -204,15 +200,16 @@ download-provider_files += "/lib/systemd/system/download-provider.socket"
 download-provider_files += "/lib/systemd/system/sockets.target.wants/download-provider.socket"
 download-provider_files += "${prefix}/share/download-provider/sql/download-provider-schema.sql"
 download-provider_files += "${prefix}/share/download-provider/locales/*"
+MANIFESTFILES_${PN} = "download-provider.manifest"
 
 download-provider-dev_files = ""
-download-provider-dev_files += "download-provider.manifest"
 download-provider-dev_files += "${prefix}/lib/libdownloadagent2.so"
 download-provider-dev_files += "${prefix}/lib/libdownload-provider-interface.so"
 download-provider-dev_files += "${prefix}/include/download-provider/download-provider-defs.h"
 download-provider-dev_files += "${prefix}/include/download-provider/download-provider-interface.h"
 download-provider-dev_files += "${prefix}/lib/pkgconfig/download-provider.pc"
 download-provider-dev_files += "${prefix}/lib/pkgconfig/download-provider-interface.pc"
+MANIFESTFILES_${PN}-dev = "download-provider.manifest"
 
 FILES_${PN} = "${download-provider_files}"
 FILES_${PN}-dev = "${download-provider-dev_files}"

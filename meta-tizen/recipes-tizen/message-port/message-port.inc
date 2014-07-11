@@ -61,9 +61,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 1.2.2.1 | awk 'BEGIN {FS="."}{print $1}'`
@@ -79,9 +76,8 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DFULLVER=1.2.2.1 -DMAJORVER=${MAJORVER}
- 
  # Call make instruction with smp support
- make 
+ oe_runmake 
  
  
  
@@ -97,7 +93,6 @@ do_install() {
  mkdir -p ${D}
  
  rm -rf ${D}
- 
  
    oe_runmake \
          DESTDIR=${D} \
@@ -128,15 +123,14 @@ PACKAGES += " message-port-dev "
 PACKAGES += " message-port "
 
 message-port-dev_files = ""
-message-port-dev_files += "message-port.manifest"
 message-port-dev_files += "${prefix}/include/appfw/*.h"
 message-port-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 message-port-dev_files += "${prefix}/lib/libmessage-port.so"
+MANIFESTFILES_${PN}-dev = "message-port.manifest"
 
 message-port_files = ""
-message-port_files += "message-port.manifest"
 message-port_files += "${prefix}/lib/libmessage-port.so.*"
-message-port_files += "message-port.manifest"
+MANIFESTFILES_${PN} = "message-port.manifest"
 
 FILES_${PN}-dev = "${message-port-dev_files}"
 FILES_${PN} = "${message-port_files}"

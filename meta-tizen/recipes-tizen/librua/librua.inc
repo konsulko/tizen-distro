@@ -57,9 +57,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -120,19 +117,21 @@ PACKAGES += " librua-dev "
 PACKAGES += " librua-test "
 
 librua_files = ""
-librua_files += "librua.manifest"
 librua_files += "${prefix}/lib/librua.so.*"
+MANIFESTFILES_${PN} = "librua.manifest"
 
 librua-dev_files = ""
-librua-dev_files += "librua.manifest"
 librua-dev_files += "${prefix}/include/rua"
 librua-dev_files += "${prefix}/include/rua/*.h"
 librua-dev_files += "${prefix}/lib/librua.so"
 librua-dev_files += "${prefix}/lib/pkgconfig/rua.pc"
+MANIFESTFILES_${PN}-dev = "librua.manifest"
+DIRFILES_${PN}-dev = ""
+DIRFILES_${PN}-dev += "${prefix}/include/rua"
 
 librua-test_files = ""
-librua-test_files += "librua.manifest"
 librua-test_files += "${prefix}/bin/rua-test"
+MANIFESTFILES_${PN}-test = "librua.manifest"
 
 FILES_${PN} = "${librua_files}"
 FILES_${PN}-dev = "${librua-dev_files}"

@@ -52,9 +52,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -114,16 +111,18 @@ PACKAGES += " libslp-db-util-dev "
 PACKAGES += " libslp-db-util "
 
 libslp-db-util-dev_files = ""
-libslp-db-util-dev_files += "libslp-db-util-devel.manifest"
 libslp-db-util-dev_files += "${prefix}/include/db-util"
 libslp-db-util-dev_files += "${prefix}/include/db-util/*.h"
 libslp-db-util-dev_files += "${prefix}/lib/pkgconfig/db-util.pc"
 libslp-db-util-dev_files += "${prefix}/lib/libSLP-db-util.so"
+MANIFESTFILES_${PN}-dev = "libslp-db-util-devel.manifest"
+DIRFILES_${PN}-dev = ""
+DIRFILES_${PN}-dev += "${prefix}/include/db-util"
 
 libslp-db-util_files = ""
-libslp-db-util_files += "libslp-db-util.manifest"
 libslp-db-util_files += "${prefix}/lib/libSLP-db-util.so.0"
 libslp-db-util_files += "${prefix}/lib/libSLP-db-util.so.0.1.0"
+MANIFESTFILES_${PN} = "libslp-db-util.manifest"
 
 FILES_${PN}-dev = "${libslp-db-util-dev_files}"
 FILES_${PN} = "${libslp-db-util_files}"

@@ -47,49 +47,23 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- CFLAGS="${CFLAGS} -D_MM_PROJECT_FLOATER -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" "
- export CFLAGS
- 
- 
-   CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CFLAGS ; 
-   CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ; 
-   FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ; 
-   autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} \
-     --disable-testmode \
-     --disable-dump \
-     --enable-dyn \
-     --disable-iommap \
-     --disable-gtk \
-     --disable-drm
- 
- oe_runmake
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  CFLAGS="${CFLAGS} -D_MM_PROJECT_FLOATER -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" "
+  export CFLAGS
+  
+  
+  autotools_do_configure
+  
+  oe_runmake
+  
+  
+  
 }
+EXTRA_OECONF += " --disable-testmode --disable-dump --enable-dyn --disable-iommap --disable-gtk --disable-drm"
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -133,7 +107,6 @@ PACKAGES += " libmm-fileinfo "
 PACKAGES += " libmm-fileinfo-dev "
 
 libmm-fileinfo_files = ""
-libmm-fileinfo_files += "libmm-fileinfo.manifest"
 libmm-fileinfo_files += "${prefix}/bin/memtrace_reader"
 libmm-fileinfo_files += "${prefix}/bin/mm_file_test"
 libmm-fileinfo_files += "${prefix}/lib/libmmffile.so.*"
@@ -145,11 +118,12 @@ libmm-fileinfo_files += "${prefix}/lib/libmmfile_codecs.so"
 libmm-fileinfo_files += "${prefix}/lib/libmmfile_formats.so"
 libmm-fileinfo_files += "${prefix}/lib/libmmfile_utils.so"
 libmm-fileinfo_files += "${prefix}/share/license/libmm-fileinfo"
+MANIFESTFILES_${PN} = "libmm-fileinfo.manifest"
 
 libmm-fileinfo-dev_files = ""
-libmm-fileinfo-dev_files += "libmm-fileinfo.manifest"
 libmm-fileinfo-dev_files += "${prefix}/include/mmf/mm_file.h"
 libmm-fileinfo-dev_files += "${prefix}/lib/pkgconfig/mm-fileinfo.pc"
+MANIFESTFILES_${PN}-dev = "libmm-fileinfo.manifest"
 
 FILES_${PN} = "${libmm-fileinfo_files}"
 FILES_${PN}-dev = "${libmm-fileinfo-dev_files}"

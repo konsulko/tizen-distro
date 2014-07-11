@@ -50,9 +50,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -104,14 +101,14 @@ PACKAGES += " libsf-common "
 PACKAGES += " libsf-common-dev "
 
 libsf-common_files = ""
-libsf-common_files += "libsf-common.manifest"
 libsf-common_files += "${prefix}/lib/libsf_common.so"
 libsf-common_files += "${prefix}/share/license/libsf-common"
+MANIFESTFILES_${PN} = "libsf-common.manifest"
 
 libsf-common-dev_files = ""
-libsf-common-dev_files += "libsf-common.manifest"
 libsf-common-dev_files += "${prefix}/include/sf_common/*.h"
 libsf-common-dev_files += "${prefix}/lib/pkgconfig/sf_common.pc"
+MANIFESTFILES_${PN}-dev = "libsf-common.manifest"
 
 FILES_${PN} = "${libsf-common_files}"
 FILES_${PN}-dev = "${libsf-common-dev_files}"

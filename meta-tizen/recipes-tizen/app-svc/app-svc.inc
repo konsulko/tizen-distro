@@ -65,9 +65,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -136,19 +133,19 @@ PACKAGES += " app-svc "
 PACKAGES += " app-svc-dev "
 
 app-svc_files = ""
-app-svc_files += "app-svc.manifest"
 app-svc_files += "%verify(not md5 mtime size) %attr(664,root,users) ${prefix}/dbspace/.appsvc.db"
 app-svc_files += "%verify(not md5 mtime size) %attr(664,root,users) ${prefix}/dbspace/.appsvc.db-journal"
 app-svc_files += "/usr/bin/appsvc_test"
 app-svc_files += "${prefix}/lib/libappsvc.so.0"
 app-svc_files += "${prefix}/lib/libappsvc.so.0.1.0"
 app-svc_files += "/usr/share/license/app-svc"
+MANIFESTFILES_${PN} = "app-svc.manifest"
 
 app-svc-dev_files = ""
-app-svc-dev_files += "app-svc.manifest"
 app-svc-dev_files += "${prefix}/lib/pkgconfig/appsvc.pc"
 app-svc-dev_files += "${prefix}/lib/libappsvc.so"
 app-svc-dev_files += "${prefix}/include/appsvc/appsvc.h"
+MANIFESTFILES_${PN}-dev = "app-svc.manifest"
 
 FILES_${PN} = "${app-svc_files}"
 FILES_${PN}-dev = "${app-svc-dev_files}"

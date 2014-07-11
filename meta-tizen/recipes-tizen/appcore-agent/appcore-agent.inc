@@ -55,9 +55,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -72,7 +69,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} .
- make ${PARALLEL_MAKE}
+ oe_runmake ${PARALLEL_MAKE}
  
  
  
@@ -98,7 +95,6 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  
- 
 }
 
 pkg_postinst_${PN}() {
@@ -118,17 +114,16 @@ PACKAGES += " appcore-agent "
 PACKAGES += " appcore-agent-dev "
 
 appcore-agent_files = ""
-appcore-agent_files += "appcore-agent.manifest"
-appcore-agent_files += "appcore-agent.manifest"
 appcore-agent_files += "${prefix}/lib/libappcore-agent.so.1"
 appcore-agent_files += "${prefix}/lib/libappcore-agent.so.1.1"
+MANIFESTFILES_${PN} = "appcore-agent.manifest"
 
 appcore-agent-dev_files = ""
-appcore-agent-dev_files += "appcore-agent.manifest"
 appcore-agent-dev_files += "${prefix}/lib/pkgconfig/appcore-agent.pc"
 appcore-agent-dev_files += "${prefix}/lib/libappcore-agent.so"
 appcore-agent-dev_files += "${prefix}/include/appcore-agent/appcore-agent.h"
 appcore-agent-dev_files += "${prefix}/include/appcore-agent/service_app.h"
+MANIFESTFILES_${PN}-dev = "appcore-agent.manifest"
 
 FILES_${PN} = "${appcore-agent_files}"
 FILES_${PN}-dev = "${appcore-agent-dev_files}"

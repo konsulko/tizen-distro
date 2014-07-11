@@ -1,7 +1,7 @@
 DESCRIPTION = "Power manager library"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "TO_BE/FILLED_IN"
-LICENSE = "TO BE FILLED IN"
+SECTION = "System/Libraries"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -35,7 +35,6 @@ do_prep() {
  cp ${S}/packaging/libslp-pm.manifest .
  
  
- 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -49,9 +48,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
@@ -66,9 +62,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} .
- 
- 
- make 
+ oe_runmake 
  
  
  
@@ -95,7 +89,6 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  
- 
 }
 
 pkg_postinst_${PN}() {
@@ -115,17 +108,16 @@ PACKAGES += " libslp-pm "
 PACKAGES += " libslp-pm-dev "
 
 libslp-pm_files = ""
-libslp-pm_files += "libslp-pm.manifest"
-libslp-pm_files += "libslp-pm.manifest"
 libslp-pm_files += "${prefix}/lib/libpmapi.so.1.2"
+MANIFESTFILES_${PN} = "libslp-pm.manifest"
 
 libslp-pm-dev_files = ""
-libslp-pm-dev_files += "libslp-pm.manifest"
 libslp-pm-dev_files += "${prefix}/include/pmapi.h"
 libslp-pm-dev_files += "${prefix}/include/pmapi_managed.h"
 libslp-pm-dev_files += "${prefix}/include/SLP_pm_PG.h"
 libslp-pm-dev_files += "${prefix}/lib/pkgconfig/pmapi.pc"
 libslp-pm-dev_files += "${prefix}/lib/libpmapi.so"
+MANIFESTFILES_${PN}-dev = "libslp-pm.manifest"
 
 FILES_${PN} = "${libslp-pm_files}"
 FILES_${PN}-dev = "${libslp-pm-dev_files}"

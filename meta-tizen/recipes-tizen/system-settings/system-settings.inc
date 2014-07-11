@@ -60,9 +60,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 0.0.2 | awk 'BEGIN {FS="."}{print $1}'`
@@ -126,15 +123,15 @@ PACKAGES += " capi-system-system-settings-dev "
 PACKAGES += " capi-system-system-settings "
 
 capi-system-system-settings-dev_files = ""
-capi-system-system-settings-dev_files += "capi-system-system-settings-devel.manifest"
 capi-system-system-settings-dev_files += "${prefix}/include/system/*.h"
 capi-system-system-settings-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 capi-system-system-settings-dev_files += "${prefix}/lib/lib*.so"
+MANIFESTFILES_capi-system-${PN}-dev = "capi-system-system-settings-devel.manifest"
 
 capi-system-system-settings_files = ""
-capi-system-system-settings_files += "capi-system-system-settings.manifest"
 capi-system-system-settings_files += "${prefix}/lib/lib*.so.*"
 capi-system-system-settings_files += "/usr/bin/test_system_settings_gui"
+MANIFESTFILES_capi-system-${PN} = "capi-system-system-settings.manifest"
 
 FILES_capi-system-${PN}-dev = "${capi-system-system-settings-dev_files}"
 FILES_capi-system-${PN} = "${capi-system-system-settings_files}"

@@ -52,9 +52,6 @@ do_compile() {
  LANG=C
  export LANG
  unset DISPLAY
- CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables" ; export CFLAGS ;
- CXXFLAGS="${CXXFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables}" ; export CXXFLAGS ;
- FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -I%_fmoddir}" ; export FFLAGS ;
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  MAJORVER=`echo 0.1.17 | awk 'BEGIN {FS="."}{print $1}'`
@@ -121,15 +118,15 @@ PACKAGES += " capi-system-sensor-dev "
 PACKAGES += " capi-system-sensor "
 
 capi-system-sensor-dev_files = ""
-capi-system-sensor-dev_files += "capi-system-sensor.manifest"
 capi-system-sensor-dev_files += "${prefix}/include/system/sensors.h"
 capi-system-sensor-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 capi-system-sensor-dev_files += "${prefix}/lib/libcapi-system-sensor.so"
 capi-system-sensor-dev_files += "/usr/share/license/capi-system-sensor"
+MANIFESTFILES_capi-system-${PN}-dev = "capi-system-sensor.manifest"
 
 capi-system-sensor_files = ""
-capi-system-sensor_files += "capi-system-sensor.manifest"
 capi-system-sensor_files += "${prefix}/lib/libcapi-system-sensor.so.*"
+MANIFESTFILES_capi-system-${PN} = "capi-system-sensor.manifest"
 
 FILES_capi-system-${PN}-dev = "${capi-system-sensor-dev_files}"
 FILES_capi-system-${PN} = "${capi-system-sensor_files}"
