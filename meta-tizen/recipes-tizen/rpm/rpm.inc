@@ -145,7 +145,7 @@ do_compile() {
   
   CPPFLAGS="$CPPFLAGS `pkg-config --cflags nss`"
   export CPPFLAGS
-  export CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -ffunction-sections"
+  export CFLAGS="$CFLAGS -ffunction-sections"
   export LDFLAGS="${LDFLAGS} -Wl,-Bsymbolic-functions -ffunction-sections"
   
   

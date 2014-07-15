@@ -86,7 +86,7 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  CFLAGS="-fPIC -O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables " ; export CFLAGS
+  CFLAGS="-fPIC $CFLAGS " ; export CFLAGS
   
   
   autotools_do_configure

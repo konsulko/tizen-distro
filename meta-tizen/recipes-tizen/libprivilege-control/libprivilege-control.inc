@@ -77,10 +77,11 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DCMAKE_BUILD_TYPE=RELEASE \
           -DCMAKE_VERBOSE_MAKEFILE=ON \
- 	-DTZ_SYS_DB=${prefix}/dbspace \
- 	-DTZ_SYS_HOME=/home
+          -DTZ_SYS_DB=${prefix}/dbspace \
+          -DTZ_SYS_HOME=/home \
+          -DTZ_SYS_ETC=${sysconfdir}
  
- VERBOSE=1 make 
+ VERBOSE=1 oe_runmake 
  
  
  
@@ -104,12 +105,10 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/usr/share/privilege-control/
- 
- mkdir -p ${D}/usr/lib/systemd/system/multi-user.target.wants
- ln -sf /usr/lib/systemd/system/smack-rules.service ${D}/usr/lib/systemd/system/multi-user.target.wants/smack-rules.service
+ mkdir -p ${D}${prefix}/share/privilege-control/
+ mkdir -p ${D}${prefix}/lib/systemd/system/multi-user.target.wants
+ ln -sf ${prefix}/lib/systemd/system/smack-rules.service ${D}${prefix}/lib/systemd/system/multi-user.target.wants/smack-rules.service
  mkdir -p ${D}${prefix}/dbspace
- 
  sed -i 's|TZ_SYS_DB|${prefix}/dbspace|g' ${S}/packaging/libprivilege-control.manifest
  
  
@@ -119,7 +118,7 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     [ "x\$D" == "x" ] && ldconfig
-    /usr/share/privilege-control/db/updater.sh
+    $D${prefix}/share/privilege-control/db/updater.sh
     chsmack -a 'System' $D${prefix}/dbspace/.rules-db.db3*
 
 }
@@ -138,15 +137,15 @@ PACKAGES += " libprivilege-control-dev "
 libprivilege-control_files = ""
 libprivilege-control_files += "${prefix}/lib/*.so.*"
 libprivilege-control_files += "${prefix}/lib/librules-db-sql-udf.so"
-libprivilege-control_files += "/usr/lib/systemd/system/smack-rules.service"
-libprivilege-control_files += "/usr/bin/api_feature_loader"
-libprivilege-control_files += "/usr/lib/systemd/system/multi-user.target.wants/smack-rules.service"
-libprivilege-control_files += "/usr/share/privilege-control/db/rules-db.sql"
-libprivilege-control_files += "/usr/share/privilege-control/db/rules-db-data.sql"
-libprivilege-control_files += "/usr/share/privilege-control/db/updater.sh"
-libprivilege-control_files += "/usr/share/privilege-control/db/updates/*"
-libprivilege-control_files += "/usr/share/privilege-control/db/load-rules-db.sql"
-libprivilege-control_files += "/etc/opt/upgrade/220.libprivilege-updater.patch.sh"
+libprivilege-control_files += "${prefix}/lib/systemd/system/smack-rules.service"
+libprivilege-control_files += "${prefix}/bin/api_feature_loader"
+libprivilege-control_files += "${prefix}/lib/systemd/system/multi-user.target.wants/smack-rules.service"
+libprivilege-control_files += "${prefix}/share/privilege-control/db/rules-db.sql"
+libprivilege-control_files += "${prefix}/share/privilege-control/db/rules-db-data.sql"
+libprivilege-control_files += "${prefix}/share/privilege-control/db/updater.sh"
+libprivilege-control_files += "${prefix}/share/privilege-control/db/updates/*"
+libprivilege-control_files += "${prefix}/share/privilege-control/db/load-rules-db.sql"
+libprivilege-control_files += "${sysconfdir}/opt/upgrade/220.libprivilege-updater.patch.sh"
 libprivilege-control_files += "%dir ${prefix}/dbspace"
 MANIFESTFILES_${PN} = "libprivilege-control.manifest"
 

@@ -79,8 +79,8 @@ do_compile() {
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
- 	CFLAGS="${CFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables} -fPIC -D_REENTRANT -fvisibility=hidden"; export CFLAGS 
- 	FFLAGS="${FFLAGS:--O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables} -fPIC -fvisibility=hidden"; export FFLAGS 
+ 	CFLAGS="${CFLAGS:-$CFLAGS} -fPIC -D_REENTRANT -fvisibility=hidden"; export CFLAGS 
+ 	FFLAGS="${FFLAGS:-$CFLAGS} -fPIC -fvisibility=hidden"; export FFLAGS 
  	LDFLAGS+=" -Wl,--as-needed -Wl,--hash-style=both"; export LDFLAGS 
  	cmake \
  		-DCMAKE_INSTALL_PREFIX:PATH=${prefix} \

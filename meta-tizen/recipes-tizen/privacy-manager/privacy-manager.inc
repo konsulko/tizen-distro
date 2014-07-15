@@ -171,6 +171,7 @@ pkg_postinst_privacy-manager-server() {
     	$D${prefix}/bin/privacy_manager_create_clean_db.sh
     fi
     chsmack -a 'User' $D${prefix}/dbspace/.privacy.db*
+    chsmack -a 'User' $D${prefix}/dbspace/.privacylist.db*
 
 }
 

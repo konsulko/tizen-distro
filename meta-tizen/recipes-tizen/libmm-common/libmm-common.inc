@@ -50,7 +50,7 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  CFLAGS="-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fasynchronous-unwind-tables -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" " 
+  CFLAGS="$CFLAGS -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" " 
   autotools_do_configure
   oe_runmake ${PARALLEL_MAKE}
   
