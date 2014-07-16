@@ -4,6 +4,7 @@ RDEPENDS_${PN}_remove_class-native = "eglibc-native"
 RDEPENDS_${PN}_remove_class-native = "systemd-native"
 DEPENDS_remove_class-native = "dlog-native"
 
+DEPENDS_class-target += "glib-2.0"
 DEPENDS_class-target += "vconf-native"
 
 do_install_append_class-native() {
