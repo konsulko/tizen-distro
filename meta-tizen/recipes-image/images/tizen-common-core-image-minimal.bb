@@ -27,5 +27,7 @@ CORE_IMAGE_BASE_INSTALL += "desktop-skin"
 CORE_IMAGE_BASE_INSTALL += "rpm-security-plugin"
 CORE_IMAGE_BASE_INSTALL += "config-image"
 CORE_IMAGE_BASE_INSTALL += "kernel-modules"
+CORE_IMAGE_BASE_INSTALL += "less"
+CORE_IMAGE_BASE_INSTALL += "bash"
 
 export SYSROOT = "${IMAGE_ROOTFS}"

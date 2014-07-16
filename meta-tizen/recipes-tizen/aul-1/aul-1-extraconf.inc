@@ -36,5 +36,5 @@ DEPENDS += "vconf"
 DEPENDS += "privacy-manager"
 
 do_configure_prepend() {
-    sed -i 's!/usr/bin/mkdir -m!/bin/mkdir -p -m!g' ${S}/packaging/ac.service
+    sed -i 's!/usr/bin/mkdir -p!/bin/mkdir -p!g' ${S}/packaging/ac.service
 }

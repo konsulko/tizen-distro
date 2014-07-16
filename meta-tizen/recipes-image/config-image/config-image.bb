@@ -12,6 +12,33 @@ do_install() {
   touch ${D}${sysconfdir}/environment
   chmod 0644 ${D}${sysconfdir}/environment
   
+  mkdir -p ${D}${localstatedir}
+  ln -s ${localstatedir}/volatile/log  ${D}${localstatedir}/log
+  
+  mkdir -p ${D}${sysconfdir}/profile.d
+cat >${D}${sysconfdir}/profile.d/bash_prompt_custom.sh <<'EOF'
+    # set a fancy prompt (overwrite the one in /etc/profile)
+    default="\[\e[0m\]"
+    usercol='\[\e[1;34m\]' # blue
+    hostcol='\[\e[1;32m\]' # green
+    pathcol='\[\e[1;33m\]' # yellow
+    gitcol='\[\e[1;31m\]' # light red
+    termcmd=''
+    _p="$";
+
+    if [ "`id -u`" -eq 0 ]; then
+        usercol='\[\e[1;31m\]'
+        _p="#"
+    fi
+
+    PS1="${usercol}\u${default}@${hostcol}\h${default}:${pathcol}\w${default}${gitcol}${default}${_p} ${termcmd}"
+
+    alias ll="ls -lZ"
+    alias lr="ls -ltrZ"
+    alias la="ls -alZ"
+
+EOF
+  
 }
 
 pkg_postinst_${PN} () {
@@ -22,7 +49,18 @@ pkg_postinst_${PN} () {
   chsmack -t $D${localstatedir}/volatile/log
   chsmack -a 'System::Log'  $D${localstatedir}/volatile/log
 
+  touch $D${localstatedir}/volatile/log/lastlog
+  touch $D${localstatedir}/volatile/log/faillog
+  touch $D${localstatedir}/volatile/log/wtmp
+  touch $D${localstatedir}/volatile/log/btmp
+  
+  mkdir -p $D${sysconfdir}/profile.d
+
+  
 }
 
 FILES_${PN} = "${sysconfdir}/tizen \
-               ${sysconfdir}/environment "
+               ${sysconfdir}/environment \
+               ${localstatedir}/log \
+               ${sysconfdir}/profile.d/bash_prompt_custom.sh \
+               "
