@@ -16,6 +16,7 @@ COMPATIBLE_MACHINE_x86-64 = "(.*)"
 COMPATIBLE_MACHINE_armv6 = "(.*)"
 COMPATIBLE_MACHINE_armv7a = "(.*)"
 COMPATIBLE_MACHINE_romley-ivb = "(.*)"
+COMPATIBLE_MACHINE_valleyisland-64 = "(.*)"
 
 do_compile() {
  cd ${S}
