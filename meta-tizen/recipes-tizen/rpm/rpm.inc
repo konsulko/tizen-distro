@@ -115,7 +115,7 @@ do_prep() {
  cp ${S}/packaging/rpm.manifest .
  rm -rf sqlite
  tar xjf ${S}/packaging/db-4.8.30.tar.bz2
- ln -s db-4.8.30 db
+ ln -sfn db-4.8.30 db
  chmod -R u+w db/*
  # will get linked from db3
  rm -f rpmdb/db.h
