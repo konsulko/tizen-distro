@@ -6,6 +6,8 @@ DEPENDS_remove_class-native = "dlog-native"
 
 DEPENDS_class-target += "glib-2.0"
 DEPENDS_class-target += "vconf-native"
+DEPENDS_class-target += "vconf-internal-keys"
+DEPENDS_class-target += "dlog"
 
 do_install_append_class-native() {
  sed -i "s@source /etc/tizen-platform.conf@source ${sysconfdir}/tizen-platform.conf@g" ${D}${prefix}/bin/vconf-init
