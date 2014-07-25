@@ -37,16 +37,16 @@ DEPENDS = ""
 #DEPENDS of media-server
 DEPENDS += "drm-client"
 DEPENDS += "notification"
-DEPENDS += "dbus"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
+DEPENDS += "libslp-db-util"
 DEPENDS += "heynoti"
 DEPENDS += "sqlite3"
 DEPENDS += "libslp-pm"
 DEPENDS += "vconf"
-DEPENDS += "libslp-db-util"
+DEPENDS += "dbus-glib"
 
 do_prep() {
  cd ${S}

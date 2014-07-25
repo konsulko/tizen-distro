@@ -30,9 +30,9 @@ DEPENDS = ""
 #DEPENDS of capi-web-favorites
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
-DEPENDS += "evas"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "dlog"
+DEPENDS += "efl"
 DEPENDS += "common"
 DEPENDS += "libslp-db-util"
 

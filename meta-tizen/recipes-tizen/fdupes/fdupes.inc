@@ -1,7 +1,7 @@
 DESCRIPTION = "Identifying or deleting duplicate files"
 HOMEPAGE = "http://premium.caribe.net/~adrian2/fdupes.html"
-SECTION = "Productivity/Archiving/Compression"
-LICENSE = "X11/MIT"
+SECTION = "Base/Compression"
+LICENSE = "MIT"
 
 SRC_URI = ""
 
@@ -56,8 +56,8 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- install -D -m755 fdupes ${D}/usr/bin/fdupes
- install -D -m644 fdupes.1 ${D}/usr/share/man/man1/fdupes.1
+ install -D -m755 fdupes ${D}${prefix}/bin/fdupes
+ install -D -m644 fdupes.1 ${D}${mandir}/man1/fdupes.1
  install -D -m644 ${S}/packaging/macros.fdupes ${D}${sysconfdir}/rpm/macros.fdupes
  
  
@@ -71,6 +71,8 @@ fdupes_files += "CHANGES"
 fdupes_files += "${prefix}/bin/fdupes"
 fdupes_files += "${mandir}/*/*"
 fdupes_files += "${sysconfdir}/rpm"
+CONFFILES_${PN} = ""
+CONFFILES_${PN} += "${sysconfdir}/rpm"
 MANIFESTFILES_${PN} = "fdupes.manifest"
 
 FILES_${PN} = "${fdupes_files}"

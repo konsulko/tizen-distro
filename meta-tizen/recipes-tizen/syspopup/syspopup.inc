@@ -40,14 +40,14 @@ DEPENDS = ""
 #DEPENDS of syspopup
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
-DEPENDS += "evas"
-DEPENDS += "dbus"
+DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "dlog"
 DEPENDS += "app-core"
+DEPENDS += "efl"
 DEPENDS += "bundle"
 DEPENDS += "sqlite3"
-DEPENDS += "tizen-platform-config"
+DEPENDS += "dbus-glib"
 
 do_prep() {
  cd ${S}

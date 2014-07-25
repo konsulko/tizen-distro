@@ -25,7 +25,7 @@ RDEPENDS_${PN}-dev += "heynoti"
 
 DEPENDS = ""
 #DEPENDS of heynoti
-DEPENDS += "ecore"
+DEPENDS += "efl"
 DEPENDS += "tizen-platform-config"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"

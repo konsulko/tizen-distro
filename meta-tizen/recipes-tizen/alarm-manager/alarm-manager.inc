@@ -37,19 +37,20 @@ RDEPENDS_libalarm-dev += "libalarm"
 
 DEPENDS = ""
 #DEPENDS of alarm-manager
+DEPENDS += "dlog"
 DEPENDS += "dbus"
 DEPENDS += "app-svc"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "bundle"
 DEPENDS += "glib-2.0"
-DEPENDS += "dlog"
+DEPENDS += "libslp-db-util"
 DEPENDS += "libslp-pm"
 DEPENDS += "security-server"
 DEPENDS += "heynoti"
 DEPENDS += "libtapi-legacy"
 DEPENDS += "vconf"
-DEPENDS += "libslp-db-util"
+DEPENDS += "dbus-glib"
 
 do_prep() {
  cd ${S}

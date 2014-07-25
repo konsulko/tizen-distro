@@ -68,9 +68,10 @@ DEPENDS += "security-server"
 DEPENDS += "dlog"
 DEPENDS += "app-core"
 DEPENDS += "ail"
+DEPENDS += "efl"
 DEPENDS += "bundle"
-DEPENDS += "ecore"
 DEPENDS += "tizen-platform-config"
+DEPENDS += "dbus-glib"
 
 do_prep() {
  cd ${S}

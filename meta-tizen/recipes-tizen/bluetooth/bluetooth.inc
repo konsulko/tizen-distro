@@ -27,11 +27,11 @@ DEPENDS = ""
 #DEPENDS of capi-network-bluetooth
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
-DEPENDS += "dbus"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "common"
 DEPENDS += "vconf"
+DEPENDS += "dbus-glib"
 DEPENDS += "bluetooth-frwk"
 
 do_prep() {

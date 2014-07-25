@@ -58,9 +58,9 @@ DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
+DEPENDS += "efl"
 DEPENDS += "libslp-sensor"
 DEPENDS += "elementary"
-DEPENDS += "ecore"
 DEPENDS += "vconf"
 
 do_prep() {

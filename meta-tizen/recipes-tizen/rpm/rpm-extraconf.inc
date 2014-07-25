@@ -16,6 +16,9 @@ DEPENDS += "lua-native"
 DEPENDS += "python-native"
 DEPENDS_remove = "make"
 
+DEPENDS_append_class-native = " libcap-native"
+DEPENDS_append_class-target = " libcap"
+
 CFLAGS_append = " -DRPM_VENDOR_OE "
 
 #BBCLASSEXTEND += " nativesdk "
@@ -47,49 +50,29 @@ do_compile_prepend() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
-
- CPPFLAGS="$CPPFLAGS `pkg-config --cflags nss`"
- export CPPFLAGS
- export LDFLAGS="${LDFLAGS} -Wl,-Bsymbolic-functions -ffunction-sections"
-
- BUILDTARGET="--host=x86_64-linux-gnu "
-
-   export CFLAGS+=" -DRPM_VENDOR_OE "
-   autoreconf -i -f
-   ./configure   --host=${HOST_SYS} \
-         --target=x86_64-tizen-linux \
-         --program-prefix= \
-         --prefix=${prefix} \
-         --exec-prefix=${prefix} \
-         --bindir=${prefix}/bin \
-         --sbindir=${prefix}/sbin \
-         --sysconfdir=${sysconfdir} \
-         --datadir=${prefix}/share \
-         --includedir=${prefix}/include \
-         --libdir=${prefix}/lib \
-         --libexecdir=${prefix}/libexec \
-         --localstatedir=${localstatedir} \
-         --sharedstatedir=${prefix}/com \
-         --mandir=${mandir} \
-         --infodir=${infodir} \
-     --disable-dependency-tracking \
-     --with-lua \
-     --with-acl \
-     --with-cap \
-     --enable-shared \
-     --enable-python \
-     --with-python-inc-dir=${STAGING_INCDIR}/python${PYTHON_BASEVERSION} \
-     --with-python-lib-dir=${libdir}/python${PYTHON_BASEVERSION}/site-packages \
-     --with-msm \
-     $BUILDTARGET
-
- oe_runmake ${PARALLEL_MAKE}
-
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  CPPFLAGS="$CPPFLAGS `pkg-config --cflags nss`"
+  export CPPFLAGS
+  export CFLAGS="$CFLAGS -ffunction-sections"
+  export LDFLAGS="${LDFLAGS} -Wl,-Bsymbolic-functions -ffunction-sections"
+  
+  export CFLAGS+=" -DRPM_VENDOR_OE "
+  autoreconf -i -f
+  oe_runconf
+  
+  make ${PARALLEL_MAKE}
+  
+  
+  
 }
+
+EXTRA_OECONF += " --with-python-inc-dir=${STAGING_INCDIR}/python${PYTHON_BASEVERSION} "
+EXTRA_OECONF += " --with-python-lib-dir=${libdir}/python${PYTHON_BASEVERSION}/site-packages "
+#EXTRA_OECONF += " --host=tizen-linux "
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}

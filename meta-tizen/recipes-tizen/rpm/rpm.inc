@@ -27,12 +27,6 @@ PROVIDES += "rpm:${prefix}/bin/rpmbuild"
 RPROVIDES_rpm-build += "rpm:${prefix}/bin/rpmbuild"
 
 
-#PROVIDES by rpm-locale
-# the PROVIDES rules is ignore "rpm-lang-all = 4.11.0.1"
-PROVIDES += "rpm-lang-all"
-RPROVIDES_rpm-locale  += "rpm-lang-all"
-
-
 #PROVIDES by rpm-dev
 
 
@@ -68,9 +62,6 @@ RDEPENDS_${PN}-build += "findutils"
 RDEPENDS_${PN}-build += "gzip"
 RDEPENDS_${PN}-build += "rpm"
 RDEPENDS_${PN}-build += "binutils"
-
-#RDEPENDS of rpm-locale  (${PN}-locale )
-RDEPENDS_${PN}-locale  += "rpm"
 
 #RDEPENDS of rpm-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "rpm"
@@ -328,8 +319,6 @@ rpm-dev_files += "${prefix}/lib/librpmsign.so"
 rpm-dev_files += "${prefix}/lib/pkgconfig/rpm.pc"
 MANIFESTFILES_${PN}-dev = "rpm.manifest"
 
-rpm-locale_files = ""
-
 rpm-docs_files = ""
 rpm-docs_files += "GROUPS"
 
@@ -382,7 +371,6 @@ FILES_${PN}-security-plugin = "${rpm-security-plugin_files}"
 FILES_python-${PN} = "${python-rpm_files}"
 FILES_${PN}-build = "${rpm-build_files}"
 FILES_${PN}-dev = "${rpm-dev_files}"
-FILES_${PN}-locale = "${rpm-locale_files}"
 FILES_${PN}-docs = "${rpm-docs_files}"
 FILES_${PN} = "${rpm_files}"
 
@@ -390,7 +378,6 @@ PKG_rpm-security-plugin= "rpm-security-plugin"
 PKG_python-rpm= "python-rpm"
 PKG_rpm-build= "rpm-build"
 PKG_rpm-dev= "rpm-dev"
-PKG_rpm-locale= "rpm-locale"
 PKG_rpm-docs= "rpm-docs"
 PKG_rpm= "rpm"
 

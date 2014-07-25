@@ -62,10 +62,11 @@ DEPENDS += "dbus"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "system-info"
+DEPENDS += "libslp-db-util"
 DEPENDS += "common"
 DEPENDS += "sqlite3"
 DEPENDS += "tizen-platform-config"
-DEPENDS += "libslp-db-util"
+DEPENDS += "dbus-glib"
 
 do_prep() {
  cd ${S}

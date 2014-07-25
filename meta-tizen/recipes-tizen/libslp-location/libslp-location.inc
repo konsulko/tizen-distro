@@ -29,11 +29,11 @@ RDEPENDS_${PN} += "vconf"
 
 DEPENDS = ""
 #DEPENDS of libslp-location
-DEPENDS += "dbus"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "json-glib"
 DEPENDS += "vconf"
+DEPENDS += "dbus-glib"
 
 do_prep() {
  cd ${S}

@@ -86,8 +86,7 @@ do_prep() {
  
  # The profiles using Wayland (and thus Ozone) do not need this patch.
  
- cat ${S}/packaging/crosswalk-tizen-ozonewl-xdgshell150.patch | patch -s  -p0 --fuzz=2
- #patch11
+ ###patch11
  
  
 }

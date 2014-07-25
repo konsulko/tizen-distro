@@ -25,13 +25,13 @@ RDEPENDS_${PN}-dev += "libwifi-direct"
 
 DEPENDS = ""
 #DEPENDS of libwifi-direct
-DEPENDS += "dbus"
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
-DEPENDS += "vconf"
-DEPENDS += "dlog"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
+DEPENDS_append_class-native = " cmake-native"
+DEPENDS_append_class-target = " cmake-native"
+DEPENDS += "dlog"
+DEPENDS += "dbus-glib"
+DEPENDS += "vconf"
 
 do_prep() {
  cd ${S}

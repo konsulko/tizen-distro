@@ -27,6 +27,12 @@ do_compile() {
  CC_host="gcc"; export CC_host
  CXX_host="g++"; export CXX_host
 
+ LD="${CXX}" export LD
+ CC="${CC}" export CC
+ CXX="${CXX}" export CXX
+ 
+ #CXXFLAGS="$CXXFLAGS -std=c++11" export CXXFLAGS
+ 
  # For ffmpeg on ia32. The original CFLAGS set by the gyp and config files in
  # src/third_party/ffmpeg already pass -O2 -fomit-frame-pointer, but Tizen's
  # CFLAGS end up appending -fno-omit-frame-pointer. See http://crbug.com/37246
@@ -68,9 +74,11 @@ do_compile() {
  -Duse_gconf=0 \
  -Duse_gnome_keyring=0 \
  -Duse_kerberos=0 \
- -Denable_hidpi=1
+ -Denable_hidpi=1 \
+ -Duse_system_bzip2=1 \
+ -Duse_proprietary_codecs=0 
 
- ninja ${PARALLEL_MAKE} -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
+ ninja ${PARALLEL_MAKE} -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper 
 
 }
 

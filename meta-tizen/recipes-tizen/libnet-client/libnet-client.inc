@@ -30,10 +30,10 @@ DEPENDS = ""
 #DEPENDS of libnet-client
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
-DEPENDS += "dbus"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "vconf"
+DEPENDS += "dbus-glib"
 
 do_prep() {
  cd ${S}

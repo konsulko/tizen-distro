@@ -1,4 +1,4 @@
-DESCRIPTION = "PAM"
+DESCRIPTION = "A Security Tool that Provides Authentication for Applications"
 HOMEPAGE = "http://www.linux-pam.org/"
 SECTION = "Security/Access Control"
 LICENSE = "GPL-2.0+ or BSD-3-Clause"
@@ -18,12 +18,6 @@ PROVIDES = ""
 #PROVIDES by pam-docs
 
 
-#PROVIDES by pam-locale
-# the PROVIDES rules is ignore "pam-lang-all = 1.1.6"
-PROVIDES += "pam-lang-all"
-RPROVIDES_pam-locale  += "pam-lang-all"
-
-
 #PROVIDES by pam
 
 
@@ -33,9 +27,6 @@ RPROVIDES_pam-locale  += "pam-lang-all"
 RDEPENDS = ""
 #RDEPENDS of pam-modules-extra (${PN}-modules-extra)
 RDEPENDS_${PN}-modules-extra += "pam"
-
-#RDEPENDS of pam-locale  (${PN}-locale )
-RDEPENDS_${PN}-locale  += "pam"
 
 #RDEPENDS of pam (${PN})
 RDEPENDS_${PN} += "coreutils"
@@ -70,7 +61,6 @@ do_prep() {
  cp ${S}/packaging/pam.manifest .
  
  
- 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -88,15 +78,13 @@ do_compile() {
   
   CFLAGS="-fPIC $CFLAGS " ; export CFLAGS
   
-  
   autotools_do_configure
-  
-  make  CFLAGS="$CFLAGS -lfl -lcrypt"
+  oe_runmake  CFLAGS="$CFLAGS -lfl -lcrypt"
   
   
   
 }
-EXTRA_OECONF += " --libdir=${prefix}/lib --includedir=${prefix}/include/security --enable-isadir=../..${prefix}/lib/security --disable-audit --with-db-uniquename=_pam --with-libiconv-prefix=/usr --enable-read-both-confs &&"
+EXTRA_OECONF += " --libdir=${prefix}/lib --includedir=${prefix}/include/security --enable-isadir=../..${prefix}/lib/security --disable-audit --with-db-uniquename=_pam --with-libiconv-prefix=/usr --enable-read-both-confs "
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
@@ -210,7 +198,6 @@ pam_files += "${sysconfdir}/security/limits.conf"
 pam_files += "${prefix}/lib/libpam.so.*"
 pam_files += "${prefix}/lib/libpam_misc.so.*"
 pam_files += "${prefix}/lib/libpamc.so.*"
-pam_files += "${prefix}/lib/security"
 pam_files += "${prefix}/lib/security/pam_deny.so"
 pam_files += "${prefix}/lib/security/pam_env.so"
 pam_files += "${prefix}/lib/security/pam_keyinit.so"
@@ -238,27 +225,26 @@ pam_files += "${sysconfdir}/security/time.conf"
 pam_files += "${sysconfdir}/pam.d"
 pam_files += "${sysconfdir}/pam.d/system-auth"
 pam_files += "${sysconfdir}/pam.d/other"
+CONFFILES_${PN} = ""
+CONFFILES_${PN} += "${sysconfdir}/security/limits.conf"
+CONFFILES_${PN} += "${sysconfdir}/pam.d/system-auth"
+CONFFILES_${PN} += "${sysconfdir}/pam.d/other"
 MANIFESTFILES_${PN} = "pam.manifest"
 DIRFILES_${PN} = ""
-DIRFILES_${PN} += "${prefix}/lib/security"
 DIRFILES_${PN} += "${sysconfdir}/security"
 DIRFILES_${PN} += "${sysconfdir}/pam.d"
 
 pam-docs_files = ""
 
-pam-locale_files = ""
-
 FILES_${PN}-modules-extra = "${pam-modules-extra_files}"
 FILES_${PN}-dev = "${pam-dev_files}"
 FILES_${PN} = "${pam_files}"
 FILES_${PN}-docs = "${pam-docs_files}"
-FILES_${PN}-locale = "${pam-locale_files}"
 
 PKG_pam-modules-extra= "pam-modules-extra"
 PKG_pam-dev= "pam-dev"
 PKG_pam= "pam"
 PKG_pam-docs= "pam-docs"
-PKG_pam-locale= "pam-locale"
 
 require pam-extraconf.inc
 

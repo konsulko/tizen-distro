@@ -60,6 +60,7 @@ DEPENDS += "notification"
 DEPENDS += "alarm-manager"
 DEPENDS += "libprivilege-control"
 DEPENDS += "vconf"
+DEPENDS += "dbus-glib"
 
 do_prep() {
  cd ${S}
