@@ -1,0 +1,17 @@
+diff --git a/Makefile.am b/Makefile.am
+index 54cdb01..e36f388 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -50,12 +50,10 @@ SUBDIRS = \
+ 	util \
+ 	conf \
+ 	client \
+-	tools \
+ 	data \
+ 	m4 \
+ 	po \
+ 	docs \
+-	$(ENGINE_DIR) \
+ 	$(UI_DIR) \
+ 	$(DAEMON_DIR) \
+ 	$(PYTHON_LIB_DIRS) \
