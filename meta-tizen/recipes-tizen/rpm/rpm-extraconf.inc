@@ -35,9 +35,9 @@ do_compile_prepend() {
  export CPPFLAGS
  export LDFLAGS="${LDFLAGS} -Wl,-Bsymbolic-functions -ffunction-sections"
 
- export CCFLAGS+=" -fPIC "
- export CXXFLAGS+=" -fPIC "
- export CFLAGS+=" -fPIC "
+ export CCFLAGS="${CCFLAGS} -fPIC "
+ export CXXFLAGS="${CXXFLAGS} -fPIC "
+ export CFLAGS="${CFLAGS} -fPIC "
 
  cd db3
  ./configure --build=${TARGET_SYS} --host=x86_64-linux-gnu
@@ -45,7 +45,7 @@ do_compile_prepend() {
 
  cp db3/configure  db3/configure.ac
 
- export CFLAGS+=" -DRPM_VENDOR_OE "
+ export CFLAGS="${CFLAGS} -DRPM_VENDOR_OE "
 }
 
 do_compile() {
@@ -60,14 +60,11 @@ do_compile() {
   export CFLAGS="$CFLAGS -ffunction-sections"
   export LDFLAGS="${LDFLAGS} -Wl,-Bsymbolic-functions -ffunction-sections"
   
-  export CFLAGS+=" -DRPM_VENDOR_OE "
+  export CFLAGS="${CFLAGS} -DRPM_VENDOR_OE "
   autoreconf -i -f
   oe_runconf
   
   make ${PARALLEL_MAKE}
-  
-  
-  
 }
 
 EXTRA_OECONF += " --with-python-inc-dir=${STAGING_INCDIR}/python${PYTHON_BASEVERSION} "
