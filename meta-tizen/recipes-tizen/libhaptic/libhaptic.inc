@@ -16,9 +16,11 @@ PROVIDES = ""
 
 
 #PROVIDES by libhaptic-dev
+PROVIDES += "libhaptic-dev"
 
 
 #PROVIDES by libhaptic-plugin-dev
+PROVIDES += "libhaptic-plugin-dev"
 
 
 RDEPENDS = ""

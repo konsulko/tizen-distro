@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by chromium-dev
+PROVIDES += "chromium-dev"
 
 
 RDEPENDS = ""

@@ -13,12 +13,15 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by rpm-security-plugin
+PROVIDES += "rpm-security-plugin"
 
 
 #PROVIDES by python-rpm
+PROVIDES += "python-rpm"
 
 
 #PROVIDES by rpm-build
+PROVIDES += "rpm-build"
 # the PROVIDES rules is ignore "rpmbuild  "
 PROVIDES += "rpmbuild"
 RPROVIDES_rpm-build += "rpmbuild"
@@ -28,6 +31,7 @@ RPROVIDES_rpm-build += "rpm:${prefix}/bin/rpmbuild"
 
 
 #PROVIDES by rpm-dev
+PROVIDES += "rpm-dev"
 
 
 #PROVIDES by rpm
@@ -40,6 +44,7 @@ RPROVIDES_rpm += "rpm-libs"
 
 
 #PROVIDES by rpm-docs
+PROVIDES += "rpm-docs "
 
 
 RDEPENDS = ""

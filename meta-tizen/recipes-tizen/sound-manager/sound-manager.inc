@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by capi-media-sound-manager-dev
+PROVIDES += "capi-media-sound-manager-dev"
 
 
 #PROVIDES by capi-media-sound-manager
+PROVIDES += "capi-media-sound-manager"
 
 
 RDEPENDS = ""

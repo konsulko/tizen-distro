@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by download-provider-dev
+PROVIDES += "download-provider-dev"
 
 
 RDEPENDS = ""

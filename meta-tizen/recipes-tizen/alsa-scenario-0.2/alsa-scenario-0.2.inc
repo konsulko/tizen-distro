@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by alsa-scenario-dev
+PROVIDES += "alsa-scenario-dev"
 
 
 #PROVIDES by alsa-scenario
+PROVIDES += "alsa-scenario"
 
 
 RDEPENDS = ""

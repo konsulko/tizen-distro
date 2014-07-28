@@ -13,15 +13,18 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by app-checker-server-dev
+PROVIDES += "app-checker-server-dev"
 
 
 #PROVIDES by app-checker-dev
+PROVIDES += "app-checker-dev"
 
 
 #PROVIDES by app-checker
 
 
 #PROVIDES by app-checker-server
+PROVIDES += "app-checker-server"
 
 
 RDEPENDS = ""

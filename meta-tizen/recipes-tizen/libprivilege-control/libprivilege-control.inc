@@ -16,9 +16,11 @@ PROVIDES = ""
 
 
 #PROVIDES by libprivilege-control-conf
+PROVIDES += "libprivilege-control-conf"
 
 
 #PROVIDES by libprivilege-control-dev
+PROVIDES += "libprivilege-control-dev"
 
 
 RDEPENDS = ""

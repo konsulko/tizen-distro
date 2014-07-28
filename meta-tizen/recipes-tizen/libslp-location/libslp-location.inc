@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libslp-location-dev
+PROVIDES += "libslp-location-dev"
 
 
 #PROVIDES by libslp-location

@@ -13,15 +13,18 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by smack-dev
+PROVIDES += "smack-dev"
 
 
 #PROVIDES by smack
 
 
 #PROVIDES by libsmack
+PROVIDES += "libsmack"
 
 
 #PROVIDES by smack-docs
+PROVIDES += "smack-docs "
 
 
 RDEPENDS = ""

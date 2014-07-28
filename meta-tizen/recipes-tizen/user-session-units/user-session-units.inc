@@ -13,12 +13,14 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by user-session-units-enlightenment
+PROVIDES += "user-session-units-enlightenment"
 
 
 #PROVIDES by user-session-units
 
 
 #PROVIDES by user-session-units-gnome
+PROVIDES += "user-session-units-gnome"
 
 
 RDEPENDS = ""

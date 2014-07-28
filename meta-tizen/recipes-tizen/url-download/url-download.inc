@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by capi-web-url-download
+PROVIDES += "capi-web-url-download"
 
 
 #PROVIDES by capi-web-url-download-dev
+PROVIDES += "capi-web-url-download-dev"
 
 
 RDEPENDS = ""

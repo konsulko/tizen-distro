@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by libmm-session-dev
+PROVIDES += "libmm-session-dev"
 
 
 RDEPENDS = ""

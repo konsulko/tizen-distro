@@ -13,15 +13,18 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libdlog
+PROVIDES += "libdlog"
 
 
 #PROVIDES by dlogutil
+PROVIDES += "dlogutil"
 
 
 #PROVIDES by dlog
 
 
 #PROVIDES by libdlog-dev
+PROVIDES += "libdlog-dev"
 
 
 RDEPENDS = ""

@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by message-port-dev
+PROVIDES += "message-port-dev"
 
 
 #PROVIDES by message-port

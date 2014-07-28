@@ -13,141 +13,183 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by edje
+PROVIDES += "edje"
 
 
 #PROVIDES by ephysics-examples
+PROVIDES += "ephysics-examples"
 
 
 #PROVIDES by eo
+PROVIDES += "eo"
 
 
 #PROVIDES by ephysics-dev
+PROVIDES += "ephysics-dev"
 
 
 #PROVIDES by emotion-dev
+PROVIDES += "emotion-dev"
 
 
 #PROVIDES by eina
+PROVIDES += "eina"
 
 
 #PROVIDES by eina-examples
+PROVIDES += "eina-examples"
 
 
 #PROVIDES by eo-examples
+PROVIDES += "eo-examples"
 
 
 #PROVIDES by eet-dev
+PROVIDES += "eet-dev"
 
 
 #PROVIDES by ephysics
+PROVIDES += "ephysics"
 
 
 #PROVIDES by eeze-dev
+PROVIDES += "eeze-dev"
 
 
 #PROVIDES by efl
 
 
 #PROVIDES by efreet-dev
+PROVIDES += "efreet-dev"
 
 
 #PROVIDES by ecore-dev
+PROVIDES += "ecore-dev"
 
 
 #PROVIDES by ethumb-examples
+PROVIDES += "ethumb-examples"
 
 
 #PROVIDES by ethumb
+PROVIDES += "ethumb"
 
 
 #PROVIDES by evas-dev
+PROVIDES += "evas-dev"
 
 
 #PROVIDES by efl-data
+PROVIDES += "efl-data"
 
 
 #PROVIDES by evas
+PROVIDES += "evas"
 
 
 #PROVIDES by eeze
+PROVIDES += "eeze"
 
 
 #PROVIDES by ethumb-dev
+PROVIDES += "ethumb-dev"
 
 
 #PROVIDES by efreet
+PROVIDES += "efreet"
 
 
 #PROVIDES by eldbus-dev
+PROVIDES += "eldbus-dev"
 
 
 #PROVIDES by eet-examples
+PROVIDES += "eet-examples"
 
 
 #PROVIDES by embryo-dev
+PROVIDES += "embryo-dev"
 
 
 #PROVIDES by eio-dev
+PROVIDES += "eio-dev"
 
 
 #PROVIDES by ecore-examples
+PROVIDES += "ecore-examples"
 
 
 #PROVIDES by emotion
+PROVIDES += "emotion"
 
 
 #PROVIDES by eldbus-examples
+PROVIDES += "eldbus-examples"
 
 
 #PROVIDES by eo-dev
+PROVIDES += "eo-dev"
 
 
 #PROVIDES by embryo
+PROVIDES += "embryo"
 # the PROVIDES rules is ignore "embryo-bin  "
 PROVIDES += "embryo-bin"
 RPROVIDES_embryo += "embryo-bin"
 
 
 #PROVIDES by eio-examples
+PROVIDES += "eio-examples"
 
 
 #PROVIDES by eet-tools
+PROVIDES += "eet-tools"
 # the PROVIDES rules is ignore "eet-bin  "
 PROVIDES += "eet-bin"
 RPROVIDES_eet-tools += "eet-bin"
 
 
 #PROVIDES by edje-dev
+PROVIDES += "edje-dev"
 
 
 #PROVIDES by edje-tools
+PROVIDES += "edje-tools"
 # the PROVIDES rules is ignore "edje-bin  "
 PROVIDES += "edje-bin"
 RPROVIDES_edje-tools += "edje-bin"
 
 
 #PROVIDES by eet
+PROVIDES += "eet"
 
 
 #PROVIDES by eina-dev
+PROVIDES += "eina-dev"
 
 
 #PROVIDES by evas-examples
+PROVIDES += "evas-examples"
 
 
 #PROVIDES by emotion-examples
+PROVIDES += "emotion-examples"
 
 
 #PROVIDES by ecore
+PROVIDES += "ecore"
 
 
 #PROVIDES by eldbus
+PROVIDES += "eldbus"
 
 
 #PROVIDES by edje-examples
+PROVIDES += "edje-examples"
 
 
 #PROVIDES by eio
+PROVIDES += "eio"
 
 
 RDEPENDS = ""
@@ -164,13 +206,13 @@ RDEPENDS_eo += "efl-data"
 RDEPENDS_ephysics-dev += "ephysics"
 
 #RDEPENDS of emotion-dev (emotion-dev)
-RDEPENDS_emotion-dev += "efl"
+RDEPENDS_emotion-dev += "emotion"
 
 #RDEPENDS of eina (eina)
 RDEPENDS_eina += "efl-data"
 
 #RDEPENDS of eina-examples (eina-examples)
-RDEPENDS_eina-examples += "efl"
+RDEPENDS_eina-examples += "eina"
 
 #RDEPENDS of eo-examples (eo-examples)
 RDEPENDS_eo-examples += "eo"
@@ -182,13 +224,13 @@ RDEPENDS_eet-dev += "eet"
 RDEPENDS_eeze-dev += "eeze"
 
 #RDEPENDS of efreet-dev (efreet-dev)
-RDEPENDS_efreet-dev += "efl"
+RDEPENDS_efreet-dev += "efreet"
 
 #RDEPENDS of ecore-dev (ecore-dev)
-RDEPENDS_ecore-dev += "efl"
+RDEPENDS_ecore-dev += "ecore"
 
 #RDEPENDS of ethumb-examples (ethumb-examples)
-RDEPENDS_ethumb-examples += "efl"
+RDEPENDS_ethumb-examples += "ethumb"
 
 #RDEPENDS of ethumb (ethumb)
 RDEPENDS_ethumb += "efl-data"
@@ -203,7 +245,7 @@ RDEPENDS_evas += "efl-data"
 RDEPENDS_eeze += "efl-data"
 
 #RDEPENDS of ethumb-dev (ethumb-dev)
-RDEPENDS_ethumb-dev += "efl"
+RDEPENDS_ethumb-dev += "ethumb"
 
 #RDEPENDS of efreet (efreet)
 RDEPENDS_efreet += "efl-data"
@@ -221,7 +263,7 @@ RDEPENDS_embryo-dev += "embryo"
 RDEPENDS_eio-dev += "eio"
 
 #RDEPENDS of ecore-examples (ecore-examples)
-RDEPENDS_ecore-examples += "efl"
+RDEPENDS_ecore-examples += "ecore"
 
 #RDEPENDS of emotion (emotion)
 RDEPENDS_emotion += "efl-data"
@@ -245,19 +287,19 @@ RDEPENDS_eet-tools += "eet"
 RDEPENDS_edje-dev += "edje-tools"
 
 #RDEPENDS of edje-tools (edje-tools)
-RDEPENDS_edje-tools += "efl"
+RDEPENDS_edje-tools += "edje"
 
 #RDEPENDS of eet (eet)
 RDEPENDS_eet += "efl-data"
 
 #RDEPENDS of eina-dev (eina-dev)
-RDEPENDS_eina-dev += "efl"
+RDEPENDS_eina-dev += "eina"
 
 #RDEPENDS of evas-examples (evas-examples)
 RDEPENDS_evas-examples += "evas"
 
 #RDEPENDS of emotion-examples (emotion-examples)
-RDEPENDS_emotion-examples += "efl"
+RDEPENDS_emotion-examples += "emotion"
 
 #RDEPENDS of ecore (ecore)
 RDEPENDS_ecore += "efl-data"
@@ -266,7 +308,7 @@ RDEPENDS_ecore += "efl-data"
 RDEPENDS_eldbus += "efl-data"
 
 #RDEPENDS of edje-examples (edje-examples)
-RDEPENDS_edje-examples += "efl"
+RDEPENDS_edje-examples += "edje"
 
 #RDEPENDS of eio (eio)
 RDEPENDS_eio += "efl-data"

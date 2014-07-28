@@ -19,6 +19,7 @@ RPROVIDES_hwdata += "pciutils-ids"
 
 
 #PROVIDES by hwdata-ivi
+PROVIDES += "hwdata-ivi"
 
 
 RDEPENDS = ""

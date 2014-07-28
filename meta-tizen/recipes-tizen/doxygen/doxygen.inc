@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by doxygen-docs
+PROVIDES += "doxygen-docs "
 
 
 #PROVIDES by doxygen

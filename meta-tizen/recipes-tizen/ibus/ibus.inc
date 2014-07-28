@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by ibus-dev
+PROVIDES += "ibus-dev"
 
 
 #PROVIDES by ibus-libs
+PROVIDES += "ibus-libs"
 
 
 #PROVIDES by ibus

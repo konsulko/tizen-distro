@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by capi-network-bluetooth-dev
+PROVIDES += "capi-network-bluetooth-dev"
 
 
 #PROVIDES by capi-network-bluetooth
+PROVIDES += "capi-network-bluetooth"
 
 
 RDEPENDS = ""

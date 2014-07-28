@@ -16,15 +16,19 @@ PROVIDES = ""
 
 
 #PROVIDES by gobject-introspection-dev
+PROVIDES += "gobject-introspection-dev"
 
 
 #PROVIDES by girepository
+PROVIDES += "girepository"
 
 
 #PROVIDES by libgirepository
+PROVIDES += "libgirepository"
 
 
 #PROVIDES by gobject-introspection-docs
+PROVIDES += "gobject-introspection-docs "
 
 
 RDEPENDS = ""

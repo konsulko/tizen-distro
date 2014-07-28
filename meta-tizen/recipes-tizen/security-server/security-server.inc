@@ -13,18 +13,22 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by security-server-certs
+PROVIDES += "security-server-certs"
 
 
 #PROVIDES by libsecurity-server-client
+PROVIDES += "libsecurity-server-client"
 
 
 #PROVIDES by security-server
 
 
 #PROVIDES by security-server-dev
+PROVIDES += "security-server-dev"
 
 
 #PROVIDES by libsecurity-server-client-dev
+PROVIDES += "libsecurity-server-client-dev"
 
 
 RDEPENDS = ""

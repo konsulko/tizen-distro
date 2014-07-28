@@ -16,9 +16,11 @@ PROVIDES = ""
 
 
 #PROVIDES by libmm-utility-dev
+PROVIDES += "libmm-utility-dev"
 
 
 #PROVIDES by libmm-utility-tool
+PROVIDES += "libmm-utility-tool"
 
 
 RDEPENDS = ""

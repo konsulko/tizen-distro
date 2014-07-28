@@ -16,12 +16,15 @@ PROVIDES = ""
 
 
 #PROVIDES by libtzplatform-config-dev
+PROVIDES += "libtzplatform-config-dev"
 
 
 #PROVIDES by tizen-platform-config-tools
+PROVIDES += "tizen-platform-config-tools"
 
 
 #PROVIDES by libtzplatform-config
+PROVIDES += "libtzplatform-config"
 
 
 RDEPENDS = ""

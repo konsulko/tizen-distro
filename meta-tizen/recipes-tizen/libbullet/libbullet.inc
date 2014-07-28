@@ -13,12 +13,14 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by bullet-dev
+PROVIDES += "bullet-dev"
 
 
 #PROVIDES by libbullet
 
 
 #PROVIDES by bullet
+PROVIDES += "bullet"
 
 
 RDEPENDS = ""

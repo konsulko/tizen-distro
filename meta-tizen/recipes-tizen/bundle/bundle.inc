@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by bundle-dev
+PROVIDES += "bundle-dev"
 
 
 #PROVIDES by bundle

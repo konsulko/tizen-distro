@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by meta-common
+PROVIDES += "meta-common"
 
 
 RDEPENDS = ""

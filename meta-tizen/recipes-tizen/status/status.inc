@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by status-dev
+PROVIDES += "status-dev"
 
 
 RDEPENDS = ""

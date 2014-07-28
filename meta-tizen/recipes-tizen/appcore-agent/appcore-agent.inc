@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by appcore-agent-dev
+PROVIDES += "appcore-agent-dev"
 
 
 RDEPENDS = ""

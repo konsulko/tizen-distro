@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by capi-system-system-settings-dev
+PROVIDES += "capi-system-system-settings-dev"
 
 
 #PROVIDES by capi-system-system-settings
+PROVIDES += "capi-system-system-settings"
 
 
 RDEPENDS = ""
@@ -32,10 +34,10 @@ DEPENDS += "fontconfig"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "dlog"
 DEPENDS += "app-core"
-DEPENDS += "efl"
 DEPENDS += "common"
 DEPENDS += "libxml2"
 DEPENDS += "elementary"
+DEPENDS += "ecore"
 DEPENDS += "glib-2.0"
 DEPENDS += "vconf"
 

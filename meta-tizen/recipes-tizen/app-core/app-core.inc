@@ -13,21 +13,26 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by app-core-efl
+PROVIDES += "app-core-efl"
 
 
 #PROVIDES by app-core-template
+PROVIDES += "app-core-template"
 
 
 #PROVIDES by app-core
 
 
 #PROVIDES by app-core-common-dev
+PROVIDES += "app-core-common-dev"
 
 
 #PROVIDES by app-core-common
+PROVIDES += "app-core-common"
 
 
 #PROVIDES by app-core-efl-dev
+PROVIDES += "app-core-efl-dev"
 
 
 RDEPENDS = ""
@@ -58,9 +63,9 @@ DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
-DEPENDS += "efl"
 DEPENDS += "libslp-sensor"
 DEPENDS += "elementary"
+DEPENDS += "ecore"
 DEPENDS += "vconf"
 
 do_prep() {

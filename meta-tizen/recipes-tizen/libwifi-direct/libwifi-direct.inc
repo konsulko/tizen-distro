@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by libwifi-direct-dev
+PROVIDES += "libwifi-direct-dev"
 
 
 RDEPENDS = ""

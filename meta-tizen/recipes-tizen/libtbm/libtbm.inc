@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by libtbm-dev
+PROVIDES += "libtbm-dev"
 
 
 RDEPENDS = ""

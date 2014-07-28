@@ -13,12 +13,14 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by notification-service-dev
+PROVIDES += "notification-service-dev"
 
 
 #PROVIDES by notification
 
 
 #PROVIDES by notification-dev
+PROVIDES += "notification-dev"
 
 
 RDEPENDS = ""
@@ -39,6 +41,7 @@ DEPENDS = ""
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dbus-glib"
+DEPENDS += "eina"
 DEPENDS += "dbus"
 DEPENDS += "app-svc"
 DEPENDS += "tizen-platform-config"
@@ -46,8 +49,8 @@ DEPENDS += "aul"
 DEPENDS += "bundle"
 DEPENDS += "com-core"
 DEPENDS += "ail"
-DEPENDS += "efl"
 DEPENDS += "dlog"
+DEPENDS += "ecore"
 DEPENDS += "sqlite3"
 DEPENDS += "heynoti"
 DEPENDS += "vconf"

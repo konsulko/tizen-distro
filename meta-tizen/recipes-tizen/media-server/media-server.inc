@@ -13,12 +13,14 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libmedia-utils-dev
+PROVIDES += "libmedia-utils-dev"
 
 
 #PROVIDES by media-server
 
 
 #PROVIDES by libmedia-utils
+PROVIDES += "libmedia-utils"
 
 
 RDEPENDS = ""

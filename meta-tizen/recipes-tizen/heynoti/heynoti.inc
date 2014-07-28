@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by heynoti-dev
+PROVIDES += "heynoti-dev"
 
 
 RDEPENDS = ""
@@ -25,7 +26,7 @@ RDEPENDS_${PN}-dev += "heynoti"
 
 DEPENDS = ""
 #DEPENDS of heynoti
-DEPENDS += "efl"
+DEPENDS += "ecore"
 DEPENDS += "tizen-platform-config"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"

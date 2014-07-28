@@ -13,15 +13,18 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libdevman-dev
+PROVIDES += "libdevman-dev"
 
 
 #PROVIDES by libdevman-haptic-dev
+PROVIDES += "libdevman-haptic-dev"
 
 
 #PROVIDES by devman
 
 
 #PROVIDES by libdevman
+PROVIDES += "libdevman"
 
 
 RDEPENDS = ""

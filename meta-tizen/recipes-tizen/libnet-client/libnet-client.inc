@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libnet-client-dev
+PROVIDES += "libnet-client-dev"
 
 
 #PROVIDES by libnet-client

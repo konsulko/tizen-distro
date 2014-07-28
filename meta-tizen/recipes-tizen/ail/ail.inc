@@ -19,6 +19,7 @@ RPROVIDES_ail += "libail"
 
 
 #PROVIDES by ail-dev
+PROVIDES += "ail-dev"
 
 
 RDEPENDS = ""

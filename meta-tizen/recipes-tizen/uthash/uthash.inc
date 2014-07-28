@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by uthash-dev
+PROVIDES += "uthash-dev"
 
 
 RDEPENDS = ""

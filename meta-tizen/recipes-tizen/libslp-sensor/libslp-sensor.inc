@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by sensor
+PROVIDES += "sensor"
 
 
 #PROVIDES by sensor-dev
+PROVIDES += "sensor-dev"
 
 
 RDEPENDS = ""

@@ -13,15 +13,18 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by syspopup-dev
+PROVIDES += "syspopup-dev"
 
 
 #PROVIDES by syspopup
 
 
 #PROVIDES by syspopup-caller-dev
+PROVIDES += "syspopup-caller-dev"
 
 
 #PROVIDES by syspopup-caller
+PROVIDES += "syspopup-caller"
 
 
 RDEPENDS = ""
@@ -40,11 +43,11 @@ DEPENDS = ""
 #DEPENDS of syspopup
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
+DEPENDS += "evas"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "dlog"
 DEPENDS += "app-core"
-DEPENDS += "efl"
 DEPENDS += "bundle"
 DEPENDS += "sqlite3"
 DEPENDS += "dbus-glib"

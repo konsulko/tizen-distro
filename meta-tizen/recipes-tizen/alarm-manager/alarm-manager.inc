@@ -16,12 +16,15 @@ PROVIDES = ""
 
 
 #PROVIDES by libalarm
+PROVIDES += "libalarm"
 
 
 #PROVIDES by alarm-server
+PROVIDES += "alarm-server"
 
 
 #PROVIDES by libalarm-dev
+PROVIDES += "libalarm-dev"
 
 
 RDEPENDS = ""

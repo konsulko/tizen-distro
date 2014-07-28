@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by capi-system-runtime-info-dev
+PROVIDES += "capi-system-runtime-info-dev"
 
 
 #PROVIDES by capi-system-runtime-info
+PROVIDES += "capi-system-runtime-info"
 
 
 RDEPENDS = ""

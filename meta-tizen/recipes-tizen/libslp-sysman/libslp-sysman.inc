@@ -13,12 +13,15 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by sysman-internal-dev
+PROVIDES += "sysman-internal-dev"
 
 
 #PROVIDES by sysman-dev
+PROVIDES += "sysman-dev"
 
 
 #PROVIDES by sysman
+PROVIDES += "sysman"
 
 
 RDEPENDS = ""

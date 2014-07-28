@@ -13,18 +13,22 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by tizen-extensions-crosswalk-bluetooth-demo
+PROVIDES += "tizen-extensions-crosswalk-bluetooth-demo"
 
 
 #PROVIDES by tizen-extensions-crosswalk-audiosystem-demo
+PROVIDES += "tizen-extensions-crosswalk-audiosystem-demo"
 
 
 #PROVIDES by tizen-extensions-crosswalk
 
 
 #PROVIDES by tizen-extensions-crosswalk-examples
+PROVIDES += "tizen-extensions-crosswalk-examples"
 
 
 #PROVIDES by tizen-extensions-crosswalk-system-info-demo
+PROVIDES += "tizen-extensions-crosswalk-system-info-demo"
 
 
 RDEPENDS = ""
@@ -58,12 +62,12 @@ DEPENDS += "system-settings"
 DEPENDS += "glib-2.0"
 DEPENDS += "application"
 DEPENDS += "system-info"
-DEPENDS += "efl"
 DEPENDS += "app-manager"
 DEPENDS += "sensor"
 DEPENDS += "package-manager"
 DEPENDS += "power"
 inherit pythonnative
+DEPENDS += "evas"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "pulseaudio"
 DEPENDS += "pkgmgr-info"

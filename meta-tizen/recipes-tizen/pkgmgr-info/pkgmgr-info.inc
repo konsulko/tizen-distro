@@ -13,15 +13,18 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by pkgmgr-info-parser
+PROVIDES += "pkgmgr-info-parser"
 
 
 #PROVIDES by pkgmgr-info-parser-dev
+PROVIDES += "pkgmgr-info-parser-dev"
 
 
 #PROVIDES by pkgmgr-info
 
 
 #PROVIDES by pkgmgr-info-dev
+PROVIDES += "pkgmgr-info-dev"
 
 
 RDEPENDS = ""

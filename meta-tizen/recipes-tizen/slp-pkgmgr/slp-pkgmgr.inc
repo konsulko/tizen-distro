@@ -13,24 +13,31 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by pkgmgr-client
+PROVIDES += "pkgmgr-client"
 
 
 #PROVIDES by pkgmgr
+PROVIDES += "pkgmgr"
 
 
 #PROVIDES by pkgmgr-server
+PROVIDES += "pkgmgr-server"
 
 
 #PROVIDES by pkgmgr-types-dev
+PROVIDES += "pkgmgr-types-dev"
 
 
 #PROVIDES by pkgmgr-client-dev
+PROVIDES += "pkgmgr-client-dev"
 
 
 #PROVIDES by pkgmgr-installer-dev
+PROVIDES += "pkgmgr-installer-dev"
 
 
 #PROVIDES by pkgmgr-installer
+PROVIDES += "pkgmgr-installer"
 
 
 RDEPENDS = ""
@@ -68,8 +75,8 @@ DEPENDS += "security-server"
 DEPENDS += "dlog"
 DEPENDS += "app-core"
 DEPENDS += "ail"
-DEPENDS += "efl"
 DEPENDS += "bundle"
+DEPENDS += "ecore"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "dbus-glib"
 

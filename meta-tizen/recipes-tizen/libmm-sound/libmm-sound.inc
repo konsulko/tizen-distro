@@ -13,15 +13,18 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libmm-sound-dev
+PROVIDES += "libmm-sound-dev"
 
 
 #PROVIDES by libmm-sound
 
 
 #PROVIDES by libmm-sound-tool
+PROVIDES += "libmm-sound-tool"
 
 
 #PROVIDES by libmm-sound-sdk-dev
+PROVIDES += "libmm-sound-sdk-dev"
 
 
 RDEPENDS = ""

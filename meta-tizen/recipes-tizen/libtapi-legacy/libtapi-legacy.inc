@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libtapi-dev
+PROVIDES += "libtapi-dev"
 
 
 #PROVIDES by libtapi
+PROVIDES += "libtapi"
 # the PROVIDES rules is ignore "libslp-tapi  "
 PROVIDES += "libslp-tapi"
 RPROVIDES_libtapi += "libslp-tapi"

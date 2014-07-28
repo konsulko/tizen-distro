@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by aul
+PROVIDES += "aul"
 
 
 #PROVIDES by aul-dev
+PROVIDES += "aul-dev"
 
 
 RDEPENDS = ""
@@ -36,11 +38,11 @@ DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "attr"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "bundle"
+DEPENDS += "xdgmime"
 DEPENDS += "ail"
-DEPENDS += "efl"
 DEPENDS += "dlog"
 DEPENDS += "sqlite3"
-DEPENDS += "xdgmime"
+DEPENDS += "ecore"
 DEPENDS += "libprivilege-control"
 DEPENDS += "app-checker"
 DEPENDS += "vconf"

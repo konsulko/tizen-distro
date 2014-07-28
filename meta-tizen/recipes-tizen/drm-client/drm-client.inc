@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by drm-client-dev
+PROVIDES += "drm-client-dev"
 
 
 #PROVIDES by drm-client

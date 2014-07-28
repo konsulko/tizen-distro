@@ -16,12 +16,15 @@ PROVIDES = ""
 
 
 #PROVIDES by media-thumbnail-server
+PROVIDES += "media-thumbnail-server"
 
 
 #PROVIDES by libmedia-thumbnail-dev
+PROVIDES += "libmedia-thumbnail-dev"
 
 
 #PROVIDES by libmedia-thumbnail-test
+PROVIDES += "libmedia-thumbnail-test"
 
 
 RDEPENDS = ""
@@ -44,14 +47,15 @@ DEPENDS += "libmm-fileinfo"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "drm-client"
+DEPENDS += "evas"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "dlog"
 DEPENDS += "libexif"
 DEPENDS += "libmm-utility"
-DEPENDS += "efl"
 DEPENDS += "media-server"
 DEPENDS += "heynoti"
+DEPENDS += "ecore"
 DEPENDS += "vconf"
 
 do_prep() {

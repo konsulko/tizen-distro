@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by capi-web-favorites
+PROVIDES += "capi-web-favorites"
 
 
 #PROVIDES by capi-web-favorites-dev
+PROVIDES += "capi-web-favorites-dev"
 
 
 RDEPENDS = ""
@@ -30,9 +32,9 @@ DEPENDS = ""
 #DEPENDS of capi-web-favorites
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
+DEPENDS += "evas"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "dlog"
-DEPENDS += "efl"
 DEPENDS += "common"
 DEPENDS += "libslp-db-util"
 

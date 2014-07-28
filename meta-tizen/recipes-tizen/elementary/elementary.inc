@@ -1,6 +1,6 @@
 DESCRIPTION = "EFL toolkit for small touchscreens"
 HOMEPAGE = "http://trac.enlightenment.org/e/wiki/Elementary"
-SECTION = "Graphics/EFL"
+SECTION = "Graphics & UI Framework/Development"
 LICENSE = "LGPL-2.1+"
 
 SRC_URI = ""
@@ -16,12 +16,15 @@ PROVIDES = ""
 
 
 #PROVIDES by elementary-tools
+PROVIDES += "elementary-tools"
 
 
 #PROVIDES by elementary-dev
+PROVIDES += "elementary-dev"
 
 
 #PROVIDES by elementary-examples
+PROVIDES += "elementary-examples"
 
 
 RDEPENDS = ""
@@ -31,12 +34,20 @@ RDEPENDS_${PN}-dev += "elementary"
 
 DEPENDS = ""
 #DEPENDS of elementary
-inherit pythonnative
+DEPENDS += "edje"
+DEPENDS += "ethumb"
 DEPENDS += "edbus"
 DEPENDS += "doxygen"
-DEPENDS += "efl"
+inherit pythonnative
+DEPENDS += "eet"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
+DEPENDS += "efreet"
+DEPENDS += "eina"
+DEPENDS += "efl"
+DEPENDS += "evas"
+DEPENDS += "ecore"
+DEPENDS += "emotion"
 
 do_prep() {
  cd ${S}
@@ -65,12 +76,12 @@ do_compile() {
    
   autotools_do_configure
   
-  make ${PARALLEL_MAKE}
+  oe_runmake ${PARALLEL_MAKE}
   
   
   
 }
-EXTRA_OECONF += " --disable-static --enable-ecore-wayland --disable-ecore-x --disable-build-examples"
+EXTRA_OECONF += " --disable-static --enable-ecore-wayland --disable-ecore-x --disable-build-examples "
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}

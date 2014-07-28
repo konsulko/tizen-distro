@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by capi-appfw-application-dev
+PROVIDES += "capi-appfw-application-dev"
 
 
 #PROVIDES by capi-appfw-application
+PROVIDES += "capi-appfw-application"
 
 
 RDEPENDS = ""

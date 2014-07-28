@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by libslp-pm-dev
+PROVIDES += "libslp-pm-dev"
 
 
 RDEPENDS = ""

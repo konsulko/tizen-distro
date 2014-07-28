@@ -16,12 +16,15 @@ PROVIDES = ""
 
 
 #PROVIDES by lua-dev
+PROVIDES += "lua-dev"
 
 
 #PROVIDES by liblua
+PROVIDES += "liblua"
 
 
 #PROVIDES by lua-doc
+PROVIDES += "lua-doc"
 
 
 RDEPENDS = ""

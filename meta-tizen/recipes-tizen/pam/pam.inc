@@ -13,15 +13,18 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by pam-modules-extra
+PROVIDES += "pam-modules-extra"
 
 
 #PROVIDES by pam-docs
+PROVIDES += "pam-docs "
 
 
 #PROVIDES by pam
 
 
 #PROVIDES by pam-dev
+PROVIDES += "pam-dev"
 
 
 RDEPENDS = ""

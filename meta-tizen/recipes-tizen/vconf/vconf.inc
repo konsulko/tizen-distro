@@ -13,12 +13,14 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by vconf-keys-dev
+PROVIDES += "vconf-keys-dev"
 
 
 #PROVIDES by vconf
 
 
 #PROVIDES by vconf-dev
+PROVIDES += "vconf-dev"
 
 
 RDEPENDS = ""

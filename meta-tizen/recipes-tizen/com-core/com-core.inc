@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libcom-core
+PROVIDES += "libcom-core"
 
 
 #PROVIDES by libcom-core-dev
+PROVIDES += "libcom-core-dev"
 
 
 RDEPENDS = ""

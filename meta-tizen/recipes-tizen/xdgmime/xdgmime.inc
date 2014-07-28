@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by xdgmime-dev
+PROVIDES += "xdgmime-dev"
 
 
 #PROVIDES by xdgmime

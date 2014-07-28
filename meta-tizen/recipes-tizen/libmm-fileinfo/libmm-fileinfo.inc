@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by libmm-fileinfo-dev
+PROVIDES += "libmm-fileinfo-dev"
 
 
 RDEPENDS = ""

@@ -16,9 +16,11 @@ PROVIDES = ""
 
 
 #PROVIDES by avsystem-dev
+PROVIDES += "avsystem-dev"
 
 
 #PROVIDES by libavsysaudio
+PROVIDES += "libavsysaudio"
 
 
 RDEPENDS = ""

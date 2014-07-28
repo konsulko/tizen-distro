@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by libsf-common-dev
+PROVIDES += "libsf-common-dev"
 
 
 RDEPENDS = ""

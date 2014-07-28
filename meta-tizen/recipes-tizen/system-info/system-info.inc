@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by capi-system-info-dev
+PROVIDES += "capi-system-info-dev"
 
 
 #PROVIDES by capi-system-info
+PROVIDES += "capi-system-info"
 
 
 RDEPENDS = ""
@@ -30,8 +32,8 @@ DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
 DEPENDS += "libxml2"
 DEPENDS += "iniparser"
-DEPENDS += "efl"
 DEPENDS += "common"
+DEPENDS += "ecore"
 DEPENDS += "sound-manager"
 DEPENDS += "vconf"
 

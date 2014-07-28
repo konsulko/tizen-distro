@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by capi-location-manager-dev
+PROVIDES += "capi-location-manager-dev"
 
 
 #PROVIDES by capi-location-manager
+PROVIDES += "capi-location-manager"
 
 
 RDEPENDS = ""

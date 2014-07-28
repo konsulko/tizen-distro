@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by libmm-ta-dev
+PROVIDES += "libmm-ta-dev"
 
 
 RDEPENDS = ""

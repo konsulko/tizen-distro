@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libtapi3
+PROVIDES += "libtapi3"
 
 
 #PROVIDES by libtapi3-dev
+PROVIDES += "libtapi3-dev"
 
 
 RDEPENDS = ""

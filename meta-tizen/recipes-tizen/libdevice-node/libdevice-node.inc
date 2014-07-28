@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by libdevice-node-dev
+PROVIDES += "libdevice-node-dev"
 
 
 RDEPENDS = ""

@@ -19,9 +19,11 @@ RPROVIDES_weston-common += "weston-startup"
 
 
 #PROVIDES by weston-common-config
+PROVIDES += "weston-common-config"
 
 
 #PROVIDES by weston-common-tz-launcher
+PROVIDES += "weston-common-tz-launcher"
 
 
 RDEPENDS = ""

@@ -171,8 +171,6 @@ FILES_${PN}-dbg += "\
     ${libdir}/python2.7/site-packages/rpm/.debug/* \
     "
 
-PROVIDES += " python-rpm "
-
 DEPENDS_native += "popt-native"
 DEPENDS_native += "uthash-native"
 DEPENDS_native += "smack-native"

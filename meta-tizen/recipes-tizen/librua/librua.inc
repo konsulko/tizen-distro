@@ -16,9 +16,11 @@ PROVIDES = ""
 
 
 #PROVIDES by librua-dev
+PROVIDES += "librua-dev"
 
 
 #PROVIDES by librua-test
+PROVIDES += "librua-test"
 
 
 RDEPENDS = ""

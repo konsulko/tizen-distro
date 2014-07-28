@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libmedia-service-dev
+PROVIDES += "libmedia-service-dev"
 
 
 #PROVIDES by libmedia-service

@@ -13,9 +13,11 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by capi-network-tethering-dev
+PROVIDES += "capi-network-tethering-dev"
 
 
 #PROVIDES by capi-network-tethering
+PROVIDES += "capi-network-tethering"
 
 
 RDEPENDS = ""

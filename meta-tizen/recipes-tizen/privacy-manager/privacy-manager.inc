@@ -13,21 +13,27 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by privacy-manager-client
+PROVIDES += "privacy-manager-client"
 
 
 #PROVIDES by privacy-manager-server
+PROVIDES += "privacy-manager-server"
 
 
 #PROVIDES by privacy-manager-server-dev
+PROVIDES += "privacy-manager-server-dev"
 
 
 #PROVIDES by capi-security-privacy-manager
+PROVIDES += "capi-security-privacy-manager"
 
 
 #PROVIDES by privacy-manager-client-dev
+PROVIDES += "privacy-manager-client-dev"
 
 
 #PROVIDES by capi-security-privacy-manager-dev
+PROVIDES += "capi-security-privacy-manager-dev"
 
 
 RDEPENDS = ""

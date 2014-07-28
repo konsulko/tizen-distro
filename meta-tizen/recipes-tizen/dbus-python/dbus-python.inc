@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by dbus-python-dev
+PROVIDES += "dbus-python-dev"
 
 
 #PROVIDES by dbus-python

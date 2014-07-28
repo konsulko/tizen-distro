@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by edbus-dev
+PROVIDES += "edbus-dev"
 
 
 #PROVIDES by edbus
@@ -25,9 +26,11 @@ RDEPENDS_${PN}-dev += "edbus"
 
 DEPENDS = ""
 #DEPENDS of edbus
+DEPENDS += "evas"
+DEPENDS += "ecore"
 DEPENDS += "dbus"
 DEPENDS += "doxygen"
-DEPENDS += "efl"
+DEPENDS += "eina"
 
 do_prep() {
  cd ${S}

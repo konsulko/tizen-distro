@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libiri-dev
+PROVIDES += "libiri-dev"
 
 
 #PROVIDES by libiri

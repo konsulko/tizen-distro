@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libmm-common-dev
+PROVIDES += "libmm-common-dev"
 
 
 #PROVIDES by libmm-common

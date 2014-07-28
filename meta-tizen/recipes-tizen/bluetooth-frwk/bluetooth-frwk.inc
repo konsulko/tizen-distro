@@ -13,12 +13,15 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by bluetooth-frwk-core
+PROVIDES += "bluetooth-frwk-core"
 
 
 #PROVIDES by bluetooth-frwk-dev
+PROVIDES += "bluetooth-frwk-dev"
 
 
 #PROVIDES by bluetooth-frwk-service
+PROVIDES += "bluetooth-frwk-service"
 
 
 #PROVIDES by bluetooth-frwk

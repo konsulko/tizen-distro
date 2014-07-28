@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by iniparser-dev
+PROVIDES += "iniparser-dev"
 
 
 #PROVIDES by iniparser

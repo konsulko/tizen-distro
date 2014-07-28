@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by app-svc-dev
+PROVIDES += "app-svc-dev"
 
 
 RDEPENDS = ""
@@ -29,6 +30,7 @@ RDEPENDS_${PN}-dev += "app-svc"
 DEPENDS = ""
 #DEPENDS of app-svc
 DEPENDS += "pkgmgr-info"
+DEPENDS += "libsoup-2.4"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "iniparser"
@@ -36,12 +38,11 @@ DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "bundle"
 DEPENDS += "glib-2.0"
-DEPENDS += "libsoup-2.4"
+DEPENDS += "xdgmime"
 DEPENDS += "ail"
-DEPENDS += "efl"
 DEPENDS += "dlog"
 DEPENDS += "sqlite3"
-DEPENDS += "xdgmime"
+DEPENDS += "ecore"
 DEPENDS += "libprivilege-control"
 DEPENDS += "dbus-glib"
 

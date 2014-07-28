@@ -13,12 +13,14 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by audio-session-manager-dev
+PROVIDES += "audio-session-manager-dev"
 
 
 #PROVIDES by audio-session-manager
 
 
 #PROVIDES by audio-session-manager-sdk-dev
+PROVIDES += "audio-session-manager-sdk-dev"
 
 
 RDEPENDS = ""

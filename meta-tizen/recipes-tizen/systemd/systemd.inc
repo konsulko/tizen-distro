@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by libsystemd
+PROVIDES += "libsystemd"
 
 
 #PROVIDES by systemd
@@ -34,18 +35,22 @@ RPROVIDES_systemd += "udev"
 
 
 #PROVIDES by libgudev-dev
+PROVIDES += "libgudev-dev"
 
 
 #PROVIDES by systemd-dev
+PROVIDES += "systemd-dev"
 # the PROVIDES rules is ignore "libudev-dev = 208"
 PROVIDES += "libudev-dev"
 RPROVIDES_systemd-dev += "libudev-dev"
 
 
 #PROVIDES by libgudev
+PROVIDES += "libgudev"
 
 
 #PROVIDES by systemd-analyze
+PROVIDES += "systemd-analyze"
 
 
 RDEPENDS = ""

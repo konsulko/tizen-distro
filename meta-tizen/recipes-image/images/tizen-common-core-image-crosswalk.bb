@@ -21,3 +21,6 @@ CORE_IMAGE_EXTRA_INSTALL += "ttf-dejavu-serif-condensed"
 CORE_IMAGE_EXTRA_INSTALL += "pango-module-basic-fc"
 CORE_IMAGE_EXTRA_INSTALL += "pango-module-arabic-lang"
 CORE_IMAGE_EXTRA_INSTALL += "pango-module-indic-lang"
+
+
+CORE_IMAGE_EXTRA_INSTALL += "libpulsecommon"

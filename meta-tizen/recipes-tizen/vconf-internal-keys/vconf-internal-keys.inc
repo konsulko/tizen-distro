@@ -16,6 +16,7 @@ PROVIDES = ""
 
 
 #PROVIDES by vconf-internal-keys-dev
+PROVIDES += "vconf-internal-keys-dev"
 
 
 RDEPENDS = ""
