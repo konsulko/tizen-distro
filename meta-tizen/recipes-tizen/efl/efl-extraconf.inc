@@ -33,10 +33,11 @@ EXTRA_OECONF_class-native = " \
     --enable-lua-old \
 "
 
-DEPENDS_append_class-target = " efl-native "
 
-DEPENDS = " zlib tiff ibus harfbuzz openssl curl fontconfig gst-plugins-base systemd freetype wayland dlog glib-2.0 lua libtbm libbullet libpng sensor pixman libsndfile1 libcheck giflib udev gnutls mesa util-linux vconf libxkbcommon fribidi libjpeg-turbo dbus gstreamer pulseaudio libexif"
-DEPENDS_class-native = " zlib tiff ibus harfbuzz openssl curl fontconfig gst-plugins-base freetype wayland dlog glib-2.0 lua libtbm libbullet libpng sensor pixman  libcheck giflib udev gnutls  util-linux vconf  fribidi libjpeg-turbo dbus "
+DEPENDS_class-target = " zlib tiff ibus harfbuzz openssl curl fontconfig gstreamer1.0-plugins-base systemd freetype wayland dlog glib-2.0 lua libtbm libbullet libpng sensor pixman libsndfile1 libcheck giflib udev gnutls mesa util-linux vconf libxkbcommon fribidi libjpeg-turbo dbus gstreamer1.0 pulseaudio libexif"
+DEPENDS_class-native = " zlib-native tiff-native openssl-native curl-native fontconfig-native freetype-native wayland-native glib-2.0-native lua-native libpng-native pixman-native  libcheck-native giflib-native gnutls-native  util-linux-native vconf-native  fribidi-native dbus-native "
+
+DEPENDS_append_class-target = " efl-native "
 
 # new efl doesn't have option to disable eeze build and we don't want to provide udev-native just to build eeze-native we don't need
 do_configure_prepend_class-native() {

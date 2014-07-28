@@ -70,7 +70,7 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --disable-static --enable-ecore-wayland --disable-ecore-x --disable-build-examples #eol"
+EXTRA_OECONF += " --disable-static --enable-ecore-wayland --disable-ecore-x --disable-build-examples"
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
