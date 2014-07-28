@@ -14,7 +14,7 @@ do_configure_prepend() {
     find ${S} -name "CMakeLists.txt" -exec sed -i 's!\${INCLUDE_INSTALL_DIR}!/usr/include!g' {} \;
 
     # Replace macros that aren't automatically expanded
-    sed -i 's!@LIB_INSTALL_DIR@!${prefix}/lib!g' ${S}/build/security-server/security-server.pc.in ${S}/build/security-manager/security-manager.pc.in
+    sed -i 's!@LIB_INSTALL_DIR@!${prefix}/lib!g' ${S}/build/security-server/security-server.pc.in
 }
 
 CXXFLAGS += "-std=c++11"
