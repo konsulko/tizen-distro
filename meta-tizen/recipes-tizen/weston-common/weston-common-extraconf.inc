@@ -19,19 +19,7 @@ USERADD_PARAM_${PN} += " -d /home/guest -m -u 9999   -g users   -G users,display
 USERADD_PARAM_${PN} += " -d /home/app   -m -u 5000   -g users   -G users,display -r -s /bin/sh app "
 
 do_install_append() {
-
-    # user 'display' must own /dev/tty7 for weston to start correctly
-    cat >${D}${sysconfdir}/udev/rules.d/99-tty.rules <<'EOF'
-    SUBSYSTEM=="tty", KERNEL=="tty7", OWNER="display", SMACK="*"
-EOF
-
-    # user 'display' must also be able to access /dev/input/event*
-    cat >${D}${sysconfdir}/udev/rules.d/99-input.rules <<'EOF'
-    SUBSYSTEM=="input", KERNEL=="event*", MODE="0660", GROUP="input", SMACK="*"
-EOF
-
     install -m 755 uid.sh ${D}/etc/profile.d
-
     mkdir -p ${D}/lib/systemd/user/default.target.wants
     ln -sf ../weston-user.service ${D}/lib/systemd/user/default.target.wants/weston-user.service
 }
@@ -51,5 +39,4 @@ weston-common_files += "/home/*"
 
 pkg_preinst_${PN}() {
     #!/bin/sh -e
-
 }
