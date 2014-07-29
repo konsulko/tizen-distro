@@ -101,12 +101,12 @@ DEPENDS += "db"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
 DEPENDS += "pkgconfig(libsecret-unstable)"
+inherit pythonnative
 DEPENDS += "libsoup-2.4"
 DEPENDS += "pkgconfig(gobject-introspection-1.0)"
 DEPENDS += "icu"
 DEPENDS += "pkgconfig(libical)"
 DEPENDS += "sqlite3"
-DEPENDS += "pkgconfig(python-2.7)"
 DEPENDS_append_class-native = " fdupes-native"
 DEPENDS_append_class-target = " fdupes-native"
 DEPENDS += "vala"

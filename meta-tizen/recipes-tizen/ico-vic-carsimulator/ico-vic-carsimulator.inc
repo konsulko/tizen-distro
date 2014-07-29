@@ -26,12 +26,12 @@ RDEPENDS_${PN} += "ico-uxf-utilities"
 DEPENDS = ""
 #DEPENDS of ico-vic-carsimulator
 DEPENDS += "ico-uxf-utilities"
-DEPENDS += "boost-dev"
 DEPENDS += "make"
 DEPENDS += "glib-2.0"
 DEPENDS += "json-glib-dev"
 DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
+DEPENDS += "boost"
 
 do_prep() {
  cd ${S}

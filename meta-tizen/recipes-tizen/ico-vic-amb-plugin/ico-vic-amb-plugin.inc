@@ -25,13 +25,13 @@ RDEPENDS_${PN} += "eglibc"
 DEPENDS = ""
 #DEPENDS of ico-vic-amb-plugin
 DEPENDS += "ico-uxf-utilities"
-DEPENDS += "boost-dev"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "app-core"
 DEPENDS += "automotive-message-broker"
 DEPENDS += "libjson-dev"
 DEPENDS += "elementary"
+DEPENDS += "boost"
 
 do_prep() {
  cd ${S}

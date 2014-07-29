@@ -32,13 +32,12 @@ RDEPENDS_${PN} += "weekeyboard"
 
 DEPENDS = ""
 #DEPENDS of ico-uxf-weston-plugin
-DEPENDS += "weston-ivi-shell-dev"
 DEPENDS += "evas"
 DEPENDS += "aul"
+DEPENDS += "weston-ivi-shell"
 DEPENDS += "weston"
 DEPENDS += "ecore"
 DEPENDS += "mesa"
-DEPENDS += "mesa-dev"
 DEPENDS += "genivi-shell-dev"
 DEPENDS += "pixman"
 

@@ -119,7 +119,7 @@ RDEPENDS_${PN}-plugins-cansim += "automotive-message-broker"
 
 #RDEPENDS of automotive-message-broker-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "libuuid-dev"
-RDEPENDS_${PN}-dev += "boost-dev"
+RDEPENDS_${PN}-dev += "boost"
 RDEPENDS_${PN}-dev += "automotive-message-broker"
 
 #RDEPENDS of automotive-message-broker (${PN})
@@ -151,13 +151,13 @@ RDEPENDS_${PN}-plugins-gpsnmea += "automotive-message-broker"
 DEPENDS = ""
 #DEPENDS of automotive-message-broker
 DEPENDS += "qt5-plugin-bearer-connman"
-DEPENDS += "boost-dev"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "sqlite-dev"
 DEPENDS += "qt5-qtnetwork-dev"
 DEPENDS += "libwebsockets-dev"
 DEPENDS += "qt5-plugin-bearer-generic"
+DEPENDS += "libuuid-dev"
 DEPENDS += "dbus"
 DEPENDS += "murphy"
 DEPENDS += "glib-2.0"
@@ -169,7 +169,7 @@ DEPENDS_append_class-target = " libtool-cross"
 DEPENDS += "murphy-glib-dev"
 DEPENDS += "libjson-dev"
 DEPENDS += "qt5-plugin-bearer-nm"
-DEPENDS += "libuuid-dev"
+DEPENDS += "boost"
 DEPENDS += "murphy-glib"
 DEPENDS += "opencv-dev"
 

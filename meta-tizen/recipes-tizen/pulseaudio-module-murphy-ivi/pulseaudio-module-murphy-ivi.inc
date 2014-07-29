@@ -23,7 +23,6 @@ RDEPENDS_${PN} += "aul"
 
 DEPENDS = ""
 #DEPENDS of pulseaudio-module-murphy-ivi
-DEPENDS += "config(pulseaudio)"
 DEPENDS += "dbus"
 DEPENDS += "murphy"
 DEPENDS += "pulseaudio"
