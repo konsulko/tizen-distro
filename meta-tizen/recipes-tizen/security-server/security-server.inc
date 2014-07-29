@@ -100,7 +100,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
-         ${EXTRA_OECMAKE} . -DVERSION=0.0.120 \
+         ${EXTRA_OECMAKE} . -DVERSION=0.1.1 \
          -DCMAKE_BUILD_TYPE=RELEASE \
          -DCMAKE_VERBOSE_MAKEFILE=ON
  make 

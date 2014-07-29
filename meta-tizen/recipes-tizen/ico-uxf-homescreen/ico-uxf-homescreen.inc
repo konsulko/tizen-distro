@@ -1,0 +1,240 @@
+DESCRIPTION = "Sample homescreen and system controller"
+HOMEPAGE = "http://nohomepage.org"
+SECTION = "Graphics & UI Framework/Automotive UI"
+LICENSE = "Apache-2.0"
+
+SRC_URI = ""
+
+S = "${WORKDIR}/git"
+
+inherit autotools-brokensep
+
+BBCLASSEXTEND = ""
+PROVIDES = ""
+
+#PROVIDES by ico-uxf-homescreen-system-controller-dev
+PROVIDES += "ico-uxf-homescreen-system-controller-dev"
+
+
+#PROVIDES by ico-uxf-homescreen
+
+
+RDEPENDS = ""
+#RDEPENDS of ico-uxf-homescreen-system-controller-dev (${PN}-system-controller-dev)
+RDEPENDS_${PN}-system-controller-dev += "edje"
+RDEPENDS_${PN}-system-controller-dev += "ico-uxf-homescreen"
+RDEPENDS_${PN}-system-controller-dev += "evas"
+RDEPENDS_${PN}-system-controller-dev += "app-svc"
+RDEPENDS_${PN}-system-controller-dev += "glib-2.0"
+RDEPENDS_${PN}-system-controller-dev += "eina"
+RDEPENDS_${PN}-system-controller-dev += "capi-base-common-dev"
+RDEPENDS_${PN}-system-controller-dev += "ecore"
+
+#RDEPENDS of ico-uxf-homescreen (${PN})
+RDEPENDS_${PN} += "weston"
+RDEPENDS_${PN} += "genivi-shell"
+RDEPENDS_${PN} += "ico-uxf-utilities"
+RDEPENDS_${PN} += "weston-ivi-shell"
+RDEPENDS_${PN} += "ico-uxf-weston-plugin"
+
+
+DEPENDS = ""
+#DEPENDS of ico-uxf-homescreen
+DEPENDS += "edje"
+DEPENDS += "weston-ivi-shell-dev"
+DEPENDS += "genivi-shell"
+DEPENDS += "eina"
+DEPENDS += "json-glib"
+DEPENDS += "mesa-dev"
+DEPENDS += "genivi-shell-dev"
+DEPENDS += "slp-pkgmgr"
+DEPENDS += "wayland"
+DEPENDS += "notification"
+DEPENDS += "app-svc"
+DEPENDS += "aul"
+DEPENDS += "glib-2.0"
+DEPENDS += "application"
+DEPENDS += "boost-dev"
+DEPENDS += "evas"
+DEPENDS += "murphy"
+DEPENDS += "bundle"
+DEPENDS += "ico-uxf-utilities-dev"
+DEPENDS += "weston-ivi-shell"
+DEPENDS += "libwebsockets"
+DEPENDS += "ecore"
+DEPENDS += "mesa"
+DEPENDS += "dbus"
+DEPENDS += "ail"
+DEPENDS += "ico-uxf-weston-plugin-dev"
+
+do_prep() {
+ cd ${S}
+ chmod -Rf a+rX,u+w,g-w,o-w ${S}
+ #setup -q -n ico-uxf-homescreen-0.9.22
+ 
+ mkdir -p weston
+ cp -av /usr/share/genivi-shell/protocol/*.xml weston/
+ 
+ ls weston/*.xml | while read protocol ; do
+ 
+     /usr/bin/wayland-scanner client-header \
+         < "${protocol}" > "${protocol/.xml/}-client-protocol.h"
+ 
+     /usr/bin/wayland-scanner code \
+         < "${protocol}" > "${protocol/.xml/.c}"
+ 
+ done
+ 
+ ls weston/
+ 
+ 
+ 
+}
+do_patch_append() {
+    bb.build.exec_func('do_prep', d)
+}
+
+do_configure() {
+}
+
+do_compile() {
+ cd ${S}
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  
+   
+  autotools_do_configure
+  make ${PARALLEL_MAKE}
+  
+  
+  
+}
+EXTRA_OECONF += ""
+
+do_install() {
+ echo export RPM_BUILD_ROOT=${D}
+ cd ${S}
+ LANG=C
+ export LANG
+ unset DISPLAY
+ rm -rf ${D}
+ mkdir -p ${D}
+ 
+ rm -rf ${D}
+ 
+ 
+   oe_runmake \
+         DESTDIR=${D} \
+         INSTALL_ROOT=${D} \
+         BINDIR=${prefix}/bin \
+   install  
+   rm -f ${D}${infodir}/dir 
+   find ${D} -regex ".*\.la$" | xargs rm -f -- 
+   find ${D} -regex ".*\.a$" | xargs rm -f --
+ 
+ cp tool/ico_clear_screen ${D}${prefix}/bin
+ cp tool/ico_change_loginuser ${D}${prefix}/bin
+ cp tool/notification/ico_del_notification ${D}${prefix}/bin
+ cp tool/notification/ico_dump_notification ${D}${prefix}/bin
+ cp tool/notification/ico_send_notification ${D}${prefix}/bin
+ cp tool/notification/ico_send_notification2 ${D}${prefix}/bin
+ 
+ 
+}
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    [ "x\$D" == "x" ] && ldconfig
+    # Update the app database.
+    $D${prefix}/bin/pkginfo --imd /usr/share/packages/org.tizen.ico.homescreen.xml
+    $D${prefix}/bin/pkginfo --imd /usr/share/packages/org.tizen.ico.statusbar.xml
+    $D${prefix}/bin/pkginfo --imd /usr/share/packages/org.tizen.ico.system-controller.xml
+    $D${prefix}/bin/pkginfo --imd /usr/share/packages/org.tizen.ico.onscreen.xml
+
+}
+
+pkg_prerm_${PN}() {
+    #!/bin/sh -e
+
+    # Update the app database.
+    $D${prefix}/bin/pkginfo --rmd /usr/share/packages/org.tizen.ico.homescreen.xml
+    $D${prefix}/bin/pkginfo --rmd /usr/share/packages/org.tizen.ico.statusbar.xml
+    $D${prefix}/bin/pkginfo --rmd /usr/share/packages/org.tizen.ico.system-controller.xml
+    $D${prefix}/bin/pkginfo --rmd /usr/share/packages/org.tizen.ico.onscreen.xml
+
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    [ "x\$D" == "x" ] && ldconfig
+    rm -f /usr/share/applications/org.tizen.ico.homescreen.desktop
+    rm -f /usr/share/applications/org.tizen.ico.statusbar.desktop
+    rm -f /usr/share/applications/org.tizen.ico.onscreen.desktop
+    rm -f /usr/share/applications/org.tizen.ico.system-controller.desktop
+
+}
+
+PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
+PACKAGES += " ico-uxf-homescreen-system-controller-dev "
+PACKAGES += " ico-uxf-homescreen "
+
+ico-uxf-homescreen-system-controller-dev_files = ""
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_application.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_appresctl.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_common.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_error.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_inputctl.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_private.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_privilege.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_type.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_userctl.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_winctl.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoBlockParser.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoEvent.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoEventInfo.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoFinalState.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoHistoryState.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoState.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoStateAction.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoStateCore.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoStateMachine.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoStateMachineCreator.h"
+MANIFESTFILES_${PN}-system-controller-dev = "ico-uxf-homescreen.manifest"
+
+ico-uxf-homescreen_files = ""
+ico-uxf-homescreen_files += "/usr/apps/org.tizen.ico.homescreen"
+ico-uxf-homescreen_files += "/usr/apps/org.tizen.ico.statusbar"
+ico-uxf-homescreen_files += "/usr/apps/org.tizen.ico.onscreen"
+ico-uxf-homescreen_files += "/usr/share/packages/org.tizen.ico.homescreen.xml"
+ico-uxf-homescreen_files += "/usr/share/packages/org.tizen.ico.statusbar.xml"
+ico-uxf-homescreen_files += "/usr/share/packages/org.tizen.ico.onscreen.xml"
+ico-uxf-homescreen_files += "${prefix}/lib/libico-appfw.*"
+ico-uxf-homescreen_files += "${prefix}/lib/libico-state-machine.*"
+ico-uxf-homescreen_files += "/usr/apps/org.tizen.ico.system-controller"
+ico-uxf-homescreen_files += "/usr/share/packages/org.tizen.ico.system-controller.xml"
+ico-uxf-homescreen_files += "/usr/lib/systemd/user/ico-system-controller.service"
+ico-uxf-homescreen_files += "/usr/lib/systemd/user/ico-uxf-wait-launchpad-ready.path"
+ico-uxf-homescreen_files += "/usr/lib/systemd/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path"
+ico-uxf-homescreen_files += "${prefix}/bin/ico_clear_screen"
+ico-uxf-homescreen_files += "${prefix}/bin/ico_change_loginuser"
+ico-uxf-homescreen_files += "${prefix}/bin/ico_del_notification"
+ico-uxf-homescreen_files += "${prefix}/bin/ico_dump_notification"
+ico-uxf-homescreen_files += "${prefix}/bin/ico_send_notification"
+ico-uxf-homescreen_files += "${prefix}/bin/ico_send_notification2"
+ico-uxf-homescreen_files += "/home/app/ico/defaultApps.info"
+ico-uxf-homescreen_files += "/home/app/ico"
+MANIFESTFILES_${PN} = "ico-uxf-homescreen.manifest"
+
+FILES_${PN}-system-controller-dev = "${ico-uxf-homescreen-system-controller-dev_files}"
+FILES_${PN} = "${ico-uxf-homescreen_files}"
+
+PKG_ico-uxf-homescreen-system-controller-dev= "ico-uxf-homescreen-system-controller-dev"
+PKG_ico-uxf-homescreen= "ico-uxf-homescreen"
+
+require ico-uxf-homescreen-extraconf.inc
+
