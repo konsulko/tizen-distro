@@ -13,6 +13,7 @@ BBCLASSEXTEND = ""
 PROVIDES = ""
 
 #PROVIDES by bluetooth-tools-no-firmware
+PROVIDES += "bluetooth-tools-no-firmware"
 
 
 #PROVIDES by bluetooth-tools
