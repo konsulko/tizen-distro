@@ -116,7 +116,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . \
      -DX11_SUPPORT=Off
  
- make 
+ make -j16
  
  
  

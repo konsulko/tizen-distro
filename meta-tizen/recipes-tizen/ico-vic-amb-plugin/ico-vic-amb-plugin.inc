@@ -27,9 +27,9 @@ DEPENDS = ""
 DEPENDS += "ico-uxf-utilities"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
+DEPENDS += "json-c"
 DEPENDS += "app-core"
 DEPENDS += "automotive-message-broker"
-DEPENDS += "libjson-dev"
 DEPENDS += "elementary"
 DEPENDS += "boost"
 
@@ -67,7 +67,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE}
  
- make 
+ make -j16
  
  
  

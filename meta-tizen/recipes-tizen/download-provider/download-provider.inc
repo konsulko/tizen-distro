@@ -101,7 +101,7 @@ do_compile() {
  		-DSUPPORT_CHECK_IPC:BOOL=ON \
  		-DCMAKE_SKIP_RPATH:BOOL=ON \
  		-DBUILD_SHARED_LIBS:BOOL=ON .
- make 
+ make -j16
  
  
  

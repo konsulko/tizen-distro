@@ -52,7 +52,7 @@ do_compile() {
   ./autogen.sh
   
   autotools_do_configure
-  make 
+  make -j16
   
   
   

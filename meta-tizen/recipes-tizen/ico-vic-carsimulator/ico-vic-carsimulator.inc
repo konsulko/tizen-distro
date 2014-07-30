@@ -28,7 +28,7 @@ DEPENDS = ""
 DEPENDS += "ico-uxf-utilities"
 DEPENDS += "make"
 DEPENDS += "glib-2.0"
-DEPENDS += "json-glib-dev"
+DEPENDS += "json-glib"
 DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
 DEPENDS += "boost"
@@ -58,7 +58,7 @@ do_compile() {
   
   
   autotools_do_configure
-  make ${PARALLEL_MAKE}
+  make -j16
   
   
   

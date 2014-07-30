@@ -22,7 +22,7 @@ PROVIDES += "genivi-shell-dev"
 
 RDEPENDS = ""
 #RDEPENDS of genivi-shell-dev (genivi-shell-dev)
-RDEPENDS_genivi-shell-dev += "genivi-shell"
+RDEPENDS_genivi-shell-dev += "wayland-ivi-extension"
 
 
 DEPENDS = ""
@@ -75,7 +75,7 @@ do_compile() {
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
- make ${PARALLEL_MAKE}
+ make -j16
  
  
  

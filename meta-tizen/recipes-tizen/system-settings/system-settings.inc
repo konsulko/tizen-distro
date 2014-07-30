@@ -80,7 +80,7 @@ do_compile() {
          -DX11_SUPPORT=Off \
          -DWAYLAND_SUPPORT=On
  
- make 
+ make -j16
  
  
  

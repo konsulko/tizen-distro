@@ -51,7 +51,7 @@ RDEPENDS_${PN}-system-info-demo += "tizen-extensions-crosswalk"
 
 DEPENDS = ""
 #DEPENDS of tizen-extensions-crosswalk
-DEPENDS += "udev"
+DEPENDS += "libgsignon-glib"
 DEPENDS += "app-core"
 DEPENDS += "runtime-info"
 DEPENDS += "dbus-glib"
@@ -69,20 +69,22 @@ DEPENDS += "power"
 inherit pythonnative
 DEPENDS += "evas"
 DEPENDS += "tizen-platform-config"
-DEPENDS += "pulseaudio"
 DEPENDS += "pkgmgr-info"
+DEPENDS += "udev"
 DEPENDS += "favorites"
 DEPENDS += "device"
 DEPENDS_append_class-native = " ninja-native"
 DEPENDS_append_class-target = " ninja-native"
 DEPENDS += "bluetooth"
 DEPENDS += "vconf"
+DEPENDS += "nfc"
 DEPENDS += "url-download"
-DEPENDS += "libtapi-legacy"
+DEPENDS += "pulseaudio"
 DEPENDS += "bluez4"
 DEPENDS += "connection"
 DEPENDS += "notification"
 DEPENDS += "libslp-pm"
+DEPENDS += "libtapi-legacy"
 DEPENDS += "message-port"
 
 do_prep() {
@@ -123,7 +125,7 @@ do_compile() {
  
  ./tools/gyp/gyp $GYP_OPTIONS tizen-wrt.gyp
  
- ninja -C out/Default ${PARALLEL_MAKE}
+ ninja -C out/Default -j16
  
  
  

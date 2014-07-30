@@ -71,7 +71,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . -DFULLVER=0.1.17 -DMAJORVER=${MAJORVER}
  
  
- make 
+ make -j16
  
  
  

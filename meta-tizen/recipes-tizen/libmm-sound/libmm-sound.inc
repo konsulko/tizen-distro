@@ -80,14 +80,15 @@ do_compile() {
   
   ./autogen.sh
   CFLAGS="$CFLAGS -fvisibility=hidden -DMM_DEBUG_FLAG -DSEPARATE_SPEAKER_AND_WIRED_ACCESSORY -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\""; export CFLAGS
+  CFLAGS="$CFLAGS -DMURPHY"; export CFLAGS
   
   autotools_do_configure
-  make ${PARALLEL_MAKE}
+  make -j16
   
   
   
 }
-EXTRA_OECONF += " --prefix=/usr --enable-pulse --enable-security"
+EXTRA_OECONF += " --prefix=/usr --enable-pulse --enable-security --enable-policy"
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}

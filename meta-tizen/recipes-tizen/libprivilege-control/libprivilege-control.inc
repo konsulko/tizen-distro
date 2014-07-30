@@ -83,7 +83,7 @@ do_compile() {
           -DTZ_SYS_HOME=/home \
           -DTZ_SYS_ETC=${sysconfdir}
  
- VERBOSE=1 oe_runmake 
+ VERBOSE=1 oe_runmake -j16
  
  
  

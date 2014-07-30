@@ -82,7 +82,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . \
  -Dwith_wayland=TRUE
  
- make 
+ make -j16
  
  
  

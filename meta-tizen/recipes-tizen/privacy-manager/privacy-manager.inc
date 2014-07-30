@@ -121,7 +121,7 @@ do_compile() {
          -DVERSION=0.0.4 \
          -DFILTER_LISTED_PKG=ON \
          -DPRIVACY_POPUP=OFF
- make ${PARALLEL_MAKE}
+ make -j16
  
  
  

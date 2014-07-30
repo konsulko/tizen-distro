@@ -24,6 +24,7 @@ RDEPENDS = ""
 
 DEPENDS = ""
 #DEPENDS of efl-theme-tizen-hd
+DEPENDS += "edje"
 DEPENDS += "efl"
 inherit perlnative
 
@@ -52,7 +53,7 @@ do_compile() {
  export CFLAGS+=" --fPIC"
  export LDFLAGS+=" -Wl,--hash-style=both -Wl,--as-needed -Wl,--rpath=/usr/lib"
  
- make 
+ make -j16
  
  
  

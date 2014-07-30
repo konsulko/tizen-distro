@@ -47,10 +47,6 @@ PROVIDES += "murphy-pulse-dev"
 PROVIDES += "murphy-tests"
 
 
-#PROVIDES by murphy-system-controller
-PROVIDES += "murphy-system-controller"
-
-
 #PROVIDES by murphy-glib
 PROVIDES += "murphy-glib"
 
@@ -61,8 +57,8 @@ PROVIDES += "murphy-glib-dev"
 
 RDEPENDS = ""
 #RDEPENDS of murphy-dev (${PN}-dev)
+RDEPENDS_${PN}-dev += "json-c"
 RDEPENDS_${PN}-dev += "murphy"
-RDEPENDS_${PN}-dev += "libjson-dev"
 
 #RDEPENDS of murphy-ecore (${PN}-ecore)
 RDEPENDS_${PN}-ecore += "murphy"
@@ -85,9 +81,6 @@ RDEPENDS_${PN}-pulse-dev += "murphy"
 #RDEPENDS of murphy-tests (${PN}-tests)
 RDEPENDS_${PN}-tests += "murphy"
 
-#RDEPENDS of murphy-system-controller (${PN}-system-controller)
-RDEPENDS_${PN}-system-controller += "ico-uxf-homescreen"
-
 #RDEPENDS of murphy-glib (${PN}-glib)
 RDEPENDS_${PN}-glib += "murphy"
 
@@ -102,9 +95,7 @@ DEPENDS += "flex"
 DEPENDS += "systemd"
 DEPENDS += "smack"
 DEPENDS += "ofono"
-DEPENDS += "ail"
 DEPENDS += "json-c"
-DEPENDS += "libxml2"
 DEPENDS += "dbus"
 DEPENDS += "pulseaudio"
 DEPENDS += "glib-2.0"
@@ -117,7 +108,6 @@ DEPENDS += "libwebsockets"
 DEPENDS += "libcap"
 DEPENDS += "mesa"
 DEPENDS += "audio-session-manager"
-DEPENDS += "ico-uxf-weston-plugin"
 
 do_prep() {
  cd ${S}
@@ -163,7 +153,7 @@ do_compile() {
   
   CONFIG_OPTIONS="$CONFIG_OPTIONS --enable-smack"
   
-  CONFIG_OPTIONS="$CONFIG_OPTIONS --enable-system-controller"
+  CONFIG_OPTIONS="$CONFIG_OPTIONS --disable-system-controller"
   
   CONFIG_OPTIONS="$CONFIG_OPTIONS --enable-system-monitor"
   
@@ -243,8 +233,6 @@ do_install() {
  mkdir -p $RPM_BUILD_ROOT/lib/systemd/system
  mkdir -p $RPM_BUILD_ROOT/lib/systemd/user
  cp packaging.in/murphyd.service $RPM_BUILD_ROOT/lib/systemd/system
- cp packaging.in/ico-homescreen.service $RPM_BUILD_ROOT/lib/systemd/user
- cp packaging.in/murphy-wait-for-launchpad-ready.path $RPM_BUILD_ROOT/lib/systemd/user
  
  mkdir -p $RPM_BUILD_ROOT${sysconfdir}/dbus-1/system.d
  cp packaging.in/org.Murphy.conf $RPM_BUILD_ROOT${sysconfdir}/dbus-1/system.d/org.Murphy.conf
@@ -256,7 +244,6 @@ do_install() {
  cp -a ${S}/packaging/murphy.manifest $RPM_BUILD_ROOT${prefix}/share/murphy-glib.manifest
  cp -a ${S}/packaging/murphy.manifest $RPM_BUILD_ROOT${prefix}/share/murphy-pulse.manifest
  cp -a ${S}/packaging/murphy.manifest $RPM_BUILD_ROOT${prefix}/share/murphy-ecore.manifest
- cp -a ${S}/packaging/murphy.manifest $RPM_BUILD_ROOT${prefix}/share/murphy-system-controller.manifest
  
  
 }
@@ -287,30 +274,7 @@ pkg_postinst_${PN}() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    # prevent system controller from starting
-    rm -f /lib/systemd/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path
-    # instead launch just ico-homescreen
-    rm -f /lib/systemd/user/weston.target.wants/murphy-wait-for-launchpad-ready.path
-    ln -s /lib/systemd/user/murphy-wait-for-launchpad-ready.path \
-        /lib/systemd/user/weston.target.wants/murphy-wait-for-launchpad-ready.path
-
-}
-
-pkg_postinst_${PN}() {
-    #!/bin/sh -e
-
     ldconfig
-
-}
-
-pkg_postrm_${PN}() {
-    #!/bin/sh -e
-
-    rm -f /lib/systemd/user/weston.target.wants/murphy-wait-for-launchpad-ready.path
-    if [ -f /lib/systemd/user/ico-uxf-wait-launchpad-ready.path ]; then
-        ln -sf /lib/systemd/user/ico-uxf-wait-launchpad-ready.path \
-            /lib/systemd/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path
-    fi
 
 }
 
@@ -354,7 +318,6 @@ PACKAGES += " murphy-ivi-resource-manager "
 PACKAGES += " murphy-ecore-dev "
 PACKAGES += " murphy-pulse-dev "
 PACKAGES += " murphy-tests "
-PACKAGES += " murphy-system-controller "
 PACKAGES += " murphy-glib "
 PACKAGES += " murphy-glib-dev "
 
@@ -452,12 +415,6 @@ murphy-tests_files += "${prefix}/bin/test-domain-controller"
 murphy-tests_files += "${prefix}/bin/murphy-console"
 MANIFESTFILES_${PN}-tests = "${prefix}/share/murphy-tests.manifest"
 
-murphy-system-controller_files = ""
-murphy-system-controller_files += "${prefix}/lib/murphy/plugins/plugin-system-controller.so"
-murphy-system-controller_files += "/lib/systemd/user/ico-homescreen.service"
-murphy-system-controller_files += "/lib/systemd/user/murphy-wait-for-launchpad-ready.path"
-MANIFESTFILES_${PN}-system-controller = "${prefix}/share/murphy-system-controller.manifest"
-
 murphy-glib_files = ""
 murphy-glib_files += "${prefix}/lib/libmurphy-glib.so.*"
 MANIFESTFILES_${PN}-glib = "${prefix}/share/murphy-glib.manifest"
@@ -476,7 +433,6 @@ FILES_${PN}-ivi-resource-manager = "${murphy-ivi-resource-manager_files}"
 FILES_${PN}-ecore-dev = "${murphy-ecore-dev_files}"
 FILES_${PN}-pulse-dev = "${murphy-pulse-dev_files}"
 FILES_${PN}-tests = "${murphy-tests_files}"
-FILES_${PN}-system-controller = "${murphy-system-controller_files}"
 FILES_${PN}-glib = "${murphy-glib_files}"
 FILES_${PN}-glib-dev = "${murphy-glib-dev_files}"
 
@@ -489,7 +445,6 @@ PKG_murphy-ivi-resource-manager= "murphy-ivi-resource-manager"
 PKG_murphy-ecore-dev= "murphy-ecore-dev"
 PKG_murphy-pulse-dev= "murphy-pulse-dev"
 PKG_murphy-tests= "murphy-tests"
-PKG_murphy-system-controller= "murphy-system-controller"
 PKG_murphy-glib= "murphy-glib"
 PKG_murphy-glib-dev= "murphy-glib-dev"
 

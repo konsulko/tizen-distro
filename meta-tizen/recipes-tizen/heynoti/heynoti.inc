@@ -70,7 +70,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . -DCMAKE_BUILD_TYPE="Debug"
  
  
- make ${PARALLEL_MAKE}
+ make -j16
  
  
  

@@ -69,7 +69,7 @@ do_compile() {
   CFLAGS="$CFLAGS -fvisibility=hidden -DMM_DEBUG_FLAG -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\"" ; export CFLAGS
   
   autotools_do_configure
-  oe_runmake 
+  oe_runmake -j16
   
   
   

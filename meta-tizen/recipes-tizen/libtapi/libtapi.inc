@@ -70,7 +70,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DTAPI_VERSION=3.0.1
  
- make ${PARALLEL_MAKE}
+ make -j16
  
  
  

@@ -56,7 +56,7 @@ do_compile() {
     --prefix ${prefix} \
     --shared \
     --release
- make ${PARALLEL_MAKE}
+ make -j16
  
  
  

@@ -73,7 +73,7 @@ do_prep() {
  cp ${S}/packaging/crosswalk.manifest .
  cp ${S}/packaging/crosswalk.xml.in .
  cp ${S}/packaging/crosswalk.png .
- sed "s/@VERSION@/8.36.161.0/g" crosswalk.xml.in > crosswalk.xml
+ sed "s/@VERSION@/8.37.180.0/g" crosswalk.xml.in > crosswalk.xml
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.in > xwalk
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.service.in > xwalk.service
  
@@ -86,7 +86,8 @@ do_prep() {
  
  # The profiles using Wayland (and thus Ozone) do not need this patch.
  
- ###patch11
+ cat ${S}/packaging/crosswalk-angle-do-not-depend-git-index.patch | patch -s  -p0 --fuzz=2
+ #patch11
  
  
 }
@@ -130,13 +131,23 @@ do_compile() {
     ln -s "${BUILDDIR_NAME}" src/out
  fi
  
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=1"
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=0"
  
  # Force gold binary from chroot ld.gold provided by binutils-gold
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1 -Dlinux_use_bundled_binutils=0 -Dlinux_use_bundled_gold=0 "
  
  # Linking fails in Tizen Common when fatal ld warnings are enabled. XWALK-1379.
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
+ 
+ # Temporarily disable Alsa support while snd_seq_* support is not enabled on
+ # Tizen. See https://codereview.chromium.org/264973012 and
+ # https://review.tizen.org/gerrit/#/c/24336/
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_alsa=0"
+ 
+ # Temporarily disable WebRTC support because its build currently hardcodes
+ # dependencies on X11 and OpenSSL. We are still trying to get some
+ # clarifications as to whether this is really necessary. See XWALK-2160.
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Denable_webrtc=0"
  
  # For building for arm in OBS, we need :
  # -> to unset sysroot value.
@@ -164,9 +175,10 @@ do_compile() {
  -Duse_system_libexif=1 \
  -Duse_system_libxml=1 \
  -Duse_system_nspr=1 \
+ -Dshared_process_mode=1 \
  -Denable_hidpi=1
  
- ninja ${PARALLEL_MAKE} -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
+ ninja -j16 -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
  
  
  
@@ -182,7 +194,6 @@ do_install() {
  mkdir -p ${D}
  
  # Binaries.
- install -p -D xwalk ${D}${prefix}/bin/xwalk
  install -p -D ${S}/packaging/org.crosswalkproject.Runtime1.service ${D}/usr/share/dbus-1/services/org.crosswalkproject.Runtime1.service
  install -p -D xwalk.service ${D}/usr/lib/systemd/user/xwalk.service
  install -p -D src/out/Release/xwalk ${D}${prefix}/lib/xwalk/xwalk
@@ -217,7 +228,6 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " crosswalk "
 
 crosswalk_files = ""
-crosswalk_files += "${prefix}/bin/xwalk"
 crosswalk_files += "${prefix}/bin/xwalkctl"
 crosswalk_files += "${prefix}/bin/xwalk-launcher"
 crosswalk_files += "${prefix}/bin/xwalk-pkg-helper"

@@ -87,7 +87,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . \
   -DWITH_WAYLAND=On \
  
- make 
+ make -j16
  
  
  

@@ -55,7 +55,7 @@ do_compile() {
  
  cmake . -DCMAKE_INSTALL_PREFIX=${prefix} -DENABLE_TIME_TRACER="OFF"
  
- make  VERBOSE=1
+ make -j16 VERBOSE=1
  
  
  

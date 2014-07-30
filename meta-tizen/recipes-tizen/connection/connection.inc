@@ -73,7 +73,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DFULLVER=0.1.3_13 -DMAJORVER=${MAJORVER}
  
- make ${PARALLEL_MAKE}
+ make -j16
  
  
  

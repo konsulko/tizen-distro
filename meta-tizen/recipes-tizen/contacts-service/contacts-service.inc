@@ -40,21 +40,21 @@ RDEPENDS_${PN}2-dev += "contacts-service2"
 
 DEPENDS = ""
 #DEPENDS of contacts-service
-DEPENDS += "pkgconfig(pims-ipc)"
+DEPENDS += "pims-ipc"
+DEPENDS += "libexif"
+DEPENDS += "libaccounts-svc"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
-DEPENDS += "smack"
-DEPENDS += "pkgconfig(accounts-svc)"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "libtapi-legacy"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
-DEPENDS += "libexif"
-DEPENDS += "pkgconfig(badge)"
+DEPENDS += "image-util"
+DEPENDS += "smack"
 DEPENDS += "icu"
 DEPENDS += "security-server"
 DEPENDS += "sqlite3"
-DEPENDS += "pkgconfig(capi-media-image-util)"
+DEPENDS += "badge"
 DEPENDS += "vconf"
 DEPENDS += "libslp-db-util"
 DEPENDS += "common"
@@ -94,7 +94,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DTZ_SYS_ETC=${sysconfdir}
- make ${PARALLEL_MAKE}
+ make -j16
  
  
  

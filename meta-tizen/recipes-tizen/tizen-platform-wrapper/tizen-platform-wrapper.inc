@@ -46,7 +46,7 @@ do_compile() {
   
   
   autotools_do_configure
-  oe_runmake ${PARALLEL_MAKE}
+  oe_runmake -j16
   
   
   

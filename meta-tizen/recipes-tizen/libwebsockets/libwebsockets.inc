@@ -70,7 +70,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} -DWITH_SSL=On -DWITH_SD_DAEMON=ON
  
- make 
+ make -j16
  
  
  

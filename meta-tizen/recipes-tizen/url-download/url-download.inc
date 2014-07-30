@@ -68,7 +68,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} .
  
- make 
+ make -j16
  
  
  

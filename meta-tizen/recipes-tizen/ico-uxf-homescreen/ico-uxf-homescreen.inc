@@ -32,8 +32,8 @@ RDEPENDS_${PN}-system-controller-dev += "ecore"
 
 #RDEPENDS of ico-uxf-homescreen (${PN})
 RDEPENDS_${PN} += "weston"
-RDEPENDS_${PN} += "genivi-shell"
 RDEPENDS_${PN} += "ico-uxf-utilities"
+RDEPENDS_${PN} += "wayland-ivi-extension"
 RDEPENDS_${PN} += "weston-ivi-shell"
 RDEPENDS_${PN} += "ico-uxf-weston-plugin"
 
@@ -41,10 +41,8 @@ RDEPENDS_${PN} += "ico-uxf-weston-plugin"
 DEPENDS = ""
 #DEPENDS of ico-uxf-homescreen
 DEPENDS += "edje"
-DEPENDS += "genivi-shell"
 DEPENDS += "eina"
 DEPENDS += "json-glib"
-DEPENDS += "genivi-shell-dev"
 DEPENDS += "slp-pkgmgr"
 DEPENDS += "wayland"
 DEPENDS += "notification"
@@ -64,6 +62,7 @@ DEPENDS += "ecore"
 DEPENDS += "mesa"
 DEPENDS += "dbus"
 DEPENDS += "ail"
+DEPENDS += "wayland-ivi-extension"
 
 do_prep() {
  cd ${S}
@@ -105,7 +104,7 @@ do_compile() {
   
    
   autotools_do_configure
-  make ${PARALLEL_MAKE}
+  make -j16
   
   
   

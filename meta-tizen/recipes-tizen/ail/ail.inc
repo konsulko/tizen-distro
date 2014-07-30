@@ -78,7 +78,7 @@ do_compile() {
          ${EXTRA_OECMAKE} .  -DBUILD_PKGTYPE=rpm \
            -DSMACK=Off
  
- oe_runmake ${PARALLEL_MAKE}
+ oe_runmake -j16
  
  
  

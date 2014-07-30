@@ -82,7 +82,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . \
  	-DTZ_SYS_CONFIG=${prefix}/kdb
  
- make 
+ make -j16
  
  
  

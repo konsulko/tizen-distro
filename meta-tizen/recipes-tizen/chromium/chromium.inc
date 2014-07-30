@@ -65,7 +65,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} .  -DFULLVER=1.0 -DMAJORVER=${MAJORVER}
  # Call make instruction with smp support
- make 
+ make -j16
  
  
  

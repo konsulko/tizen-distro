@@ -64,7 +64,7 @@ do_compile() {
  
  cmake -DUSE_BUILD_LIBS=OFF -DWITH_TESTS=OFF -DWITH_DBUS_WRAPPER=ON -DWITH_NSM=OFF -DCMAKE_INSTALL_PREFIX=/usr ..
  #make VERBOSE=1
- make ${PARALLEL_MAKE} 
+ make -j16 
  
  
  

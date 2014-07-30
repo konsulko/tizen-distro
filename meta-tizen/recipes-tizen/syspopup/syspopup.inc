@@ -89,7 +89,7 @@ do_compile() {
  -Dwith_wayland=TRUE \
  -DEXTRA_CFLAGS=-fPIC
  
- make 
+ make -j16
  
  
  

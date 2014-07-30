@@ -69,7 +69,7 @@ do_compile() {
          ${EXTRA_OECMAKE} .
  
  
- make 
+ make -j16
  
  
  

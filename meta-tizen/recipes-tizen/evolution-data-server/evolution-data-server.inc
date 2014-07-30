@@ -95,17 +95,17 @@ DEPENDS_append_class-target = " intltool-native"
 DEPENDS += "gnome-common"
 DEPENDS += "gperf"
 DEPENDS += "nss"
-DEPENDS += "pkgconfig(gcr-base-3)"
 DEPENDS += "eglibc-locale"
 DEPENDS += "db"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
-DEPENDS += "pkgconfig(libsecret-unstable)"
-inherit pythonnative
+DEPENDS += "gtk-doc-stub"
+DEPENDS += "libical"
 DEPENDS += "libsoup-2.4"
-DEPENDS += "pkgconfig(gobject-introspection-1.0)"
+inherit pythonnative
+DEPENDS += "gcr"
+DEPENDS += "libsecret"
 DEPENDS += "icu"
-DEPENDS += "pkgconfig(libical)"
 DEPENDS += "sqlite3"
 DEPENDS_append_class-native = " fdupes-native"
 DEPENDS_append_class-target = " fdupes-native"
@@ -141,7 +141,7 @@ do_compile() {
    
   autotools_do_configure
   
-  make ${PARALLEL_MAKE} V=1
+  make -j16 V=1
   
   
   

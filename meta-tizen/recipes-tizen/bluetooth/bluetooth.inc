@@ -72,7 +72,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DFULLVER=0.1.39 -DMAJORVER=${MAJORVER}
  
- make 
+ make -j16
  
  
  

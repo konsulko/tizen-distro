@@ -69,7 +69,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DCMAKE_INSTALL_PREFIX=${prefix}
- make 
+ make -j16
  
  
  

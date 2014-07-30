@@ -103,7 +103,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . -DVERSION=0.1.1 \
          -DCMAKE_BUILD_TYPE=RELEASE \
          -DCMAKE_VERBOSE_MAKEFILE=ON
- make 
+ make -j16
  
  
  

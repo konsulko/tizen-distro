@@ -105,7 +105,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . \
  -DTZ_SYS_USER_GROUP=users \
   -DLIBNOTIFY_SUPPORT=Off \
-  -DLIBNOTIFICATION_SUPPORT=Off
+  -DLIBNOTIFICATION_SUPPORT=On
  
  make
  
