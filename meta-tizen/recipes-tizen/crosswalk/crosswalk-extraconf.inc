@@ -18,6 +18,8 @@ COMPATIBLE_MACHINE_armv7a = "(.*)"
 COMPATIBLE_MACHINE_romley-ivb = "(.*)"
 COMPATIBLE_MACHINE_valleyisland-64 = "(.*)"
 
+RDEPENDS_${PN} += "libpulsecommon"
+
 do_compile() {
  cd ${S}
  LANG=C

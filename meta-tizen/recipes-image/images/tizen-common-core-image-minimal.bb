@@ -45,4 +45,17 @@ CORE_IMAGE_BASE_INSTALL += "psmisc"
 CORE_IMAGE_BASE_INSTALL += "coreutils"
 CORE_IMAGE_BASE_INSTALL += "procps"
 
+# Fonts
+CORE_IMAGE_EXTRA_INSTALL += "ttf-dejavu-common"
+CORE_IMAGE_EXTRA_INSTALL += "ttf-dejavu-sans"
+CORE_IMAGE_EXTRA_INSTALL += "ttf-dejavu-sans-condensed"
+CORE_IMAGE_EXTRA_INSTALL += "ttf-dejavu-sans-mono"
+CORE_IMAGE_EXTRA_INSTALL += "ttf-dejavu-serif"
+CORE_IMAGE_EXTRA_INSTALL += "ttf-dejavu-serif-condensed"
+
+# Pango modules
+CORE_IMAGE_EXTRA_INSTALL += "pango-module-basic-fc"
+CORE_IMAGE_EXTRA_INSTALL += "pango-module-arabic-lang"
+CORE_IMAGE_EXTRA_INSTALL += "pango-module-indic-lang"
+
 export SYSROOT = "${IMAGE_ROOTFS}"
