@@ -69,7 +69,7 @@ PROVIDES += "evolution-data-server-dev"
 
 RDEPENDS = ""
 #RDEPENDS of evolution-data-server (${PN})
-RDEPENDS_${PN} += "glib2-tools"
+RDEPENDS_${PN} += "glib-2.0"
 
 #RDEPENDS of evolution-data-server-doc (${PN}-doc)
 RDEPENDS_${PN}-doc += "evolution-data-server"

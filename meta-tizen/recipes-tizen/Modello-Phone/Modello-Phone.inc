@@ -12,17 +12,24 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by Modello_Common
+#PROVIDES by Modello_Phone
+PROVIDES += "Modello_Phone"
 
 
 RDEPENDS = ""
+#RDEPENDS of Modello_Phone (Modello_Phone)
+RDEPENDS_Modello_Phone += "phoned"
+RDEPENDS_Modello_Phone += "Modello_Common"
+
 
 DEPENDS = ""
+#DEPENDS of Modello_Phone
+DEPENDS += "zip"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello_Common-0.0.2
+ #setup -q -n Modello_Phone-0.0.2
  
  
 }
@@ -40,6 +47,8 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
+ 
+ make wgtPkg
  
  
  
@@ -69,14 +78,15 @@ do_install() {
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " Modello_Common "
+PACKAGES += " Modello_Phone "
 
-Modello_Common_files = ""
-Modello_Common_files += "/opt/usr/apps/_common/*"
+Modello_Phone_files = ""
+Modello_Phone_files += "/opt/usr/apps/.preinstallWidgets/Modello_Phone.wgt"
+Modello_Phone_files += "/opt/usr/apps/_common/icons/Phone_icon.png"
 
-FILES_${PN} = "${Modello_Common_files}"
+FILES_Modello_Phone = "${Modello_Phone_files}"
 
-PKG_Modello_Common= "Modello_Common"
+PKG_Modello_Phone= "Modello_Phone"
 
-require Modello_Common-extraconf.inc
+require Modello-Phone-extraconf.inc
 

@@ -90,8 +90,8 @@ RDEPENDS_${PN}-plugins-wheel += "automotive-message-broker"
 RDEPENDS_${PN}-plugins-cansim += "automotive-message-broker"
 
 #RDEPENDS of automotive-message-broker-dev (${PN}-dev)
-RDEPENDS_${PN}-dev += "libuuid-dev"
 RDEPENDS_${PN}-dev += "boost"
+RDEPENDS_${PN}-dev += "util-linux"
 RDEPENDS_${PN}-dev += "automotive-message-broker"
 
 #RDEPENDS of automotive-message-broker (${PN})

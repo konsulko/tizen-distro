@@ -21,9 +21,8 @@ PROVIDES += "ico-uxf-utilities-dev"
 
 RDEPENDS = ""
 #RDEPENDS of ico-uxf-utilities (${PN})
+RDEPENDS_${PN} += "coreutils"
 RDEPENDS_${PN} += "automotive-message-broker"
-RDEPENDS_${PN} += "/usr/bin/chmod"
-RDEPENDS_${PN} += "/usr/bin/mkdir"
 
 #RDEPENDS of ico-uxf-utilities-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "ico-uxf-utilities"

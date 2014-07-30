@@ -29,7 +29,7 @@ RDEPENDS_${PN}-dev += "libgsignon-glib"
 
 #RDEPENDS of libgsignon-glib (${PN})
 RDEPENDS_${PN} += "gsignon"
-RDEPENDS_${PN} += "dbus-1"
+RDEPENDS_${PN} += "dbus"
 RDEPENDS_${PN} += "eglibc"
 
 #RDEPENDS of libgsignon-glib-doc (${PN}-doc)

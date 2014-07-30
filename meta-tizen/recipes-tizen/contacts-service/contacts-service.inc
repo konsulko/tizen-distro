@@ -29,10 +29,9 @@ RDEPENDS_${PN}2 += "libprivilege-control"
 
 #RDEPENDS of contacts-service (${PN})
 RDEPENDS_${PN} += "sqlite3"
-RDEPENDS_${PN} += "/bin/chown"
+RDEPENDS_${PN} += "coreutils"
 RDEPENDS_${PN} += "eglibc"
 RDEPENDS_${PN} += "vconf"
-RDEPENDS_${PN} += "/bin/chmod"
 
 #RDEPENDS of contacts-service2-dev (${PN}2-dev)
 RDEPENDS_${PN}2-dev += "contacts-service2"

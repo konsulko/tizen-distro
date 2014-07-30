@@ -67,7 +67,7 @@ RDEPENDS_${PN}-ecore += "murphy"
 RDEPENDS_${PN}-pulse += "murphy"
 
 #RDEPENDS of murphy (${PN})
-RDEPENDS_${PN} += "libcap-tools"
+RDEPENDS_${PN} += "libcap"
 RDEPENDS_${PN} += "/bin/systemctl"
 
 #RDEPENDS of murphy-ecore-dev (${PN}-ecore-dev)

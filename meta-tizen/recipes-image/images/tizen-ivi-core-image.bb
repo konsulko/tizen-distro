@@ -1,4 +1,4 @@
-require recipes-image/images/tizen-common-core-image-crosswalk.bb
+require recipes-image/images/tizen-core-image-minimal.bb
 
 SUMMARY = "A Tizen ivi image"
 
@@ -6,18 +6,19 @@ LICENSE = "MIT"
 
 DESCRIPTION = "A Tizen ivi image base on Tizen common ."
 
+WESTONSTARTUP="weston-ivi"
 
-CORE_IMAGE_EXTRA_INSTALL += "Modello_AMBSimulator"
-CORE_IMAGE_EXTRA_INSTALL += "Modello_Appmanager"
-CORE_IMAGE_EXTRA_INSTALL += "Modello_Common"
-CORE_IMAGE_EXTRA_INSTALL += "Modello_Dashboard"
-CORE_IMAGE_EXTRA_INSTALL += "Modello_Homescreen"
-CORE_IMAGE_EXTRA_INSTALL += "Modello_Hvac"
-CORE_IMAGE_EXTRA_INSTALL += "Modello_Installer"
-CORE_IMAGE_EXTRA_INSTALL += "Modello_Multimediaplayer"
-CORE_IMAGE_EXTRA_INSTALL += "Modello_Nav"
-CORE_IMAGE_EXTRA_INSTALL += "Modello_Phone"
-CORE_IMAGE_EXTRA_INSTALL += "Modello_SDL"
+CORE_IMAGE_EXTRA_INSTALL += "Modello-AMBSimulator"
+CORE_IMAGE_EXTRA_INSTALL += "Modello-Appmanager"
+CORE_IMAGE_EXTRA_INSTALL += "Modello-Common"
+CORE_IMAGE_EXTRA_INSTALL += "Modello-Dashboard"
+CORE_IMAGE_EXTRA_INSTALL += "Modello-Homescreen"
+CORE_IMAGE_EXTRA_INSTALL += "Modello-Hvac"
+CORE_IMAGE_EXTRA_INSTALL += "Modello-Installer"
+CORE_IMAGE_EXTRA_INSTALL += "Modello-Multimediaplayer"
+CORE_IMAGE_EXTRA_INSTALL += "Modello-Nav"
+CORE_IMAGE_EXTRA_INSTALL += "Modello-Phone"
+CORE_IMAGE_EXTRA_INSTALL += "Modello-SDL"
 CORE_IMAGE_EXTRA_INSTALL += "automotive-message-broker"
 CORE_IMAGE_EXTRA_INSTALL += "efl-theme-tizen"
 CORE_IMAGE_EXTRA_INSTALL += "festival"
@@ -40,5 +41,23 @@ CORE_IMAGE_EXTRA_INSTALL += "rygel"
 CORE_IMAGE_EXTRA_INSTALL += "sphinxbase"
 CORE_IMAGE_EXTRA_INSTALL += "udev-rules"
 CORE_IMAGE_EXTRA_INSTALL += "wayland-ivi-extension"
-CORE_IMAGE_EXTRA_INSTALL += "weston-ivi"
 CORE_IMAGE_EXTRA_INSTALL += "weston-ivi-shell"
+
+CORE_IMAGE_EXTRA_INSTALL += "crosswalk"
+CORE_IMAGE_EXTRA_INSTALL += "tizen-extensions-crosswalk"
+CORE_IMAGE_EXTRA_INSTALL += "tzdata"
+
+CORE_IMAGE_EXTRA_INSTALL += "ttf-dejavu-common"
+CORE_IMAGE_EXTRA_INSTALL += "ttf-dejavu-sans"
+CORE_IMAGE_EXTRA_INSTALL += "ttf-dejavu-sans-condensed"
+CORE_IMAGE_EXTRA_INSTALL += "ttf-dejavu-sans-mono"
+CORE_IMAGE_EXTRA_INSTALL += "ttf-dejavu-serif"
+CORE_IMAGE_EXTRA_INSTALL += "ttf-dejavu-serif-condensed"
+
+# Pango modules
+CORE_IMAGE_EXTRA_INSTALL += "pango-module-basic-fc"
+CORE_IMAGE_EXTRA_INSTALL += "pango-module-arabic-lang"
+CORE_IMAGE_EXTRA_INSTALL += "pango-module-indic-lang"
+
+
+CORE_IMAGE_EXTRA_INSTALL += "libpulsecommon"

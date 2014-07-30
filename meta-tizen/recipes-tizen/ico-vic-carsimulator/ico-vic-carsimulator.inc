@@ -19,8 +19,8 @@ RDEPENDS = ""
 #RDEPENDS of ico-vic-carsimulator (${PN})
 RDEPENDS_${PN} += "ico-vic-amb-plugin"
 RDEPENDS_${PN} += "eglibc"
-RDEPENDS_${PN} += "glib2"
 RDEPENDS_${PN} += "ico-uxf-utilities"
+RDEPENDS_${PN} += "glib-2.0"
 
 
 DEPENDS = ""

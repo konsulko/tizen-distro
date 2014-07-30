@@ -55,7 +55,7 @@ RDEPENDS_lib${PN}-dev += "typelib-Gcr"
 RDEPENDS_lib${PN}-dev += "libgcr"
 
 #RDEPENDS of gcr-data (${PN}-data)
-RDEPENDS_${PN}-data += "glib2-tools"
+RDEPENDS_${PN}-data += "glib-2.0"
 
 #RDEPENDS of libgck-dev (libgck-dev)
 RDEPENDS_libgck-dev += "typelib-Gck"

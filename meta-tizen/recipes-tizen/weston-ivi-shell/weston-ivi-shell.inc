@@ -28,9 +28,9 @@ RDEPENDS = ""
 RDEPENDS_${PN}-dev += "weston-ivi-shell"
 
 #RDEPENDS of weston-ivi-shell-config (${PN}-config)
+RDEPENDS_${PN}-config += "weston"
 RDEPENDS_${PN}-config += "weekeyboard"
 RDEPENDS_${PN}-config += "wayland-ivi-extension"
-RDEPENDS_${PN}-config += "weston-clients"
 
 #RDEPENDS of weston-ivi-shell (${PN})
 RDEPENDS_${PN} += "weston"

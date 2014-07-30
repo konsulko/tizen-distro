@@ -21,7 +21,7 @@ PROVIDES += "rygel-dev"
 
 RDEPENDS = ""
 #RDEPENDS of rygel (${PN})
-RDEPENDS_${PN} += "/bin/touch"
+RDEPENDS_${PN} += "coreutils"
 
 #RDEPENDS of rygel-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "rygel"
