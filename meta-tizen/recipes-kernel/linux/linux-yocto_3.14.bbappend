@@ -12,8 +12,14 @@ KCONFIG_MODE = "--reconfig"
 # Since only two different defconfig files exist, one for i586 arch and
 # the other one for x86_64 arch, there may be a better way to select the
 # right defconfig file so we don't have to add all the MACHINE.
+# arm defconfig
+COMPATIBLE_MACHINE_qemuarm = "(.*)"
 # i586 defconfig
 COMPATIBLE_MACHINE_genericx86 = "(.*)"
+COMPATIBLE_MACHINE_qemux86-64 = "(.*)"
 # x86_64 defconfig
 COMPATIBLE_MACHINE_valleyisland-64 = "(.*)"
 COMPATIBLE_MACHINE_romley-ivb = "(.*)"
+COMPATIBLE_MACHINE_haswell-wc = "(.*)"
+COMPATIBLE_MACHINE_genericx86-64 = "(.*)"
+COMPATIBLE_MACHINE_qemux86-64 = "(.*)"
