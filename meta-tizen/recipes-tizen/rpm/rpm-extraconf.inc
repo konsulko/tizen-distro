@@ -120,7 +120,8 @@ do_install() {
  rm -rf ${D}${mandir}/{fr,ja,ko,pl,ru,sk}
  rm -f ${D}${prefix}/share/locale/de/LC_MESSAGES/rpm.mo
  rm -f ${D}${prefix}/lib/rpm/cpanflute ${D}${prefix}/lib/rpm/cpanflute2
- install -m 755 scripts/find-supplements{,.ksyms} ${D}${prefix}/lib/rpm
+ install -m 755 scripts/find-supplements ${D}${prefix}/lib/rpm
+ install -m 755 scripts/find-supplements.ksyms ${D}${prefix}/lib/rpm
  install -m 755 scripts/firmware.prov ${D}${prefix}/lib/rpm
  install -m 755 scripts/debuginfo.prov ${D}${prefix}/lib/rpm
  rm -f ${D}${prefix}/lib/locale ${D}${prefix}/lib/rpmrc
