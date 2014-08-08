@@ -142,7 +142,7 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     [ "x\$D" == "x" ] && ldconfig
-    systemctl daemon-reload
+    [ "x\$D" == "x" ] && systemctl daemon-reload
     if [ $1 == 1 ]; then
         systemctl restart launchpad-preload@5000.service
         systemctl restart ac.service
@@ -164,7 +164,7 @@ pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     [ "x\$D" == "x" ] && ldconfig
-    systemctl daemon-reload
+    [ "x\$D" == "x" ] && systemctl daemon-reload
 
 }
 
