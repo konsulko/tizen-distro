@@ -32,9 +32,6 @@ RDEPENDS_${PN} += "gsignon"
 RDEPENDS_${PN} += "dbus"
 RDEPENDS_${PN} += "eglibc"
 
-#RDEPENDS of libgsignon-glib-doc (${PN}-doc)
-RDEPENDS_${PN}-doc += "libgsignon-glib-dev"
-
 
 DEPENDS = ""
 #DEPENDS of libgsignon-glib
@@ -46,7 +43,6 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n libgsignon-glib-2.3.0
  cp ${S}/packaging/libgsignon-glib.manifest .
- 
  
  
 }
@@ -64,11 +60,9 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  autoreconf -fi
   
   autotools_do_configure
-  make -j16
-  
+  oe_runmake -j16
   
   
   
@@ -94,7 +88,6 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- 
  
  
 }
@@ -123,7 +116,7 @@ libgsignon-glib-dev_files += "${prefix}/bin/gsso-example"
 MANIFESTFILES_${PN}-dev = "libgsignon-glib.manifest"
 
 libgsignon-glib_files = ""
-libgsignon-glib_files += "AUTHORS COPYING ChangeLog INSTALL NEWS README"
+libgsignon-glib_files += "AUTHORS ChangeLog INSTALL NEWS README"
 libgsignon-glib_files += "${prefix}/lib/libgsignon-glib.so.*"
 MANIFESTFILES_${PN} = "libgsignon-glib.manifest"
 
