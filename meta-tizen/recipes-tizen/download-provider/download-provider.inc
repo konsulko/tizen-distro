@@ -181,7 +181,7 @@ pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     [ "x\$D" == "x" ] && ldconfig
-    /usr/bin/systemctl daemon-reload >/dev/null 2>&1 || : 
+    /usr/bin/[ "x\$D" == "x" ] && systemctl daemon-reload >/dev/null 2>&1 || : 
 
 }
 
