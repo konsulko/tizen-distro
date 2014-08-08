@@ -1,7 +1,7 @@
 DESCRIPTION = "GLib based Single Sign-On daemon"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Security/Accounts"
-LICENSE = "LGPL-2.1+, GPL-2.0+"
+LICENSE = "LGPL-2.1+ and GPL-2.0+"
 
 SRC_URI = ""
 
@@ -52,7 +52,6 @@ do_prep() {
  cp ${S}/packaging/gsignond.manifest .
  
  
- 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -71,8 +70,7 @@ do_compile() {
   
   autotools_do_configure
   
-  make -j16
-  
+  oe_runmake -j16
   
   
   
@@ -98,11 +96,10 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- install -m 755 -d ${D}${prefix}/lib/systemd/user
- install -m 644 data/gsignond.service ${D}${prefix}/lib/systemd/user/
- install -m 755 -d ${D}${prefix}/lib/systemd/user/weston.target.wants
- ln -s ../gsignond.service ${D}${prefix}/lib/systemd/user/weston.target.wants/gsignond.service
- 
+ install -m 755 -d ${D}/lib/systemd/user
+ install -m 644 data/gsignond.service ${D}/lib/systemd/user/
+ install -m 755 -d ${D}/lib/systemd/user/weston.target.wants
+ ln -s ../gsignond.service ${D}/lib/systemd/user/weston.target.wants/gsignond.service
  
  
 }
@@ -136,8 +133,8 @@ gsignond_files += "${prefix}/lib/libgsignond-*.so.*"
 gsignond_files += "${prefix}/lib/gsignond/extensions/*.so*"
 gsignond_files += "${prefix}/lib/gsignond/gplugins/*.so*"
 gsignond_files += "${prefix}/lib/gsignond/pluginloaders/gsignond-plugind"
-gsignond_files += "${prefix}/lib/systemd/user/gsignond.service"
-gsignond_files += "${prefix}/lib/systemd/user/weston.target.wants/gsignond.service"
+gsignond_files += "/lib/systemd/user/gsignond.service"
+gsignond_files += "/lib/systemd/user/weston.target.wants/gsignond.service"
 gsignond_files += "${sysconfdir}/gsignond.conf"
 MANIFESTFILES_${PN} = "gsignond.manifest"
 
