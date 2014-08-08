@@ -1,7 +1,7 @@
 DESCRIPTION = "Feedback library"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
-LICENSE = "Apache License, Version 2.0"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -94,7 +94,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} .
- make
+ oe_runmake
  
  
  
@@ -142,7 +142,6 @@ pkg_postrm_svi-data() {
     #!/bin/sh -e
 
     rm -rf $D${prefix}/share/feedback/
-    rm -rf /opt/usr/share/feedback/
 
 }
 
