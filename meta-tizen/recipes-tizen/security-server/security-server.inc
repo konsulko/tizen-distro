@@ -153,7 +153,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    systemctl daemon-reload
+    [ "x\$D" == "x" ] && systemctl daemon-reload
     if [ $1 = 1 ]; then
         # installation
         systemctl start security-server.service
@@ -186,7 +186,7 @@ pkg_postrm_${PN}() {
 
     if [ $1 = 0 ]; then
         # unistall
-        systemctl daemon-reload
+        [ "x\$D" == "x" ] && systemctl daemon-reload
     fi
 
 }
