@@ -155,7 +155,7 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     [ "x\$D" == "x" ] && ldconfig
-    systemctl daemon-reload
+    [ "x\$D" == "x" ] && systemctl daemon-reload
     if [ $1 == 1 ]; then
         systemctl restart nfc-manager-neard.service
     fi
@@ -169,7 +169,7 @@ pkg_postrm_${PN}() {
     if [ $1 == 0 ]; then
         systemctl stop nfc-manager-neard.service
     fi
-    systemctl daemon-reload
+    [ "x\$D" == "x" ] && systemctl daemon-reload
 
 }
 
