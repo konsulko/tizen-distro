@@ -114,7 +114,7 @@ pkg_postinst_libavsysaudio() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    systemctl daemon-reload
+    [ "x\$D" == "x" ] && systemctl daemon-reload
     if [ $1 == 1 ]; then
         systemctl restart avsystem.service
     fi
@@ -140,7 +140,7 @@ pkg_postrm_libavsysaudio() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    systemctl daemon-reload
+    [ "x\$D" == "x" ] && systemctl daemon-reload
 
 }
 
