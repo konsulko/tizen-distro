@@ -7,4 +7,5 @@ inherit packagegroup
 PACKAGES = "packagegroup-tizen-crosswalk"
 
 RDEPENDS_packagegroup-tizen-crosswalk = "crosswalk"
-#RDEPENDS_packagegroup-tizen-crosswalk += "tizen-extensions-crosswalk"
+RDEPENDS_packagegroup-tizen-crosswalk += "tizen-extensions-crosswalk"
+RDEPENDS_packagegroup-tizen-crosswalk += "wrt-widgets"
