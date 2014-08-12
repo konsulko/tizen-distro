@@ -14,6 +14,13 @@ do_compile_prepend() {
 # A better solution would be to  create a libecryptfs-python-dev package containing the symlinks.
 INSANE_SKIP_libecryptfs-python = "dev-so"
 
+PACKAGES += " libecryptfs-dbg "
+PACKAGES += " libecryptfs-python-dbg "
+
 ecryptfs-utils_files += "/lib/security/pam_ecryptfs.so"
 
-ecryptfs-utils-dbg_files += "/lib/security/.debug/pam_ecryptfs.so"
+FILES_${PN}-dbg += "/lib/security/.debug/pam_ecryptfs.so"
+
+FILES_libecryptfs-dbg += "/usr/lib/ecryptfs/.debug/libecryptfs_key_mod_passphrase.so"
+
+FILES_libecryptfs-python-dbg += "/usr/lib/python2.7/site-packages/ecryptfs-utils/.debug/_libecryptfs.so.0.0.0"
