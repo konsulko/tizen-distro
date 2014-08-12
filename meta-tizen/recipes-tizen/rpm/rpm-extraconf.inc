@@ -40,7 +40,7 @@ do_compile_prepend() {
  export CFLAGS="${CFLAGS} -fPIC "
 
  cd db3
- ./configure --build=${TARGET_SYS} --host=x86_64-linux-gnu
+ ./configure --build=${BUILD_SYS} --host=${HOST_SYS} --target=${TARGET_SYS}
  cd ..
 
  cp db3/configure  db3/configure.ac
