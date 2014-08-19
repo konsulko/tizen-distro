@@ -1,6 +1,6 @@
 DESCRIPTION = "Hangul input library used by scim-hangul and ibus-hangul"
 HOMEPAGE = "http://code.google.com/p/libhangul"
-SECTION = "System/I18n/Korean"
+SECTION = "System/Utilities"
 LICENSE = "LGPL-2.1"
 
 SRC_URI = ""
@@ -45,10 +45,24 @@ do_configure() {
 }
 
 do_compile() {
+ cd ${S}
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  [ ! -x autogen.sh ] || rm -f configure
+  
+  autotools_do_configure
+  oe_runmake -j16
+  
+  
+  
 }
+EXTRA_OECONF += " --disable-static --with-pic"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -57,7 +71,7 @@ do_install() {
  mkdir -p ${D}
  
  make DESTDIR=${RPM_BUILD_ROOT} install
- /bin/rm -f ${D}${prefix}/lib/*.la
+ rm -f ${D}${prefix}/lib/*.la
  
  
 }
@@ -89,14 +103,12 @@ MANIFESTFILES_${PN}-dev = "libhangul.manifest"
 libhangul_files = ""
 libhangul_files += "AUTHORS NEWS README ChangeLog"
 libhangul_files += "${prefix}/lib/lib*.so.*"
-libhangul_files += "${prefix}/share/libhangul/"
 libhangul_files += "${prefix}/share/libhangul/hanja/"
 libhangul_files += "${prefix}/share/libhangul/hanja/hanja.txt"
 libhangul_files += "${prefix}/bin/hangul"
 libhangul_files += "${prefix}/share/locale/ko/LC_MESSAGES/libhangul.mo"
 MANIFESTFILES_${PN} = "libhangul.manifest"
 DIRFILES_${PN} = ""
-DIRFILES_${PN} += "${prefix}/share/libhangul/"
 DIRFILES_${PN} += "${prefix}/share/libhangul/hanja/"
 
 FILES_${PN}-dev = "${libhangul-dev_files}"
