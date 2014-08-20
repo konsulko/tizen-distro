@@ -1,7 +1,7 @@
 DESCRIPTION = "HomeScreen sample application"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "System/GUI"
-LICENSE = "Apache License, Version 2.0"
+SECTION = "System/Utilities"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -17,7 +17,6 @@ PROVIDES = ""
 
 RDEPENDS = ""
 #RDEPENDS of ico-uxf-homescreen-sample-apps (${PN})
-RDEPENDS_${PN} += "libpulse"
 RDEPENDS_${PN} += "ico-uxf-utilities"
 RDEPENDS_${PN} += "edbus"
 RDEPENDS_${PN} += "ico-uxf-homescreen"
@@ -25,14 +24,12 @@ RDEPENDS_${PN} += "evas"
 RDEPENDS_${PN} += "dbus"
 RDEPENDS_${PN} += "capi-appfw-application"
 RDEPENDS_${PN} += "weston-ivi-shell"
-RDEPENDS_${PN} += "glib-2.0"
 RDEPENDS_${PN} += "weston"
 RDEPENDS_${PN} += "ico-vic-amb-plugin"
 RDEPENDS_${PN} += "automotive-message-broker"
 RDEPENDS_${PN} += "elementary"
 RDEPENDS_${PN} += "ecore"
 RDEPENDS_${PN} += "weekeyboard"
-RDEPENDS_${PN} += "dbus-glib"
 RDEPENDS_${PN} += "ico-uxf-weston-plugin"
 
 
@@ -73,11 +70,9 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  autoreconf --install
-  
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   
@@ -85,7 +80,7 @@ do_compile() {
 EXTRA_OECONF += ""
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -152,7 +147,7 @@ pkg_postinst_${PN}() {
     [ "x\$D" == "x" ] && ldconfig
     # This icon exists in main weston package so we don't package it in.
     # Create a symbolic link to it instead.
-    ln -s $D${prefix}/share/weston/terminal.png $D${prefix}/share/icons/default/small/
+    ln -sf $D${prefix}/share/weston/terminal.png $D${prefix}/share/icons/default/small/
     # Update the app database.
     $D${prefix}/bin/pkginfo --imd /usr/share/packages/org.tizen.ico.app-soundsample.xml
     $D${prefix}/bin/pkginfo --imd /usr/share/packages/org.tizen.ico.app-vicsample.xml
