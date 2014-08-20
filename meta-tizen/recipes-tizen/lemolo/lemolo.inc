@@ -25,7 +25,6 @@ DEPENDS = ""
 #DEPENDS of lemolo
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
-DEPENDS += "edbus"
 DEPENDS += "pulseaudio"
 DEPENDS += "power"
 DEPENDS += "ofono"
@@ -38,12 +37,13 @@ DEPENDS += "efl"
 DEPENDS += "notification"
 DEPENDS += "elementary"
 DEPENDS += "ecore"
+DEPENDS += "eldbus"
 DEPENDS += "vconf"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n lemolo-0.1.6
+ #setup -q -n lemolo-0.1.7
  
  
 }
@@ -74,7 +74,7 @@ do_compile() {
 EXTRA_OECONF += " --enable-notification --enable-tizen"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
