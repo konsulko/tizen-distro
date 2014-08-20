@@ -1,7 +1,7 @@
 DESCRIPTION = "WebSocket Library"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
-LICENSE = "LGPLv2.1"
+LICENSE = "LGPL-2.1"
 
 SRC_URI = ""
 
@@ -70,14 +70,14 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} -DWITH_SSL=On -DWITH_SD_DAEMON=ON
  
- make -j16
+ oe_runmake -j16
  
  
  
 }
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
