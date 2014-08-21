@@ -46,14 +46,17 @@ RDEPENDS_dlt += "eglibc"
 DEPENDS = ""
 #DEPENDS of dlt
 DEPENDS += "systemd"
+DEPENDS += "dbus"
 DEPENDS += "zlib"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
+DEPENDS_append_class-native = " pkgconfig-native"
+DEPENDS_append_class-target = " pkgconfig-native"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n dlt-2.9.1
+ #setup -q -n dlt-2.11.0
  
  
 }
@@ -83,7 +86,7 @@ do_compile() {
 }
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -125,6 +128,7 @@ dlt-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 dlt-bin_files = ""
 dlt-bin_files += "${prefix}/bin/dlt-adaptor*"
 dlt-bin_files += "${prefix}/bin/dlt-convert"
+dlt-bin_files += "${prefix}/bin/dlt-dbus"
 dlt-bin_files += "${prefix}/bin/dlt-receive"
 dlt-bin_files += "${prefix}/bin/dlt-system"
 dlt-bin_files += "${prefix}/bin/dlt-control"
@@ -132,8 +136,11 @@ dlt-bin_files += "${sysconfdir}/dlt-system.conf"
 dlt-bin_files += "${prefix}/lib/systemd/system/dlt-adaptor-udp.service"
 dlt-bin_files += "${prefix}/lib/systemd/system/dlt-receive.service"
 dlt-bin_files += "${prefix}/lib/systemd/system/dlt-system.service"
+dlt-bin_files += "${prefix}/lib/systemd/system/dlt-dbus.service"
+dlt-bin_files += "${sysconfdir}/dlt-dbus.conf"
 CONFFILES_dlt-bin = ""
 CONFFILES_dlt-bin += "${sysconfdir}/dlt-system.conf"
+CONFFILES_dlt-bin += "${sysconfdir}/dlt-dbus.conf"
 
 dlt-daemon_files = ""
 dlt-daemon_files += "${prefix}/bin/dlt-daemon"
