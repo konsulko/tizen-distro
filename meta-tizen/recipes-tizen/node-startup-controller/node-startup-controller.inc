@@ -49,28 +49,26 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- 
- (test -d m4 || mkdir m4) && autoreconf -ivf
- 
- ./configure --prefix=/usr \
- 	    --sysconfdir=/etc \
- 	    --enable-debug=no \
- 	    --enable-gtk-doc=no \
- 	    GDBUS_CODEGEN=`which gdbus-codegen`
- 
- make ARCH=i586
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  
+  (test -d m4 || mkdir m4) && gtkdocize && autoreconf -ivf
+  
+  
+  autotools_do_configure
+  
+  oe_runmake ARCH=i586
+  
+  
+  
 }
+EXTRA_OECONF += " --prefix=/usr --sysconfdir=/etc --enable-debug=no --enable-gtk-doc=no GDBUS_CODEGEN=`which gdbus-codegen`"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
