@@ -1,7 +1,7 @@
 DESCRIPTION = "Linux Key Management Utilities"
 HOMEPAGE = "http://people.redhat.com/~dhowells/keyutils/"
 SECTION = "System/Kernel"
-LICENSE = "GPL-2.0+  LGPL-2.1+"
+LICENSE = "GPL-2.0+ and LGPL-2.1+"
 
 SRC_URI = ""
 
@@ -53,14 +53,14 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- make -j16 NO_ARLIB=1 CFLAGS="$RPM_OPT_FLAGS" CC="${CC}"
+ oe_runmake -j16 NO_ARLIB=1 CFLAGS="$RPM_OPT_FLAGS" CC="${CC}"
  
  
  
 }
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -68,7 +68,13 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- make install NO_ARLIB=1 DESTDIR=$RPM_BUILD_ROOT LIBDIR=/lib USRLIBDIR=/usr/lib
+ oe_runmake install \
+         NO_ARLIB=1 \
+         DESTDIR=${D} \
+         LIBDIR=${prefix}/lib \
+         USRLIBDIR=${prefix}/lib \
+         BINDIR=${prefix}/bin \
+         SBINDIR=${prefix}/sbin
  
  
 }
@@ -91,21 +97,19 @@ PACKAGES += " libkeyutils "
 PACKAGES += " keyutils-dev "
 
 keyutils_files = ""
-keyutils_files += "GPL-2.0+ ; LGPL-2.1+ LICENCE.GPL"
-keyutils_files += "/sbin/*"
-keyutils_files += "/bin/*"
-keyutils_files += "/usr/share/keyutils"
+keyutils_files += "${prefix}/sbin/*"
+keyutils_files += "${prefix}/bin/*"
+keyutils_files += "${prefix}/share/keyutils"
 keyutils_files += "${mandir}/*/*"
 keyutils_files += "/etc/*"
 MANIFESTFILES_${PN} = "keyutils.manifest"
 
 libkeyutils_files = ""
-libkeyutils_files += "GPL-2.0+ ; LGPL-2.1+ LICENCE.LGPL"
-libkeyutils_files += "/lib/libkeyutils.so.*"
+libkeyutils_files += "${prefix}/lib/libkeyutils.so.*"
 MANIFESTFILES_lib${PN} = "keyutils.manifest"
 
 keyutils-dev_files = ""
-keyutils-dev_files += "/usr/lib/libkeyutils.so"
+keyutils-dev_files += "${prefix}/lib/libkeyutils.so"
 keyutils-dev_files += "${prefix}/include/*"
 MANIFESTFILES_${PN}-dev = "keyutils.manifest"
 
