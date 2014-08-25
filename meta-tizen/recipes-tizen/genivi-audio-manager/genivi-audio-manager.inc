@@ -59,19 +59,19 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- mkdir build
+ mkdir -p build
  cd build
  
  cmake -DUSE_BUILD_LIBS=OFF -DWITH_TESTS=OFF -DWITH_DBUS_WRAPPER=ON -DWITH_NSM=OFF -DCMAKE_INSTALL_PREFIX=/usr ..
  #make VERBOSE=1
- make -j16 
+ oe_runmake -j16
  
  
  
 }
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -81,7 +81,15 @@ do_install() {
  
  rm -rf "$RPM_BUILD_ROOT"
  cd build
- make install DESTDIR=$RPM_BUILD_ROOT
+ 
+   oe_runmake \
+         DESTDIR=${D} \
+         INSTALL_ROOT=${D} \
+         BINDIR=${prefix}/bin \
+   install  
+   rm -f ${D}${infodir}/dir 
+   find ${D} -regex ".*\.la$" | xargs rm -f -- 
+   find ${D} -regex ".*\.a$" | xargs rm -f -- DESTDIR=$RPM_BUILD_ROOT
  mkdir $RPM_BUILD_ROOT${prefix}/include/genivi-audio-manager
  mv $RPM_BUILD_ROOT${prefix}/include/*.h $RPM_BUILD_ROOT${prefix}/include/command $RPM_BUILD_ROOT${prefix}/include/control $RPM_BUILD_ROOT${prefix}/include/routing $RPM_BUILD_ROOT${prefix}/include/shared $RPM_BUILD_ROOT${prefix}/include/genivi-audio-manager
  rm $RPM_BUILD_ROOT${prefix}/lib/audioManager/routing/libPluginRoutingInterfaceAsync.so*
