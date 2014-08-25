@@ -37,7 +37,6 @@ DEPENDS = ""
 DEPENDS += "edje"
 DEPENDS += "ethumb"
 DEPENDS += "edbus"
-DEPENDS += "doxygen"
 inherit pythonnative
 DEPENDS += "eet"
 #Replace "DEPENDS" on gettext by "inherit gettext"
@@ -84,7 +83,7 @@ do_compile() {
 EXTRA_OECONF += " --disable-static --enable-ecore-wayland --disable-ecore-x --disable-build-examples "
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG

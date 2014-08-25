@@ -29,7 +29,6 @@ DEPENDS = ""
 DEPENDS += "evas"
 DEPENDS += "ecore"
 DEPENDS += "dbus"
-DEPENDS += "doxygen"
 DEPENDS += "eina"
 
 do_prep() {
@@ -64,7 +63,7 @@ do_compile() {
 EXTRA_OECONF += " --disable-static"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
