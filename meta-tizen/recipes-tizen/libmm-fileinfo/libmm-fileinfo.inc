@@ -67,7 +67,7 @@ do_compile() {
 EXTRA_OECONF += " --disable-testmode --disable-dump --enable-dyn --disable-iommap --disable-gtk --disable-drm"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG

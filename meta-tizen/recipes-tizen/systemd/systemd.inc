@@ -139,7 +139,7 @@ do_compile() {
 EXTRA_OECONF += " --enable-bootchart --libexecdir=${prefix}/lib --docdir=${prefix}/share/doc/packages/systemd --disable-static --with-sysvinit-path= --with-sysvrcnd-path= --with-smack-run-label=System"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -158,7 +158,7 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  # udev links
- ${prefix}/bin/mkdir -p ${D}/${prefix}/sbin
+ ${prefix}/bin/mkdir -p ${D}${prefix}/sbin
  ${prefix}/bin/ln -sf ../bin/udevadm ${D}${prefix}/sbin/udevadm
  ${prefix}/bin/mkdir -p ${D}${prefix}/lib/firmware/updates
  
@@ -229,9 +229,9 @@ do_install() {
  
  install -m644 ${S}/packaging/pamconsole-tmp.conf ${D}${prefix}/lib/tmpfiles.d/
  
- rm -rf ${D}/${prefix}/lib/systemd/user/default.target
+ rm -rf ${D}${prefix}/lib/systemd/user/default.target
  
- rm -rf ${D}/${prefix}/share/doc/packages/systemd
+ rm -rf ${D}${prefix}/share/doc/packages/systemd
  
  # Move macros to the proper location for Tizen
  mkdir -p ${D}${sysconfdir}/rpm

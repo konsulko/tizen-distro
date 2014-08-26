@@ -85,7 +85,7 @@ do_compile() {
 EXTRA_OECONF += " --disable-static --disable-external-plugin --disable-mpris-plugin --disable-mediathek-plugin --disable-tracker-plugin --disable-gst-launch-plugin --disable-example-plugins --disable-tests --enable-valadoc=no"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG

@@ -91,7 +91,7 @@ do_compile() {
 EXTRA_OECONF += " --prefix=/usr --enable-pulse --enable-security --enable-policy"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG

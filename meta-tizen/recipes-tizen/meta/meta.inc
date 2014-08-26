@@ -17,6 +17,9 @@ PROVIDES += "meta-common"
 
 
 RDEPENDS = ""
+#RDEPENDS of meta-common (${PN}-common)
+RDEPENDS_${PN}-common += "meta-generic"
+
 
 DEPENDS = ""
 
@@ -48,7 +51,7 @@ do_compile() {
 }
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG

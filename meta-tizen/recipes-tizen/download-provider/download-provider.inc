@@ -21,6 +21,7 @@ PROVIDES += "download-provider-dev"
 
 RDEPENDS = ""
 #RDEPENDS of download-provider (${PN})
+RDEPENDS_${PN} += "net-config"
 RDEPENDS_${PN} += "connman"
 RDEPENDS_${PN} += "eglibc"
 RDEPENDS_${PN} += "vconf"
@@ -108,7 +109,7 @@ do_compile() {
 }
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -181,7 +182,7 @@ pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     [ "x\$D" == "x" ] && ldconfig
-    /usr/bin/[ "x\$D" == "x" ] && systemctl daemon-reload >/dev/null 2>&1 || : 
+    /usr/bin/systemctl daemon-reload >/dev/null 2>&1 || : 
 
 }
 

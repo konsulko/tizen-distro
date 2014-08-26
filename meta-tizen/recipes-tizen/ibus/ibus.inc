@@ -91,7 +91,7 @@ do_compile() {
 EXTRA_OECONF += " --disable-static --disable-tests --disable-gtk2 --disable-gtk3 --disable-xim --enable-wayland --disable-vala --disable-gtk-doc --disable-gconf --disable-setup --disable-dconf --enable-python-library --disable-ui --disable-libnotify --enable-introspection"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG

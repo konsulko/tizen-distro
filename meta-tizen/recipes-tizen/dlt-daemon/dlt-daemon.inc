@@ -74,12 +74,12 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- mkdir build
+ mkdir -p build
  cd build
  
  cmake -DWITH_SYSTEMD=ON -DWITH_SYSTEMD_JOURNAL=ON \
        -DWITH_MAN=OFF -DWITH_DLT_EXAMPLES=OFF ..
- make -j 16
+ make -j16
  
  
  

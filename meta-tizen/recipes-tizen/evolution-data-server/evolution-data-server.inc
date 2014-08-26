@@ -149,7 +149,7 @@ do_compile() {
 EXTRA_OECONF += " --libexecdir=${prefix}/libexec/evolution-data-server --disable-maintainer-mode --enable-ipv6= --enable-smime= --enable-nntp= --disable-static --disable-uoa --enable-goa=no --enable-weather=no --enable-gtk=no --enable-google=no --enable-vala-bindings --enable-introspection # end of configure line"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG

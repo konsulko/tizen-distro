@@ -26,7 +26,7 @@ DEPENDS = ""
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n udev-rules-0.12
+ #setup -q -n udev-rules-0.13
  
  
 }
@@ -50,7 +50,7 @@ do_compile() {
 }
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -69,6 +69,7 @@ PACKAGES += " udev-rules-ivi "
 
 udev-rules-ivi_files = ""
 udev-rules-ivi_files += "/usr/lib/udev/rules.d/99-atkbd.rules"
+udev-rules-ivi_files += "/usr/lib/udev/rules.d/99-dri.rules"
 udev-rules-ivi_files += "/usr/lib/udev/rules.d/99-neard.rules"
 udev-rules-ivi_files += "/usr/lib/udev/rules.d/99-tty.rules"
 udev-rules-ivi_files += "/usr/lib/udev/rules.d/70-tun.rules"

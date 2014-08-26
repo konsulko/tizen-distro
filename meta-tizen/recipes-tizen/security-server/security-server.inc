@@ -110,7 +110,7 @@ do_compile() {
 }
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -153,7 +153,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && systemctl daemon-reload
+    systemctl daemon-reload
     if [ $1 = 1 ]; then
         # installation
         systemctl start security-server.service
@@ -186,7 +186,7 @@ pkg_postrm_${PN}() {
 
     if [ $1 = 0 ]; then
         # unistall
-        [ "x\$D" == "x" ] && systemctl daemon-reload
+        systemctl daemon-reload
     fi
 
 }

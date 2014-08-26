@@ -1,6 +1,6 @@
 DESCRIPTION = "Sample homescreen and system controller"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Graphics & UI Framework/Automotive UI"
+SECTION = "Automotive/ICO Homescreen"
 LICENSE = "Apache-2.0"
 
 SRC_URI = ""
@@ -54,6 +54,7 @@ DEPENDS += "boost"
 DEPENDS += "ico-uxf-weston-plugin"
 DEPENDS += "ico-uxf-utilities"
 DEPENDS += "evas"
+DEPENDS += "libtzplatform-config-dev"
 DEPENDS += "murphy"
 DEPENDS += "bundle"
 DEPENDS += "weston-ivi-shell"
@@ -70,20 +71,17 @@ do_prep() {
  #setup -q -n ico-uxf-homescreen-0.9.22
  
  mkdir -p weston
- cp -av /usr/share/genivi-shell/protocol/*.xml weston/
+ cp -av ${prefix}/share/genivi-shell/protocol/*.xml weston/
  
  ls weston/*.xml | while read protocol ; do
  
-     /usr/bin/wayland-scanner client-header \
+     ${prefix}/bin/wayland-scanner client-header \
          < "${protocol}" > "${protocol/.xml/}-client-protocol.h"
  
-     /usr/bin/wayland-scanner code \
+     ${prefix}/bin/wayland-scanner code \
          < "${protocol}" > "${protocol/.xml/.c}"
  
  done
- 
- ls weston/
- 
  
  
 }
@@ -104,7 +102,7 @@ do_compile() {
   
    
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   
@@ -112,7 +110,7 @@ do_compile() {
 EXTRA_OECONF += ""
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -169,10 +167,10 @@ pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     [ "x\$D" == "x" ] && ldconfig
-    rm -f /usr/share/applications/org.tizen.ico.homescreen.desktop
-    rm -f /usr/share/applications/org.tizen.ico.statusbar.desktop
-    rm -f /usr/share/applications/org.tizen.ico.onscreen.desktop
-    rm -f /usr/share/applications/org.tizen.ico.system-controller.desktop
+    rm -f $D${prefix}/share/applications/org.tizen.ico.homescreen.desktop
+    rm -f $D${prefix}/share/applications/org.tizen.ico.statusbar.desktop
+    rm -f $D${prefix}/share/applications/org.tizen.ico.onscreen.desktop
+    rm -f $D${prefix}/share/applications/org.tizen.ico.system-controller.desktop
 
 }
 
@@ -204,19 +202,19 @@ ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-m
 MANIFESTFILES_${PN}-system-controller-dev = "ico-uxf-homescreen.manifest"
 
 ico-uxf-homescreen_files = ""
-ico-uxf-homescreen_files += "/usr/apps/org.tizen.ico.homescreen"
-ico-uxf-homescreen_files += "/usr/apps/org.tizen.ico.statusbar"
-ico-uxf-homescreen_files += "/usr/apps/org.tizen.ico.onscreen"
-ico-uxf-homescreen_files += "/usr/share/packages/org.tizen.ico.homescreen.xml"
-ico-uxf-homescreen_files += "/usr/share/packages/org.tizen.ico.statusbar.xml"
-ico-uxf-homescreen_files += "/usr/share/packages/org.tizen.ico.onscreen.xml"
+ico-uxf-homescreen_files += "${prefix}/apps/org.tizen.ico.homescreen"
+ico-uxf-homescreen_files += "${prefix}/apps/org.tizen.ico.statusbar"
+ico-uxf-homescreen_files += "${prefix}/apps/org.tizen.ico.onscreen"
+ico-uxf-homescreen_files += "${prefix}/share/packages/org.tizen.ico.homescreen.xml"
+ico-uxf-homescreen_files += "${prefix}/share/packages/org.tizen.ico.statusbar.xml"
+ico-uxf-homescreen_files += "${prefix}/share/packages/org.tizen.ico.onscreen.xml"
 ico-uxf-homescreen_files += "${prefix}/lib/libico-appfw.*"
 ico-uxf-homescreen_files += "${prefix}/lib/libico-state-machine.*"
-ico-uxf-homescreen_files += "/usr/apps/org.tizen.ico.system-controller"
-ico-uxf-homescreen_files += "/usr/share/packages/org.tizen.ico.system-controller.xml"
-ico-uxf-homescreen_files += "/usr/lib/systemd/user/ico-system-controller.service"
-ico-uxf-homescreen_files += "/usr/lib/systemd/user/ico-uxf-wait-launchpad-ready.path"
-ico-uxf-homescreen_files += "/usr/lib/systemd/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path"
+ico-uxf-homescreen_files += "${prefix}/apps/org.tizen.ico.system-controller"
+ico-uxf-homescreen_files += "${prefix}/share/packages/org.tizen.ico.system-controller.xml"
+ico-uxf-homescreen_files += "${prefix}/lib/systemd/user/ico-system-controller.service"
+ico-uxf-homescreen_files += "${prefix}/lib/systemd/user/ico-uxf-wait-launchpad-ready.path"
+ico-uxf-homescreen_files += "${prefix}/lib/systemd/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path"
 ico-uxf-homescreen_files += "${prefix}/bin/ico_clear_screen"
 ico-uxf-homescreen_files += "${prefix}/bin/ico_change_loginuser"
 ico-uxf-homescreen_files += "${prefix}/bin/ico_del_notification"

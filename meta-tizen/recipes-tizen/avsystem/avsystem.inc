@@ -74,7 +74,7 @@ do_compile() {
 EXTRA_OECONF += " --enable-audiotest"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -114,7 +114,7 @@ pkg_postinst_libavsysaudio() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && systemctl daemon-reload
+    systemctl daemon-reload
     if [ $1 == 1 ]; then
         systemctl restart avsystem.service
     fi
@@ -140,7 +140,7 @@ pkg_postrm_libavsysaudio() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && systemctl daemon-reload
+    systemctl daemon-reload
 
 }
 

@@ -56,7 +56,7 @@ do_compile() {
 EXTRA_OECONF += " --with-lispdir=${prefix}/share/emacs/site-lisp"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG

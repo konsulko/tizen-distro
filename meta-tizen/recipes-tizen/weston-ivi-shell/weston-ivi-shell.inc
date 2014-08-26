@@ -20,6 +20,10 @@ PROVIDES += "weston-ivi-shell-dev"
 PROVIDES += "weston-ivi-shell-config"
 
 
+#PROVIDES by weston-ivi-shell-clients
+PROVIDES += "weston-ivi-shell-clients"
+
+
 #PROVIDES by weston-ivi-shell
 
 
@@ -28,9 +32,9 @@ RDEPENDS = ""
 RDEPENDS_${PN}-dev += "weston-ivi-shell"
 
 #RDEPENDS of weston-ivi-shell-config (${PN}-config)
-RDEPENDS_${PN}-config += "weston"
 RDEPENDS_${PN}-config += "weekeyboard"
 RDEPENDS_${PN}-config += "wayland-ivi-extension"
+RDEPENDS_${PN}-config += "weston-ivi-shell"
 
 #RDEPENDS of weston-ivi-shell (${PN})
 RDEPENDS_${PN} += "weston"
@@ -88,10 +92,10 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --disable-static --disable-egl --disable-libunwind --disable-xwayland --disable-xwayland-test --disable-drm-compositor --disable-x11-compositor --disable-rpi-compositor --disable-fbdev-compositor --disable-wayland-compositor --disable-headless-compositor --disable-weston-launch --enable-clients --disable-wcap-tools --disable-demo-clients-install --disable-libinput-backend --disable-fullscreen-shell"
+EXTRA_OECONF += " --disable-static --disable-libunwind --disable-xwayland --disable-xwayland-test --disable-drm-compositor --disable-x11-compositor --disable-rpi-compositor --disable-fbdev-compositor --disable-wayland-compositor --disable-headless-compositor --disable-weston-launch --enable-simple-clients --enable-clients --disable-wcap-tools --disable-demo-clients-install --disable-libinput-backend --disable-fullscreen-shell"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -108,6 +112,25 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
+ 
+ # install example clients
+ mkdir -p ${D}${prefix}/bin/ivi
+ install -m 755 weston-calibrator ${D}${prefix}/bin/ivi
+ install -m 755 weston-simple-touch ${D}${prefix}/bin/ivi
+ install -m 755 weston-simple-shm ${D}${prefix}/bin/ivi
+ install -m 755 weston-simple-egl ${D}${prefix}/bin/ivi
+ install -m 755 weston-flower ${D}${prefix}/bin/ivi
+ install -m 755 weston-image ${D}${prefix}/bin/ivi
+ install -m 755 weston-cliptest ${D}${prefix}/bin/ivi
+ install -m 755 weston-dnd ${D}${prefix}/bin/ivi
+ install -m 755 weston-editor ${D}${prefix}/bin/ivi
+ install -m 755 weston-smoke ${D}${prefix}/bin/ivi
+ install -m 755 weston-resizor ${D}${prefix}/bin/ivi
+ install -m 755 weston-eventdemo ${D}${prefix}/bin/ivi
+ install -m 755 weston-clickdot ${D}${prefix}/bin/ivi
+ install -m 755 weston-subsurfaces ${D}${prefix}/bin/ivi
+ install -m 755 weston-transformed ${D}${prefix}/bin/ivi
+ install -m 755 weston-fullscreen ${D}${prefix}/bin/ivi
  
  install -d ${D}/${prefix}/share/weston-ivi-shell/protocol/
  
@@ -133,6 +156,7 @@ do_install() {
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " weston-ivi-shell-dev "
 PACKAGES += " weston-ivi-shell-config "
+PACKAGES += " weston-ivi-shell-clients "
 PACKAGES += " weston-ivi-shell "
 
 weston-ivi-shell-dev_files = ""
@@ -149,18 +173,41 @@ CONFFILES_${PN}-config = ""
 CONFFILES_${PN}-config += "${sysconfdir}/xdg/weston/weston.ini"
 MANIFESTFILES_${PN}-config = "weston-ivi-shell.manifest"
 
+weston-ivi-shell-clients_files = ""
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-simple-touch"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-simple-shm"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-simple-egl"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-flower"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-image"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-cliptest"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-dnd"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-editor"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-smoke"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-resizor"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-eventdemo"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-clickdot"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-subsurfaces"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-transformed"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-fullscreen"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-calibrator"
+MANIFESTFILES_${PN}-clients = "weston-ivi-shell.manifest"
+
 weston-ivi-shell_files = ""
-weston-ivi-shell_files += "${prefix}/lib/weston"
+weston-ivi-shell_files += "${prefix}/lib/weston/ivi-shell.so"
+weston-ivi-shell_files += "${prefix}/lib/weston/ivi-layout.so"
+weston-ivi-shell_files += "${prefix}/lib/weston/hmi-controller.so"
 weston-ivi-shell_files += "${prefix}/libexec/weston-ivi-shell-user-interface"
 weston-ivi-shell_files += "${prefix}/share/weston/*"
 MANIFESTFILES_${PN} = "weston-ivi-shell.manifest"
 
 FILES_${PN}-dev = "${weston-ivi-shell-dev_files}"
 FILES_${PN}-config = "${weston-ivi-shell-config_files}"
+FILES_${PN}-clients = "${weston-ivi-shell-clients_files}"
 FILES_${PN} = "${weston-ivi-shell_files}"
 
 PKG_weston-ivi-shell-dev= "weston-ivi-shell-dev"
 PKG_weston-ivi-shell-config= "weston-ivi-shell-config"
+PKG_weston-ivi-shell-clients= "weston-ivi-shell-clients"
 PKG_weston-ivi-shell= "weston-ivi-shell"
 
 require weston-ivi-shell-extraconf.inc

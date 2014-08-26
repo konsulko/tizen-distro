@@ -1,4 +1,4 @@
-DESCRIPTION = "Tizen Buffer Manager Library"
+DESCRIPTION = "The library for Tizen Buffer Manager"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
 LICENSE = "MIT"
@@ -22,19 +22,22 @@ PROVIDES += "libtbm-dev"
 RDEPENDS = ""
 #RDEPENDS of libtbm-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "libtbm"
-RDEPENDS_${PN}-dev += "libdrm"
+RDEPENDS_${PN}-dev += "common"
 
 
 DEPENDS = ""
 #DEPENDS of libtbm
+DEPENDS += "wayland"
 DEPENDS += "libdrm"
 DEPENDS += "libpthread-stubs"
+DEPENDS_append_class-native = " pkgconfig-native"
+DEPENDS_append_class-target = " pkgconfig-native"
+DEPENDS += "common"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
- cp ${S}/packaging/libtbm.manifest .
  
  
 }
@@ -61,10 +64,10 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --prefix=${prefix} CFLAGS="${CFLAGS} -Wall -Werror" LDFLAGS="${LDFLAGS} -Wl,--hash-style=both -Wl,--as-needed""
+EXTRA_OECONF += " --prefix=${prefix} --with-tbm-platform=WAYLAND CFLAGS="${CFLAGS} -Wall -Werror" LDFLAGS="${LDFLAGS} -Wl,--hash-style=both -Wl,--as-needed""
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -108,17 +111,17 @@ PACKAGES += " libtbm-dev "
 libtbm_files = ""
 libtbm_files += "/usr/share/license/libtbm"
 libtbm_files += "${prefix}/lib/libtbm.so.*"
-libtbm_files += "${prefix}/lib/libdrm_slp.so.*"
 MANIFESTFILES_${PN} = "libtbm.manifest"
 
 libtbm-dev_files = ""
 libtbm-dev_files += "${prefix}/include"
 libtbm-dev_files += "${prefix}/include/tbm_bufmgr.h"
+libtbm-dev_files += "${prefix}/include/tbm_surface.h"
+libtbm-dev_files += "${prefix}/include/tbm_surface_internal.h"
 libtbm-dev_files += "${prefix}/include/tbm_bufmgr_backend.h"
+libtbm-dev_files += "${prefix}/include/tbm_type.h"
 libtbm-dev_files += "${prefix}/lib/libtbm.so"
-libtbm-dev_files += "${prefix}/lib/libdrm_slp.so"
 libtbm-dev_files += "${prefix}/lib/pkgconfig/libtbm.pc"
-MANIFESTFILES_${PN}-dev = "libtbm.manifest"
 DIRFILES_${PN}-dev = ""
 DIRFILES_${PN}-dev += "${prefix}/include"
 

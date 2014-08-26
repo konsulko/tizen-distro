@@ -391,7 +391,7 @@ do_compile() {
 EXTRA_OECONF += " --enable-tizen --enable-g-main-loop --disable-xim --disable-scim --disable-gesture --with-tests=regular --enable-wayland --enable-egl --with-opengl=es --enable-tile-rotate --disable-rpath --with-x11=none --enable-tile-rotate --disable-rpath --enable-always-build-examples --enable-systemd --enable-lua-old --enable-i-really-know-what-i-am-doing-and-that-this-will-probably-break-things-and-i-will-fix-them-myself-and-send-patches-aaa"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG

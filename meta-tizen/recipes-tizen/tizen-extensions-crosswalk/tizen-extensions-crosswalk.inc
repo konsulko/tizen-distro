@@ -41,6 +41,7 @@ RDEPENDS_${PN}-audiosystem-demo += "tizen-extensions-crosswalk"
 #RDEPENDS of tizen-extensions-crosswalk (${PN})
 RDEPENDS_${PN} += "crosswalk"
 RDEPENDS_${PN} += "media-thumbnail-server"
+RDEPENDS_${PN} += "libgsignon-glib"
 
 #RDEPENDS of tizen-extensions-crosswalk-examples (${PN}-examples)
 RDEPENDS_${PN}-examples += "tizen-extensions-crosswalk"
@@ -132,7 +133,7 @@ do_compile() {
 }
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG

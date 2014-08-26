@@ -90,7 +90,7 @@ do_compile() {
 EXTRA_OECONF += " --libdir=${prefix}/lib --includedir=${prefix}/include/security --enable-isadir=../..${prefix}/lib/security --disable-audit --with-db-uniquename=_pam --with-libiconv-prefix=/usr --enable-read-both-confs "
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG

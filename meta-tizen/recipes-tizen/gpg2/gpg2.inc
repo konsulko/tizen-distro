@@ -93,7 +93,7 @@ do_compile() {
 EXTRA_OECONF += " --libexecdir=${prefix}/lib --docdir=${prefix}/share/doc/packages/gpg2 --with-agent-pgm=${prefix}/bin/gpg-agent --with-scdaemon-pgm=${prefix}/bin/scdaemon --enable-gpgsm=yes --enable-gpg --with-gnu-ld"
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
