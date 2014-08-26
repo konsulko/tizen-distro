@@ -1,0 +1,1 @@
+export libexecdir = "${prefix}/libexec"
