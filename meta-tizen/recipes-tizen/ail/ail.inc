@@ -30,12 +30,13 @@ RDEPENDS_${PN}-dev += "libail"
 
 DEPENDS = ""
 #DEPENDS of ail
-DEPENDS += "xdgmime"
-DEPENDS += "tizen-platform-config"
-DEPENDS += "dlog"
-DEPENDS += "sqlite3"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
+DEPENDS += "tizen-platform-config"
+DEPENDS += "dlog"
+DEPENDS += "smack"
+DEPENDS += "sqlite3"
+DEPENDS += "xdgmime"
 DEPENDS += "vconf"
 DEPENDS += "libslp-db-util"
 
@@ -75,8 +76,9 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
-         ${EXTRA_OECMAKE} .  -DBUILD_PKGTYPE=rpm \
-           -DSMACK=Off
+         ${EXTRA_OECMAKE} .  -DTZ_SYS_RW_DESKTOP_APP=${prefix}/share/applications \
+           -DBUILD_PKGTYPE=rpm \
+ 		  -DSMACK=Off
  
  oe_runmake -j16
  
@@ -85,7 +87,7 @@ do_compile() {
 }
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG

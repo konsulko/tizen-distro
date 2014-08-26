@@ -1,13 +1,25 @@
+From a89241fbcf9ce188e59b7e55f833cd377356b19d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
+Date: Tue, 26 Aug 2014 11:21:52 +0200
+Subject: [PATCH] meta-tizen: Remove dlog for native build
+
+---
+ CMakeLists.txt        | 2 +-
+ initdb/CMakeLists.txt | 2 +-
+ src/ail_private.h     | 2 +-
+ tool/CMakeLists.txt   | 4 ++--
+ 4 files changed, 5 insertions(+), 5 deletions(-)
+
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index cf9de2c..a03506e 100644
+index 2c3fafe..9adea33 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -33,7 +33,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
  
  INCLUDE(FindPkgConfig)
  
--pkg_check_modules(LPKGS REQUIRED glib-2.0 sqlite3 dlog db-util xdgmime vconf libtzplatform-config)
-+pkg_check_modules(LPKGS REQUIRED glib-2.0 sqlite3 db-util xdgmime vconf libtzplatform-config)
+-pkg_check_modules(LPKGS REQUIRED glib-2.0 sqlite3 dlog db-util xdgmime vconf libtzplatform-config libsmack)
++pkg_check_modules(LPKGS REQUIRED glib-2.0 sqlite3 db-util xdgmime vconf libtzplatform-config libsmack)
  STRING(REPLACE ";" " " EXTRA_CFLAGS "${LPKGS_CFLAGS}")
  SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} -fvisibility=hidden")
  
@@ -25,7 +37,7 @@ index 73474d8..040a8cb 100755
  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src)
  
 diff --git a/src/ail_private.h b/src/ail_private.h
-index efa2f66..867152b 100755
+index efa2f66..28ed80c 100755
 --- a/src/ail_private.h
 +++ b/src/ail_private.h
 @@ -36,7 +36,7 @@
@@ -33,12 +45,12 @@ index efa2f66..867152b 100755
  #define LOG_TAG "AIL"
  
 -#if 1
-+#if 0
++#if 0 
  #include <dlog.h>
  #define _E(fmt, arg...) LOGE("[%s,%d] "fmt,__FUNCTION__,__LINE__,##arg)
  #define _D(fmt, arg...) LOGD("[%s,%d] "fmt,__FUNCTION__,__LINE__,##arg)
 diff --git a/tool/CMakeLists.txt b/tool/CMakeLists.txt
-index e898c7e..be1bbfa 100755
+index e898c7e..e0dd903 100755
 --- a/tool/CMakeLists.txt
 +++ b/tool/CMakeLists.txt
 @@ -15,7 +15,7 @@ SET(FILTERSRCS src/ail_filter.c)
@@ -50,3 +62,13 @@ index e898c7e..be1bbfa 100755
  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src)
  
+@@ -54,4 +54,4 @@ TARGET_LINK_LIBRARIES(${PKG} ${LIBNAME} ${INITDB_PKGS_LIBRARIES})
+ SET_TARGET_PROPERTIES(${PKG} PROPERTIES COMPILE_FLAGS "${EXTRA_CFLAGS}")
+ SET_TARGET_PROPERTIES(${PKG} PROPERTIES SKIP_BUILD_RPATH true)
+ 
+-INSTALL(TARGETS ${PKG} DESTINATION ${BINDIR})
+\ No newline at end of file
++INSTALL(TARGETS ${PKG} DESTINATION ${BINDIR})
+-- 
+1.8.1.4
+
