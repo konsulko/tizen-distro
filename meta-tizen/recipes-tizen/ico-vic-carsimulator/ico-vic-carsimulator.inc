@@ -1,7 +1,7 @@
 DESCRIPTION = "CarSimulator"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "System Environment/Daemons"
-LICENSE = "Apache 2.0"
+SECTION = "System/Utilities"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -20,7 +20,6 @@ RDEPENDS = ""
 RDEPENDS_${PN} += "ico-vic-amb-plugin"
 RDEPENDS_${PN} += "eglibc"
 RDEPENDS_${PN} += "ico-uxf-utilities"
-RDEPENDS_${PN} += "glib-2.0"
 
 
 DEPENDS = ""
@@ -31,7 +30,6 @@ DEPENDS += "glib-2.0"
 DEPENDS += "json-glib"
 DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
-DEPENDS += "boost"
 
 do_prep() {
  cd ${S}
@@ -54,11 +52,9 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  autoreconf --install
-  
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   
@@ -66,7 +62,7 @@ do_compile() {
 EXTRA_OECONF += ""
 
 do_install() {
- echo export RPM_BUILD_ROOT=${D}
+ export RPM_BUILD_ROOT=${D}
  cd ${S}
  LANG=C
  export LANG
@@ -86,10 +82,10 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  # configurations
- mkdir -p ${D}/etc/ico-vic-carsim/
- mkdir -p ${D}/usr/lib/systemd/user/
- install -m 0644 G25.conf ${D}/etc/ico-vic-carsim/
- install -m 0644 G27.conf ${D}/etc/ico-vic-carsim/
+ mkdir -p ${D}${sysconfdir}/ico-vic-carsim/
+ mkdir -p ${D}/lib/systemd/user
+ install -m 0644 G25.conf ${D}${sysconfdir}/ico-vic-carsim/
+ install -m 0644 G27.conf ${D}${sysconfdir}/ico-vic-carsim/
  install -m 0644 ico-vic-carsim.service ${D}/lib/systemd/user/ico-vic-carsim.service
  
  
@@ -113,8 +109,10 @@ PACKAGES += " ico-vic-carsimulator "
 ico-vic-carsimulator_files = ""
 ico-vic-carsimulator_files += "${prefix}/bin/ico-vic-carsim"
 ico-vic-carsimulator_files += "${prefix}/bin/*"
-ico-vic-carsimulator_files += "/etc/ico-vic-carsim/*"
-ico-vic-carsimulator_files += "/usr/lib/systemd/user/ico-vic-carsim.service"
+ico-vic-carsimulator_files += "${sysconfdir}/ico-vic-carsim/*"
+ico-vic-carsimulator_files += "/lib/systemd/user/ico-vic-carsim.service"
+CONFFILES_${PN} = ""
+CONFFILES_${PN} += "${sysconfdir}/ico-vic-carsim/*"
 MANIFESTFILES_${PN} = "ico-vic-carsimulator.manifest"
 
 FILES_${PN} = "${ico-vic-carsimulator_files}"
