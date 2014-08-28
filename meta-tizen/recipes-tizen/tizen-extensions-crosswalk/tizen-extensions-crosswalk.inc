@@ -78,6 +78,7 @@ DEPENDS_append_class-native = " ninja-native"
 DEPENDS_append_class-target = " ninja-native"
 DEPENDS += "bluetooth"
 DEPENDS += "vconf"
+DEPENDS += "message-port-dbus"
 DEPENDS += "nfc"
 DEPENDS += "url-download"
 DEPENDS += "pulseaudio"
@@ -86,7 +87,6 @@ DEPENDS += "connection"
 DEPENDS += "notification"
 DEPENDS += "libslp-pm"
 DEPENDS += "libtapi-legacy"
-DEPENDS += "message-port"
 
 do_prep() {
  cd ${S}

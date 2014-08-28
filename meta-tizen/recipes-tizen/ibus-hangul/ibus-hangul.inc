@@ -1,7 +1,7 @@
 DESCRIPTION = "The Hangul engine for IBus input platform"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "System Environment/Libraries"
-LICENSE = "GPLv2+"
+SECTION = "System/Libraries"
+LICENSE = "GPL-2.0+"
 
 SRC_URI = ""
 
@@ -40,7 +40,6 @@ do_prep() {
  cp ${S}/packaging/ibus-hangul.manifest .
  
  
- 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -59,7 +58,7 @@ do_compile() {
   
   autotools_do_configure
   # make -C po update-gmo
-  make -j16
+  oe_runmake -j16
   
   
   
@@ -75,11 +74,11 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- rm -rf $RPM_BUILD_ROOT
- make DESTDIR=${RPM_BUILD_ROOT} install
+ rm -rf ${D}
+ oe_runmake DESTDIR=${D} install
  
- rm -f ${RPM_BUILD_ROOT}${prefix}/bin/ibus-setup-hangul
- sed -i 's!^Exec=ibus-setup-hangul!Exec=${prefix}/libexec/ibus-setup-hangul!' ${RPM_BUILD_ROOT}${prefix}/share/applications/ibus-setup-hangul.desktop
+ rm -f ${D}${prefix}/bin/ibus-setup-hangul
+ sed -i 's!^Exec=ibus-setup-hangul!Exec=${prefix}/libexec/ibus-setup-hangul!' ${D}${prefix}/share/applications/ibus-setup-hangul.desktop
  
  #find_lang ibus-hangul
  
@@ -90,7 +89,7 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " ibus-hangul "
 
 ibus-hangul_files = ""
-ibus-hangul_files += "AUTHORS COPYING README"
+ibus-hangul_files += "AUTHORS README"
 ibus-hangul_files += "${prefix}/libexec/ibus-engine-hangul"
 ibus-hangul_files += "${prefix}/libexec/ibus-setup-hangul"
 ibus-hangul_files += "${prefix}/share/ibus-hangul"

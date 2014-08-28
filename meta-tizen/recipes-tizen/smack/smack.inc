@@ -38,6 +38,8 @@ DEPENDS_append_class-native = " autoconf-native"
 DEPENDS_append_class-target = " autoconf-native"
 DEPENDS_append_class-native = " libtool"
 DEPENDS_append_class-target = " libtool-cross"
+DEPENDS_append_class-native = " pkgconfig-native"
+DEPENDS_append_class-target = " pkgconfig-native"
 DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
 

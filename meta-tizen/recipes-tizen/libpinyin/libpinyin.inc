@@ -43,7 +43,6 @@ do_prep() {
  cp ${S}/packaging/libpinyin.manifest .
  
  
- 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -61,7 +60,7 @@ do_compile() {
   
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   
@@ -77,9 +76,16 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- make install DESTDIR=$RPM_BUILD_ROOT
- find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
  
+   oe_runmake \
+         DESTDIR=${D} \
+         INSTALL_ROOT=${D} \
+         BINDIR=${prefix}/bin \
+   install  
+   rm -f ${D}${infodir}/dir 
+   find ${D} -regex ".*\.la$" | xargs rm -f -- 
+   find ${D} -regex ".*\.a$" | xargs rm -f -- DESTDIR=${D}
+ find ${D} -name '*.la' -exec rm -f {} ';'
  
  
 }
@@ -102,7 +108,7 @@ PACKAGES += " libpinyin-dev "
 PACKAGES += " libpinyin-tools "
 
 libpinyin_files = ""
-libpinyin_files += "AUTHORS COPYING README"
+libpinyin_files += "AUTHORS README"
 libpinyin_files += "${prefix}/lib/*.so.*"
 libpinyin_files += "${prefix}/lib/libpinyin"
 libpinyin_files += "${prefix}/lib/libpinyin/data"

@@ -16,6 +16,9 @@ PROVIDES = ""
 
 
 RDEPENDS = ""
+#RDEPENDS of desktop-skin (${PN})
+RDEPENDS_${PN} += "python-pycairo"
+
 
 DEPENDS = ""
 
@@ -57,6 +60,7 @@ do_install() {
  mkdir -p ${D}${prefix}/bin
  install -m 755 Script/launch_cam.sh ${D}${prefix}/bin
  install -m 755 Script/launch_video.sh ${D}${prefix}/bin
+ install -m 755 Script/mark_image.py ${D}${prefix}/bin
  install -m 755 Script/wifi ${D}${prefix}/bin
  
  mkdir -p ${D}${prefix}/share/media/videos
@@ -81,7 +85,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    ln -s tizen_common.png $D${prefix}/share/backgrounds/tizen/current
+    ln -sf tizen_common.png $D${prefix}/share/backgrounds/tizen/current
 
 }
 

@@ -439,12 +439,6 @@ pkg_postinst_embryo() {
     [ "x\$D" == "x" ] && ldconfig
 }
 
-pkg_postinst_ecore() {
-    #!/bin/sh -e
-
-    [ "x\$D" == "x" ] && ldconfig
-}
-
 pkg_postinst_evas() {
     #!/bin/sh -e
 
@@ -473,6 +467,16 @@ pkg_postinst_eio() {
     #!/bin/sh -e
 
     [ "x\$D" == "x" ] && ldconfig
+}
+
+pkg_postinst_ecore() {
+    #!/bin/sh -e
+
+    [ "x\$D" == "x" ] && ldconfig
+    f="/etc/profile.d/ecore.sh"
+    grep EFL_WAYLAND_USE_XDG_SHELL "$f" 2>/dev/null \
+        || printf "\nEFL_WAYLAND_USE_XDG_SHELL='defined'\nexport EFL_WAYLAND_USE_XDG_SHELL\n" >> "$f"
+
 }
 
 pkg_postinst_edje() {

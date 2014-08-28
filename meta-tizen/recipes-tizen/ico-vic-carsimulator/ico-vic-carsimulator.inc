@@ -1,6 +1,6 @@
 DESCRIPTION = "CarSimulator"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "System/Utilities"
+SECTION = "Automotive/ICO Homescreen"
 LICENSE = "Apache-2.0"
 
 SRC_URI = ""
