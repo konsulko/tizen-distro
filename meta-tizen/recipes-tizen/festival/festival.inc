@@ -115,14 +115,7 @@ do_install() {
  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/speech_tools/lib
  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/festival-2.1/src/lib
  cd -
- #
-   oe_runmake \
-         DESTDIR=${D} \
-         INSTALL_ROOT=${D} \
-         BINDIR=${prefix}/bin \
-   install  
-   rm -f ${D}${infodir}/dir 
-   find ${D} -regex ".*\.la$" | xargs rm -f -- 
+ #%%make_install
    find ${D} -regex ".*\.a$" | xargs rm -f --
  #make INSTALLED_BIN=$RPM_BUILD_ROOT${prefix}/bin make_installed_bin_shared
  cd ../speech_tools
