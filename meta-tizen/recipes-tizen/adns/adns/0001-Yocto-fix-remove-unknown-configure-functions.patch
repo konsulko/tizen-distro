@@ -1,0 +1,50 @@
+From 93c8263990e954055ec4ab638530e873460ece63 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
+Date: Fri, 29 Aug 2014 14:38:41 +0200
+Subject: [PATCH] meta-tizen: Yocto fix: remove unknown configure functions
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Change-Id: Ice256455ab7ced0df8bc962863d23c3cac929c02
+Signed-off-by: Kévin THIERRY <kevin.thierry@open.eurogiciel.org>
+---
+ configure.in | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/configure.in b/configure.in
+index e7a5ee6..9d087e6 100644
+--- a/configure.in
++++ b/configure.in
+@@ -177,8 +177,6 @@ struct pollfd { int fd; short events; short revents; };
+ ])
+ 
+ AC_CHECK_FUNCS(poll)
+-ADNS_C_GETFUNC(socket,socket)
+-ADNS_C_GETFUNC(inet_ntoa,nsl)
+ 
+ PROGS_IF_TSEARCH=adnsresfilter
+ AC_SUBST(PROGS_HAVE_TSEARCH)
+@@ -186,7 +184,6 @@ AC_CHECK_FUNC(tsearch,[
+  PROGS_HAVE_TSEARCH=$PROGS_IF_TSEARCH
+ ],[
+  PROGS_HAVE_TSEARCH='';
+- AC_MSG_WARN([tsearch missing - not building client program(s) $PROGS_IF_TSEARCH])
+ ])
+ 
+ AC_MSG_CHECKING(for INADDR_LOOPBACK)
+@@ -211,11 +208,6 @@ else
+  ])
+ fi
+ 
+-ADNS_C_GETFUNC(inet_aton,resolv,[
+- LIBS="-lresolv $LIBS";
+- AC_MSG_WARN([inet_aton is in libresolv, urgh.  Must use -lresolv.])
+-])
+-
+ DPKG_CACHED_TRY_COMPILE(inlines,dpkg_cv_c_inline,,
+  [} inline int foo (int x) {],
+  AC_MSG_RESULT(yes)
+-- 
+1.8.1.4
+

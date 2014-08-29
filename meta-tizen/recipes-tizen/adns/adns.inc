@@ -1,6 +1,6 @@
 DESCRIPTION = "Advanced Easy-to-Use Asynchronous-Capable DNS Utilities"
 HOMEPAGE = "http://www.chiark.greenend.org.uk/~ian/adns/"
-SECTION = "Productivity/Networking/DNS/Utilities"
+SECTION = "System/Utilities"
 LICENSE = "GPL-2.0+"
 
 SRC_URI = ""
@@ -56,10 +56,9 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  autoreconf -fiv
   
   autotools_do_configure
-  make -j16 all
+  oe_runmake -j16 all
   
   
   
@@ -84,7 +83,6 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- 
  
  
 }
