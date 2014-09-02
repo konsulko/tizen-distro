@@ -15,8 +15,9 @@ KCONFIG_MODE = "--reconfig"
 # arm defconfig
 COMPATIBLE_MACHINE_qemuarm = "(.*)"
 # i586 defconfig
+COMPATIBLE_MACHINE_valleyisland-32 = "(.*)"
 COMPATIBLE_MACHINE_genericx86 = "(.*)"
-COMPATIBLE_MACHINE_qemux86-64 = "(.*)"
+COMPATIBLE_MACHINE_qemux86 = "(.*)"
 # x86_64 defconfig
 COMPATIBLE_MACHINE_valleyisland-64 = "(.*)"
 COMPATIBLE_MACHINE_romley-ivb = "(.*)"
