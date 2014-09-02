@@ -36,7 +36,9 @@ CORE_IMAGE_EXTRA_INSTALL += "murphy"
 CORE_IMAGE_EXTRA_INSTALL += "node-startup-controller"
 CORE_IMAGE_EXTRA_INSTALL += "phoned"
 CORE_IMAGE_EXTRA_INSTALL += "pulseaudio-module-murphy-ivi"
-CORE_IMAGE_EXTRA_INSTALL += "rygel"
+# TMP Remove rygel
+# BTY-36
+#CORE_IMAGE_EXTRA_INSTALL += "rygel"
 CORE_IMAGE_EXTRA_INSTALL += "sphinxbase"
 CORE_IMAGE_EXTRA_INSTALL += "udev-rules"
 CORE_IMAGE_EXTRA_INSTALL += "wayland-ivi-extension"
