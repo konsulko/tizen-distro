@@ -1,0 +1,178 @@
+From 6e44dd396029ed403dceeca5a5e1a60bbb427f74 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
+Date: Tue, 2 Sep 2014 16:20:16 +0200
+Subject: [PATCH] meta-tizen: Remove obsolete function gcry_md_start_debug()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Kévin THIERRY <kevin.thierry@open.eurogiciel.org>
+---
+ g10/cipher.c    |  2 --
+ g10/encr-data.c |  2 --
+ g10/mainproc.c  | 10 ----------
+ g10/sign.c      |  6 ------
+ sm/certcheck.c  |  2 --
+ sm/certreqgen.c |  2 --
+ sm/sign.c       |  4 ----
+ sm/verify.c     |  4 ----
+ 8 files changed, 32 deletions(-)
+
+diff --git a/g10/cipher.c b/g10/cipher.c
+index f0dc577..2bbacb5 100644
+--- a/g10/cipher.c
++++ b/g10/cipher.c
+@@ -60,8 +60,6 @@ write_header( cipher_filter_context_t *cfx, IOBUF a )
+     if( cfx->dek->use_mdc ) {
+ 	ed.mdc_method = DIGEST_ALGO_SHA1;
+ 	gcry_md_open (&cfx->mdc_hash, DIGEST_ALGO_SHA1, 0);
+-	if ( DBG_HASHING )
+-	    gcry_md_start_debug (cfx->mdc_hash, "creatmdc");
+     }
+ 
+     {
+diff --git a/g10/encr-data.c b/g10/encr-data.c
+index 602ae55..2f0fac1 100644
+--- a/g10/encr-data.c
++++ b/g10/encr-data.c
+@@ -118,8 +118,6 @@ decrypt_data( void *procctx, PKT_encrypted *ed, DEK *dek )
+     {
+       if (gcry_md_open (&dfx->mdc_hash, ed->mdc_method, 0 ))
+         BUG ();
+-      if ( DBG_HASHING )
+-        gcry_md_start_debug (dfx->mdc_hash, "checkmdc");
+     }
+ 
+   rc = openpgp_cipher_open (&dfx->cipher_hd, dek->algo,
+diff --git a/g10/mainproc.c b/g10/mainproc.c
+index c7df113..9679d8f 100644
+--- a/g10/mainproc.c
++++ b/g10/mainproc.c
+@@ -698,11 +698,6 @@ proc_plaintext( CTX c, PACKET *pkt )
+       if ( gcry_md_open (&c->mfx.md2, DIGEST_ALGO_MD5, 0) )
+         BUG ();
+     }
+-    if ( DBG_HASHING ) {
+-	gcry_md_start_debug ( c->mfx.md, "verify" );
+-	if ( c->mfx.md2  )
+-	    gcry_md_start_debug ( c->mfx.md2, "verify2" );
+-    }
+ 
+     rc=0;
+ 
+@@ -2137,11 +2132,6 @@ proc_tree( CTX c, KBNODE node )
+ 	     */
+ 		    /*	c->mfx.md2? 0 :(sig->sig_class == 0x01) */
+ #endif
+-            if ( DBG_HASHING ) {
+-                gcry_md_start_debug( c->mfx.md, "verify" );
+-                if ( c->mfx.md2  )
+-                    gcry_md_start_debug( c->mfx.md2, "verify2" );
+-            }
+ 	    if( c->sigs_only ) {
+                 if (c->signed_data.used && c->signed_data.data_fd != -1)
+                     rc = hash_datafile_by_fd (c->mfx.md, c->mfx.md2,
+diff --git a/g10/sign.c b/g10/sign.c
+index 8d280ed..163cbb5 100644
+--- a/g10/sign.c
++++ b/g10/sign.c
+@@ -816,8 +816,6 @@ sign_file( strlist_t filenames, int detached, strlist_t locusr,
+ 
+     if ( gcry_md_open (&mfx.md, 0, 0) )
+       BUG ();
+-    if (DBG_HASHING)
+-      gcry_md_start_debug (mfx.md, "sign");
+ 
+     /* If we're encrypting and signing, it is reasonable to pick the
+        hash algorithm to use out of the recepient key prefs.  This is
+@@ -1165,8 +1163,6 @@ clearsign_file( const char *fname, strlist_t locusr, const char *outfile )
+ 	PKT_secret_key *sk = sk_rover->sk;
+ 	gcry_md_enable (textmd, hash_for(sk));
+     }
+-    if ( DBG_HASHING )
+-      gcry_md_start_debug ( textmd, "clearsign" );
+ 
+     copy_clearsig_text( out, inp, textmd, !opt.not_dash_escaped,
+ 			opt.escape_from, (old_style && only_md5) );
+@@ -1287,8 +1283,6 @@ sign_symencrypt_file (const char *fname, strlist_t locusr)
+ 	iobuf_push_filter (inp, text_filter, &tfx);
+     if ( gcry_md_open (&mfx.md, 0, 0) )
+       BUG ();
+-    if ( DBG_HASHING )
+-      gcry_md_start_debug (mfx.md, "symc-sign");
+ 
+     for (sk_rover = sk_list; sk_rover; sk_rover = sk_rover->next) {
+ 	PKT_secret_key *sk = sk_rover->sk;
+diff --git a/sm/certcheck.c b/sm/certcheck.c
+index 51a809b..8477a06 100644
+--- a/sm/certcheck.c
++++ b/sm/certcheck.c
+@@ -250,8 +250,6 @@ gpgsm_check_cert_sig (ksba_cert_t issuer_cert, ksba_cert_t cert)
+       log_error ("md_open failed: %s\n", gpg_strerror (rc));
+       return rc;
+     }
+-  if (DBG_HASHING)
+-    gcry_md_start_debug (md, "hash.cert");
+ 
+   rc = ksba_cert_hash (cert, 1, HASH_FNC, md);
+   if (rc)
+diff --git a/sm/certreqgen.c b/sm/certreqgen.c
+index 49b2b92..067f0f7 100644
+--- a/sm/certreqgen.c
++++ b/sm/certreqgen.c
+@@ -617,8 +617,6 @@ create_request (ctrl_t ctrl,
+       log_error ("md_open failed: %s\n", gpg_strerror (rc));
+       goto leave;
+     }
+-  if (DBG_HASHING)
+-    gcry_md_start_debug (md, "cr.cri");
+ 
+   ksba_certreq_set_hash_function (cr, HASH_FNC, md);
+   ksba_certreq_set_writer (cr, outctrl->writer);
+diff --git a/sm/sign.c b/sm/sign.c
+index fd7c4ff..8f7a469 100644
+--- a/sm/sign.c
++++ b/sm/sign.c
+@@ -534,8 +534,6 @@ gpgsm_sign (ctrl_t ctrl, certlist_t signerlist,
+       log_error ("md_open failed: %s\n", gpg_strerror (rc));
+       goto leave;
+     }
+-  if (DBG_HASHING)
+-    gcry_md_start_debug (data_md, "sign.data");
+ 
+   for (i=0; (algoid=ksba_cms_get_digest_algo_list (cms, i)); i++)
+     {
+@@ -668,8 +666,6 @@ gpgsm_sign (ctrl_t ctrl, certlist_t signerlist,
+               log_error ("md_open failed: %s\n", gpg_strerror (rc));
+               goto leave;
+             }
+-          if (DBG_HASHING)
+-            gcry_md_start_debug (md, "sign.attr");
+           ksba_cms_set_hash_function (cms, HASH_FNC, md);
+           for (cl=signerlist,signer=0; cl; cl = cl->next, signer++)
+             {
+diff --git a/sm/verify.c b/sm/verify.c
+index c8663e3..f444faa 100644
+--- a/sm/verify.c
++++ b/sm/verify.c
+@@ -159,8 +159,6 @@ gpgsm_verify (ctrl_t ctrl, int in_fd, int data_fd, FILE *out_fp)
+       log_error ("md_open failed: %s\n", gpg_strerror (rc));
+       goto leave;
+     }
+-  if (DBG_HASHING)
+-    gcry_md_start_debug (data_md, "vrfy.data");
+ 
+   audit_log (ctrl->audit, AUDIT_SETUP_READY);
+ 
+@@ -495,8 +493,6 @@ gpgsm_verify (ctrl_t ctrl, int in_fd, int data_fd, FILE *out_fp)
+               audit_log_s (ctrl->audit, AUDIT_SIG_STATUS, "error");
+               goto next_signer;
+             }
+-          if (DBG_HASHING)
+-            gcry_md_start_debug (md, "vrfy.attr");
+ 
+           ksba_cms_set_hash_function (cms, HASH_FNC, md);
+           rc = ksba_cms_hash_signed_attrs (cms, signer);
+-- 
+1.8.1.4
+

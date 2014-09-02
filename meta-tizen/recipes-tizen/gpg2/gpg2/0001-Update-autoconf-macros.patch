@@ -1,0 +1,599 @@
+From f0c66acf9dd638463c05c88c1068b4b902a4404f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
+Date: Tue, 2 Sep 2014 14:15:27 +0200
+Subject: [PATCH] meta-tizen: Update autoconf macros
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+* libpth
+* libgpg-error
+* libksba
+* libassuan
+* libgcrypt
+
+Signed-off-by: Kévin THIERRY <kevin.thierry@open.eurogiciel.org>
+---
+ m4/gnupg-pth.m4 |  55 ++++---------------------
+ m4/gpg-error.m4 |  58 ++++++++------------------
+ m4/ksba.m4      |  72 ++++++++------------------------
+ m4/libassuan.m4 | 124 ++++++++++----------------------------------------------
+ m4/libgcrypt.m4 |  73 +++++++++------------------------
+ 5 files changed, 86 insertions(+), 296 deletions(-)
+
+diff --git a/m4/gnupg-pth.m4 b/m4/gnupg-pth.m4
+index 6dc9e0e..374bc87 100644
+--- a/m4/gnupg-pth.m4
++++ b/m4/gnupg-pth.m4
+@@ -11,39 +11,15 @@ dnl implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ 
+ 
+ # GNUPG_PTH_VERSION_CHECK(REQUIRED)
+-# 
++#
+ # If the version is sufficient, HAVE_PTH will be set to yes.
+ #
+ # Taken and modified from the m4 macros which come with Pth.
+ AC_DEFUN([GNUPG_PTH_VERSION_CHECK],
+   [
+-    _pth_version=`$PTH_CONFIG --version | awk 'NR==1 {print [$]3}'`
+     _req_version="ifelse([$1],,1.2.0,$1)"
++    PKG_CHECK_MODULES(PTH, [pth >= $_req_version], [have_pth=yes], [have_pth=no])
+ 
+-    AC_MSG_CHECKING(for PTH - version >= $_req_version)
+-    for _var in _pth_version _req_version; do
+-        eval "_val=\"\$${_var}\""
+-        _major=`echo $_val | sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\([[ab.]]\)\([[0-9]]*\)/\1/'`
+-        _minor=`echo $_val | sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\([[ab.]]\)\([[0-9]]*\)/\2/'`
+-        _rtype=`echo $_val | sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\([[ab.]]\)\([[0-9]]*\)/\3/'`
+-        _micro=`echo $_val | sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\([[ab.]]\)\([[0-9]]*\)/\4/'`
+-        case $_rtype in
+-            "a" ) _rtype=0 ;;
+-            "b" ) _rtype=1 ;;
+-            "." ) _rtype=2 ;;
+-        esac
+-        _hex=`echo dummy | awk '{ printf("%d%02d%1d%02d", major, minor, rtype, micro); }' \
+-              "major=$_major" "minor=$_minor" "rtype=$_rtype" "micro=$_micro"`
+-        eval "${_var}_hex=\"\$_hex\""
+-    done
+-    have_pth=no
+-    if test ".$_pth_version_hex" != .; then
+-        if test ".$_req_version_hex" != .; then
+-            if test $_pth_version_hex -ge $_req_version_hex; then
+-                have_pth=yes
+-            fi
+-        fi
+-    fi
+     if test $have_pth = yes; then
+        AC_MSG_RESULT(yes)
+        AC_MSG_CHECKING([whether PTH installation is sane])
+@@ -51,9 +27,9 @@ AC_DEFUN([GNUPG_PTH_VERSION_CHECK],
+          _gnupg_pth_save_cflags=$CFLAGS
+          _gnupg_pth_save_ldflags=$LDFLAGS
+          _gnupg_pth_save_libs=$LIBS
+-         CFLAGS="$CFLAGS `$PTH_CONFIG --cflags`"
+-         LDFLAGS="$LDFLAGS `$PTH_CONFIG --ldflags`"
+-         LIBS="$LIBS `$PTH_CONFIG --libs --all`"
++         CFLAGS="$CFLAGS $PTH_CFLAGS"
++         LDFLAGS="$LDFLAGS $PTH_LDFLAGS"
++         LIBS="$LIBS $PTH_LIBS"
+          AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <pth.h>
+                                          ],
+                                          [[ pth_init ();]])],
+@@ -69,7 +45,7 @@ AC_DEFUN([GNUPG_PTH_VERSION_CHECK],
+        AC_MSG_RESULT($gnupg_cv_pth_is_sane)
+     else
+        AC_MSG_RESULT(no)
+-    fi    
++    fi
+   ])
+ 
+ 
+@@ -80,26 +56,13 @@ AC_DEFUN([GNUPG_PTH_VERSION_CHECK],
+ # PTH_CLFAGS and PTH_LIBS are AS_SUBST.
+ #
+ AC_DEFUN([GNUPG_PATH_PTH],
+-[ AC_ARG_WITH(pth-prefix,
+-             AC_HELP_STRING([--with-pth-prefix=PFX],
+-                           [prefix where GNU Pth is installed (optional)]),
+-     pth_config_prefix="$withval", pth_config_prefix="")
+-  if test x$pth_config_prefix != x ; then
+-     PTH_CONFIG="$pth_config_prefix/bin/pth-config"
+-  fi
+-  AC_PATH_PROG(PTH_CONFIG, pth-config, no)
++[
+   tmp=ifelse([$1], ,1.3.7,$1)
+-  if test "$PTH_CONFIG" != "no"; then
+-    GNUPG_PTH_VERSION_CHECK($tmp)
+-    if test $have_pth = yes; then      
+-       PTH_CFLAGS=`$PTH_CONFIG --cflags`
+-       PTH_LIBS=`$PTH_CONFIG --ldflags`
+-       PTH_LIBS="$PTH_LIBS `$PTH_CONFIG --libs --all`"
++  GNUPG_PTH_VERSION_CHECK($tmp)
++  if test $have_pth = yes; then
+        AC_DEFINE(HAVE_PTH, 1,
+                 [Defined if the GNU Pth is available])
+-    fi
+   fi
+   AC_SUBST(PTH_CFLAGS)
+   AC_SUBST(PTH_LIBS)
+ ])
+-
+diff --git a/m4/gpg-error.m4 b/m4/gpg-error.m4
+index 9d96d16..0ec6f13 100644
+--- a/m4/gpg-error.m4
++++ b/m4/gpg-error.m4
+@@ -1,5 +1,5 @@
+ # gpg-error.m4 - autoconf macro to detect libgpg-error.
+-# Copyright (C) 2002, 2003, 2004 g10 Code GmbH
++# Copyright (C) 2002, 2003, 2004, 2011 g10 Code GmbH
+ #
+ # This file is free software; as a special exception the author gives
+ # unlimited permission to copy and/or distribute it, with or without
+@@ -14,52 +14,30 @@ dnl                   [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND ]]])
+ dnl Test for libgpg-error and define GPG_ERROR_CFLAGS and GPG_ERROR_LIBS
+ dnl
+ AC_DEFUN([AM_PATH_GPG_ERROR],
+-[ AC_ARG_WITH(gpg-error-prefix,
+-            AC_HELP_STRING([--with-gpg-error-prefix=PFX],
+-                           [prefix where GPG Error is installed (optional)]),
+-     gpg_error_config_prefix="$withval", gpg_error_config_prefix="")
+-  if test x$gpg_error_config_prefix != x ; then
+-     if test x${GPG_ERROR_CONFIG+set} != xset ; then
+-        GPG_ERROR_CONFIG=$gpg_error_config_prefix/bin/gpg-error-config
+-     fi
+-  fi
++[ AC_REQUIRE([AC_CANONICAL_HOST])
+ 
+-  AC_PATH_PROG(GPG_ERROR_CONFIG, gpg-error-config, no)
+   min_gpg_error_version=ifelse([$1], ,0.0,$1)
+-  AC_MSG_CHECKING(for GPG Error - version >= $min_gpg_error_version)
+-  ok=no
+-  if test "$GPG_ERROR_CONFIG" != "no" ; then
+-    req_major=`echo $min_gpg_error_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)/\1/'`
+-    req_minor=`echo $min_gpg_error_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)/\2/'`
+-    gpg_error_config_version=`$GPG_ERROR_CONFIG $gpg_error_config_args --version`
+-    major=`echo $gpg_error_config_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\).*/\1/'`
+-    minor=`echo $gpg_error_config_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\).*/\2/'`
+-    if test "$major" -gt "$req_major"; then
+-        ok=yes
+-    else 
+-        if test "$major" -eq "$req_major"; then
+-            if test "$minor" -ge "$req_minor"; then
+-               ok=yes
+-            fi
+-        fi
+-    fi
+-  fi
++
++  PKG_CHECK_MODULES(GPG_ERROR, [gpg-error >= $min_gpg_error_version], [ok=yes], [ok=no])
++
+   if test $ok = yes; then
+-    GPG_ERROR_CFLAGS=`$GPG_ERROR_CONFIG $gpg_error_config_args --cflags`
+-    GPG_ERROR_LIBS=`$GPG_ERROR_CONFIG $gpg_error_config_args --libs`
+-    AC_MSG_RESULT([yes ($gpg_error_config_version)])
+     ifelse([$2], , :, [$2])
++    gpg_error_config_host=`$PKG_CONFIG --variable=host gpg-error`
++    if test x"$gpg_error_config_host" != xnone ; then
++      if test x"$gpg_error_config_host" != x"$host" ; then
++  AC_MSG_WARN([[
++***
++*** The config script $GPG_ERROR_CONFIG was
++*** built for $gpg_error_config_host and thus may not match the
++*** used host $host.
++*** You may want to use the configure option --with-gpg-error-prefix
++*** to specify a matching config script.
++***]])
++      fi
++    fi
+   else
+-    GPG_ERROR_CFLAGS=""
+-    GPG_ERROR_LIBS=""
+-    AC_MSG_RESULT(no)
+     ifelse([$3], , :, [$3])
+   fi
+   AC_SUBST(GPG_ERROR_CFLAGS)
+   AC_SUBST(GPG_ERROR_LIBS)
+ ])
+-
+diff --git a/m4/ksba.m4 b/m4/ksba.m4
+index 1100387..b65c4ba 100644
+--- a/m4/ksba.m4
++++ b/m4/ksba.m4
+@@ -15,24 +15,14 @@ dnl              [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND ]]])
+ dnl Test for libksba and define KSBA_CFLAGS and KSBA_LIBS
+ dnl MINIMUN-VERSION is a string with the version number optionalliy prefixed
+ dnl with the API version to also check the API compatibility. Example:
+-dnl a MINIMUN-VERSION of 1:1.0.7 won't pass the test unless the installed 
++dnl a MINIMUN-VERSION of 1:1.0.7 won't pass the test unless the installed
+ dnl version of libksba is at least 1.0.7 *and* the API number is 1.  Using
+ dnl this features allows to prevent build against newer versions of libksba
+ dnl with a changed API.
+ dnl
+ AC_DEFUN([AM_PATH_KSBA],
+-[ AC_ARG_WITH(ksba-prefix,
+-            AC_HELP_STRING([--with-ksba-prefix=PFX],
+-                           [prefix where KSBA is installed (optional)]),
+-     ksba_config_prefix="$withval", ksba_config_prefix="")
+-  if test x$ksba_config_prefix != x ; then
+-     ksba_config_args="$ksba_config_args --prefix=$ksba_config_prefix"
+-     if test x${KSBA_CONFIG+set} != xset ; then
+-        KSBA_CONFIG=$ksba_config_prefix/bin/ksba-config
+-     fi
+-  fi
++[AC_REQUIRE([AC_CANONICAL_HOST])
+ 
+-  AC_PATH_PROG(KSBA_CONFIG, ksba-config, no)
+   tmp=ifelse([$1], ,1:1.0.0,$1)
+   if echo "$tmp" | grep ':' >/dev/null 2>/dev/null ; then
+      req_ksba_api=`echo "$tmp"     | sed 's/\(.*\):\(.*\)/\1/'`
+@@ -42,48 +32,13 @@ AC_DEFUN([AM_PATH_KSBA],
+      min_ksba_version="$tmp"
+   fi
+ 
+-  AC_MSG_CHECKING(for KSBA - version >= $min_ksba_version)
+-  ok=no
+-  if test "$KSBA_CONFIG" != "no" ; then
+-    req_major=`echo $min_ksba_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\1/'`
+-    req_minor=`echo $min_ksba_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\2/'`
+-    req_micro=`echo $min_ksba_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\3/'`
+-    ksba_config_version=`$KSBA_CONFIG $ksba_config_args --version`
+-    major=`echo $ksba_config_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\).*/\1/'`
+-    minor=`echo $ksba_config_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\).*/\2/'`
+-    micro=`echo $ksba_config_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\).*/\3/'`
+-    if test "$major" -gt "$req_major"; then
+-        ok=yes
+-    else 
+-        if test "$major" -eq "$req_major"; then
+-            if test "$minor" -gt "$req_minor"; then
+-               ok=yes
+-            else
+-               if test "$minor" -eq "$req_minor"; then
+-                   if test "$micro" -ge "$req_micro"; then
+-                     ok=yes
+-                   fi
+-               fi
+-            fi
+-        fi
+-    fi
+-  fi
+-  if test $ok = yes; then
+-    AC_MSG_RESULT([yes ($ksba_config_version)])
+-  else
+-    AC_MSG_RESULT(no)
+-  fi
++  PKG_CHECK_MODULES(KSBA, [ksba >= $min_ksba_version], [ok=yes], [ok=no])
++
+   if test $ok = yes; then
+      # Even if we have a recent libksba, we should check that the
+      # API is compatible.
+      if test "$req_ksba_api" -gt 0 ; then
+-        tmp=`$KSBA_CONFIG --api-version 2>/dev/null || echo 0`
++        tmp=`$PKG_CONFIG --variable=api_version ksba`
+         if test "$tmp" -gt 0 ; then
+            AC_MSG_CHECKING([KSBA API version])
+            if test "$req_ksba_api" -eq "$tmp" ; then
+@@ -96,12 +51,21 @@ AC_DEFUN([AM_PATH_KSBA],
+      fi
+   fi
+   if test $ok = yes; then
+-    KSBA_CFLAGS=`$KSBA_CONFIG $ksba_config_args --cflags`
+-    KSBA_LIBS=`$KSBA_CONFIG $ksba_config_args --libs`
+     ifelse([$2], , :, [$2])
++    libksba_config_host=`$PKG_CONFIG --variable=host ksba`
++    if test x"$libksba_config_host" != xnone ; then
++      if test x"$libksba_config_host" != x"$host" ; then
++  AC_MSG_WARN([[
++***
++*** The config script $LIBKSBA_CONFIG was
++*** built for $libksba_config_host and thus may not match the
++*** used host $host.
++*** You may want to use the configure option --with-libksba-prefix
++*** to specify a matching config script.
++***]])
++      fi
++    fi
+   else
+-    KSBA_CFLAGS=""
+-    KSBA_LIBS=""
+     ifelse([$3], , :, [$3])
+   fi
+   AC_SUBST(KSBA_CFLAGS)
+diff --git a/m4/libassuan.m4 b/m4/libassuan.m4
+index 004eee3..2bde244 100644
+--- a/m4/libassuan.m4
++++ b/m4/libassuan.m4
+@@ -1,5 +1,5 @@
+ dnl Autoconf macros for libassuan
+-dnl       Copyright (C) 2002, 2003 Free Software Foundation, Inc.
++dnl Copyright (C) 2002, 2003, 2011 Free Software Foundation, Inc.
+ dnl
+ dnl This file is free software; as a special exception the author gives
+ dnl unlimited permission to copy and/or distribute it, with or without
+@@ -14,17 +14,7 @@ dnl Common code used for libassuan detection [internal]
+ dnl Returns ok set to yes or no.
+ dnl
+ AC_DEFUN([_AM_PATH_LIBASSUAN_COMMON],
+-[ AC_ARG_WITH(libassuan-prefix,
+-              AC_HELP_STRING([--with-libassuan-prefix=PFX],
+-                             [prefix where LIBASSUAN is installed (optional)]),
+-     libassuan_config_prefix="$withval", libassuan_config_prefix="")
+-  if test x$libassuan_config_prefix != x ; then
+-    libassuan_config_args="$libassuan_config_args --prefix=$libassuan_config_prefix"
+-    if test x${LIBASSUAN_CONFIG+set} != xset ; then
+-      LIBASSUAN_CONFIG=$libassuan_config_prefix/bin/libassuan-config
+-    fi
+-  fi
+-  AC_PATH_PROG(LIBASSUAN_CONFIG, libassuan-config, no)
++[ AC_REQUIRE([AC_CANONICAL_HOST])
+ 
+   tmp=ifelse([$1], ,1:0.9.2,$1)
+   if echo "$tmp" | grep ':' >/dev/null 2>/dev/null ; then
+@@ -35,55 +25,14 @@ AC_DEFUN([_AM_PATH_LIBASSUAN_COMMON],
+     min_libassuan_version="$tmp"
+   fi
+ 
+-  if test "$LIBASSUAN_CONFIG" != "no" ; then
+-    libassuan_version=`$LIBASSUAN_CONFIG --version`
+-  fi
+-  libassuan_version_major=`echo $libassuan_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\).*/\1/'`
+-  libassuan_version_minor=`echo $libassuan_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\).*/\2/'`
+-  libassuan_version_micro=`echo $libassuan_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\).*/\3/'`
+-
+-  AC_MSG_CHECKING(for LIBASSUAN ifelse([$2], ,,[$2 ])- version >= $min_libassuan_version)
+-  ok=no
+-  if test "$LIBASSUAN_CONFIG" != "no" ; then
+-    ifelse([$2], ,,[if `$LIBASSUAN_CONFIG --thread=$2 2> /dev/null` ; then])
+-    req_major=`echo $min_libassuan_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\1/'`
+-    req_minor=`echo $min_libassuan_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\2/'`
+-    req_micro=`echo $min_libassuan_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\3/'`
+-    if test "$libassuan_version_major" -gt "$req_major"; then
+-        ok=yes
+-    else 
+-        if test "$libassuan_version_major" -eq "$req_major"; then
+-            if test "$libassuan_version_minor" -gt "$req_minor"; then
+-               ok=yes
+-            else
+-               if test "$libassuan_version_minor" -eq "$req_minor"; then
+-                   if test "$libassuan_version_micro" -ge "$req_micro"; then
+-                     ok=yes
+-                   fi
+-               fi
+-            fi
+-        fi
+-    fi
+-    ifelse([$2], ,,[fi])
+-  fi
+-
+-  if test $ok = yes; then
+-    AC_MSG_RESULT([yes ($libassuan_version)])
+-  else
+-    AC_MSG_RESULT(no)
+-  fi
++  PKG_CHECK_MODULES(LIBASSUAN, [libassuan >= $min_libassuan_version], [ok=yes], [ok=no])
+ 
+   if test $ok = yes; then
+     if test "$req_libassuan_api" -gt 0 ; then
+       tmp=`$LIBASSUAN_CONFIG --api-version 2>/dev/null || echo 0`
++      tmp=`$PKG_CONFIG --variable=api_version libassuan`
+       if test "$tmp" -gt 0 ; then
+-        AC_MSG_CHECKING([LIBASSUAN ifelse([$2], ,,[$2 ])API version])
++        AC_MSG_CHECKING([LIBASSUAN API version])
+         if test "$req_libassuan_api" -eq "$tmp" ; then
+           AC_MSG_RESULT(okay)
+         else
+@@ -94,6 +43,23 @@ AC_DEFUN([_AM_PATH_LIBASSUAN_COMMON],
+     fi
+   fi
+ 
++  if test $ok = yes; then
++    if test x"$host" != x ; then
++      libassuan_config_host=`$PKG_CONFIG --variable=host libassuan`
++      if test x"$libassuan_config_host" != xnone ; then
++        if test x"$libassuan_config_host" != x"$host" ; then
++  AC_MSG_WARN([[
++***
++*** The config script $LIBASSUAN_CONFIG was
++*** built for $libassuan_config_host and thus may not match the
++*** used host $host.
++*** You may want to use the configure option --with-libassuan-prefix
++*** to specify a matching config script.
++***]])
++        fi
++      fi
++    fi
++  fi
+ ])
+ 
+ dnl AM_CHECK_LIBASSUAN([MINIMUM-VERSION,
+@@ -120,56 +86,10 @@ dnl
+ AC_DEFUN([AM_PATH_LIBASSUAN],
+ [ _AM_PATH_LIBASSUAN_COMMON($1)
+   if test $ok = yes; then
+-    LIBASSUAN_CFLAGS=`$LIBASSUAN_CONFIG $libassuan_config_args --cflags`
+-    LIBASSUAN_LIBS=`$LIBASSUAN_CONFIG $libassuan_config_args --libs`
+     ifelse([$2], , :, [$2])
+   else
+-    LIBASSUAN_CFLAGS=""
+-    LIBASSUAN_LIBS=""
+     ifelse([$3], , :, [$3])
+   fi
+   AC_SUBST(LIBASSUAN_CFLAGS)
+   AC_SUBST(LIBASSUAN_LIBS)
+ ])
+-
+-
+-dnl AM_PATH_LIBASSUAN_PTH([MINIMUM-VERSION,
+-dnl                      [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND ]]])
+-dnl Test for libassuan and define LIBASSUAN_PTH_CFLAGS and LIBASSUAN_PTH_LIBS
+-dnl
+-AC_DEFUN([AM_PATH_LIBASSUAN_PTH],
+-[ _AM_PATH_LIBASSUAN_COMMON($1,pth)
+-  if test $ok = yes; then
+-    LIBASSUAN_PTH_CFLAGS=`$LIBASSUAN_CONFIG $libassuan_config_args --thread=pth --cflags`
+-    LIBASSUAN_PTH_LIBS=`$LIBASSUAN_CONFIG $libassuan_config_args --thread=pth --libs`
+-    ifelse([$2], , :, [$2])
+-  else
+-    LIBASSUAN_PTH_CFLAGS=""
+-    LIBASSUAN_PTH_LIBS=""
+-    ifelse([$3], , :, [$3])
+-  fi
+-  AC_SUBST(LIBASSUAN_PTH_CFLAGS)
+-  AC_SUBST(LIBASSUAN_PTH_LIBS)
+-])
+-
+-
+-dnl AM_PATH_LIBASSUAN_PTHREAD([MINIMUM-VERSION,
+-dnl                           [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND ]]])
+-dnl Test for libassuan and define LIBASSUAN_PTHREAD_CFLAGS 
+-dnl                           and LIBASSUAN_PTHREAD_LIBS
+-dnl
+-AC_DEFUN([AM_PATH_LIBASSUAN_PTHREAD],
+-[ _AM_PATH_LIBASSUAN_COMMON($1,pthread)
+-  if test $ok = yes; then
+-    LIBASSUAN_PTHREAD_CFLAGS=`$LIBASSUAN_CONFIG $libassuan_config_args --thread=pthread --cflags`
+-    LIBASSUAN_PTHREAD_LIBS=`$LIBASSUAN_CONFIG $libassuan_config_args --thread=pthread --libs`
+-    ifelse([$2], , :, [$2])
+-  else
+-    LIBASSUAN_PTHREAD_CFLAGS=""
+-    LIBASSUAN_PTHREAD_LIBS=""
+-    ifelse([$3], , :, [$3])
+-  fi
+-  AC_SUBST(LIBASSUAN_PTHREAD_CFLAGS)
+-  AC_SUBST(LIBASSUAN_PTHREAD_LIBS)
+-])
+-
+diff --git a/m4/libgcrypt.m4 b/m4/libgcrypt.m4
+index 854eaaa..38d9a82 100644
+--- a/m4/libgcrypt.m4
++++ b/m4/libgcrypt.m4
+@@ -1,5 +1,5 @@
+ dnl Autoconf macros for libgcrypt
+-dnl       Copyright (C) 2002, 2004 Free Software Foundation, Inc.
++dnl       Copyright (C) 2002, 2004, 2011 Free Software Foundation, Inc.
+ dnl
+ dnl This file is free software; as a special exception the author gives
+ dnl unlimited permission to copy and/or distribute it, with or without
+@@ -15,23 +15,14 @@ dnl                   [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND ]]])
+ dnl Test for libgcrypt and define LIBGCRYPT_CFLAGS and LIBGCRYPT_LIBS.
+ dnl MINIMUN-VERSION is a string with the version number optionalliy prefixed
+ dnl with the API version to also check the API compatibility. Example:
+-dnl a MINIMUN-VERSION of 1:1.2.5 won't pass the test unless the installed 
++dnl a MINIMUN-VERSION of 1:1.2.5 won't pass the test unless the installed
+ dnl version of libgcrypt is at least 1.2.5 *and* the API number is 1.  Using
+ dnl this features allows to prevent build against newer versions of libgcrypt
+ dnl with a changed API.
+ dnl
+ AC_DEFUN([AM_PATH_LIBGCRYPT],
+-[ AC_ARG_WITH(libgcrypt-prefix,
+-            AC_HELP_STRING([--with-libgcrypt-prefix=PFX],
+-                           [prefix where LIBGCRYPT is installed (optional)]),
+-     libgcrypt_config_prefix="$withval", libgcrypt_config_prefix="")
+-  if test x$libgcrypt_config_prefix != x ; then
+-     if test x${LIBGCRYPT_CONFIG+set} != xset ; then
+-        LIBGCRYPT_CONFIG=$libgcrypt_config_prefix/bin/libgcrypt-config
+-     fi
+-  fi
++[ AC_REQUIRE([AC_CANONICAL_HOST])
+ 
+-  AC_PATH_PROG(LIBGCRYPT_CONFIG, libgcrypt-config, no)
+   tmp=ifelse([$1], ,1:1.2.0,$1)
+   if echo "$tmp" | grep ':' >/dev/null 2>/dev/null ; then
+      req_libgcrypt_api=`echo "$tmp"     | sed 's/\(.*\):\(.*\)/\1/'`
+@@ -41,48 +32,13 @@ AC_DEFUN([AM_PATH_LIBGCRYPT],
+      min_libgcrypt_version="$tmp"
+   fi
+ 
+-  AC_MSG_CHECKING(for LIBGCRYPT - version >= $min_libgcrypt_version)
+-  ok=no
+-  if test "$LIBGCRYPT_CONFIG" != "no" ; then
+-    req_major=`echo $min_libgcrypt_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\1/'`
+-    req_minor=`echo $min_libgcrypt_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\2/'`
+-    req_micro=`echo $min_libgcrypt_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\3/'`
+-    libgcrypt_config_version=`$LIBGCRYPT_CONFIG --version`
+-    major=`echo $libgcrypt_config_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\).*/\1/'`
+-    minor=`echo $libgcrypt_config_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\).*/\2/'`
+-    micro=`echo $libgcrypt_config_version | \
+-               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\).*/\3/'`
+-    if test "$major" -gt "$req_major"; then
+-        ok=yes
+-    else 
+-        if test "$major" -eq "$req_major"; then
+-            if test "$minor" -gt "$req_minor"; then
+-               ok=yes
+-            else
+-               if test "$minor" -eq "$req_minor"; then
+-                   if test "$micro" -ge "$req_micro"; then
+-                     ok=yes
+-                   fi
+-               fi
+-            fi
+-        fi
+-    fi
+-  fi
+-  if test $ok = yes; then
+-    AC_MSG_RESULT([yes ($libgcrypt_config_version)])
+-  else
+-    AC_MSG_RESULT(no)
+-  fi
++  PKG_CHECK_MODULES(LIBGCRYPT, [libgcrypt >= $min_libgcrypt_version], [ok=yes], [ok=no])
++
+   if test $ok = yes; then
+      # If we have a recent libgcrypt, we should also check that the
+      # API is compatible
+      if test "$req_libgcrypt_api" -gt 0 ; then
+-        tmp=`$LIBGCRYPT_CONFIG --api-version 2>/dev/null || echo 0`
++        tmp=`$PKG_CONFIG --variable=api_version libgcrypt`
+         if test "$tmp" -gt 0 ; then
+            AC_MSG_CHECKING([LIBGCRYPT API version])
+            if test "$req_libgcrypt_api" -eq "$tmp" ; then
+@@ -95,12 +51,21 @@ AC_DEFUN([AM_PATH_LIBGCRYPT],
+      fi
+   fi
+   if test $ok = yes; then
+-    LIBGCRYPT_CFLAGS=`$LIBGCRYPT_CONFIG --cflags`
+-    LIBGCRYPT_LIBS=`$LIBGCRYPT_CONFIG --libs`
+     ifelse([$2], , :, [$2])
++    libgcrypt_config_host=`$PKG_CONFIG --variable=host libgcrypt`
++    if test x"$libgcrypt_config_host" != xnone ; then
++      if test x"$libgcrypt_config_host" != x"$host" ; then
++  AC_MSG_WARN([[
++***
++*** The config script $LIBGCRYPT_CONFIG was
++*** built for $libgcrypt_config_host and thus may not match the
++*** used host $host.
++*** You may want to use the configure option --with-libgcrypt-prefix
++*** to specify a matching config script.
++***]])
++      fi
++    fi
+   else
+-    LIBGCRYPT_CFLAGS=""
+-    LIBGCRYPT_LIBS=""
+     ifelse([$3], , :, [$3])
+   fi
+   AC_SUBST(LIBGCRYPT_CFLAGS)
+-- 
+1.8.1.4
+

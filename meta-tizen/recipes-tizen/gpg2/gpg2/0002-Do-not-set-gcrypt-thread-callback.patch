@@ -1,0 +1,92 @@
+From 398602cad11b96025552e981f210f93c6ce03218 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
+Date: Tue, 2 Sep 2014 16:04:25 +0200
+Subject: [PATCH] meta-tizen: Do not set gcrypt thread callback
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Setting gcrypt thread callback is only for older versions of gcrypt
+which is not our case.
+
+Related patch on gnupg project:
+https://gitorious.org/gnupg/mainline/commit/a2d9e48fcca6cfc2dfadef6dbd3579a30314676b
+
+Signed-off-by: Kévin THIERRY <kevin.thierry@open.eurogiciel.org>
+---
+ agent/gpg-agent.c | 17 -----------------
+ scd/scdaemon.c    | 16 ----------------
+ 2 files changed, 33 deletions(-)
+
+diff --git a/agent/gpg-agent.c b/agent/gpg-agent.c
+index b00d899..2634016 100644
+--- a/agent/gpg-agent.c
++++ b/agent/gpg-agent.c
+@@ -277,12 +277,6 @@ static int check_for_running_agent (int silent, int mode);
+ /* Pth wrapper function definitions. */
+ ASSUAN_SYSTEM_PTH_IMPL;
+ 
+-GCRY_THREAD_OPTION_PTH_IMPL;
+-static int fixed_gcry_pth_init (void)
+-{
+-  return pth_self ()? 0 : (pth_init () == FALSE) ? errno : 0;
+-}
+-
+ 
+ #ifndef PTH_HAVE_PTH_THREAD_ID
+ static unsigned long pth_thread_id (void)
+@@ -592,17 +586,6 @@ main (int argc, char **argv )
+   init_common_subsystems ();
+ 
+ 
+-  /* Libgcrypt requires us to register the threading model first.
+-     Note that this will also do the pth_init. */
+-  gcry_threads_pth.init = fixed_gcry_pth_init;
+-  err = gcry_control (GCRYCTL_SET_THREAD_CBS, &gcry_threads_pth);
+-  if (err)
+-    {
+-      log_fatal ("can't register GNU Pth with Libgcrypt: %s\n",
+-                 gpg_strerror (err));
+-    }
+-
+-
+   /* Check that the libraries are suitable.  Do it here because
+      the option parsing may need services of the library. */
+   if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+diff --git a/scd/scdaemon.c b/scd/scdaemon.c
+index 064d342..320e2c7 100644
+--- a/scd/scdaemon.c
++++ b/scd/scdaemon.c
+@@ -205,12 +205,6 @@ static void handle_connections (int listen_fd);
+ /* Pth wrapper function definitions. */
+ ASSUAN_SYSTEM_PTH_IMPL;
+ 
+-GCRY_THREAD_OPTION_PTH_IMPL;
+-static int fixed_gcry_pth_init (void)
+-{
+-  return pth_self ()? 0 : (pth_init () == FALSE) ? errno : 0;
+-}
+-
+ 
+ 
+ static char *
+@@ -407,16 +401,6 @@ main (int argc, char **argv )
+   init_common_subsystems ();
+ 
+ 
+-  /* Libgcrypt requires us to register the threading model first.
+-     Note that this will also do the pth_init. */
+-  gcry_threads_pth.init = fixed_gcry_pth_init;
+-  err = gcry_control (GCRYCTL_SET_THREAD_CBS, &gcry_threads_pth);
+-  if (err)
+-    {
+-      log_fatal ("can't register GNU Pth with Libgcrypt: %s\n",
+-                 gpg_strerror (err));
+-    }
+-
+   /* Check that the libraries are suitable.  Do it here because
+      the option parsing may need services of the library */
+   if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+-- 
+1.8.1.4
+
