@@ -31,8 +31,15 @@ FILES_${PN} += "/usr/lib/weston-ivi-shell/weston-ivi-shell-user-interface"
 FILES_${PN} += "/usr/lib/weston/gl-renderer.so"
 
 FILES_${PN}-dev += "/usr/lib/pkgconfig/weston.pc"
-FILES_${PN}-dev += "/usr/include/weston/config-parser.h"
-FILES_${PN}-dev += "/usr/include/weston/compositor.h"
-FILES_${PN}-dev += "/usr/include/weston/zalloc.h"
-FILES_${PN}-dev += "/usr/include/weston/version.h"
-FILES_${PN}-dev += "/usr/include/weston/matrix.h"
+
+
+
+
+
+do_install_append() {
+ rm -fr ${D}/usr/include/weston/config-parser.h
+ rm -fr ${D}/usr/include/weston/compositor.h
+ rm -fr ${D}/usr/include/weston/zalloc.h
+ rm -fr ${D}/usr/include/weston/version.h
+ rm -fr ${D}/usr/include/weston/matrix.h
+}
