@@ -54,7 +54,7 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n message-port-1.0.3
  cp -a ${S}/packaging/message-port.manifest .
- mkdir m4 > /dev/null
+ mkdir -p m4 > /dev/null
  autoreconf -f -i
  
  
