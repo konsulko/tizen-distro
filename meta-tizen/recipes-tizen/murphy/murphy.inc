@@ -95,7 +95,9 @@ DEPENDS += "flex"
 DEPENDS += "systemd"
 DEPENDS += "smack"
 DEPENDS += "ofono"
+DEPENDS += "ail"
 DEPENDS += "json-c"
+DEPENDS += "libxml2"
 DEPENDS += "dbus"
 DEPENDS += "pulseaudio"
 DEPENDS += "glib-2.0"
@@ -108,11 +110,15 @@ DEPENDS += "libwebsockets"
 DEPENDS += "libcap"
 DEPENDS += "mesa"
 DEPENDS += "audio-session-manager"
+DEPENDS += "ico-uxf-weston-plugin"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
+ 
+ echo "_with_icosyscon:   \"0\""
+ echo "_enable_icosyscon: \"0\""
  
  
 }
