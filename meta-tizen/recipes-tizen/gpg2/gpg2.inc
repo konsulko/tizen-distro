@@ -72,7 +72,6 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  autoreconf -fi
   # build PIEs (position independent executables) for address space randomisation:
   PIE="-fpie"
   export CFLAGS="$CFLAGS ${PIE}"
@@ -81,13 +80,6 @@ do_compile() {
   autotools_do_configure
   
   make -j16
-  
-  exit 0
-  make check
-  ${D}${prefix}/bin/gpgsplit -v -p pubsplit-                    --uncompress <tests/openpgp/pubring.gpg
-  ${D}${prefix}/bin/gpgsplit -v -p secsplit- --secret-to-public --uncompress <tests/openpgp/secring.gpg
-  
-  
   
 }
 EXTRA_OECONF += " --libexecdir=${prefix}/lib --docdir=${prefix}/share/doc/packages/gpg2 --with-agent-pgm=${prefix}/bin/gpg-agent --with-scdaemon-pgm=${prefix}/bin/scdaemon --enable-gpgsm=yes --enable-gpg --with-gnu-ld"
@@ -118,8 +110,6 @@ do_install() {
  
  ln -sf gpg2 ${D}${prefix}/bin/gpg
  ln -sf gpgv2 ${D}${prefix}/bin/gpgv
- ln -sf gpg2.1 ${D}${mandir}/man1/gpg.1
- ln -sf gpgv2.1 ${D}${mandir}/man1/gpgv.1
  
  rm -rf ${D}/${prefix}/share/locale/en@{bold,}quot
  
@@ -157,7 +147,6 @@ PACKAGES += " gpg2 "
 gpg2_files = ""
 gpg2_files += "${infodir}/gnupg*"
 gpg2_files += "${prefix}/share/doc/packages/gpg2"
-gpg2_files += "${mandir}/man*/*"
 gpg2_files += "${prefix}/bin/*"
 gpg2_files += "${prefix}/lib/[^d]*"
 gpg2_files += "${prefix}/sbin/addgnupghome"

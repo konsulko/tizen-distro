@@ -10,3 +10,5 @@ gpg2_files += "/usr/lib/gnupg-pcsc-wrapper"
 gpg2_files += "/usr/lib/gpg2keys_hkp"
 gpg2_files += "/usr/lib/gpg2keys_curl"
 gpg2_files += "/usr/lib/gpg-preset-passphrase"
+
+EXTRA_OECONF += " --disable-doc"
