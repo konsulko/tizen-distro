@@ -172,7 +172,7 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " $CONFIG_OPTIONS --with-dynamic-plugins=$DYNAMIC_PLUGINS && make clean && make -j$(($NUM_CPUS + 1)) $V"
+EXTRA_OECONF += " $CONFIG_OPTIONS --with-dynamic-plugins=$DYNAMIC_PLUGINS "
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
