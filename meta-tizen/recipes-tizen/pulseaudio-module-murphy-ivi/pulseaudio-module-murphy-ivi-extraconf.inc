@@ -1,0 +1,1 @@
+FILES_${PN}-dbg += "${prefix}/lib/pulse-5.0/modules/.debug"
