@@ -8,3 +8,11 @@ python () {
         bootimgdepends = bootimgdepends.replace(d.expand("${INITRD_IMAGE}:do_rootfs"), "")
         d.setVarFlag("do_bootimg", "depends", bootimgdepends)
 }
+
+DIRFILES = "1"
+RPM_EXTRA_PKGDATA = "1"
+
+def package_rpm_extra_pkgdata(splitname, spec_file, d):
+    if d.getVar('MANIFESTFILES', True):
+        spec_file.append('%%manifest %s' % d.getVar('MANIFESTFILES', True))
+
