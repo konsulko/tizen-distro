@@ -42,4 +42,14 @@ do_install_append() {
  rm -fr ${D}/usr/include/weston/zalloc.h
  rm -fr ${D}/usr/include/weston/version.h
  rm -fr ${D}/usr/include/weston/matrix.h
+ rm -fr ${D}/usr/share/weston/sign_close.png
+ rm -fr ${D}/usr/share/weston/sign_minimize.png
+ rm -fr ${D}/usr/share/weston/sign_maximize.png
+ rm -fr ${D}/usr/share/weston/terminal.png
+ rm -fr ${D}/usr/share/weston/icon_window.png
+ rm -fr ${D}/usr/share/weston/pattern.png
+ rm -fr ${D}/usr/share/weston/border.png
+ rm -fr ${D}/usr/lib/weston/gl-renderer.so
+ rm -fr ${D}/usr/share/weston/wayland.svg
+ rm -fr ${D}/usr/lib/pkgconfig/weston.pc
 }
