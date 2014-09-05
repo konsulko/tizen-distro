@@ -19,6 +19,8 @@ do_prep() {
     cp ${S}/packaging/genivi-shell.manifest .
 
     ${STAGING_BINDIR_NATIVE}/wayland-scanner code < protocol/ivi-controller.xml > protocol/ivi-controller-protocol.c
+    
+    sed -i "s@\${LIBS} \${WESTON_LIBDIR}/weston/ivi-shell.so@\${LIBS} ${PKG_CONFIG_SYSROOT_DIR}\${WESTON_LIBDIR}/weston/ivi-shell.so@g" ${S}/weston-ivi-shell/CMakeLists.txt 
 }
 
 cmake_do_install_append() {
@@ -41,3 +43,5 @@ cmake_do_install_append() {
 PACKAGES += " genivi-shell-dbg "
 
 FILES_genivi-shell-dbg = "${prefix}/lib/weston/.debug/ivi-controller.so"
+
+B="${S}"
