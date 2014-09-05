@@ -1,5 +1,8 @@
 inherit pkgconfig cmake
 
+
+RPROVIDES_genivi-shell += "wayland-ivi-extension"
+
 EXTRA_OECMAKE += " \
                     -DCMAKE_VERBOSE_MAKEFILE=ON \
                     -DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
