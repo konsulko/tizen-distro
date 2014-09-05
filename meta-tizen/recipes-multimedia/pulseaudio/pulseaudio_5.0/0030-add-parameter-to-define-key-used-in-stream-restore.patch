@@ -1,0 +1,258 @@
+From: Jaska Uimonen <jaska.uimonen@intel.com>
+Date: Thu, 5 Sep 2013 12:21:19 +0300
+Subject: add parameter to define key used in stream restore.
+
+It is possible now to use preferred_stream_group
+command line parameter when loading module stream
+restore. This key will be searched from the stream's
+proplist and if found it is used as key when
+restoring the volumes and other values. There's also
+special value media.role.within.appication.name you
+can use to enable restoring stream roles within
+application. So different streams with different
+roles within application will save their volumes.
+If the preferred stream group parameter is left out
+module stream restore will fallback to old default
+functionality.
+
+Change-Id: I636f47b43476f3d4cd6c14244eafcd050683bb69
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/modules/module-stream-restore.c | 34 +++++++++++++---------
+ src/pulsecore/proplist-util.c       | 58 +++++++++++++++++++++++++++++++++++++
+ src/pulsecore/proplist-util.h       |  1 +
+ 3 files changed, 80 insertions(+), 13 deletions(-)
+
+diff --git a/src/modules/module-stream-restore.c b/src/modules/module-stream-restore.c
+index 9689e79..68968c9 100644
+--- a/src/modules/module-stream-restore.c
++++ b/src/modules/module-stream-restore.c
+@@ -70,7 +70,8 @@ PA_MODULE_USAGE(
+         "restore_muted=<Save/restore muted states?> "
+         "on_hotplug=<When new device becomes available, recheck streams?> "
+         "on_rescue=<When device becomes unavailable, recheck streams?> "
+-        "fallback_table=<filename>");
++        "fallback_table=<filename>"
++        "preferred_stream_group=<prefer certain stream group in restore?> ");
+ 
+ #define SAVE_INTERVAL (10 * PA_USEC_PER_SEC)
+ #define IDENTIFICATION_PROPERTY "module-stream-restore.id"
+@@ -87,6 +88,7 @@ static const char* const valid_modargs[] = {
+     "on_hotplug",
+     "on_rescue",
+     "fallback_table",
++    "preferred_stream_group",
+     NULL
+ };
+ 
+@@ -112,6 +114,7 @@ struct userdata {
+     bool restore_muted:1;
+     bool on_hotplug:1;
+     bool on_rescue:1;
++    char *preferred_stream_group;
+ 
+     pa_native_protocol *protocol;
+     pa_idxset *subscribed;
+@@ -1277,7 +1280,7 @@ static void subscribe_callback(pa_core *c, pa_subscription_event_type_t t, uint3
+         if (!(sink_input = pa_idxset_get_by_index(c->sink_inputs, idx)))
+             return;
+ 
+-        if (!(name = pa_proplist_get_stream_group(sink_input->proplist, "sink-input", IDENTIFICATION_PROPERTY)))
++        if (!(name = pa_proplist_get_stream_group_extended(sink_input->proplist, "sink-input", IDENTIFICATION_PROPERTY, u->preferred_stream_group)))
+             return;
+ 
+         if ((old = entry_read(u, name))) {
+@@ -1327,7 +1330,7 @@ static void subscribe_callback(pa_core *c, pa_subscription_event_type_t t, uint3
+         if (!(source_output = pa_idxset_get_by_index(c->source_outputs, idx)))
+             return;
+ 
+-        if (!(name = pa_proplist_get_stream_group(source_output->proplist, "source-output", IDENTIFICATION_PROPERTY)))
++        if (!(name = pa_proplist_get_stream_group_extended(source_output->proplist, "source-output", IDENTIFICATION_PROPERTY, u->preferred_stream_group)))
+             return;
+ 
+         if ((old = entry_read(u, name))) {
+@@ -1420,7 +1423,7 @@ static pa_hook_result_t sink_input_new_hook_callback(pa_core *c, pa_sink_input_n
+     pa_assert(u);
+     pa_assert(u->restore_device);
+ 
+-    if (!(name = pa_proplist_get_stream_group(new_data->proplist, "sink-input", IDENTIFICATION_PROPERTY)))
++    if (!(name = pa_proplist_get_stream_group_extended(new_data->proplist, "sink-input", IDENTIFICATION_PROPERTY, u->preferred_stream_group)))
+         return PA_HOOK_OK;
+ 
+     if (new_data->sink)
+@@ -1462,7 +1465,7 @@ static pa_hook_result_t sink_input_fixate_hook_callback(pa_core *c, pa_sink_inpu
+     pa_assert(u);
+     pa_assert(u->restore_volume || u->restore_muted);
+ 
+-    if (!(name = pa_proplist_get_stream_group(new_data->proplist, "sink-input", IDENTIFICATION_PROPERTY)))
++    if (!(name = pa_proplist_get_stream_group_extended(new_data->proplist, "sink-input", IDENTIFICATION_PROPERTY, u->preferred_stream_group)))
+         return PA_HOOK_OK;
+ 
+     if ((e = entry_read(u, name))) {
+@@ -1516,7 +1519,7 @@ static pa_hook_result_t source_output_new_hook_callback(pa_core *c, pa_source_ou
+     if (new_data->direct_on_input)
+         return PA_HOOK_OK;
+ 
+-    if (!(name = pa_proplist_get_stream_group(new_data->proplist, "source-output", IDENTIFICATION_PROPERTY)))
++    if (!(name = pa_proplist_get_stream_group_extended(new_data->proplist, "source-output", IDENTIFICATION_PROPERTY, u->preferred_stream_group)))
+         return PA_HOOK_OK;
+ 
+     if (new_data->source)
+@@ -1559,7 +1562,7 @@ static pa_hook_result_t source_output_fixate_hook_callback(pa_core *c, pa_source
+     pa_assert(u);
+     pa_assert(u->restore_volume || u->restore_muted);
+ 
+-    if (!(name = pa_proplist_get_stream_group(new_data->proplist, "source-output", IDENTIFICATION_PROPERTY)))
++    if (!(name = pa_proplist_get_stream_group_extended(new_data->proplist, "source-output", IDENTIFICATION_PROPERTY, u->preferred_stream_group)))
+         return PA_HOOK_OK;
+ 
+     if ((e = entry_read(u, name))) {
+@@ -1631,7 +1634,7 @@ static pa_hook_result_t sink_put_hook_callback(pa_core *c, pa_sink *sink, struct
+         if (!PA_SINK_INPUT_IS_LINKED(pa_sink_input_get_state(si)))
+             continue;
+ 
+-        if (!(name = pa_proplist_get_stream_group(si->proplist, "sink-input", IDENTIFICATION_PROPERTY)))
++        if (!(name = pa_proplist_get_stream_group_extended(si->proplist, "sink-input", IDENTIFICATION_PROPERTY, u->preferred_stream_group)))
+             continue;
+ 
+         if ((e = entry_read(u, name))) {
+@@ -1679,7 +1682,7 @@ static pa_hook_result_t source_put_hook_callback(pa_core *c, pa_source *source,
+         if (!PA_SOURCE_OUTPUT_IS_LINKED(pa_source_output_get_state(so)))
+             continue;
+ 
+-        if (!(name = pa_proplist_get_stream_group(so->proplist, "source-output", IDENTIFICATION_PROPERTY)))
++        if (!(name = pa_proplist_get_stream_group_extended(so->proplist, "source-output", IDENTIFICATION_PROPERTY, u->preferred_stream_group)))
+             continue;
+ 
+         if ((e = entry_read(u, name))) {
+@@ -1715,7 +1718,7 @@ static pa_hook_result_t sink_unlink_hook_callback(pa_core *c, pa_sink *sink, str
+         if (!si->sink)
+             continue;
+ 
+-        if (!(name = pa_proplist_get_stream_group(si->proplist, "sink-input", IDENTIFICATION_PROPERTY)))
++        if (!(name = pa_proplist_get_stream_group_extended(si->proplist, "sink-input", IDENTIFICATION_PROPERTY, u->preferred_stream_group)))
+             continue;
+ 
+         if ((e = entry_read(u, name))) {
+@@ -1761,7 +1764,7 @@ static pa_hook_result_t source_unlink_hook_callback(pa_core *c, pa_source *sourc
+         if (!so->source)
+             continue;
+ 
+-        if (!(name = pa_proplist_get_stream_group(so->proplist, "source-output", IDENTIFICATION_PROPERTY)))
++        if (!(name = pa_proplist_get_stream_group_extended(so->proplist, "source-output", IDENTIFICATION_PROPERTY, u->preferred_stream_group)))
+             continue;
+ 
+         if ((e = entry_read(u, name))) {
+@@ -1880,7 +1883,7 @@ static void entry_apply(struct userdata *u, const char *name, struct entry *e) {
+         char *n;
+         pa_sink *s;
+ 
+-        if (!(n = pa_proplist_get_stream_group(si->proplist, "sink-input", IDENTIFICATION_PROPERTY)))
++        if (!(n = pa_proplist_get_stream_group_extended(si->proplist, "sink-input", IDENTIFICATION_PROPERTY, u->preferred_stream_group)))
+             continue;
+ 
+         if (!pa_streq(name, n)) {
+@@ -1928,7 +1931,7 @@ static void entry_apply(struct userdata *u, const char *name, struct entry *e) {
+         char *n;
+         pa_source *s;
+ 
+-        if (!(n = pa_proplist_get_stream_group(so->proplist, "source-output", IDENTIFICATION_PROPERTY)))
++        if (!(n = pa_proplist_get_stream_group_extended(so->proplist, "source-output", IDENTIFICATION_PROPERTY, u->preferred_stream_group)))
+             continue;
+ 
+         if (!pa_streq(name, n)) {
+@@ -2411,6 +2414,8 @@ int pa__init(pa_module*m) {
+ 
+     u->subscription = pa_subscription_new(m->core, PA_SUBSCRIPTION_MASK_SINK_INPUT|PA_SUBSCRIPTION_MASK_SOURCE_OUTPUT, subscribe_callback, u);
+ 
++    u->preferred_stream_group = pa_xstrdup(pa_modargs_get_value(ma, "preferred_stream_group", NULL));
++
+     if (restore_device) {
+         /* A little bit earlier than module-intended-roles ... */
+         u->sink_input_new_hook_slot = pa_hook_connect(&m->core->hooks[PA_CORE_HOOK_SINK_INPUT_NEW], PA_HOOK_EARLY, (pa_hook_cb_t) sink_input_new_hook_callback, u);
+@@ -2554,5 +2559,8 @@ void pa__done(pa_module*m) {
+     if (u->subscribed)
+         pa_idxset_free(u->subscribed, NULL);
+ 
++    if (u->preferred_stream_group)
++        pa_xfree(u->preferred_stream_group);
++
+     pa_xfree(u);
+ }
+diff --git a/src/pulsecore/proplist-util.c b/src/pulsecore/proplist-util.c
+index 473290f..0a8dbca 100644
+--- a/src/pulsecore/proplist-util.c
++++ b/src/pulsecore/proplist-util.c
+@@ -274,3 +274,61 @@ char *pa_proplist_get_stream_group(pa_proplist *p, const char *prefix, const cha
+ 
+     return t;
+ }
++
++char *pa_proplist_get_stream_group_extended(pa_proplist *p, const char *prefix, const char *cache, const char *preferred_stream_group) {
++    const char *r = NULL;
++    const char *q = NULL;
++    char *t;
++
++    if (!p)
++        return NULL;
++
++    if (cache && (r = pa_proplist_gets(p, cache)))
++        return pa_xstrdup(r);
++
++    if (!prefix)
++        prefix = "stream";
++
++    /* try first to get the preferred stream group, then fallback to hard coded order */
++    if (preferred_stream_group) {
++        if (!strcmp(preferred_stream_group, "media.role.within.application.name")) {
++	    if ((r = pa_proplist_gets(p, PA_PROP_APPLICATION_NAME)) &&
++	        (q = pa_proplist_gets(p, PA_PROP_MEDIA_ROLE))) {
++                    t = pa_sprintf_malloc("%s-by-media-role-within-application-name:%s-%s", prefix, q, r);
++	    } else {
++	        /* make r NULL to be able to fallback to "standard" stream restore code */
++                r = NULL;
++	    }
++	}
++	else if ((r = pa_proplist_gets(p, preferred_stream_group))) {
++            if (!strcmp(preferred_stream_group, PA_PROP_MEDIA_ROLE))
++                t = pa_sprintf_malloc("%s-by-media-role:%s", prefix, r);
++	    else if (!strcmp(preferred_stream_group, PA_PROP_APPLICATION_ID))
++                t = pa_sprintf_malloc("%s-by-application-id:%s", prefix, r);
++            else if (!strcmp(preferred_stream_group, PA_PROP_APPLICATION_NAME))
++                t = pa_sprintf_malloc("%s-by-application-name:%s", prefix, r);
++            else if (!strcmp(preferred_stream_group, PA_PROP_MEDIA_NAME))
++	        t = pa_sprintf_malloc("%s-by-media-name:%s", prefix, r);
++            else
++                t = pa_sprintf_malloc("%s-fallback:%s", prefix, r);
++        }
++    }
++
++    if (!r) {
++        if ((r = pa_proplist_gets(p, PA_PROP_MEDIA_ROLE)))
++            t = pa_sprintf_malloc("%s-by-media-role:%s", prefix, r);
++        else if ((r = pa_proplist_gets(p, PA_PROP_APPLICATION_ID)))
++            t = pa_sprintf_malloc("%s-by-application-id:%s", prefix, r);
++        else if ((r = pa_proplist_gets(p, PA_PROP_APPLICATION_NAME)))
++            t = pa_sprintf_malloc("%s-by-application-name:%s", prefix, r);
++        else if ((r = pa_proplist_gets(p, PA_PROP_MEDIA_NAME)))
++            t = pa_sprintf_malloc("%s-by-media-name:%s", prefix, r);
++        else
++            t = pa_sprintf_malloc("%s-fallback:%s", prefix, r);
++    }
++
++    if (cache)
++        pa_proplist_sets(p, cache, t);
++
++    return t;
++}
+diff --git a/src/pulsecore/proplist-util.h b/src/pulsecore/proplist-util.h
+index 3d08776..47bdb57 100644
+--- a/src/pulsecore/proplist-util.h
++++ b/src/pulsecore/proplist-util.h
+@@ -26,5 +26,6 @@
+ 
+ void pa_init_proplist(pa_proplist *p);
+ char *pa_proplist_get_stream_group(pa_proplist *pl, const char *prefix, const char *cache);
++char *pa_proplist_get_stream_group_extended(pa_proplist *p, const char *prefix, const char *cache, const char *preferred_stream_group);
+ 
+ #endif

@@ -1,0 +1,28 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Mon, 4 Aug 2014 20:31:00 +0300
+Subject: core-util: Add pa_boolean_to_string()
+
+I need to save booleans in a plain text database, and the existing
+pa_yes_no() is not good, because it will do translation in the next
+PulseAudio release.
+
+Change-Id: I85f12da01aa0eb3d5c555350bd14ba337fbcc25b
+---
+ src/pulsecore/core-util.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/pulsecore/core-util.h b/src/pulsecore/core-util.h
+index 4968385..c108968 100644
+--- a/src/pulsecore/core-util.h
++++ b/src/pulsecore/core-util.h
+@@ -89,6 +89,10 @@ int pa_parse_boolean(const char *s) PA_GCC_PURE;
+ 
+ int pa_parse_volume(const char *s, pa_volume_t *volume);
+ 
++static inline const char *pa_boolean_to_string(bool b) {
++    return b ? "true" : "false";
++}
++
+ static inline const char *pa_yes_no(bool b) {
+     return b ? "yes" : "no";
+ }

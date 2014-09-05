@@ -1,0 +1,120 @@
+From: Jaska Uimonen <jaska.uimonen@intel.com>
+Date: Fri, 7 Mar 2014 17:49:42 +0200
+Subject: fixes and improvements to makefile and configure in - samsung
+
+Change-Id: Ic2338a8382fe45f9d509537950592c9c4aa83606
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ configure.ac    | 14 +++++++++++++-
+ src/Makefile.am | 28 +++++++++-------------------
+ 2 files changed, 22 insertions(+), 20 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 13c8f6c..870375f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1539,6 +1539,11 @@ AS_IF([test "x$HAVE_ESOUND" = "x1" -a "x$USE_PER_USER_ESOUND_SOCKET" = "x1"], EN
+ AS_IF([test "x$HAVE_GCOV" = "x1"], ENABLE_GCOV=yes, ENABLE_GCOV=no)
+ AS_IF([test "x$HAVE_LIBCHECK" = "x1"], ENABLE_TESTS=yes, ENABLE_TESTS=no)
+ AS_IF([test "x$enable_legacy_database_entry_format" != "xno"], ENABLE_LEGACY_DATABASE_ENTRY_FORMAT=yes, ENABLE_LEGACY_DATABASE_ENTRY_FORMAT=no)
++AS_IF([test "x$USE_SAMSUNG_POLICY" = "x1"], ENABLE_SAMSUNG_POLICY=yes, ENABLE_SAMSUNG_POLICY=no)
++AS_IF([test "x$USE_DLOG" = "x1"], ENABLE_DLOG=yes, ENABLE_DLOG=no)
++AS_IF([test "x$USE_PM_LOCK" = "x1"], ENABLE_PM_LOCK=yes, ENABLE_PM_LOCK=no)
++AS_IF([test "x$USE_BT_PROFILE_SET" = "x1"], ENABLE_BT_PROFILE_SET=yes, ENABLE_BT_PROFILE_SET=no)
++AS_IF([test "x$HAVE_BT_A2DP_APTX" = "x1"], HAVE_BT_A2DP_APTX=yes, HAVE_BT_A2DP_APTX=no)
+ 
+ echo "
+  ---{ $PACKAGE_NAME $VERSION }---
+@@ -1577,7 +1582,6 @@ echo "
+         headset backed:            ${BLUETOOTH_HEADSET_BACKEND}
+     Enable udev:                   ${ENABLE_UDEV}
+       Enable HAL->udev compat:     ${ENABLE_HAL_COMPAT}
+-      Enable udev usb only:        ${ENABLE_UDEV_ONLY_USB}
+     Enable systemd login:          ${ENABLE_SYSTEMD}
+     Enable systemd journal:        ${ENABLE_SYSTEMD_JOURNAL}
+     Enable TCP Wrappers:           ${ENABLE_TCPWRAP}
+@@ -1604,6 +1608,14 @@ echo "
+     Preopened modules:             ${PREOPEN_MODS}
+ 
+     Legacy Database Entry Support: ${ENABLE_LEGACY_DATABASE_ENTRY_FORMAT}
++
++    Tizen
++      samsung policy:              ${ENABLE_SAMSUNG_POLICY}
++      dlog:                        ${ENABLE_DLOG}
++      pmapi:                       ${ENABLE_PM_LOCK}
++      bluetooth profile set:       ${ENABLE_BT_PROFILE_SET}
++      bluetooth aptx codec:        ${HAVE_BT_A2DP_APTX}
++      udev with usb only:          ${ENABLE_UDEV_ONLY_USB}
+ "
+ 
+ if test "${ENABLE_SPEEX}" = "no" && test "${ENABLE_WEBRTC}" = "no" && test "${ENABLE_ADRIAN_EC}" = "no" ; then
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 3c062eb..a60b5bf 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -2078,10 +2078,9 @@ module_bluetooth_policy_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
+ module_bluetooth_discover_la_SOURCES = modules/bluetooth/module-bluetooth-discover.c
+ module_bluetooth_discover_la_LDFLAGS = $(MODULE_LDFLAGS)
+ module_bluetooth_discover_la_LIBADD = $(MODULE_LIBADD)
+-if HAVE_BT_A2DP_APTX
+-module_bluetooth_discover_la_CFLAGS = $(AM_CFLAGS) -DBLUETOOTH_APTX_SUPPORT
+-else
+ module_bluetooth_discover_la_CFLAGS = $(AM_CFLAGS)
++if HAVE_BT_A2DP_APTX
++module_bluetooth_discover_la_CFLAGS += -DBLUETOOTH_APTX_SUPPORT
+ endif
+ 
+ # Bluetooth BlueZ 4 sink / source
+@@ -2096,22 +2095,17 @@ libbluez4_util_la_SOURCES = \
+ 		modules/bluetooth/bluez4-util.h
+ libbluez4_util_la_LDFLAGS = -avoid-version
+ libbluez4_util_la_LIBADD = $(MODULE_LIBADD) $(DBUS_LIBS)
+-
+-if HAVE_BT_A2DP_APTX
+-libbluez4_util_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) -DBLUETOOTH_APTX_SUPPORT
+-else
+ libbluez4_util_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
++if HAVE_BT_A2DP_APTX
++libbluez4_util_la_CFLAGS += -DBLUETOOTH_APTX_SUPPORT
+ endif
+ 
+ module_bluez4_device_la_SOURCES = modules/bluetooth/module-bluez4-device.c modules/bluetooth/rtp.h
+ module_bluez4_device_la_LDFLAGS = $(MODULE_LDFLAGS)
+ module_bluez4_device_la_LIBADD = $(MODULE_LIBADD) $(DBUS_LIBS) $(SBC_LIBS) libbluez4-util.la
+-
+-if HAVE_BT_A2DP_APTX
+-module_bluez4_device_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) $(SBC_CFLAGS) \
+-                                    -DBLUETOOTH_APTX_SUPPORT
+-else
+ module_bluez4_device_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) $(SBC_CFLAGS)
++if HAVE_BT_A2DP_APTX
++module_bluez4_device_la_CFLAGS += -DBLUETOOTH_APTX_SUPPORT
+ endif
+ 
+ # Bluetooth BlueZ 5 sink / source
+@@ -2123,11 +2117,10 @@ libbluez5_util_la_SOURCES = \
+ 		modules/bluetooth/hfaudioagent-@BLUETOOTH_HEADSET_BACKEND@.c
+ libbluez5_util_la_LDFLAGS = -avoid-version
+ libbluez5_util_la_LIBADD = $(MODULE_LIBADD) $(DBUS_LIBS)
++libbluez5_util_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
+ 
+ if HAVE_BT_A2DP_APTX
+-libbluez5_util_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) -DBLUETOOTH_APTX_SUPPORT
+-else
+-libbluez5_util_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
++libbluez5_util_la_CFLAGS += -DBLUETOOTH_APTX_SUPPORT
+ endif
+ 
+ module_bluez5_discover_la_SOURCES = modules/bluetooth/module-bluez5-discover.c
+@@ -2141,10 +2134,7 @@ module_bluez5_device_la_LIBADD = $(MODULE_LIBADD) $(SBC_LIBS) libbluez5-util.la
+ module_bluez5_device_la_CFLAGS = $(AM_CFLAGS) $(SBC_CFLAGS)
+ 
+ if HAVE_BT_A2DP_APTX
+-module_bluez5_device_la_CFLAGS = $(AM_CFLAGS) $(SBC_CFLAGS) \
+-                                    -DBLUETOOTH_APTX_SUPPORT
+-else
+-module_bluez5_device_la_CFLAGS = $(AM_CFLAGS) $(SBC_CFLAGS)
++module_bluez5_device_la_CFLAGS += -DBLUETOOTH_APTX_SUPPORT
+ endif
+ 
+ # Apple Airtunes/RAOP

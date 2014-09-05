@@ -1,0 +1,19 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Mon, 24 Feb 2014 12:38:31 +0200
+Subject: .gitignore: Add pulsecore-config.h
+
+Change-Id: I8409f1964e65e79669eaeb4930c6d536417a0b05
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ .gitignore | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/.gitignore b/.gitignore
+index f41ee72..b4a465e 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -34,3 +34,4 @@ missing
+ mkinstalldirs
+ stamp-*
+ .dirstamp
++pulsecore-config.h

@@ -1,0 +1,49 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Sun, 8 Jun 2014 16:33:00 +0300
+Subject: core-util: Add pa_append_to_config_home_dir()
+
+Change-Id: Ib4e6a096a740a61188220a983f26ecea434f6200
+---
+ src/pulsecore/core-util.c | 16 ++++++++++++++++
+ src/pulsecore/core-util.h |  1 +
+ 2 files changed, 17 insertions(+)
+
+diff --git a/src/pulsecore/core-util.c b/src/pulsecore/core-util.c
+index 2569cfd..dbe9ec1 100644
+--- a/src/pulsecore/core-util.c
++++ b/src/pulsecore/core-util.c
+@@ -1724,6 +1724,22 @@ finish:
+     return r;
+ }
+ 
++int pa_append_to_config_home_dir(const char *path, bool use_machine_id, char **_r) {
++    int r;
++    char *config_home_dir;
++
++    pa_assert(path);
++    pa_assert(_r);
++
++    r = pa_get_config_home_dir(use_machine_id, &config_home_dir);
++    if (r < 0)
++        return r;
++
++    *_r = pa_sprintf_malloc("%s" PA_PATH_SEP "%s", config_home_dir, path);
++    pa_xfree(config_home_dir);
++    return 0;
++}
++
+ char *pa_get_binary_name_malloc(void) {
+     char *t;
+     size_t allocated = 128;
+diff --git a/src/pulsecore/core-util.h b/src/pulsecore/core-util.h
+index e222874..4968385 100644
+--- a/src/pulsecore/core-util.h
++++ b/src/pulsecore/core-util.h
+@@ -139,6 +139,7 @@ char *pa_get_state_dir(void);
+ char *pa_get_home_dir_malloc(void);
+ int pa_append_to_home_dir(const char *path, char **_r);
+ int pa_get_config_home_dir(bool use_machine_id, char **_r);
++int pa_append_to_config_home_dir(const char *path, bool use_machine_id, char **_r);
+ char *pa_get_binary_name_malloc(void);
+ char *pa_runtime_path(const char *fn);
+ char *pa_state_path(const char *fn, bool prepend_machine_id);

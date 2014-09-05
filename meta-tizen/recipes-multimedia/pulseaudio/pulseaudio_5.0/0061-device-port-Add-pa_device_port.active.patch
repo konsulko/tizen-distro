@@ -1,0 +1,236 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Wed, 26 Mar 2014 13:41:42 +0200
+Subject: device-port: Add pa_device_port.active
+
+In the Tizen volume API, I create and delete volume control objects
+for ports based on their state (only active ports have volume
+controls). Having the pa_device_port.active flag directly accessible
+is much nicer than figuring out the state by iterating through sinks
+and checking what their active port is. It's also safer to get a
+notification for a deactivated port before the port switch is
+executed, compared to using the SINK_PORT_CHANGED hook that is fired
+only after the port switch is complete.
+
+Change-Id: I3f7f8855721c8dc3a643708a72f6e35341ff7117
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/pulsecore/core.h        |  1 +
+ src/pulsecore/device-port.c | 15 +++++++++++++++
+ src/pulsecore/device-port.h |  4 ++++
+ src/pulsecore/sink.c        | 28 ++++++++++++++++++++++++----
+ src/pulsecore/source.c      | 29 +++++++++++++++++++++++++----
+ 5 files changed, 69 insertions(+), 8 deletions(-)
+
+diff --git a/src/pulsecore/core.h b/src/pulsecore/core.h
+index f268e42..e1cd18f 100644
+--- a/src/pulsecore/core.h
++++ b/src/pulsecore/core.h
+@@ -119,6 +119,7 @@ typedef enum pa_core_hook {
+     PA_CORE_HOOK_CARD_PROFILE_ADDED,
+     PA_CORE_HOOK_CARD_PROFILE_AVAILABLE_CHANGED,
+     PA_CORE_HOOK_PORT_AVAILABLE_CHANGED,
++    PA_CORE_HOOK_PORT_ACTIVE_CHANGED,
+     PA_CORE_HOOK_PORT_LATENCY_OFFSET_CHANGED,
+     PA_CORE_HOOK_MAX
+ } pa_core_hook_t;
+diff --git a/src/pulsecore/device-port.c b/src/pulsecore/device-port.c
+index 0b65d5c..c183990 100644
+--- a/src/pulsecore/device-port.c
++++ b/src/pulsecore/device-port.c
+@@ -176,3 +176,18 @@ void pa_device_port_set_latency_offset(pa_device_port *p, int64_t offset) {
+     pa_subscription_post(core, PA_SUBSCRIPTION_EVENT_CARD|PA_SUBSCRIPTION_EVENT_CHANGE, p->card->index);
+     pa_hook_fire(&core->hooks[PA_CORE_HOOK_PORT_LATENCY_OFFSET_CHANGED], p);
+ }
++
++void pa_device_port_active_changed(pa_device_port *port, bool new_active) {
++    bool old_active;
++
++    pa_assert(port);
++
++    old_active = port->active;
++
++    if (new_active == old_active)
++        return;
++
++    port->active = new_active;
++    pa_log_debug("Port %s %s.", port->name, new_active ? "activated" : "deactivated");
++    pa_hook_fire(&port->core->hooks[PA_CORE_HOOK_PORT_ACTIVE_CHANGED], port);
++}
+diff --git a/src/pulsecore/device-port.h b/src/pulsecore/device-port.h
+index b10d554..2964900 100644
+--- a/src/pulsecore/device-port.h
++++ b/src/pulsecore/device-port.h
+@@ -48,6 +48,7 @@ struct pa_device_port {
+ 
+     unsigned priority;
+     pa_available_t available;         /* PA_AVAILABLE_UNKNOWN, PA_AVAILABLE_NO or PA_AVAILABLE_YES */
++    bool active;
+ 
+     pa_proplist *proplist;
+     pa_hashmap *profiles; /* Does not own the profiles */
+@@ -83,4 +84,7 @@ void pa_device_port_set_available(pa_device_port *p, pa_available_t available);
+ 
+ void pa_device_port_set_latency_offset(pa_device_port *p, int64_t offset);
+ 
++/* Called from sink.c and source.c only. */
++void pa_device_port_active_changed(pa_device_port *port, bool new_active);
++
+ #endif
+diff --git a/src/pulsecore/sink.c b/src/pulsecore/sink.c
+index 61656ab..11a6e77 100644
+--- a/src/pulsecore/sink.c
++++ b/src/pulsecore/sink.c
+@@ -669,6 +669,9 @@ void pa_sink_put(pa_sink* s) {
+     else
+         pa_assert_se(sink_set_state(s, PA_SINK_IDLE) == 0);
+ 
++    if (s->active_port)
++        pa_device_port_active_changed(s->active_port, true);
++
+     pa_source_put(s->monitor_source);
+ 
+     pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SINK | PA_SUBSCRIPTION_EVENT_NEW, s->index);
+@@ -696,6 +699,9 @@ void pa_sink_unlink(pa_sink* s) {
+     if (linked)
+         pa_hook_fire(&s->core->hooks[PA_CORE_HOOK_SINK_UNLINK], s);
+ 
++    if (s->active_port)
++        pa_device_port_active_changed(s->active_port, false);
++
+     if (s->state != PA_SINK_UNLINKED)
+         pa_namereg_unregister(s->core, s->name);
+     pa_idxset_remove_by_data(s->core->sinks, s, NULL);
+@@ -3410,6 +3416,7 @@ size_t pa_sink_get_max_request(pa_sink *s) {
+ /* Called from main context */
+ int pa_sink_set_port(pa_sink *s, const char *name, bool save) {
+     pa_device_port *port;
++    pa_device_port *old_port;
+     int ret;
+ 
+     pa_sink_assert_ref(s);
+@@ -3426,11 +3433,15 @@ int pa_sink_set_port(pa_sink *s, const char *name, bool save) {
+     if (!(port = pa_hashmap_get(s->ports, name)))
+         return -PA_ERR_NOENTITY;
+ 
+-    if (s->active_port == port) {
++    old_port = s->active_port;
++
++    if (port == old_port) {
+         s->save_port = s->save_port || save;
+         return 0;
+     }
+ 
++    pa_device_port_active_changed(old_port, false);
++
+     if (s->flags & PA_SINK_DEFERRED_VOLUME) {
+         struct sink_message_set_port msg = { .port = port, .ret = 0 };
+         pa_assert_se(pa_asyncmsgq_send(s->asyncmsgq, PA_MSGOBJECT(s), PA_SINK_MESSAGE_SET_PORT, &msg, 0, NULL) == 0);
+@@ -3439,17 +3450,26 @@ int pa_sink_set_port(pa_sink *s, const char *name, bool save) {
+     else
+         ret = s->set_port(s, port);
+ 
+-    if (ret < 0)
+-        return -PA_ERR_NOENTITY;
++    if (ret < 0) {
++        pa_log("Failed to set the port of sink %s from %s to %s.", s->name, old_port->name, port->name);
++
++        /* We don't know the real state of the device, but let's assume that
++         * the old port is still active, because s->active_port is left to
++         * point to the old port anyway. */
++        pa_device_port_active_changed(old_port, true);
++
++        return ret;
++    }
+ 
+     pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SINK|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);
+ 
+-    pa_log_info("Changed port of sink %u \"%s\" to %s", s->index, s->name, port->name);
++    pa_log_info("Changed port of sink %u \"%s\" from %s to %s", s->index, s->name, old_port->name, port->name);
+ 
+     s->active_port = port;
+     s->save_port = save;
+ 
+     pa_sink_set_latency_offset(s, s->active_port->latency_offset);
++    pa_device_port_active_changed(port, true);
+ 
+     pa_hook_fire(&s->core->hooks[PA_CORE_HOOK_SINK_PORT_CHANGED], s);
+ 
+diff --git a/src/pulsecore/source.c b/src/pulsecore/source.c
+index af4c6ec..d39193f 100644
+--- a/src/pulsecore/source.c
++++ b/src/pulsecore/source.c
+@@ -611,6 +611,9 @@ void pa_source_put(pa_source *s) {
+     else
+         pa_assert_se(source_set_state(s, PA_SOURCE_IDLE) == 0);
+ 
++    if (s->active_port)
++        pa_device_port_active_changed(s->active_port, true);
++
+     pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SOURCE | PA_SUBSCRIPTION_EVENT_NEW, s->index);
+     pa_hook_fire(&s->core->hooks[PA_CORE_HOOK_SOURCE_PUT], s);
+ }
+@@ -631,6 +634,9 @@ void pa_source_unlink(pa_source *s) {
+     if (linked)
+         pa_hook_fire(&s->core->hooks[PA_CORE_HOOK_SOURCE_UNLINK], s);
+ 
++    if (s->active_port)
++        pa_device_port_active_changed(s->active_port, false);
++
+     if (s->state != PA_SOURCE_UNLINKED)
+         pa_namereg_unregister(s->core, s->name);
+     pa_idxset_remove_by_data(s->core->sources, s, NULL);
+@@ -2608,6 +2614,7 @@ size_t pa_source_get_max_rewind(pa_source *s) {
+ /* Called from main context */
+ int pa_source_set_port(pa_source *s, const char *name, bool save) {
+     pa_device_port *port;
++    pa_device_port *old_port;
+     int ret;
+ 
+     pa_source_assert_ref(s);
+@@ -2624,11 +2631,15 @@ int pa_source_set_port(pa_source *s, const char *name, bool save) {
+     if (!(port = pa_hashmap_get(s->ports, name)))
+         return -PA_ERR_NOENTITY;
+ 
+-    if (s->active_port == port) {
++    old_port = s->active_port;
++
++    if (port == old_port) {
+         s->save_port = s->save_port || save;
+         return 0;
+     }
+ 
++    pa_device_port_active_changed(old_port, false);
++
+     if (s->flags & PA_SOURCE_DEFERRED_VOLUME) {
+         struct source_message_set_port msg = { .port = port, .ret = 0 };
+         pa_assert_se(pa_asyncmsgq_send(s->asyncmsgq, PA_MSGOBJECT(s), PA_SOURCE_MESSAGE_SET_PORT, &msg, 0, NULL) == 0);
+@@ -2637,16 +2648,26 @@ int pa_source_set_port(pa_source *s, const char *name, bool save) {
+     else
+         ret = s->set_port(s, port);
+ 
+-    if (ret < 0)
+-        return -PA_ERR_NOENTITY;
++    if (ret < 0) {
++        pa_log("Failed to set the port of sink %s from %s to %s.", s->name, old_port->name, port->name);
++
++        /* We don't know the real state of the device, but let's assume that
++         * the old port is still active, because s->active_port is left to
++         * point to the old port anyway. */
++        pa_device_port_active_changed(old_port, true);
++
++        return ret;
++    }
+ 
+     pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SOURCE|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);
+ 
+-    pa_log_info("Changed port of source %u \"%s\" to %s", s->index, s->name, port->name);
++    pa_log_info("Changed port of source %u \"%s\" from %s to %s", s->index, s->name, old_port->name, port->name);
+ 
+     s->active_port = port;
+     s->save_port = save;
+ 
++    pa_device_port_active_changed(port, true);
++
+     pa_hook_fire(&s->core->hooks[PA_CORE_HOOK_SOURCE_PORT_CHANGED], s);
+ 
+     return 0;

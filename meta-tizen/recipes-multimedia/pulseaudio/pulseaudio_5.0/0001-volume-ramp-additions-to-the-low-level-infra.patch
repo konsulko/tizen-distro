@@ -1,0 +1,559 @@
+From: Jaska Uimonen <jaska.uimonen@helsinki.fi>
+Date: Wed, 8 Aug 2012 11:14:37 +0300
+Subject: volume ramp: additions to the low level infra
+
+Change-Id: Ib2be01e0bea0856ebd0256066981fe34d05a4f86
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/map-file        |   4 +
+ src/pulse/def.h     |  13 ++-
+ src/pulse/volume.c  |  74 ++++++++++++-
+ src/pulse/volume.h  |  33 ++++++
+ src/pulsecore/mix.c | 310 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/pulsecore/mix.h |  27 +++++
+ 6 files changed, 459 insertions(+), 2 deletions(-)
+
+diff --git a/src/map-file b/src/map-file
+index fbad1a4..9903942 100644
+--- a/src/map-file
++++ b/src/map-file
+@@ -136,6 +136,10 @@ pa_cvolume_max_mask;
+ pa_cvolume_merge;
+ pa_cvolume_min;
+ pa_cvolume_min_mask;
++pa_cvolume_ramp_equal;
++pa_cvolume_ramp_init;
++pa_cvolume_ramp_set;
++pa_cvolume_ramp_channel_ramp_set;
+ pa_cvolume_remap;
+ pa_cvolume_scale;
+ pa_cvolume_scale_mask;
+diff --git a/src/pulse/def.h b/src/pulse/def.h
+index d6fa912..b7854a3 100644
+--- a/src/pulse/def.h
++++ b/src/pulse/def.h
+@@ -349,11 +349,15 @@ typedef enum pa_stream_flags {
+      * consider absolute when the sink is in flat volume mode,
+      * relative otherwise. \since 0.9.20 */
+ 
+-    PA_STREAM_PASSTHROUGH = 0x80000U
++    PA_STREAM_PASSTHROUGH = 0x80000U,
+     /**< Used to tag content that will be rendered by passthrough sinks.
+      * The data will be left as is and not reformatted, resampled.
+      * \since 1.0 */
+ 
++    PA_STREAM_START_RAMP_MUTED = 0x100000U
++    /**< Used to tag content that the stream will be started ramp volume
++     * muted so that you can nicely fade it in */
++
+ } pa_stream_flags_t;
+ 
+ /** \cond fulldocs */
+@@ -382,6 +386,7 @@ typedef enum pa_stream_flags {
+ #define PA_STREAM_FAIL_ON_SUSPEND PA_STREAM_FAIL_ON_SUSPEND
+ #define PA_STREAM_RELATIVE_VOLUME PA_STREAM_RELATIVE_VOLUME
+ #define PA_STREAM_PASSTHROUGH PA_STREAM_PASSTHROUGH
++#define PA_STREAM_START_RAMP_MUTED PA_STREAM_START_RAMP_MUTED
+ 
+ /** \endcond */
+ 
+@@ -1049,6 +1054,12 @@ typedef enum pa_port_available {
+ /** \endcond */
+ #endif
+ 
++/** \cond fulldocs */
++#define PA_VOLUMER_RAMP_TYPE_LINEAR PA_VOLUMER_RAMP_TYPE_LINEAR
++#define PA_VOLUMER_RAMP_TYPE_LOGARITHMIC PA_VOLUMER_RAMP_TYPE_LOGARITHMIC
++#define PA_VOLUMER_RAMP_TYPE_CUBIC PA_VOLUMER_RAMP_TYPE_CUBIC
++/** \endcond */
++
+ PA_C_DECL_END
+ 
+ #endif
+diff --git a/src/pulse/volume.c b/src/pulse/volume.c
+index 6927392..b140cee 100644
+--- a/src/pulse/volume.c
++++ b/src/pulse/volume.c
+@@ -447,7 +447,10 @@ int pa_cvolume_channels_equal_to(const pa_cvolume *a, pa_volume_t v) {
+     unsigned c;
+     pa_assert(a);
+ 
+-    pa_return_val_if_fail(pa_cvolume_valid(a), 0);
++    if (pa_cvolume_valid(a) == 0)
++        abort();
++
++    /* pa_return_val_if_fail(pa_cvolume_valid(a), 0); */
+     pa_return_val_if_fail(PA_VOLUME_IS_VALID(v), 0);
+ 
+     for (c = 0; c < a->channels; c++)
+@@ -988,3 +991,72 @@ pa_cvolume* pa_cvolume_dec(pa_cvolume *v, pa_volume_t dec) {
+ 
+     return pa_cvolume_scale(v, m);
+ }
++
++int pa_cvolume_ramp_equal(const pa_cvolume_ramp *a, const pa_cvolume_ramp *b) {
++    int i;
++    pa_assert(a);
++    pa_assert(b);
++
++    if (PA_UNLIKELY(a == b))
++        return 1;
++
++    if (a->channels != b->channels)
++        return 0;
++
++    for (i = 0; i < a->channels; i++) {
++        if (a->ramps[i].type != b->ramps[i].type ||
++            a->ramps[i].length != b->ramps[i].length ||
++            a->ramps[i].target != b->ramps[i].target)
++            return 0;
++    }
++
++    return 1;
++}
++
++pa_cvolume_ramp* pa_cvolume_ramp_init(pa_cvolume_ramp *ramp) {
++    unsigned c;
++
++    pa_assert(ramp);
++
++    ramp->channels = 0;
++
++    for (c = 0; c < PA_CHANNELS_MAX; c++) {
++        ramp->ramps[c].type = PA_VOLUME_RAMP_TYPE_LINEAR;
++        ramp->ramps[c].length = 0;
++        ramp->ramps[c].target = PA_VOLUME_INVALID;
++    }
++
++    return ramp;
++}
++
++pa_cvolume_ramp* pa_cvolume_ramp_set(pa_cvolume_ramp *ramp, unsigned channels, pa_volume_ramp_type_t type, long time, pa_volume_t vol) {
++    int i;
++
++    pa_assert(ramp);
++    pa_assert(channels > 0);
++    pa_assert(time >= 0);
++    pa_assert(channels <= PA_CHANNELS_MAX);
++
++    ramp->channels = (uint8_t) channels;
++
++    for (i = 0; i < ramp->channels; i++) {
++        ramp->ramps[i].type = type;
++        ramp->ramps[i].length = time;
++        ramp->ramps[i].target = PA_CLAMP_VOLUME(vol);
++    }
++
++    return ramp;
++}
++
++pa_cvolume_ramp* pa_cvolume_ramp_channel_ramp_set(pa_cvolume_ramp *ramp, unsigned channel, pa_volume_ramp_type_t type, long time, pa_volume_t vol) {
++
++    pa_assert(ramp);
++    pa_assert(channel <= ramp->channels);
++    pa_assert(time >= 0);
++
++    ramp->ramps[channel].type = type;
++    ramp->ramps[channel].length = time;
++    ramp->ramps[channel].target = PA_CLAMP_VOLUME(vol);
++
++    return ramp;
++}
+diff --git a/src/pulse/volume.h b/src/pulse/volume.h
+index 7806954..3ffb573 100644
+--- a/src/pulse/volume.h
++++ b/src/pulse/volume.h
+@@ -415,6 +415,39 @@ pa_cvolume* pa_cvolume_inc(pa_cvolume *v, pa_volume_t inc);
+  * the channels are kept. \since 0.9.16 */
+ pa_cvolume* pa_cvolume_dec(pa_cvolume *v, pa_volume_t dec);
+ 
++/** Volume ramp type
++*/
++typedef enum pa_volume_ramp_type {
++    PA_VOLUME_RAMP_TYPE_LINEAR = 0,        /**< linear */
++    PA_VOLUME_RAMP_TYPE_LOGARITHMIC = 1,   /**< logarithmic */
++    PA_VOLUME_RAMP_TYPE_CUBIC = 2,
++} pa_volume_ramp_type_t;
++
++/** A structure encapsulating a volume ramp */
++typedef struct pa_volume_ramp_t {
++    pa_volume_ramp_type_t type;
++    long length;
++    pa_volume_t target;
++} pa_volume_ramp_t;
++
++/** A structure encapsulating a multichannel volume ramp */
++typedef struct pa_cvolume_ramp {
++    uint8_t channels;
++    pa_volume_ramp_t ramps[PA_CHANNELS_MAX];
++} pa_cvolume_ramp;
++
++/** Return non-zero when *a == *b */
++int pa_cvolume_ramp_equal(const pa_cvolume_ramp *a, const pa_cvolume_ramp *b);
++
++/** Init volume ramp struct */
++pa_cvolume_ramp* pa_cvolume_ramp_init(pa_cvolume_ramp *ramp);
++
++/** Set first n channels of ramp struct to certain value */
++pa_cvolume_ramp* pa_cvolume_ramp_set(pa_cvolume_ramp *ramp, unsigned channel, pa_volume_ramp_type_t type, long time, pa_volume_t vol);
++
++/** Set individual channel in the channel struct */
++pa_cvolume_ramp* pa_cvolume_ramp_channel_ramp_set(pa_cvolume_ramp *ramp, unsigned channel, pa_volume_ramp_type_t type, long time, pa_volume_t vol);
++
+ PA_C_DECL_END
+ 
+ #endif
+diff --git a/src/pulsecore/mix.c b/src/pulsecore/mix.c
+index 4b789a6..c1e0c18 100644
+--- a/src/pulsecore/mix.c
++++ b/src/pulsecore/mix.c
+@@ -721,3 +721,313 @@ void pa_volume_memchunk(
+ 
+     pa_memblock_release(c->memblock);
+ }
++
++static void calc_linear_integer_volume_no_mapping(int32_t linear[], float volume[], unsigned nchannels) {
++    unsigned channel, padding;
++
++    pa_assert(linear);
++    pa_assert(volume);
++
++    for (channel = 0; channel < nchannels; channel++)
++        linear[channel] = (int32_t) lrint(volume[channel] * 0x10000U);
++
++    for (padding = 0; padding < VOLUME_PADDING; padding++, channel++)
++        linear[channel] = linear[padding];
++}
++
++static void calc_linear_float_volume_no_mapping(float linear[], float volume[], unsigned nchannels) {
++    unsigned channel, padding;
++
++    pa_assert(linear);
++    pa_assert(volume);
++
++    for (channel = 0; channel < nchannels; channel++)
++        linear[channel] = volume[channel];
++
++    for (padding = 0; padding < VOLUME_PADDING; padding++, channel++)
++        linear[channel] = linear[padding];
++}
++
++typedef void (*pa_calc_volume_no_mapping_func_t) (void *volumes, float *volume, int channels);
++
++static const pa_calc_volume_no_mapping_func_t calc_volume_table_no_mapping[] = {
++  [PA_SAMPLE_U8]        = (pa_calc_volume_no_mapping_func_t) calc_linear_integer_volume_no_mapping,
++  [PA_SAMPLE_ALAW]      = (pa_calc_volume_no_mapping_func_t) calc_linear_integer_volume_no_mapping,
++  [PA_SAMPLE_ULAW]      = (pa_calc_volume_no_mapping_func_t) calc_linear_integer_volume_no_mapping,
++  [PA_SAMPLE_S16LE]     = (pa_calc_volume_no_mapping_func_t) calc_linear_integer_volume_no_mapping,
++  [PA_SAMPLE_S16BE]     = (pa_calc_volume_no_mapping_func_t) calc_linear_integer_volume_no_mapping,
++  [PA_SAMPLE_FLOAT32LE] = (pa_calc_volume_no_mapping_func_t) calc_linear_float_volume_no_mapping,
++  [PA_SAMPLE_FLOAT32BE] = (pa_calc_volume_no_mapping_func_t) calc_linear_float_volume_no_mapping,
++  [PA_SAMPLE_S32LE]     = (pa_calc_volume_no_mapping_func_t) calc_linear_integer_volume_no_mapping,
++  [PA_SAMPLE_S32BE]     = (pa_calc_volume_no_mapping_func_t) calc_linear_integer_volume_no_mapping,
++  [PA_SAMPLE_S24LE]     = (pa_calc_volume_no_mapping_func_t) calc_linear_integer_volume_no_mapping,
++  [PA_SAMPLE_S24BE]     = (pa_calc_volume_no_mapping_func_t) calc_linear_integer_volume_no_mapping,
++  [PA_SAMPLE_S24_32LE]  = (pa_calc_volume_no_mapping_func_t) calc_linear_integer_volume_no_mapping,
++  [PA_SAMPLE_S24_32BE]  = (pa_calc_volume_no_mapping_func_t) calc_linear_integer_volume_no_mapping
++};
++
++static const unsigned format_sample_size_table[] = {
++  [PA_SAMPLE_U8]        = 1,
++  [PA_SAMPLE_ALAW]      = 1,
++  [PA_SAMPLE_ULAW]      = 1,
++  [PA_SAMPLE_S16LE]     = 2,
++  [PA_SAMPLE_S16BE]     = 2,
++  [PA_SAMPLE_FLOAT32LE] = 4,
++  [PA_SAMPLE_FLOAT32BE] = 4,
++  [PA_SAMPLE_S32LE]     = 4,
++  [PA_SAMPLE_S32BE]     = 4,
++  [PA_SAMPLE_S24LE]     = 3,
++  [PA_SAMPLE_S24BE]     = 3,
++  [PA_SAMPLE_S24_32LE]  = 4,
++  [PA_SAMPLE_S24_32BE]  = 4
++};
++
++static float calc_volume_ramp_linear(pa_volume_ramp_int_t *ramp) {
++    pa_assert(ramp);
++    pa_assert(ramp->length > 0);
++
++    /* basic linear interpolation */
++    return ramp->start + (ramp->length - ramp->left) * (ramp->end - ramp->start) / (float) ramp->length;
++}
++
++static float calc_volume_ramp_logarithmic(pa_volume_ramp_int_t *ramp) {
++    float x_val, s, e;
++    long temp;
++
++    pa_assert(ramp);
++    pa_assert(ramp->length > 0);
++
++    if (ramp->end > ramp->start) {
++        temp = ramp->left;
++        s = ramp->end;
++        e = ramp->start;
++    } else {
++        temp = ramp->length - ramp->left;
++        s = ramp->start;
++        e = ramp->end;
++    }
++
++    x_val = temp == 0 ? 0.0 : powf(temp, 10);
++
++    /* base 10 logarithmic interpolation */
++    return s + x_val * (e - s) / powf(ramp->length, 10);
++}
++
++static float calc_volume_ramp_cubic(pa_volume_ramp_int_t *ramp) {
++    float x_val, s, e;
++    long temp;
++
++    pa_assert(ramp);
++    pa_assert(ramp->length > 0);
++
++    if (ramp->end > ramp->start) {
++        temp = ramp->left;
++        s = ramp->end;
++        e = ramp->start;
++    } else {
++        temp = ramp->length - ramp->left;
++        s = ramp->start;
++        e = ramp->end;
++    }
++
++    x_val = temp == 0 ? 0.0 : cbrtf(temp);
++
++    /* cubic interpolation */
++    return s + x_val * (e - s) / cbrtf(ramp->length);
++}
++
++typedef float (*pa_calc_volume_ramp_func_t) (pa_volume_ramp_int_t *);
++
++static const pa_calc_volume_ramp_func_t calc_volume_ramp_table[] = {
++    [PA_VOLUME_RAMP_TYPE_LINEAR] = (pa_calc_volume_ramp_func_t) calc_volume_ramp_linear,
++    [PA_VOLUME_RAMP_TYPE_LOGARITHMIC] = (pa_calc_volume_ramp_func_t) calc_volume_ramp_logarithmic,
++    [PA_VOLUME_RAMP_TYPE_CUBIC] = (pa_calc_volume_ramp_func_t) calc_volume_ramp_cubic
++};
++
++static void calc_volume_ramps(pa_cvolume_ramp_int *ram, float *vol)
++{
++    int i;
++
++    for (i = 0; i < ram->channels; i++) {
++        if (ram->ramps[i].left <= 0) {
++            if (ram->ramps[i].target == PA_VOLUME_NORM) {
++                vol[i] = 1.0;
++            }
++        } else {
++            vol[i] = ram->ramps[i].curr = calc_volume_ramp_table[ram->ramps[i].type] (&ram->ramps[i]);
++            ram->ramps[i].left--;
++        }
++    }
++}
++
++void pa_volume_ramp_memchunk(
++        pa_memchunk *c,
++        const pa_sample_spec *spec,
++        pa_cvolume_ramp_int *ramp) {
++
++    void *ptr;
++    volume_val linear[PA_CHANNELS_MAX + VOLUME_PADDING];
++    float vol[PA_CHANNELS_MAX + VOLUME_PADDING];
++    pa_do_volume_func_t do_volume;
++    long length_in_frames;
++    int i;
++
++    pa_assert(c);
++    pa_assert(spec);
++    pa_assert(pa_frame_aligned(c->length, spec));
++    pa_assert(ramp);
++
++    length_in_frames = c->length / format_sample_size_table[spec->format] / spec->channels;
++
++    if (pa_memblock_is_silence(c->memblock)) {
++        for (i = 0; i < ramp->channels; i++) {
++            if (ramp->ramps[i].length > 0)
++                ramp->ramps[i].length -= length_in_frames;
++        }
++        return;
++    }
++
++    if (spec->format < 0 || spec->format >= PA_SAMPLE_MAX) {
++      pa_log_warn("Unable to change volume of format");
++      return;
++    }
++
++    do_volume = pa_get_volume_func(spec->format);
++    pa_assert(do_volume);
++
++    ptr = (uint8_t*) pa_memblock_acquire(c->memblock) + c->index;
++
++    for (i = 0; i < length_in_frames; i++) {
++        calc_volume_ramps(ramp, vol);
++        calc_volume_table_no_mapping[spec->format] ((void *)linear, vol, spec->channels);
++
++        /* we only process one frame per iteration */
++        do_volume (ptr, (void *)linear, spec->channels, format_sample_size_table[spec->format] * spec->channels);
++
++        /* pa_log_debug("1: %d  2: %d", linear[0], linear[1]); */
++
++        ptr = (uint8_t*)ptr + format_sample_size_table[spec->format] * spec->channels;
++    }
++
++    pa_memblock_release(c->memblock);
++}
++
++pa_cvolume_ramp_int* pa_cvolume_ramp_convert(const pa_cvolume_ramp *src, pa_cvolume_ramp_int *dst, int sample_rate) {
++
++    int i, j, channels, remaining_channels;
++    float temp;
++
++    if (dst->channels < src->channels) {
++        channels = dst->channels;
++        remaining_channels = 0;
++    }
++    else {
++        channels = src->channels;
++        remaining_channels = dst->channels;
++    }
++
++    for (i = 0; i < channels; i++) {
++        dst->ramps[i].type = src->ramps[i].type;
++        /* ms to samples */
++        dst->ramps[i].length = src->ramps[i].length * sample_rate / 1000;
++        dst->ramps[i].left = dst->ramps[i].length;
++        dst->ramps[i].start = dst->ramps[i].end;
++        dst->ramps[i].target = src->ramps[i].target;
++        /* scale to pulse internal mapping so that when ramp is over there's no glitch in volume */
++        temp = src->ramps[i].target / (float)0x10000U;
++        dst->ramps[i].end = temp * temp * temp;
++    }
++
++    j = i;
++
++    for (i--; j < remaining_channels; j++) {
++        dst->ramps[j].type = dst->ramps[i].type;
++        dst->ramps[j].length = dst->ramps[i].length;
++        dst->ramps[j].left = dst->ramps[i].left;
++        dst->ramps[j].start = dst->ramps[i].start;
++        dst->ramps[j].target = dst->ramps[i].target;
++        dst->ramps[j].end = dst->ramps[i].end;
++    }
++
++    return dst;
++}
++
++bool pa_cvolume_ramp_active(pa_cvolume_ramp_int *ramp) {
++    int i;
++
++    for (i = 0; i < ramp->channels; i++) {
++        if (ramp->ramps[i].left > 0)
++            return true;
++    }
++
++    return false;
++}
++
++bool pa_cvolume_ramp_target_active(pa_cvolume_ramp_int *ramp) {
++    int i;
++
++    for (i = 0; i < ramp->channels; i++) {
++        if (ramp->ramps[i].target != PA_VOLUME_NORM)
++            return true;
++    }
++
++    return false;
++}
++
++pa_cvolume * pa_cvolume_ramp_get_targets(pa_cvolume_ramp_int *ramp, pa_cvolume *volume) {
++    int i = 0;
++
++    volume->channels = ramp->channels;
++
++    for (i = 0; i < ramp->channels; i++)
++        volume->values[i] = ramp->ramps[i].target;
++
++    return volume;
++}
++
++pa_cvolume_ramp_int* pa_cvolume_ramp_start_from(pa_cvolume_ramp_int *src, pa_cvolume_ramp_int *dst) {
++    int i;
++
++    for (i = 0; i < src->channels; i++) {
++        /* if new vols are invalid, copy old ramp i.e. no effect */
++        if (dst->ramps[i].target == PA_VOLUME_INVALID)
++            dst->ramps[i] = src->ramps[i];
++        /* if there's some old ramp still left */
++        else if (src->ramps[i].left > 0)
++            dst->ramps[i].start = src->ramps[i].curr;
++    }
++
++    return dst;
++}
++
++pa_cvolume_ramp_int* pa_cvolume_ramp_int_init(pa_cvolume_ramp_int *src, pa_volume_t vol, int channels) {
++    int i;
++    float temp;
++
++    src->channels = channels;
++
++    for (i = 0; i < channels; i++) {
++        src->ramps[i].type = PA_VOLUME_RAMP_TYPE_LINEAR;
++        src->ramps[i].length = 0;
++        src->ramps[i].left = 0;
++        if (vol == PA_VOLUME_NORM) {
++            src->ramps[i].start = 1.0;
++            src->ramps[i].end = 1.0;
++            src->ramps[i].curr = 1.0;
++        }
++        else if (vol == PA_VOLUME_MUTED) {
++            src->ramps[i].start = 0.0;
++            src->ramps[i].end = 0.0;
++            src->ramps[i].curr = 0.0;
++        }
++        else {
++            temp = vol / (float)0x10000U;
++            src->ramps[i].start = temp * temp * temp;
++            src->ramps[i].end = src->ramps[i].start;
++            src->ramps[i].curr = src->ramps[i].start;
++        }
++        src->ramps[i].target = vol;
++    }
++
++    return src;
++}
+diff --git a/src/pulsecore/mix.h b/src/pulsecore/mix.h
+index a4cde01..b1ec74f 100644
+--- a/src/pulsecore/mix.h
++++ b/src/pulsecore/mix.h
+@@ -61,4 +61,31 @@ void pa_volume_memchunk(
+     const pa_sample_spec *spec,
+     const pa_cvolume *volume);
+ 
++typedef struct pa_volume_ramp_int_t {
++    pa_volume_ramp_type_t type;
++    long length;
++    long left;
++    float start;
++    float end;
++    float curr;
++    pa_volume_t target;
++} pa_volume_ramp_int_t;
++
++typedef struct pa_cvolume_ramp_int {
++    uint8_t channels;
++    pa_volume_ramp_int_t ramps[PA_CHANNELS_MAX];
++} pa_cvolume_ramp_int;
++
++pa_cvolume_ramp_int* pa_cvolume_ramp_convert(const pa_cvolume_ramp *src, pa_cvolume_ramp_int *dst, int sample_rate);
++bool pa_cvolume_ramp_active(pa_cvolume_ramp_int *ramp);
++bool pa_cvolume_ramp_target_active(pa_cvolume_ramp_int *ramp);
++pa_cvolume_ramp_int* pa_cvolume_ramp_start_from(pa_cvolume_ramp_int *src, pa_cvolume_ramp_int *dst);
++pa_cvolume_ramp_int* pa_cvolume_ramp_int_init(pa_cvolume_ramp_int *src, pa_volume_t vol, int channels);
++pa_cvolume * pa_cvolume_ramp_get_targets(pa_cvolume_ramp_int *ramp, pa_cvolume *volume);
++
++void pa_volume_ramp_memchunk(
++        pa_memchunk *c,
++        const pa_sample_spec *spec,
++        pa_cvolume_ramp_int *ramp);
++
+ #endif

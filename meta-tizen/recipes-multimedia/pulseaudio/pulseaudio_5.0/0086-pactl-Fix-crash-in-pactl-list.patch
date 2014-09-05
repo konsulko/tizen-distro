@@ -1,0 +1,26 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Mon, 26 May 2014 16:26:14 +0300
+Subject: pactl: Fix crash in "pactl list"
+
+Fixes this assertion error:
+
+Assertion 'actions > 0' failed at utils/pactl.c:172, function complete_action(). Aborting.
+
+Change-Id: Icdcdf0817af431115444cb4fdef0a042fe5d7560
+---
+ src/utils/pactl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/utils/pactl.c b/src/utils/pactl.c
+index f947681..d8921f1 100644
+--- a/src/utils/pactl.c
++++ b/src/utils/pactl.c
+@@ -1673,7 +1673,7 @@ static void volume_api_state_cb(pa_context *c, void *userdata) {
+                         o = pa_ext_volume_api_get_audio_group_info_list(c, get_audio_group_info_callback, NULL);
+                         pa_operation_unref(o);
+                         o = NULL;
+-                        actions += 4;
++                        actions += 5;
+                     } else if (pa_streq(list_type, "volume-controls")) {
+                         o = pa_ext_volume_api_get_volume_control_info_list(c, get_volume_control_info_callback, NULL);
+                         actions++;

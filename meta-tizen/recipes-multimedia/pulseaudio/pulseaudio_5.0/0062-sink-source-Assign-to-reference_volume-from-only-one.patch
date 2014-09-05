@@ -1,0 +1,246 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Mon, 7 Apr 2014 12:20:58 +0300
+Subject: sink, source: Assign to reference_volume from only one place
+
+Forcing all reference volume changes to go through
+set_reference_volume_direct() makes it easier to check where the
+reference volume is changed, and it also allows us to have only one
+place where notifications for changed reference volume are sent.
+
+Change-Id: I2e769b8a2b0d7031a02446dead8ca2e0c3402751
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/pulsecore/sink-input.c    | 23 ++++++++++-------------
+ src/pulsecore/sink.c          | 30 ++++++++++++++++++++++++++----
+ src/pulsecore/sink.h          |  7 +++++++
+ src/pulsecore/source-output.c | 23 ++++++++++-------------
+ src/pulsecore/source.c        | 30 ++++++++++++++++++++++++++----
+ src/pulsecore/source.h        |  7 +++++++
+ 6 files changed, 86 insertions(+), 34 deletions(-)
+
+diff --git a/src/pulsecore/sink-input.c b/src/pulsecore/sink-input.c
+index d0509b3..6596eeb 100644
+--- a/src/pulsecore/sink-input.c
++++ b/src/pulsecore/sink-input.c
+@@ -1716,6 +1716,7 @@ int pa_sink_input_start_move(pa_sink_input *i) {
+  * their volume - this function does all that by using recursion. */
+ static void update_volume_due_to_moving(pa_sink_input *i, pa_sink *dest) {
+     pa_cvolume old_volume;
++    pa_cvolume new_volume;
+ 
+     pa_assert(i);
+     pa_assert(dest);
+@@ -1787,25 +1788,21 @@ static void update_volume_due_to_moving(pa_sink_input *i, pa_sink *dest) {
+          *         (sinks that use volume sharing should always have
+          *          soft_volume of 0 dB) */
+ 
+-        old_volume = i->origin_sink->reference_volume;
+-
+-        i->origin_sink->reference_volume = root_sink->reference_volume;
+-        pa_cvolume_remap(&i->origin_sink->reference_volume, &root_sink->channel_map, &i->origin_sink->channel_map);
++        new_volume = root_sink->reference_volume;
++        pa_cvolume_remap(&new_volume, &root_sink->channel_map, &i->origin_sink->channel_map);
++        pa_sink_set_reference_volume_direct(i->origin_sink, &new_volume);
+ 
+         i->origin_sink->real_volume = root_sink->real_volume;
+         pa_cvolume_remap(&i->origin_sink->real_volume, &root_sink->channel_map, &i->origin_sink->channel_map);
+ 
+         pa_assert(pa_cvolume_is_norm(&i->origin_sink->soft_volume));
+ 
+-        /* Notify others about the changed sink volume. If you wonder whether
+-         * i->origin_sink->set_volume() should be called somewhere, that's not
+-         * the case, because sinks that use volume sharing shouldn't have any
+-         * internal volume that set_volume() would update. If you wonder
+-         * whether the thread_info variables should be synced, yes, they
+-         * should, and it's done by the PA_SINK_MESSAGE_FINISH_MOVE message
+-         * handler. */
+-        if (!pa_cvolume_equal(&i->origin_sink->reference_volume, &old_volume))
+-            pa_subscription_post(i->core, PA_SUBSCRIPTION_EVENT_SINK|PA_SUBSCRIPTION_EVENT_CHANGE, i->origin_sink->index);
++        /* If you wonder whether i->origin_sink->set_volume() should be called
++         * somewhere, that's not the case, because sinks that use volume
++         * sharing shouldn't have any internal volume that set_volume() would
++         * update. If you wonder whether the thread_info variables should be
++         * synced, yes, they should, and it's done by the
++         * PA_SINK_MESSAGE_FINISH_MOVE message handler. */
+ 
+         /* Recursively update origin sink inputs. */
+         PA_IDXSET_FOREACH(origin_sink_input, i->origin_sink->inputs, idx)
+diff --git a/src/pulsecore/sink.c b/src/pulsecore/sink.c
+index 11a6e77..e00dce5 100644
+--- a/src/pulsecore/sink.c
++++ b/src/pulsecore/sink.c
+@@ -2017,13 +2017,11 @@ static bool update_reference_volume(pa_sink *s, const pa_cvolume *v, const pa_ch
+     pa_cvolume_remap(&volume, channel_map, &s->channel_map);
+ 
+     reference_volume_changed = !pa_cvolume_equal(&volume, &s->reference_volume);
+-    s->reference_volume = volume;
++    pa_sink_set_reference_volume_direct(s, &volume);
+ 
+     s->save_volume = (!reference_volume_changed && s->save_volume) || save;
+ 
+-    if (reference_volume_changed)
+-        pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SINK|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);
+-    else if (!(s->flags & PA_SINK_SHARE_VOLUME_WITH_MASTER))
++    if (!reference_volume_changed && !(s->flags & PA_SINK_SHARE_VOLUME_WITH_MASTER))
+         /* If the root sink's volume doesn't change, then there can't be any
+          * changes in the other sinks in the sink tree either.
+          *
+@@ -3905,3 +3903,27 @@ done:
+ 
+     return out_formats;
+ }
++
++/* Called from the main thread. */
++void pa_sink_set_reference_volume_direct(pa_sink *s, const pa_cvolume *volume) {
++    pa_cvolume old_volume;
++    char old_volume_str[PA_CVOLUME_SNPRINT_VERBOSE_MAX];
++    char new_volume_str[PA_CVOLUME_SNPRINT_VERBOSE_MAX];
++
++    pa_assert(s);
++    pa_assert(volume);
++
++    old_volume = s->reference_volume;
++
++    if (pa_cvolume_equal(volume, &old_volume))
++        return;
++
++    s->reference_volume = *volume;
++    pa_log_debug("The reference volume of sink %s changed from %s to %s.", s->name,
++                 pa_cvolume_snprint_verbose(old_volume_str, sizeof(old_volume_str), &old_volume, &s->channel_map,
++                                            s->flags & PA_SINK_DECIBEL_VOLUME),
++                 pa_cvolume_snprint_verbose(new_volume_str, sizeof(new_volume_str), volume, &s->channel_map,
++                                            s->flags & PA_SINK_DECIBEL_VOLUME));
++
++    pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SINK|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);
++}
+diff --git a/src/pulsecore/sink.h b/src/pulsecore/sink.h
+index 576f34b..41a439b 100644
+--- a/src/pulsecore/sink.h
++++ b/src/pulsecore/sink.h
+@@ -512,6 +512,13 @@ void pa_sink_invalidate_requested_latency(pa_sink *s, bool dynamic);
+ 
+ pa_usec_t pa_sink_get_latency_within_thread(pa_sink *s);
+ 
++/* Called from the main thread, from sink-input.c only. The normal way to set
++ * the sink reference volume is to call pa_sink_set_volume(), but the flat
++ * volume logic in sink-input.c needs also a function that doesn't do all the
++ * extra stuff that pa_sink_set_volume() does. This function simply sets
++ * s->reference_volume and fires change notifications. */
++void pa_sink_set_reference_volume_direct(pa_sink *s, const pa_cvolume *volume);
++
+ /* Verify that we called in IO context (aka 'thread context), or that
+  * the sink is not yet set up, i.e. the thread not set up yet. See
+  * pa_assert_io_context() in thread-mq.h for more information. */
+diff --git a/src/pulsecore/source-output.c b/src/pulsecore/source-output.c
+index b12758a..169d98d 100644
+--- a/src/pulsecore/source-output.c
++++ b/src/pulsecore/source-output.c
+@@ -1263,6 +1263,7 @@ int pa_source_output_start_move(pa_source_output *o) {
+  * their volume - this function does all that by using recursion. */
+ static void update_volume_due_to_moving(pa_source_output *o, pa_source *dest) {
+     pa_cvolume old_volume;
++    pa_cvolume new_volume;
+ 
+     pa_assert(o);
+     pa_assert(dest);
+@@ -1336,25 +1337,21 @@ static void update_volume_due_to_moving(pa_source_output *o, pa_source *dest) {
+          *         (sources that use volume sharing should always have
+          *          soft_volume of 0 dB) */
+ 
+-        old_volume = o->destination_source->reference_volume;
+-
+-        o->destination_source->reference_volume = root_source->reference_volume;
+-        pa_cvolume_remap(&o->destination_source->reference_volume, &root_source->channel_map, &o->destination_source->channel_map);
++        new_volume = root_source->reference_volume;
++        pa_cvolume_remap(&new_volume, &root_source->channel_map, &o->destination_source->channel_map);
++        pa_source_set_reference_volume_direct(o->destination_source, &new_volume);
+ 
+         o->destination_source->real_volume = root_source->real_volume;
+         pa_cvolume_remap(&o->destination_source->real_volume, &root_source->channel_map, &o->destination_source->channel_map);
+ 
+         pa_assert(pa_cvolume_is_norm(&o->destination_source->soft_volume));
+ 
+-        /* Notify others about the changed source volume. If you wonder whether
+-         * o->destination_source->set_volume() should be called somewhere, that's not
+-         * the case, because sources that use volume sharing shouldn't have any
+-         * internal volume that set_volume() would update. If you wonder
+-         * whether the thread_info variables should be synced, yes, they
+-         * should, and it's done by the PA_SOURCE_MESSAGE_FINISH_MOVE message
+-         * handler. */
+-        if (!pa_cvolume_equal(&o->destination_source->reference_volume, &old_volume))
+-            pa_subscription_post(o->core, PA_SUBSCRIPTION_EVENT_SOURCE|PA_SUBSCRIPTION_EVENT_CHANGE, o->destination_source->index);
++        /* If you wonder whether o->destination_source->set_volume() should be
++         * called somewhere, that's not the case, because sources that use
++         * volume sharing shouldn't have any internal volume that set_volume()
++         * would update. If you wonder whether the thread_info variables should
++         * be synced, yes, they should, and it's done by the
++         * PA_SOURCE_MESSAGE_FINISH_MOVE message handler. */
+ 
+         /* Recursively update origin source outputs. */
+         PA_IDXSET_FOREACH(destination_source_output, o->destination_source->outputs, idx)
+diff --git a/src/pulsecore/source.c b/src/pulsecore/source.c
+index d39193f..f58bb44 100644
+--- a/src/pulsecore/source.c
++++ b/src/pulsecore/source.c
+@@ -1562,13 +1562,11 @@ static bool update_reference_volume(pa_source *s, const pa_cvolume *v, const pa_
+     pa_cvolume_remap(&volume, channel_map, &s->channel_map);
+ 
+     reference_volume_changed = !pa_cvolume_equal(&volume, &s->reference_volume);
+-    s->reference_volume = volume;
++    pa_source_set_reference_volume_direct(s, &volume);
+ 
+     s->save_volume = (!reference_volume_changed && s->save_volume) || save;
+ 
+-    if (reference_volume_changed)
+-        pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SOURCE|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);
+-    else if (!(s->flags & PA_SOURCE_SHARE_VOLUME_WITH_MASTER))
++    if (!reference_volume_changed && !(s->flags & PA_SOURCE_SHARE_VOLUME_WITH_MASTER))
+         /* If the root source's volume doesn't change, then there can't be any
+          * changes in the other source in the source tree either.
+          *
+@@ -2899,3 +2897,27 @@ done:
+ 
+     return out_formats;
+ }
++
++/* Called from the main thread. */
++void pa_source_set_reference_volume_direct(pa_source *s, const pa_cvolume *volume) {
++    pa_cvolume old_volume;
++    char old_volume_str[PA_CVOLUME_SNPRINT_VERBOSE_MAX];
++    char new_volume_str[PA_CVOLUME_SNPRINT_VERBOSE_MAX];
++
++    pa_assert(s);
++    pa_assert(volume);
++
++    old_volume = s->reference_volume;
++
++    if (pa_cvolume_equal(volume, &old_volume))
++        return;
++
++    s->reference_volume = *volume;
++    pa_log_debug("The reference volume of source %s changed from %s to %s.", s->name,
++                 pa_cvolume_snprint_verbose(old_volume_str, sizeof(old_volume_str), &old_volume, &s->channel_map,
++                                            s->flags & PA_SOURCE_DECIBEL_VOLUME),
++                 pa_cvolume_snprint_verbose(new_volume_str, sizeof(new_volume_str), volume, &s->channel_map,
++                                            s->flags & PA_SOURCE_DECIBEL_VOLUME));
++
++    pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SOURCE|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);
++}
+diff --git a/src/pulsecore/source.h b/src/pulsecore/source.h
+index 5c74a51..6318595 100644
+--- a/src/pulsecore/source.h
++++ b/src/pulsecore/source.h
+@@ -426,6 +426,13 @@ bool pa_source_volume_change_apply(pa_source *s, pa_usec_t *usec_to_next);
+ void pa_source_invalidate_requested_latency(pa_source *s, bool dynamic);
+ pa_usec_t pa_source_get_latency_within_thread(pa_source *s);
+ 
++/* Called from the main thread, from source-output.c only. The normal way to
++ * set the source reference volume is to call pa_source_set_volume(), but the
++ * flat volume logic in source-output.c needs also a function that doesn't do
++ * all the extra stuff that pa_source_set_volume() does. This function simply
++ * sets s->reference_volume and fires change notifications. */
++void pa_source_set_reference_volume_direct(pa_source *s, const pa_cvolume *volume);
++
+ #define pa_source_assert_io_context(s) \
+     pa_assert(pa_thread_mq_get() || !PA_SOURCE_IS_LINKED((s)->state))
+ 

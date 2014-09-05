@@ -1,0 +1,123 @@
+From: Jaska Uimonen <jaska.uimonen@intel.com>
+Date: Thu, 18 Jul 2013 18:43:14 +0800
+Subject: configuration: pulseaudio tizen configuration in default.pa
+
+Change-Id: Id9370a1858d5c1ba0ed3319d717bc7f3e9ed5d31
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/daemon/default.pa.in | 60 ++++++++++++++++++++++++------------------------
+ 1 file changed, 30 insertions(+), 30 deletions(-)
+
+diff --git a/src/daemon/default.pa.in b/src/daemon/default.pa.in
+index f70804c..bae1a77 100755
+--- a/src/daemon/default.pa.in
++++ b/src/daemon/default.pa.in
+@@ -35,18 +35,6 @@ load-sample-dir-lazy %WINDIR%\Media\*.wav
+ 
+ .fail
+ 
+-### Automatically restore the volume of streams and devices
+-load-module module-device-restore
+-load-module module-stream-restore
+-load-module module-card-restore
+-
+-### Automatically augment property information from .desktop files
+-### stored in /usr/share/application
+-load-module module-augment-properties
+-
+-### Should be after module-*-restore but before module-*-detect
+-load-module module-switch-on-port-available
+-
+ ### Load audio drivers statically
+ ### (it's probably better to not load these drivers manually, but instead
+ ### use module-udev-detect -- see below -- for doing this automatically)
+@@ -81,16 +69,12 @@ load-module module-detect
+ ### Automatically connect sink and source if JACK server is present
+ .ifexists module-jackdbus-detect@PA_SOEXT@
+ .nofail
+-load-module module-jackdbus-detect channels=2
++load-module module-jackdbus-detect
+ .fail
+ .endif
+ 
+ ifelse(@HAVE_BLUEZ@, 1, [dnl
+ ### Automatically load driver modules for Bluetooth hardware
+-.ifexists module-bluetooth-policy@PA_SOEXT@
+-load-module module-bluetooth-policy
+-.endif
+-
+ .ifexists module-bluetooth-discover@PA_SOEXT@
+ load-module module-bluetooth-discover
+ .endif
+@@ -142,9 +126,6 @@ load-module module-rescue-streams
+ ### Make sure we always have a sink around, even if it is a null sink.
+ load-module module-always-sink
+ 
+-### Honour intended role device property
+-load-module module-intended-roles
+-
+ ### Automatically suspend sinks/sources that become idle for too long
+ load-module module-suspend-on-idle
+ 
+@@ -160,15 +141,16 @@ load-module module-systemd-login
+ ### Enable positioned event sounds
+ load-module module-position-event-sounds
+ 
+-### Cork music/video streams when a phone stream is active
+-load-module module-role-cork
+-
+ ### Modules to allow autoloading of filters (such as echo cancellation)
+ ### on demand. module-filter-heuristics tries to determine what filters
+ ### make sense, and module-filter-apply does the heavy-lifting of
+ ### loading modules and rerouting streams.
++.ifexists module-filter-heuristics@PA_SOEXT@
+ load-module module-filter-heuristics
++.endif
++.ifexists module-filter-apply@PA_SOEXT@
+ load-module module-filter-apply
++.endif
+ ])dnl
+ 
+ ifelse(@HAVE_X11@, 1, [dnl
+@@ -189,16 +171,34 @@ ifelse(@HAVE_X11@, 1, [dnl
+ #.endif
+ ])dnl
+ 
+-.ifexists module-volume-api
++### Load the Murphy IVI module if it exists
++.ifexists module-murphy-ivi@PA_SOEXT@
++load-module module-murphy-ivi
++load-module module-stream-restore restore_device=false on_hotplug=false on_rescue=false restore_volume=true preferred_stream_group=media.role.within.application.name
++load-module module-native-protocol-tcp
+ load-module module-volume-api
+-.endif
+-
+-.ifexists module-audio-groups
+ load-module module-audio-groups
+-.endif
+-
+-.ifexists module-main-volume-policy
+ load-module module-main-volume-policy
++.else
++### Automatically restore the volume of streams and devices
++load-module module-device-restore
++load-module module-stream-restore
++load-module module-card-restore
++
++### Automatically augment property information from .desktop files
++### stored in /usr/share/application
++.nofail
++load-module module-augment-properties
++.fail
++
++### Honour intended role device property
++load-module module-intended-roles
++
++### Cork music/video streams when a phone stream is active
++load-module module-role-cork
++
++load-module module-switch-on-port-available
++
+ .endif
+ 
+ ### Make some devices default

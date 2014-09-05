@@ -1,0 +1,159 @@
+From: David Henningsson <david.henningsson@canonical.com>
+Date: Fri, 21 Mar 2014 10:19:19 +0100
+Subject: sink/source: Initialize port before fixate hook (fixes volume/mute
+ not saved)
+
+In case a port has not yet been saved, which is e g often the case
+if a sink/source has only one port, reading volume/mute will be done
+without port, whereas writing volume/mute will be done with port.
+
+Work around this by setting a default port before the fixate hook,
+so module-device-restore can read volume/mute for the correct port.
+
+Change-Id: Iea6a742f0667771712059cb39b8082785b2a6887
+BugLink: https://bugs.launchpad.net/bugs/1289515
+Signed-off-by: David Henningsson <david.henningsson@canonical.com>
+---
+ src/pulsecore/device-port.c | 27 +++++++++++++++++++++++++++
+ src/pulsecore/device-port.h |  2 ++
+ src/pulsecore/sink.c        | 27 ++++++++++-----------------
+ src/pulsecore/source.c      | 28 ++++++++++------------------
+ 4 files changed, 49 insertions(+), 35 deletions(-)
+
+diff --git a/src/pulsecore/device-port.c b/src/pulsecore/device-port.c
+index c183990..1520142 100644
+--- a/src/pulsecore/device-port.c
++++ b/src/pulsecore/device-port.c
+@@ -191,3 +191,30 @@ void pa_device_port_active_changed(pa_device_port *port, bool new_active) {
+     pa_log_debug("Port %s %s.", port->name, new_active ? "activated" : "deactivated");
+     pa_hook_fire(&port->core->hooks[PA_CORE_HOOK_PORT_ACTIVE_CHANGED], port);
+ }
++
++pa_device_port *pa_device_port_find_best(pa_hashmap *ports)
++{
++    void *state;
++    pa_device_port *p, *best = NULL;
++
++    if (!ports)
++        return NULL;
++
++    /* First run: skip unavailable ports */
++    PA_HASHMAP_FOREACH(p, ports, state) {
++        if (p->available == PA_AVAILABLE_NO)
++            continue;
++
++        if (!best || p->priority > best->priority)
++            best = p;
++    }
++
++    /* Second run: if only unavailable ports exist, still suggest a port */
++    if (!best) {
++        PA_HASHMAP_FOREACH(p, ports, state)
++            if (!best || p->priority > best->priority)
++                best = p;
++    }
++
++    return best;
++}
+diff --git a/src/pulsecore/device-port.h b/src/pulsecore/device-port.h
+index 2964900..bf45ab9 100644
+--- a/src/pulsecore/device-port.h
++++ b/src/pulsecore/device-port.h
+@@ -87,4 +87,6 @@ void pa_device_port_set_latency_offset(pa_device_port *p, int64_t offset);
+ /* Called from sink.c and source.c only. */
+ void pa_device_port_active_changed(pa_device_port *port, bool new_active);
+ 
++pa_device_port *pa_device_port_find_best(pa_hashmap *ports);
++
+ #endif
+diff --git a/src/pulsecore/sink.c b/src/pulsecore/sink.c
+index 191b560..41cffcc 100644
+--- a/src/pulsecore/sink.c
++++ b/src/pulsecore/sink.c
+@@ -235,6 +235,12 @@ pa_sink* pa_sink_new(
+     pa_device_init_icon(data->proplist, true);
+     pa_device_init_intended_roles(data->proplist);
+ 
++    if (!data->active_port) {
++        pa_device_port *p = pa_device_port_find_best(data->ports);
++        if (p)
++            pa_sink_new_data_set_port(data, p->name);
++    }
++
+     if (pa_hook_fire(&core->hooks[PA_CORE_HOOK_SINK_FIXATE], data) < 0) {
+         pa_xfree(s);
+         pa_namereg_unregister(core, name);
+@@ -300,23 +306,10 @@ pa_sink* pa_sink_new(
+         if ((s->active_port = pa_hashmap_get(s->ports, data->active_port)))
+             s->save_port = data->save_port;
+ 
+-    if (!s->active_port) {
+-        void *state;
+-        pa_device_port *p;
+-
+-        PA_HASHMAP_FOREACH(p, s->ports, state) {
+-            if (p->available == PA_AVAILABLE_NO)
+-                continue;
+-
+-            if (!s->active_port || p->priority > s->active_port->priority)
+-                s->active_port = p;
+-        }
+-        if (!s->active_port) {
+-            PA_HASHMAP_FOREACH(p, s->ports, state)
+-                if (!s->active_port || p->priority > s->active_port->priority)
+-                    s->active_port = p;
+-        }
+-    }
++    /* Hopefully the active port has already been assigned in the previous call
++       to pa_device_port_find_best, but better safe than sorry */
++    if (!s->active_port)
++        s->active_port = pa_device_port_find_best(s->ports);
+ 
+     if (s->active_port)
+         s->latency_offset = s->active_port->latency_offset;
+diff --git a/src/pulsecore/source.c b/src/pulsecore/source.c
+index 0fddfaa..db7f667 100644
+--- a/src/pulsecore/source.c
++++ b/src/pulsecore/source.c
+@@ -222,6 +222,12 @@ pa_source* pa_source_new(
+     pa_device_init_icon(data->proplist, false);
+     pa_device_init_intended_roles(data->proplist);
+ 
++    if (!data->active_port) {
++        pa_device_port *p = pa_device_port_find_best(data->ports);
++        if (p)
++            pa_source_new_data_set_port(data, p->name);
++    }
++
+     if (pa_hook_fire(&core->hooks[PA_CORE_HOOK_SOURCE_FIXATE], data) < 0) {
+         pa_xfree(s);
+         pa_namereg_unregister(core, name);
+@@ -288,24 +294,10 @@ pa_source* pa_source_new(
+         if ((s->active_port = pa_hashmap_get(s->ports, data->active_port)))
+             s->save_port = data->save_port;
+ 
+-    if (!s->active_port) {
+-        void *state;
+-        pa_device_port *p;
+-
+-        PA_HASHMAP_FOREACH(p, s->ports, state) {
+-            if (p->available == PA_AVAILABLE_NO)
+-                continue;
+-
+-            if (!s->active_port || p->priority > s->active_port->priority)
+-                s->active_port = p;
+-        }
+-
+-        if (!s->active_port) {
+-            PA_HASHMAP_FOREACH(p, s->ports, state)
+-                if (!s->active_port || p->priority > s->active_port->priority)
+-                    s->active_port = p;
+-        }
+-    }
++    /* Hopefully the active port has already been assigned in the previous call
++       to pa_device_port_find_best, but better safe than sorry */
++    if (!s->active_port)
++        s->active_port = pa_device_port_find_best(s->ports);
+ 
+     if (s->active_port)
+         s->latency_offset = s->active_port->latency_offset;

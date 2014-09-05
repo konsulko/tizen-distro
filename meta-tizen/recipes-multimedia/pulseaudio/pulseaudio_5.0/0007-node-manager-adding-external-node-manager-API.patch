@@ -1,0 +1,568 @@
+From: Ismo Puustinen <ismo.puustinen@intel.com>
+Date: Wed, 28 May 2014 11:11:56 +0300
+Subject: node manager: adding external node manager API
+
+Change-Id: I4f220f05b9de513a7003b3cea761c3540fa74685
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/Makefile.am              |   4 +
+ src/map-file                 |  11 ++
+ src/pulse/context.c          |   5 +
+ src/pulse/ext-node-manager.c | 348 +++++++++++++++++++++++++++++++++++++++++++
+ src/pulse/ext-node-manager.h |  93 ++++++++++++
+ src/pulse/internal.h         |   6 +
+ 6 files changed, 467 insertions(+)
+ create mode 100644 src/pulse/ext-node-manager.c
+ create mode 100644 src/pulse/ext-node-manager.h
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 857fda3..e1808e6 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -753,6 +753,8 @@ pulseinclude_HEADERS = \
+ 		pulse/ext-device-manager.h \
+ 		pulse/ext-device-restore.h \
+ 		pulse/ext-stream-restore.h \
++		pulse/ext-echo-cancel.h \
++		pulse/ext-node-manager.h \
+ 		pulse/format.h \
+ 		pulse/gccmacro.h \
+ 		pulse/introspect.h \
+@@ -798,6 +800,8 @@ libpulse_la_SOURCES = \
+ 		pulse/ext-device-manager.c pulse/ext-device-manager.h \
+ 		pulse/ext-device-restore.c pulse/ext-device-restore.h \
+ 		pulse/ext-stream-restore.c pulse/ext-stream-restore.h \
++		pulse/ext-echo-cancel.c pulse/ext-echo-cancel.h \
++		pulse/ext-node-manager.c pulse/ext-node-manager.h \
+ 		pulse/format.c pulse/format.h \
+ 		pulse/gccmacro.h \
+ 		pulse/internal.h \
+diff --git a/src/map-file b/src/map-file
+index 9903942..7dbcd00 100644
+--- a/src/map-file
++++ b/src/map-file
+@@ -171,6 +171,17 @@ pa_ext_stream_restore_set_subscribe_cb;
+ pa_ext_stream_restore_subscribe;
+ pa_ext_stream_restore_test;
+ pa_ext_stream_restore_write;
++pa_ext_policy_test;
++pa_ext_policy_set_mono;
++pa_ext_policy_set_balance;
++pa_ext_echo_cancel_set_volume;
++pa_ext_echo_cancel_set_device;
++pa_ext_node_manager_test;
++pa_ext_node_manager_read_nodes;
++pa_ext_node_manager_connect_nodes;
++pa_ext_node_manager_disconnect_nodes;
++pa_ext_node_manager_subscribe;
++pa_ext_node_manager_set_subscribe_cb;
+ pa_format_info_copy;
+ pa_format_info_free;
+ pa_format_info_from_string;
+diff --git a/src/pulse/context.c b/src/pulse/context.c
+index b78df27..b8688f2 100644
+--- a/src/pulse/context.c
++++ b/src/pulse/context.c
+@@ -122,6 +122,9 @@ static void reset_callbacks(pa_context *c) {
+ 
+     c->ext_stream_restore.callback = NULL;
+     c->ext_stream_restore.userdata = NULL;
++
++    c->ext_node_manager.callback = NULL;
++    c->ext_node_manager.userdata = NULL;
+ }
+ 
+ pa_context *pa_context_new_with_proplist(pa_mainloop_api *mainloop, const char *name, pa_proplist *p) {
+@@ -1361,6 +1364,8 @@ void pa_command_extension(pa_pdispatch *pd, uint32_t command, uint32_t tag, pa_t
+         pa_ext_device_restore_command(c, tag, t);
+     else if (pa_streq(name, "module-stream-restore"))
+         pa_ext_stream_restore_command(c, tag, t);
++    else if (pa_streq(name, "module-node-manager"))
++        pa_ext_node_manager_command(c, tag, t);
+     else
+         pa_log(_("Received message for unknown extension '%s'"), name);
+ 
+diff --git a/src/pulse/ext-node-manager.c b/src/pulse/ext-node-manager.c
+new file mode 100644
+index 0000000..5cb3feb
+--- /dev/null
++++ b/src/pulse/ext-node-manager.c
+@@ -0,0 +1,348 @@
++/***
++  This file is part of PulseAudio.
++
++  Copyright 2012 Jaska Uimonen
++  Copyright 2012 Janos Kovacs
++
++  PulseAudio is free software; you can redistribute it and/or modify
++  it under the terms of the GNU Lesser General Public License as published
++  by the Free Software Foundation; either version 2.1 of the License,
++  or (at your option) any later version.
++
++  PulseAudio is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with PulseAudio; if not, write to the Free Software
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++  USA.
++***/
++
++#ifdef HAVE_CONFIG_H
++#include <config.h>
++#endif
++
++#include <pulse/context.h>
++#include <pulse/xmalloc.h>
++#include <pulse/fork-detect.h>
++#include <pulse/operation.h>
++
++#include <pulsecore/macro.h>
++#include <pulsecore/pstream-util.h>
++
++#include "internal.h"
++#include "ext-node-manager.h"
++
++enum {
++    SUBCOMMAND_TEST,
++    SUBCOMMAND_READ,
++    SUBCOMMAND_CONNECT,
++    SUBCOMMAND_DISCONNECT,
++    SUBCOMMAND_SUBSCRIBE,
++    SUBCOMMAND_EVENT
++};
++
++static void ext_node_manager_test_cb(pa_pdispatch *pd, uint32_t command, uint32_t tag, pa_tagstruct *t, void *userdata) {
++    pa_operation *o = userdata;
++    uint32_t version = PA_INVALID_INDEX;
++
++    pa_assert(pd);
++    pa_assert(o);
++    pa_assert(PA_REFCNT_VALUE(o) >= 1);
++
++    if (!o->context)
++        goto finish;
++
++    if (command != PA_COMMAND_REPLY) {
++        if (pa_context_handle_error(o->context, command, t, FALSE) < 0)
++            goto finish;
++
++    } else if (pa_tagstruct_getu32(t, &version) < 0 ||
++               !pa_tagstruct_eof(t)) {
++
++        pa_context_fail(o->context, PA_ERR_PROTOCOL);
++        goto finish;
++    }
++
++    if (o->callback) {
++        pa_ext_node_manager_test_cb_t cb = (pa_ext_node_manager_test_cb_t) o->callback;
++        cb(o->context, version, o->userdata);
++    }
++
++finish:
++    pa_operation_done(o);
++    pa_operation_unref(o);
++}
++
++pa_operation *pa_ext_node_manager_test(
++        pa_context *c,
++        pa_ext_node_manager_test_cb_t cb,
++        void *userdata) {
++
++    uint32_t tag;
++    pa_operation *o;
++    pa_tagstruct *t;
++
++    pa_assert(c);
++    pa_assert(PA_REFCNT_VALUE(c) >= 1);
++
++    PA_CHECK_VALIDITY_RETURN_NULL(c, !pa_detect_fork(), PA_ERR_FORKED);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->state == PA_CONTEXT_READY, PA_ERR_BADSTATE);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->version >= 14, PA_ERR_NOTSUPPORTED);
++
++    o = pa_operation_new(c, NULL, (pa_operation_cb_t) cb, userdata);
++
++    t = pa_tagstruct_command(c, PA_COMMAND_EXTENSION, &tag);
++    pa_tagstruct_putu32(t, PA_INVALID_INDEX);
++    pa_tagstruct_puts(t, "module-murphy-ivi");
++    pa_tagstruct_putu32(t, SUBCOMMAND_TEST);
++    pa_pstream_send_tagstruct(c->pstream, t);
++    pa_pdispatch_register_reply(c->pdispatch, tag, DEFAULT_TIMEOUT, ext_node_manager_test_cb, pa_operation_ref(o), (pa_free_cb_t) pa_operation_unref);
++
++    return o;
++}
++
++static void ext_node_manager_read_cb(pa_pdispatch *pd, uint32_t command, uint32_t tag, pa_tagstruct *t, void *userdata) {
++    pa_operation *o = userdata;
++    pa_ext_node_manager_info i;
++
++    pa_assert(pd);
++    pa_assert(o);
++    pa_assert(PA_REFCNT_VALUE(o) >= 1);
++
++    if (!o->context)
++        goto finish;
++
++    if (command != PA_COMMAND_REPLY) {
++        if (pa_context_handle_error(o->context, command, t, FALSE) < 0)
++            goto finish;
++    } else {
++
++        while (!pa_tagstruct_eof(t)) {
++
++            memset(&i, 0, sizeof(i));
++
++	    i.props = pa_proplist_new();
++
++            if (pa_tagstruct_gets(t, &i.name) < 0 ||
++                pa_tagstruct_get_proplist(t, i.props) < 0) {
++
++                pa_context_fail(o->context, PA_ERR_PROTOCOL);
++                goto finish;
++            }
++
++            if (o->callback) {
++                pa_ext_node_manager_read_cb_t cb = (pa_ext_node_manager_read_cb_t) o->callback;
++                cb(o->context, &i, 0, o->userdata);
++            }
++
++	    pa_proplist_free(i.props);
++        }
++
++	/* let's send end marker */
++	if (o->callback) {
++                pa_ext_node_manager_read_cb_t cb = (pa_ext_node_manager_read_cb_t) o->callback;
++                cb(o->context, &i, 1, o->userdata);
++            }
++    }
++
++finish:
++    pa_operation_done(o);
++    pa_operation_unref(o);
++}
++
++pa_operation *pa_ext_node_manager_read_nodes(
++        pa_context *c,
++        pa_ext_node_manager_read_cb_t cb,
++        void *userdata) {
++
++    uint32_t tag;
++    pa_operation *o;
++    pa_tagstruct *t;
++
++    pa_assert(c);
++    pa_assert(PA_REFCNT_VALUE(c) >= 1);
++
++    PA_CHECK_VALIDITY_RETURN_NULL(c, !pa_detect_fork(), PA_ERR_FORKED);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->state == PA_CONTEXT_READY, PA_ERR_BADSTATE);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->version >= 14, PA_ERR_NOTSUPPORTED);
++
++    o = pa_operation_new(c, NULL, (pa_operation_cb_t) cb, userdata);
++
++    t = pa_tagstruct_command(c, PA_COMMAND_EXTENSION, &tag);
++    pa_tagstruct_putu32(t, PA_INVALID_INDEX);
++    pa_tagstruct_puts(t, "module-murphy-ivi");
++    pa_tagstruct_putu32(t, SUBCOMMAND_READ);
++    pa_pstream_send_tagstruct(c->pstream, t);
++    pa_pdispatch_register_reply(c->pdispatch, tag, DEFAULT_TIMEOUT, ext_node_manager_read_cb, pa_operation_ref(o), (pa_free_cb_t) pa_operation_unref);
++
++    return o;
++}
++
++static void ext_node_manager_connect_cb(pa_pdispatch *pd, uint32_t command, uint32_t tag, pa_tagstruct *t, void *userdata) {
++    pa_operation *o = userdata;
++    uint32_t connection = PA_INVALID_INDEX;
++
++    pa_assert(pd);
++    pa_assert(o);
++    pa_assert(PA_REFCNT_VALUE(o) >= 1);
++
++    if (!o->context)
++        goto finish;
++
++    if (command != PA_COMMAND_REPLY) {
++        if (pa_context_handle_error(o->context, command, t, FALSE) < 0)
++            goto finish;
++
++    } else if (pa_tagstruct_getu32(t, &connection) < 0 ||
++               !pa_tagstruct_eof(t)) {
++
++        pa_context_fail(o->context, PA_ERR_PROTOCOL);
++        goto finish;
++    }
++
++    if (o->callback) {
++        pa_ext_node_manager_connect_cb_t cb = (pa_ext_node_manager_connect_cb_t) o->callback;
++        cb(o->context, connection, o->userdata);
++    }
++
++finish:
++    pa_operation_done(o);
++    pa_operation_unref(o);
++}
++
++pa_operation *pa_ext_node_manager_connect_nodes(
++        pa_context *c,
++        uint32_t source_node_id,
++        uint32_t sink_node_id,
++        pa_ext_node_manager_connect_cb_t cb,
++        void *userdata) {
++
++    uint32_t tag;
++    pa_operation *o = NULL;
++    pa_tagstruct *t = NULL;
++
++    pa_assert(c);
++    pa_assert(PA_REFCNT_VALUE(c) >= 1);
++
++    PA_CHECK_VALIDITY_RETURN_NULL(c, !pa_detect_fork(), PA_ERR_FORKED);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->state == PA_CONTEXT_READY, PA_ERR_BADSTATE);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->version >= 14, PA_ERR_NOTSUPPORTED);
++
++    o = pa_operation_new(c, NULL, (pa_operation_cb_t) cb, userdata);
++
++    t = pa_tagstruct_command(c, PA_COMMAND_EXTENSION, &tag);
++    pa_tagstruct_putu32(t, PA_INVALID_INDEX);
++    pa_tagstruct_puts(t, "module-murphy-ivi");
++    pa_tagstruct_putu32(t, SUBCOMMAND_CONNECT);
++
++    pa_tagstruct_putu32(t, source_node_id);
++    pa_tagstruct_putu32(t, sink_node_id);
++
++    pa_pstream_send_tagstruct(c->pstream, t);
++    pa_pdispatch_register_reply(c->pdispatch, tag, DEFAULT_TIMEOUT, ext_node_manager_connect_cb, pa_operation_ref(o), (pa_free_cb_t) pa_operation_unref);
++
++    return o;
++}
++
++pa_operation *pa_ext_node_manager_disconnect_nodes(
++        pa_context *c,
++	uint32_t conn_id,
++        pa_context_success_cb_t cb,
++        void *userdata) {
++
++    uint32_t tag;
++    pa_operation *o = NULL;
++    pa_tagstruct *t = NULL;
++
++    pa_assert(c);
++    pa_assert(PA_REFCNT_VALUE(c) >= 1);
++
++    PA_CHECK_VALIDITY_RETURN_NULL(c, !pa_detect_fork(), PA_ERR_FORKED);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->state == PA_CONTEXT_READY, PA_ERR_BADSTATE);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->version >= 14, PA_ERR_NOTSUPPORTED);
++
++    o = pa_operation_new(c, NULL, (pa_operation_cb_t) cb, userdata);
++
++    t = pa_tagstruct_command(c, PA_COMMAND_EXTENSION, &tag);
++    pa_tagstruct_putu32(t, PA_INVALID_INDEX);
++    pa_tagstruct_puts(t, "module-murphy-ivi");
++    pa_tagstruct_putu32(t, SUBCOMMAND_DISCONNECT);
++
++    pa_tagstruct_putu32(t, conn_id);
++
++    pa_pstream_send_tagstruct(c->pstream, t);
++    pa_pdispatch_register_reply(c->pdispatch, tag, DEFAULT_TIMEOUT, pa_context_simple_ack_callback, pa_operation_ref(o), (pa_free_cb_t) pa_operation_unref);
++
++    return o;
++}
++
++pa_operation *pa_ext_node_manager_subscribe(
++        pa_context *c,
++        int enable,
++        pa_context_success_cb_t cb,
++        void *userdata) {
++
++    uint32_t tag;
++    pa_operation *o;
++    pa_tagstruct *t;
++
++    pa_assert(c);
++    pa_assert(PA_REFCNT_VALUE(c) >= 1);
++
++    PA_CHECK_VALIDITY_RETURN_NULL(c, !pa_detect_fork(), PA_ERR_FORKED);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->state == PA_CONTEXT_READY, PA_ERR_BADSTATE);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->version >= 14, PA_ERR_NOTSUPPORTED);
++
++    o = pa_operation_new(c, NULL, (pa_operation_cb_t) cb, userdata);
++
++    t = pa_tagstruct_command(c, PA_COMMAND_EXTENSION, &tag);
++    pa_tagstruct_putu32(t, PA_INVALID_INDEX);
++    pa_tagstruct_puts(t, "module-murphy-ivi");
++    pa_tagstruct_putu32(t, SUBCOMMAND_SUBSCRIBE);
++    pa_tagstruct_put_boolean(t, enable);
++    pa_pstream_send_tagstruct(c->pstream, t);
++    pa_pdispatch_register_reply(c->pdispatch, tag, DEFAULT_TIMEOUT, pa_context_simple_ack_callback, pa_operation_ref(o), (pa_free_cb_t) pa_operation_unref);
++
++    return o;
++}
++
++void pa_ext_node_manager_set_subscribe_cb(
++        pa_context *c,
++        pa_ext_node_manager_subscribe_cb_t cb,
++        void *userdata) {
++
++    pa_assert(c);
++    pa_assert(PA_REFCNT_VALUE(c) >= 1);
++
++    if (pa_detect_fork())
++        return;
++
++    c->ext_node_manager.callback = cb;
++    c->ext_node_manager.userdata = userdata;
++}
++
++void pa_ext_node_manager_command(pa_context *c, uint32_t tag, pa_tagstruct *t) {
++    uint32_t subcommand;
++
++    pa_assert(c);
++    pa_assert(PA_REFCNT_VALUE(c) >= 1);
++    pa_assert(t);
++
++    if (pa_tagstruct_getu32(t, &subcommand) < 0 ||
++        !pa_tagstruct_eof(t)) {
++
++        pa_context_fail(c, PA_ERR_PROTOCOL);
++        return;
++    }
++
++    if (subcommand != SUBCOMMAND_EVENT) {
++        pa_context_fail(c, PA_ERR_PROTOCOL);
++        return;
++    }
++
++    if (c->ext_node_manager.callback)
++        c->ext_node_manager.callback(c, c->ext_node_manager.userdata);
++}
+diff --git a/src/pulse/ext-node-manager.h b/src/pulse/ext-node-manager.h
+new file mode 100644
+index 0000000..57b9f01
+--- /dev/null
++++ b/src/pulse/ext-node-manager.h
+@@ -0,0 +1,93 @@
++#ifndef foopulseextnodemanagerhfoo
++#define foopulseextnodemanagerhfoo
++
++/***
++  This file is part of PulseAudio.
++
++  Copyright 2012 Jaska Uimonen
++  Copyright 2012 Janos Kovacs
++
++  PulseAudio is free software; you can redistribute it and/or modify
++  it under the terms of the GNU Lesser General Public License as published
++  by the Free Software Foundation; either version 2.1 of the License,
++  or (at your option) any later version.
++
++  PulseAudio is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with PulseAudio; if not, write to the Free Software
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++  USA.
++***/
++
++#include <pulse/cdecl.h>
++#include <pulse/context.h>
++#include <pulse/version.h>
++
++PA_C_DECL_BEGIN
++
++typedef struct pa_ext_node_manager_info {
++    const char *name;
++    pa_proplist *props;
++} pa_ext_node_manager_info;
++
++typedef void (*pa_ext_node_manager_test_cb_t)(
++        pa_context *c,
++        uint32_t version,
++        void *userdata);
++
++pa_operation *pa_ext_node_manager_test(
++        pa_context *c,
++        pa_ext_node_manager_test_cb_t cb,
++        void *userdata);
++
++typedef void (*pa_ext_node_manager_read_cb_t)(
++        pa_context *c,
++        const pa_ext_node_manager_info *info,
++        int eol,
++        void *userdata);
++
++pa_operation *pa_ext_node_manager_read_nodes(
++        pa_context *c,
++        pa_ext_node_manager_read_cb_t cb,
++        void *userdata);
++
++typedef void (*pa_ext_node_manager_connect_cb_t)(
++        pa_context *c,
++        uint32_t connection,
++        void *userdata);
++
++pa_operation *pa_ext_node_manager_connect_nodes(
++        pa_context *c,
++        uint32_t src,
++        uint32_t dst,
++        pa_ext_node_manager_connect_cb_t cb,
++        void *userdata);
++
++pa_operation *pa_ext_node_manager_disconnect_nodes(
++        pa_context *c,
++        uint32_t conn,
++        pa_context_success_cb_t cb,
++        void *userdata);
++
++pa_operation *pa_ext_node_manager_subscribe(
++        pa_context *c,
++        int enable,
++        pa_context_success_cb_t cb,
++        void *userdata);
++
++typedef void (*pa_ext_node_manager_subscribe_cb_t)(
++        pa_context *c,
++        void *userdata);
++
++void pa_ext_node_manager_set_subscribe_cb(
++        pa_context *c,
++        pa_ext_node_manager_subscribe_cb_t cb,
++        void *userdata);
++
++PA_C_DECL_END
++
++#endif
+diff --git a/src/pulse/internal.h b/src/pulse/internal.h
+index c5084d5..61095d0 100644
+--- a/src/pulse/internal.h
++++ b/src/pulse/internal.h
+@@ -31,6 +31,7 @@
+ #include <pulse/ext-device-manager.h>
+ #include <pulse/ext-device-restore.h>
+ #include <pulse/ext-stream-restore.h>
++#include <pulse/ext-node-manager.h>
+ 
+ #include <pulsecore/socket-client.h>
+ #include <pulsecore/pstream.h>
+@@ -115,6 +116,10 @@ struct pa_context {
+         pa_ext_stream_restore_subscribe_cb_t callback;
+         void *userdata;
+     } ext_stream_restore;
++    struct {
++        pa_ext_node_manager_subscribe_cb_t callback;
++        void *userdata;
++    } ext_node_manager;
+ };
+ 
+ #define PA_MAX_WRITE_INDEX_CORRECTIONS 32
+@@ -303,6 +308,7 @@ pa_tagstruct *pa_tagstruct_command(pa_context *c, uint32_t command, uint32_t *ta
+ void pa_ext_device_manager_command(pa_context *c, uint32_t tag, pa_tagstruct *t);
+ void pa_ext_device_restore_command(pa_context *c, uint32_t tag, pa_tagstruct *t);
+ void pa_ext_stream_restore_command(pa_context *c, uint32_t tag, pa_tagstruct *t);
++void pa_ext_node_manager_command(pa_context *c, uint32_t tag, pa_tagstruct *t);
+ 
+ bool pa_mainloop_is_our_api(pa_mainloop_api*m);
+ 

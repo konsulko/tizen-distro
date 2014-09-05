@@ -1,0 +1,180 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Wed, 26 Mar 2014 10:25:17 +0200
+Subject: direction: Add a couple of direction helper functions
+
+Change-Id: I365acd7ce3e7abcbcb8a532c79016fca558238e8
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ doxygen/doxygen.conf.in |  1 +
+ src/Makefile.am         |  2 ++
+ src/map-file            |  2 ++
+ src/pulse/direction.c   | 46 ++++++++++++++++++++++++++++++++++++++++++++++
+ src/pulse/direction.h   | 37 +++++++++++++++++++++++++++++++++++++
+ src/pulse/pulseaudio.h  |  5 +++--
+ 6 files changed, 91 insertions(+), 2 deletions(-)
+ create mode 100644 src/pulse/direction.c
+ create mode 100644 src/pulse/direction.h
+
+diff --git a/doxygen/doxygen.conf.in b/doxygen/doxygen.conf.in
+index a078e27..40cea8b 100644
+--- a/doxygen/doxygen.conf.in
++++ b/doxygen/doxygen.conf.in
+@@ -421,6 +421,7 @@ INPUT = \
+     @srcdir@/../src/pulse/channelmap.h \
+     @srcdir@/../src/pulse/context.h \
+     @srcdir@/../src/pulse/def.h \
++    @srcdir@/../src/pulse/direction.h \
+     @srcdir@/../src/pulse/error.h \
+     @srcdir@/../src/pulse/ext-stream-restore.h \
+     @srcdir@/../src/pulse/ext-device-manager.h \
+diff --git a/src/Makefile.am b/src/Makefile.am
+index b09903f..fe6cc53 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -758,6 +758,7 @@ pulseinclude_HEADERS = \
+ 		pulse/channelmap.h \
+ 		pulse/context.h \
+ 		pulse/def.h \
++		pulse/direction.h \
+ 		pulse/error.h \
+ 		pulse/ext-device-manager.h \
+ 		pulse/ext-device-restore.h \
+@@ -810,6 +811,7 @@ libpulse_la_SOURCES = \
+ 		pulse/channelmap.c pulse/channelmap.h \
+ 		pulse/context.c pulse/context.h \
+ 		pulse/def.h \
++		pulse/direction.c pulse/direction.h \
+ 		pulse/error.c pulse/error.h \
+ 		pulse/ext-device-manager.c pulse/ext-device-manager.h \
+ 		pulse/ext-device-restore.c pulse/ext-device-restore.h \
+diff --git a/src/map-file b/src/map-file
+index 20e577a..fbf3f22 100644
+--- a/src/map-file
++++ b/src/map-file
+@@ -153,6 +153,8 @@ pa_cvolume_set_position;
+ pa_cvolume_snprint;
+ pa_cvolume_snprint_verbose;
+ pa_cvolume_valid;
++pa_direction_to_string;
++pa_direction_valid;
+ pa_encoding_to_string;
+ pa_ext_device_manager_delete;
+ pa_ext_device_manager_enable_role_device_priority_routing;
+diff --git a/src/pulse/direction.c b/src/pulse/direction.c
+new file mode 100644
+index 0000000..95f5e00
+--- /dev/null
++++ b/src/pulse/direction.c
+@@ -0,0 +1,46 @@
++/***
++  This file is part of PulseAudio.
++
++  Copyright 2014 Intel Corporation
++
++  PulseAudio is free software; you can redistribute it and/or modify
++  it under the terms of the GNU Lesser General Public License as published
++  by the Free Software Foundation; either version 2.1 of the License,
++  or (at your option) any later version.
++
++  PulseAudio is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with PulseAudio; if not, write to the Free Software
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++  USA.
++***/
++
++#include "direction.h"
++
++#include <pulsecore/i18n.h>
++
++int pa_direction_valid(pa_direction_t direction) {
++    if (direction != PA_DIRECTION_INPUT
++            && direction != PA_DIRECTION_OUTPUT
++            && direction != (PA_DIRECTION_INPUT | PA_DIRECTION_OUTPUT))
++        return 0;
++
++    return 1;
++}
++
++const char *pa_direction_to_string(pa_direction_t direction) {
++    pa_init_i18n();
++
++    if (direction == PA_DIRECTION_INPUT)
++        return _("input");
++    if (direction == PA_DIRECTION_OUTPUT)
++        return _("output");
++    if (direction == (PA_DIRECTION_INPUT | PA_DIRECTION_OUTPUT))
++        return _("bidirectional");
++
++    return _("invalid");
++}
+diff --git a/src/pulse/direction.h b/src/pulse/direction.h
+new file mode 100644
+index 0000000..127f07a
+--- /dev/null
++++ b/src/pulse/direction.h
+@@ -0,0 +1,37 @@
++#ifndef foodirectionhfoo
++#define foodirectionhfoo
++
++/***
++  This file is part of PulseAudio.
++
++  Copyright 2014 Intel Corporation
++
++  PulseAudio is free software; you can redistribute it and/or modify
++  it under the terms of the GNU Lesser General Public License as published
++  by the Free Software Foundation; either version 2.1 of the License,
++  or (at your option) any later version.
++
++  PulseAudio is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with PulseAudio; if not, write to the Free Software
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++  USA.
++***/
++
++#include <pulse/def.h>
++
++/** \file
++ * Utility functions for \ref pa_direction_t. */
++
++/** Return non-zero if the given value is a valid direction (either input,
++ * output or bidirectional). \since 6.0 */
++int pa_direction_valid(pa_direction_t direction) PA_GCC_CONST;
++
++/** Return a textual representation of the direction. \since 6.0 */
++const char *pa_direction_to_string(pa_direction_t direction);
++
++#endif
+diff --git a/src/pulse/pulseaudio.h b/src/pulse/pulseaudio.h
+index 21b7213..2e270dd 100644
+--- a/src/pulse/pulseaudio.h
++++ b/src/pulse/pulseaudio.h
+@@ -23,6 +23,7 @@
+   USA.
+ ***/
+ 
++#include <pulse/direction.h>
+ #include <pulse/mainloop-api.h>
+ #include <pulse/sample.h>
+ #include <pulse/format.h>
+@@ -49,8 +50,8 @@
+ 
+ /** \file
+  * Include all libpulse header files at once. The following files are
+- * included: \ref mainloop-api.h, \ref sample.h, \ref def.h, \ref
+- * context.h, \ref stream.h, \ref introspect.h, \ref subscribe.h, \ref
++ * included: \ref direction.h, \ref mainloop-api.h, \ref sample.h, \ref def.h,
++ * \ref context.h, \ref stream.h, \ref introspect.h, \ref subscribe.h, \ref
+  * scache.h, \ref version.h, \ref error.h, \ref channelmap.h, \ref
+  * operation.h,\ref volume.h, \ref xmalloc.h, \ref utf8.h, \ref
+  * thread-mainloop.h, \ref mainloop.h, \ref util.h, \ref proplist.h,

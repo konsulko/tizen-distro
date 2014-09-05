@@ -1,0 +1,51 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Wed, 21 May 2014 11:32:09 +0300
+Subject: dynarray: Add pa_dynarray_remove_last()
+
+Change-Id: I9098df96aac57a3ee2084061aa174f7ee02b1588
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/pulsecore/dynarray.c | 15 +++++++++++++++
+ src/pulsecore/dynarray.h |  3 +++
+ 2 files changed, 18 insertions(+)
+
+diff --git a/src/pulsecore/dynarray.c b/src/pulsecore/dynarray.c
+index 8dd8fab..c0b5fb0 100644
+--- a/src/pulsecore/dynarray.c
++++ b/src/pulsecore/dynarray.c
+@@ -81,6 +81,21 @@ void *pa_dynarray_get(pa_dynarray *array, unsigned i) {
+     return array->data[i];
+ }
+ 
++int pa_dynarray_remove_last(pa_dynarray *array) {
++    void *entry;
++
++    pa_assert(array);
++
++    entry = pa_dynarray_steal_last(array);
++    if (!entry)
++        return -PA_ERR_NOENTITY;
++
++    if (array->free_cb)
++        array->free_cb(entry);
++
++    return 0;
++}
++
+ void *pa_dynarray_steal_last(pa_dynarray *array) {
+     pa_assert(array);
+ 
+diff --git a/src/pulsecore/dynarray.h b/src/pulsecore/dynarray.h
+index 65030f2..fd91433 100644
+--- a/src/pulsecore/dynarray.h
++++ b/src/pulsecore/dynarray.h
+@@ -52,6 +52,9 @@ void pa_dynarray_append(pa_dynarray *array, void *p);
+ /* Returns NULL if i is out of bounds. */
+ void *pa_dynarray_get(pa_dynarray *array, unsigned i);
+ 
++/* Returns -PA_ERR_NOENTITY if the array is empty, and zero otherwise. */
++int pa_dynarray_remove_last(pa_dynarray *array);
++
+ /* Returns the removed item, or NULL if the array is empty. */
+ void *pa_dynarray_steal_last(pa_dynarray *array);
+ 

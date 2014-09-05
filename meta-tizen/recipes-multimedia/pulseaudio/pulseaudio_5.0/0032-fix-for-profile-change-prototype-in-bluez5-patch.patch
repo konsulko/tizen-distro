@@ -1,0 +1,23 @@
+From: Jaska Uimonen <jaska.uimonen@intel.com>
+Date: Tue, 11 Mar 2014 12:23:09 +0200
+Subject: fix for profile change prototype in bluez5 patch
+
+Change-Id: I2361c4eca82e6ac4a8f94e9f9c97f09cb6648049
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/modules/bluetooth/module-bluez5-device.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/modules/bluetooth/module-bluez5-device.c b/src/modules/bluetooth/module-bluez5-device.c
+index a0776c8..790dcf1 100644
+--- a/src/modules/bluetooth/module-bluez5-device.c
++++ b/src/modules/bluetooth/module-bluez5-device.c
+@@ -2014,7 +2014,7 @@ static int device_process_msg(pa_msgobject *obj, int code, void *data, int64_t o
+                 break;
+ 
+             pa_log_debug("Switching the profile to off due to IO thread failure.");
+-            pa_assert_se(pa_card_set_profile(b->card, "off", false) >= 0);
++            pa_assert_se(pa_card_set_profile(b->card, pa_hashmap_get(u->card->profiles, "off"), false) >= 0);
+             break;
+     }
+ 

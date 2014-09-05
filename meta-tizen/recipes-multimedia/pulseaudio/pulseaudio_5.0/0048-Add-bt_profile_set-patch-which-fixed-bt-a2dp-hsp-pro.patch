@@ -1,0 +1,83 @@
+From: "vivian,zhang" <vivian.zhang@intel.com>
+Date: Wed, 17 Jul 2013 11:17:40 +0800
+Subject: Add bt_profile_set patch which fixed bt a2dp&hsp profile setting
+ issues in mobile
+
+Change-Id: I9bc3649b02ab7ac56584211789a3ea18ff17fbb7
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ configure.ac                                   | 13 +++++++++++++
+ src/Makefile.am                                |  3 +++
+ src/modules/bluetooth/module-bluez4-discover.c | 18 ++++++++++++++++++
+ 3 files changed, 34 insertions(+)
+
+diff --git a/configure.ac b/configure.ac
+index 870375f..6a6bc83 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -679,6 +679,19 @@ fi
+ AM_CONDITIONAL(USE_DLOG, test "x$USE_DLOG" = "xyes")
+ dnl end --------------------------------------------------------------------
+ 
++dnl use bt-profile-set --------------------------------------------------------------------------
++AC_ARG_ENABLE(bt-profile-set, AC_HELP_STRING([--enable-bt-profile-set], [enable bt profile param]),
++[
++ case "${enableval}" in
++        yes) USE_BT_PROFILE_SET=yes ;;
++        no)  USE_BT_PROFILE_SET=no ;;
++        *)   AC_MSG_ERROR(bad value ${enableval} for --enable-bt-profile-set) ;;
++ esac
++ ],[USE_BT_PROFILE_SET=no])
++
++AM_CONDITIONAL(USE_BT_PROFILE_SET, test "x$USE_BT_PROFILE_SET" = "xyes")
++dnl end --------------------------------------------------------------------
++
+ #### atomic-ops ####
+ 
+ AC_MSG_CHECKING([whether we need libatomic_ops])
+diff --git a/src/Makefile.am b/src/Makefile.am
+index a60b5bf..b09903f 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -2082,6 +2082,9 @@ module_bluetooth_discover_la_CFLAGS = $(AM_CFLAGS)
+ if HAVE_BT_A2DP_APTX
+ module_bluetooth_discover_la_CFLAGS += -DBLUETOOTH_APTX_SUPPORT
+ endif
++if USE_BT_PROFILE_SET
++module_bluetooth_discover_la_CFLAGS += -DBLUETOOTH_PROFILE_SET
++endif
+ 
+ # Bluetooth BlueZ 4 sink / source
+ module_bluez4_discover_la_SOURCES = modules/bluetooth/module-bluez4-discover.c
+diff --git a/src/modules/bluetooth/module-bluez4-discover.c b/src/modules/bluetooth/module-bluez4-discover.c
+index 7673ba7..aaaa095 100644
+--- a/src/modules/bluetooth/module-bluez4-discover.c
++++ b/src/modules/bluetooth/module-bluez4-discover.c
+@@ -79,9 +79,27 @@ static pa_hook_result_t load_module_for_device(pa_bluez4_discovery *y, const pa_
+             pa_module *m = NULL;
+             char *args;
+ 
++#ifdef BLUETOOTH_PROFILE_SET
++            const char *profile = NULL;
++
++            if ((d->transports[PROFILE_A2DP] && d->transports[PROFILE_A2DP]->state != PA_BLUETOOTH_TRANSPORT_STATE_DISCONNECTED)) {
++                profile = "a2dp";
++            } if ((d->transports[PROFILE_A2DP_SOURCE] && d->transports[PROFILE_A2DP_SOURCE]->state != PA_BLUETOOTH_TRANSPORT_STATE_DISCONNECTED)) {
++                profile = "a2dp_source";
++            } else if ((d->transports[PROFILE_HFGW] && d->transports[PROFILE_HFGW]->state != PA_BLUETOOTH_TRANSPORT_STATE_DISCONNECTED)) {
++                profile = "hfgw";
++            }
++            if (!profile)
++                return PA_HOOK_OK;
++#endif
++
+             /* Oh, awesome, a new device has shown up and been connected! */
+ 
++#ifdef BLUETOOTH_PROFILE_SET
++            args = pa_sprintf_malloc("address=\"%s\" path=\"%s\" profile=\"%s\"", d->address, d->path, profile);
++#else
+             args = pa_sprintf_malloc("address=\"%s\" path=\"%s\"", d->address, d->path);
++#endif
+ 
+             if (pa_modargs_get_value(u->modargs, "sco_sink", NULL) &&
+                 pa_modargs_get_value(u->modargs, "sco_source", NULL)) {

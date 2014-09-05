@@ -1,0 +1,56 @@
+From: =?utf-8?q?Jo=C3=A3o_Paulo_Rechi_Vita?= <jprvita@openbossa.org>
+Date: Thu, 11 Jul 2013 13:23:31 -0300
+Subject: bluetooth: Implement org.ofono.HandsfreeAudioAgent.NewConnection()
+
+Change-Id: Idaff2e3a96ce83e7ee6f961543273429b044be8e
+---
+ src/modules/bluetooth/hfaudioagent-ofono.c | 29 +++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
+
+diff --git a/src/modules/bluetooth/hfaudioagent-ofono.c b/src/modules/bluetooth/hfaudioagent-ofono.c
+index ee158af..ba0acaf 100644
+--- a/src/modules/bluetooth/hfaudioagent-ofono.c
++++ b/src/modules/bluetooth/hfaudioagent-ofono.c
+@@ -491,7 +491,10 @@ static DBusMessage *hf_audio_agent_release(DBusConnection *c, DBusMessage *m, vo
+ 
+ static DBusMessage *hf_audio_agent_new_connection(DBusConnection *c, DBusMessage *m, void *data) {
+     DBusMessage *r;
+-    const char *sender;
++    const char *sender, *card;
++    int fd;
++    uint8_t codec;
++    hf_audio_card *hfac;
+     hf_audio_agent_data *hfdata = data;
+ 
+     pa_assert(hfdata);
+@@ -502,7 +505,29 @@ static DBusMessage *hf_audio_agent_new_connection(DBusConnection *c, DBusMessage
+         return r;
+     }
+ 
+-    r = dbus_message_new_error(m, "org.ofono.Error.NotImplemented", "Operation is not implemented");
++    if (dbus_message_get_args(m, NULL,
++                              DBUS_TYPE_OBJECT_PATH, &card,
++                              DBUS_TYPE_UNIX_FD, &fd,
++                              DBUS_TYPE_BYTE, &codec,
++                              DBUS_TYPE_INVALID) == FALSE) {
++        pa_assert_se(r = dbus_message_new_error(m, "org.ofono.Error.InvalidArguments", "Invalid arguments in method call"));
++        return r;
++    }
++
++    if ( !(hfac = pa_hashmap_get(hfdata->hf_audio_cards, card)) ) {
++        pa_log_warn("New audio connection on unknown card %s (fd=%d, codec=%d)", card, fd, codec);
++        pa_assert_se(r = dbus_message_new_error(m, "org.ofono.Error.InvalidArguments", "Unknown card"));
++        return r;
++    } else
++        pa_log_debug("New audio connection on card %s (fd=%d, codec=%d)", card, fd, codec);
++
++    hfac->fd = fd;
++    hfac->codec = codec;
++    hfac->transport->state = PA_BLUETOOTH_TRANSPORT_STATE_PLAYING;
++    pa_hook_fire(pa_bluetooth_discovery_hook(hfdata->discovery, PA_BLUETOOTH_HOOK_TRANSPORT_STATE_CHANGED), hfac->transport);
++
++    pa_assert_se(r = dbus_message_new_method_return(m));
++
+     return r;
+ }
+ 

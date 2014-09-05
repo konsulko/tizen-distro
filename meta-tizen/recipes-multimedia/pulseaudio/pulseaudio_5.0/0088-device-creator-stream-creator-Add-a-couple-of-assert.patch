@@ -1,0 +1,47 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Tue, 27 May 2014 10:45:04 +0300
+Subject: device-creator, stream-creator: Add a couple of assertions
+
+Klocwork complained that source (in device-creator) and output (in
+stream-creator) may be dereferenced if they're NULL. Let's make
+Klocwork happy, and the code a bit more obvious to human readers as
+well.
+
+Change-Id: I835dd7d9da44e2866a97bc0424001a42c29602a8
+---
+ src/modules/volume-api/device-creator.c | 4 +++-
+ src/modules/volume-api/stream-creator.c | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/src/modules/volume-api/device-creator.c b/src/modules/volume-api/device-creator.c
+index 1d912ba..f35fab0 100644
+--- a/src/modules/volume-api/device-creator.c
++++ b/src/modules/volume-api/device-creator.c
+@@ -513,8 +513,10 @@ static pa_hook_result_t sink_or_source_mute_changed_cb(void *hook_data, void *ca
+ 
+     if (sink)
+         mute = sink->muted;
+-    else
++    else if (source)
+         mute = source->muted;
++    else
++        pa_assert_not_reached();
+ 
+     pa_mute_control_mute_changed(control->mute_control, mute);
+ 
+diff --git a/src/modules/volume-api/stream-creator.c b/src/modules/volume-api/stream-creator.c
+index 2bd0053..f6ca7b3 100644
+--- a/src/modules/volume-api/stream-creator.c
++++ b/src/modules/volume-api/stream-creator.c
+@@ -216,8 +216,10 @@ static pa_hook_result_t sink_input_or_source_output_mute_changed_cb(void *hook_d
+ 
+     if (input)
+         mute = input->muted;
+-    else
++    else if (output)
+         mute = output->muted;
++    else
++        pa_assert_not_reached();
+ 
+     pa_mute_control_mute_changed(stream->stream->own_mute_control, mute);
+ 

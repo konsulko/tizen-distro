@@ -1,0 +1,55 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Tue, 17 Jun 2014 19:35:21 +0300
+Subject: core: Create the config home directory on startup
+
+This avoids the need to check for the existence of the config home
+directory every time some file needs to be opened from that directory.
+
+Change-Id: I449c61aa46eaea3f8c7eb0aa040310db58421828
+---
+ src/pulsecore/core.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/src/pulsecore/core.c b/src/pulsecore/core.c
+index e6f2dfc..4a66f80 100644
+--- a/src/pulsecore/core.c
++++ b/src/pulsecore/core.c
+@@ -24,6 +24,7 @@
+ #include <config.h>
+ #endif
+ 
++#include <errno.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <signal.h>
+@@ -33,6 +34,7 @@
+ #include <pulse/xmalloc.h>
+ 
+ #include <pulsecore/module.h>
++#include <pulsecore/core-error.h>
+ #include <pulsecore/core-rtclock.h>
+ #include <pulsecore/core-util.h>
+ #include <pulsecore/core-scache.h>
+@@ -64,12 +66,22 @@ static int core_process_msg(pa_msgobject *o, int code, void *userdata, int64_t o
+ static void core_free(pa_object *o);
+ 
+ pa_core* pa_core_new(pa_mainloop_api *m, bool shared, size_t shm_size) {
++    int r;
++    char *config_home_dir;
+     pa_core* c;
+     pa_mempool *pool;
+     int j;
+ 
+     pa_assert(m);
+ 
++    r = pa_get_config_home_dir(true, &config_home_dir);
++    if (r >= 0) {
++        r = pa_make_secure_dir(config_home_dir, 0700, (uid_t) -1, (gid_t) -1, true);
++        pa_xfree(config_home_dir);
++        if (r < 0)
++            pa_log("Failed to create config home directory (%s): %s", config_home_dir, pa_cstrerror(errno));
++    }
++
+     if (shared) {
+         if (!(pool = pa_mempool_new(shared, shm_size))) {
+             pa_log_warn("failed to allocate shared memory pool. Falling back to a normal memory pool.");

@@ -1,0 +1,61 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Mon, 14 Apr 2014 14:43:23 +0300
+Subject: sink, source: Allow calling set_mute() during initialization
+
+Currently the alsa sink and source write directly to s->muted during
+initialization, but I think it's better to avoid direct writes, and
+use the set_mute() function instead, because that makes it easier to
+figure out where s->muted is modified. This patch prevents the
+set_mute() call from crashing in the state assertion.
+
+Change-Id: I12220fb2668723931bebbe1484f115016f1edf25
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/pulsecore/sink.c   | 4 +++-
+ src/pulsecore/source.c | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/src/pulsecore/sink.c b/src/pulsecore/sink.c
+index 3eed550..7eb4cb4 100644
+--- a/src/pulsecore/sink.c
++++ b/src/pulsecore/sink.c
+@@ -2285,7 +2285,6 @@ void pa_sink_set_mute(pa_sink *s, bool mute, bool save) {
+ 
+     pa_sink_assert_ref(s);
+     pa_assert_ctl_context();
+-    pa_assert(PA_SINK_IS_LINKED(s->state));
+ 
+     old_muted = s->muted;
+ 
+@@ -2300,6 +2299,9 @@ void pa_sink_set_mute(pa_sink *s, bool mute, bool save) {
+     if (!(s->flags & PA_SINK_DEFERRED_VOLUME) && s->set_mute)
+         s->set_mute(s);
+ 
++    if (!PA_SINK_IS_LINKED(s->state))
++        return;
++
+     pa_log_debug("The mute of sink %s changed from %s to %s.", s->name, pa_yes_no(old_muted), pa_yes_no(mute));
+     pa_assert_se(pa_asyncmsgq_send(s->asyncmsgq, PA_MSGOBJECT(s), PA_SINK_MESSAGE_SET_MUTE, NULL, 0, NULL) == 0);
+     pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SINK|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);
+diff --git a/src/pulsecore/source.c b/src/pulsecore/source.c
+index 4f4aea3..3b6ad44 100644
+--- a/src/pulsecore/source.c
++++ b/src/pulsecore/source.c
+@@ -1803,7 +1803,6 @@ void pa_source_set_mute(pa_source *s, bool mute, bool save) {
+ 
+     pa_source_assert_ref(s);
+     pa_assert_ctl_context();
+-    pa_assert(PA_SOURCE_IS_LINKED(s->state));
+ 
+     old_muted = s->muted;
+ 
+@@ -1818,6 +1817,9 @@ void pa_source_set_mute(pa_source *s, bool mute, bool save) {
+     if (!(s->flags & PA_SOURCE_DEFERRED_VOLUME) && s->set_mute)
+         s->set_mute(s);
+ 
++    if (!PA_SOURCE_IS_LINKED(s->state))
++        return;
++
+     pa_log_debug("The mute of source %s changed from %s to %s.", s->name, pa_yes_no(old_muted), pa_yes_no(mute));
+     pa_assert_se(pa_asyncmsgq_send(s->asyncmsgq, PA_MSGOBJECT(s), PA_SOURCE_MESSAGE_SET_MUTE, NULL, 0, NULL) == 0);
+     pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SOURCE|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);

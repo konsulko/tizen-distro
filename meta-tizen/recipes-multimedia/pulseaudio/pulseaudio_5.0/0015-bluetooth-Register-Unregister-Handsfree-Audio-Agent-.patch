@@ -1,0 +1,172 @@
+From: =?utf-8?q?Jo=C3=A3o_Paulo_Rechi_Vita?= <jprvita@openbossa.org>
+Date: Tue, 9 Jul 2013 20:59:12 -0300
+Subject: bluetooth: Register/Unregister Handsfree Audio Agent with oFono
+
+Register as a HandsfreeAudioAgent with oFono during backend
+initialization and unregiter during backend finalization. This commit
+also adds a check when receiving method calls or signals to make sure
+the sender matches with the D-Bus service we're registered with.
+
+Change-Id: I0a49935702ffb52d6d2ba1baded8eb568262c5b1
+---
+ src/modules/bluetooth/hfaudioagent-ofono.c | 107 ++++++++++++++++++++++++++++-
+ 1 file changed, 105 insertions(+), 2 deletions(-)
+
+diff --git a/src/modules/bluetooth/hfaudioagent-ofono.c b/src/modules/bluetooth/hfaudioagent-ofono.c
+index 38975b2..de58e7d 100644
+--- a/src/modules/bluetooth/hfaudioagent-ofono.c
++++ b/src/modules/bluetooth/hfaudioagent-ofono.c
+@@ -28,6 +28,9 @@
+ 
+ #include "hfaudioagent.h"
+ 
++#define HFP_AUDIO_CODEC_CVSD    0x01
++#define HFP_AUDIO_CODEC_MSBC    0x02
++
+ #define OFONO_SERVICE "org.ofono"
+ #define HF_AUDIO_AGENT_INTERFACE OFONO_SERVICE ".HandsfreeAudioAgent"
+ #define HF_AUDIO_MANAGER_INTERFACE OFONO_SERVICE ".HandsfreeAudioManager"
+@@ -58,6 +61,7 @@ struct hf_audio_agent_data {
+     pa_dbus_connection *connection;
+ 
+     bool filter_added;
++    char *ofono_bus_id;
+     pa_hashmap *hf_audio_cards;
+ 
+     PA_LLIST_HEAD(pa_dbus_pending, pending);
+@@ -80,20 +84,115 @@ static pa_dbus_pending* pa_bluetooth_dbus_send_and_add_to_pending(hf_audio_agent
+     return p;
+ }
+ 
++static void hf_audio_agent_register_reply(DBusPendingCall *pending, void *userdata) {
++    DBusMessage *r;
++    pa_dbus_pending *p;
++    hf_audio_agent_data *hfdata;
++
++    pa_assert_se(p = userdata);
++    pa_assert_se(hfdata = p->context_data);
++    pa_assert_se(r = dbus_pending_call_steal_reply(pending));
++
++    if (dbus_message_get_type(r) == DBUS_MESSAGE_TYPE_ERROR) {
++        pa_log_error("Failed to register as a handsfree audio agent with ofono: %s: %s",
++                     dbus_message_get_error_name(r), pa_dbus_get_error_message(r));
++        goto finish;
++    }
++
++    hfdata->ofono_bus_id = pa_xstrdup(dbus_message_get_sender(r));
++
++    /* TODO: List all HandsfreeAudioCard objects */
++
++finish:
++    dbus_message_unref(r);
++
++    PA_LLIST_REMOVE(pa_dbus_pending, hfdata->pending, p);
++    pa_dbus_pending_free(p);
++}
++
++static void hf_audio_agent_register(hf_audio_agent_data *hfdata) {
++    DBusMessage *m;
++    unsigned char codecs[2];
++    const unsigned char *pcodecs = codecs;
++    int ncodecs = 0;
++    const char *path = HF_AUDIO_AGENT_PATH;
++
++    pa_assert(hfdata);
++
++    pa_assert_se(m = dbus_message_new_method_call(OFONO_SERVICE, "/", HF_AUDIO_MANAGER_INTERFACE, "Register"));
++
++    codecs[ncodecs++] = HFP_AUDIO_CODEC_CVSD;
++    codecs[ncodecs++] = HFP_AUDIO_CODEC_MSBC;
++
++    pa_assert_se(dbus_message_append_args(m, DBUS_TYPE_OBJECT_PATH, &path, DBUS_TYPE_ARRAY, DBUS_TYPE_BYTE, &pcodecs, ncodecs,
++                                          DBUS_TYPE_INVALID));
++
++    pa_bluetooth_dbus_send_and_add_to_pending(hfdata, m, hf_audio_agent_register_reply, NULL);
++}
++
++static void hf_audio_agent_unregister(hf_audio_agent_data *hfdata) {
++    DBusMessage *m;
++    const char *path = HF_AUDIO_AGENT_PATH;
++
++    pa_assert(hfdata);
++    pa_assert(hfdata->connection);
++
++    if (hfdata->ofono_bus_id) {
++        pa_assert_se(m = dbus_message_new_method_call(hfdata->ofono_bus_id, "/", HF_AUDIO_MANAGER_INTERFACE, "Unregister"));
++        pa_assert_se(dbus_message_append_args(m, DBUS_TYPE_OBJECT_PATH, &path, DBUS_TYPE_INVALID));
++        pa_assert_se(dbus_connection_send(pa_dbus_connection_get(hfdata->connection), m, NULL));
++
++        pa_xfree(hfdata->ofono_bus_id);
++        hfdata->ofono_bus_id = NULL;
++    }
++}
++
+ static DBusHandlerResult filter_cb(DBusConnection *bus, DBusMessage *m, void *data) {
++    const char *sender;
++    hf_audio_agent_data *hfdata = data;
++
+     pa_assert(bus);
+     pa_assert(m);
++    pa_assert(hfdata);
++
++    sender = dbus_message_get_sender(m);
++    if (!pa_safe_streq(hfdata->ofono_bus_id, sender) && !pa_streq("org.freedesktop.DBus", sender))
++        return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+ 
+     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+ }
+ 
+ static DBusMessage *hf_audio_agent_release(DBusConnection *c, DBusMessage *m, void *data) {
+-    DBusMessage *r = dbus_message_new_error(m, "org.ofono.Error.NotImplemented", "Operation is not implemented");
++    DBusMessage *r;
++    const char *sender;
++    hf_audio_agent_data *hfdata = data;
++
++    pa_assert(hfdata);
++
++    sender = dbus_message_get_sender(m);
++    if (!pa_streq(hfdata->ofono_bus_id, sender)) {
++        pa_assert_se(r = dbus_message_new_error(m, "org.ofono.Error.NotAllowed", "Operation is not allowed by this sender"));
++        return r;
++    }
++
++    r = dbus_message_new_error(m, "org.ofono.Error.NotImplemented", "Operation is not implemented");
+     return r;
+ }
+ 
+ static DBusMessage *hf_audio_agent_new_connection(DBusConnection *c, DBusMessage *m, void *data) {
+-    DBusMessage *r = dbus_message_new_error(m, "org.ofono.Error.NotImplemented", "Operation is not implemented");
++    DBusMessage *r;
++    const char *sender;
++    hf_audio_agent_data *hfdata = data;
++
++    pa_assert(hfdata);
++
++    sender = dbus_message_get_sender(m);
++    if (!pa_streq(hfdata->ofono_bus_id, sender)) {
++        pa_assert_se(r = dbus_message_new_error(m, "org.ofono.Error.NotAllowed", "Operation is not allowed by this sender"));
++        return r;
++    }
++
++    r = dbus_message_new_error(m, "org.ofono.Error.NotImplemented", "Operation is not implemented");
+     return r;
+ }
+ 
+@@ -177,6 +276,8 @@ hf_audio_agent_data *hf_audio_agent_init(pa_core *c) {
+     pa_assert_se(dbus_connection_register_object_path(pa_dbus_connection_get(hfdata->connection), HF_AUDIO_AGENT_PATH,
+                                                       &vtable_hf_audio_agent, hfdata));
+ 
++    hf_audio_agent_register(hfdata);
++
+     return hfdata;
+ }
+ 
+@@ -205,6 +306,8 @@ void hf_audio_agent_done(hf_audio_agent_data *data) {
+         if (hfdata->filter_added)
+             dbus_connection_remove_filter(pa_dbus_connection_get(hfdata->connection), filter_cb, hfdata);
+ 
++        hf_audio_agent_unregister(hfdata);
++
+         dbus_connection_unregister_object_path(pa_dbus_connection_get(hfdata->connection), HF_AUDIO_AGENT_PATH);
+ 
+         pa_dbus_connection_unref(hfdata->connection);

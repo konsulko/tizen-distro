@@ -1,0 +1,61 @@
+From: Jaska Uimonen <jaska.uimonen@intel.com>
+Date: Thu, 8 Aug 2013 11:27:44 +0300
+Subject: cope with possible infinite waiting in startup - samsung
+
+Change-Id: Ie7c74131e267f44324f031a953c15f81b0c31a07
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/pulsecore/core-util.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/src/pulsecore/core-util.c b/src/pulsecore/core-util.c
+index 0d9e354..1256a1e 100644
+--- a/src/pulsecore/core-util.c
++++ b/src/pulsecore/core-util.c
+@@ -1698,6 +1698,7 @@ static char* make_random_dir(mode_t m) {
+     char *fn;
+     size_t pathlen;
+ 
++    srand (time(NULL));
+     fn = pa_sprintf_malloc("%s" PA_PATH_SEP "pulse-XXXXXXXXXXXX", pa_get_temp_dir());
+     pathlen = strlen(fn);
+ 
+@@ -1763,6 +1764,7 @@ static int make_random_dir_and_link(mode_t m, const char *k) {
+ char *pa_get_runtime_dir(void) {
+     char *d, *k = NULL, *p = NULL, *t = NULL, *mid;
+     mode_t m;
++    int retry_count = 100;
+ 
+     /* The runtime directory shall contain dynamic data that needs NOT
+      * to be kept across reboots and is usually private to the user,
+@@ -1823,6 +1825,21 @@ char *pa_get_runtime_dir(void) {
+     for (;;) {
+         /* OK, first let's check if the "runtime" symlink already exists */
+ 
++        /* FIXME: This is recovery routine for infinite waiting issue such as below situation.
++         * eg. 50f64052a5dbbe087c11dfac4effb63c-runtime -> /tmp/pulse-LDK8gTL6Dh9N
++               50f64052a5dbbe087c11dfac4effb63c-runtime.tmp -> /tmp/pulse-cDM1bQhObZ7O */
++        if (retry_count-- == 0) {
++            pa_log_error ("retry is over....do cleanup");
++
++            /* Remove original file */
++            unlink (k);
++
++            /* Remove original.tmp file */
++            t = pa_sprintf_malloc("%s.tmp", k);
++            unlink (t);
++            pa_xfree(t);
++            t = NULL;
++        }
+         p = pa_readlink(k);
+         if (!p) {
+ 
+@@ -3297,7 +3314,7 @@ const char *pa_get_temp_dir(void) {
+         pa_is_path_absolute(t))
+         return t;
+ 
+-    return "/tmp";
++    return "/tmp/pulseaudio";
+ }
+ 
+ int pa_open_cloexec(const char *fn, int flags, mode_t mode) {

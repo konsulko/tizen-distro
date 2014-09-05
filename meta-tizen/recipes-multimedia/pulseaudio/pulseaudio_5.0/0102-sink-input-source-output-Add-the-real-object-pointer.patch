@@ -1,0 +1,543 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Tue, 5 Aug 2014 12:01:54 +0300
+Subject: sink-input, source-output: Add the real object pointer to new_data
+
+module-volume-api needs the pointer already in the FIXATE hook, where
+it creates the volume control objects. The pointer is needed, because
+otherwise there's no way to correlate the created controls with the
+sink inputs and source outputs.
+
+Since the object is created early, pa_sink_input_new() and
+pa_source_output_new() need to free it in case of failure, so a bunch
+of direct returns were replaced with "goto fails".
+
+Since the object may now be unlinked in a completely uninitialized
+state, I reviewed the unlinking code, and made sure that unlinking is
+performed only once (the "unlinked" flag was needed for this).
+
+Change-Id: I89bee3fb51c54d270ccf856750c5b577babc7905
+---
+ src/pulsecore/sink-input.c    |  96 ++++++++++++++++++++++++++------------
+ src/pulsecore/sink-input.h    |   6 +++
+ src/pulsecore/source-output.c | 105 ++++++++++++++++++++++++++++++------------
+ src/pulsecore/source-output.h |   6 +++
+ 4 files changed, 155 insertions(+), 58 deletions(-)
+
+diff --git a/src/pulsecore/sink-input.c b/src/pulsecore/sink-input.c
+index 796a567..d419884 100644
+--- a/src/pulsecore/sink-input.c
++++ b/src/pulsecore/sink-input.c
+@@ -331,6 +331,9 @@ int pa_sink_input_new(
+     pa_assert(data);
+     pa_assert_ctl_context();
+ 
++    i = data->sink_input = pa_msgobject_new(pa_sink_input);
++    i->state = PA_SINK_INPUT_INIT;
++
+     if (data->client)
+         pa_proplist_update(data->proplist, PA_UPDATE_MERGE, data->client->proplist);
+ 
+@@ -348,22 +351,31 @@ int pa_sink_input_new(
+                                              !(data->flags & PA_SINK_INPUT_FIX_FORMAT),
+                                              !(data->flags & PA_SINK_INPUT_FIX_RATE),
+                                              !(data->flags & PA_SINK_INPUT_FIX_CHANNELS));
+-        if (!f)
+-            return -PA_ERR_INVALID;
++        if (!f) {
++            r = -PA_ERR_INVALID;
++            goto fail;
++        }
+ 
+         formats = pa_idxset_new(NULL, NULL);
+         pa_idxset_put(formats, f, NULL);
+         pa_sink_input_new_data_set_formats(data, formats);
+     }
+ 
+-    if ((r = pa_hook_fire(&core->hooks[PA_CORE_HOOK_SINK_INPUT_NEW], data)) < 0)
+-        return r;
++    pa_hook_fire(&core->hooks[PA_CORE_HOOK_SINK_INPUT_NEW], data);
+ 
+-    pa_return_val_if_fail(!data->driver || pa_utf8_valid(data->driver), -PA_ERR_INVALID);
++    if (data->driver && !pa_utf8_valid(data->driver)) {
++        r = -PA_ERR_INVALID;
++        goto fail;
++    }
+ 
+     if (!data->sink) {
+         pa_sink *sink = pa_namereg_get(core, NULL, PA_NAMEREG_SINK);
+-        pa_return_val_if_fail(sink, -PA_ERR_NOENTITY);
++
++        if (!sink) {
++            r = -PA_ERR_NOENTITY;
++            goto fail;
++        }
++
+         pa_sink_input_new_data_set_sink(data, sink, false);
+     }
+ 
+@@ -382,13 +394,20 @@ int pa_sink_input_new(
+         PA_IDXSET_FOREACH(format, data->req_formats, idx)
+             pa_log_info(" -- %s", pa_format_info_snprint(fmt, sizeof(fmt), format));
+ 
+-        return -PA_ERR_NOTSUPPORTED;
++        r = -PA_ERR_NOTSUPPORTED;
++        goto fail;
++    }
++
++    if (!PA_SINK_IS_LINKED(pa_sink_get_state(data->sink))) {
++        r = -PA_ERR_BADSTATE;
++        goto fail;
+     }
+ 
+-    pa_return_val_if_fail(PA_SINK_IS_LINKED(pa_sink_get_state(data->sink)), -PA_ERR_BADSTATE);
+-    pa_return_val_if_fail(!data->sync_base || (data->sync_base->sink == data->sink
+-                                               && pa_sink_input_get_state(data->sync_base) == PA_SINK_INPUT_CORKED),
+-                          -PA_ERR_INVALID);
++    if (data->sync_base
++            && !(data->sync_base->sink == data->sink && pa_sink_input_get_state(data->sync_base) == PA_SINK_INPUT_CORKED)) {
++        r = -PA_ERR_INVALID;
++        goto fail;
++    }
+ 
+     /* Routing is done. We have a sink and a format. */
+ 
+@@ -399,7 +418,7 @@ int pa_sink_input_new(
+          * modified in pa_format_info_to_sample_spec2(). */
+         r = pa_stream_get_volume_channel_map(&data->volume, data->channel_map_is_set ? &data->channel_map : NULL, data->format, &volume_map);
+         if (r < 0)
+-            return r;
++            goto fail;
+     }
+ 
+     /* Now populate the sample spec and channel map according to the final
+@@ -407,11 +426,11 @@ int pa_sink_input_new(
+     r = pa_format_info_to_sample_spec2(data->format, &data->sample_spec, &data->channel_map, &data->sink->sample_spec,
+                                        &data->sink->channel_map);
+     if (r < 0)
+-        return r;
++        goto fail;
+ 
+     r = check_passthrough_connection(pa_sink_input_new_data_is_passthrough(data), data->sink);
+     if (r != PA_OK)
+-        return r;
++        goto fail;
+ 
+     /* Now that the routing is done, we can finalize the volume if it has been
+      * set. If the set volume is relative, we convert it to absolute, and if
+@@ -453,16 +472,19 @@ int pa_sink_input_new(
+         /* rate update failed, or other parts of sample spec didn't match */
+ 
+         pa_log_debug("Could not update sink sample spec to match passthrough stream");
+-        return -PA_ERR_NOTSUPPORTED;
++        r = -PA_ERR_NOTSUPPORTED;
++        goto fail;
+     }
+ 
+     if (data->resample_method == PA_RESAMPLER_INVALID)
+         data->resample_method = core->resample_method;
+ 
+-    pa_return_val_if_fail(data->resample_method < PA_RESAMPLER_MAX, -PA_ERR_INVALID);
++    if (data->resample_method >= PA_RESAMPLER_MAX) {
++        r = -PA_ERR_INVALID;
++        goto fail;
++    }
+ 
+-    if ((r = pa_hook_fire(&core->hooks[PA_CORE_HOOK_SINK_INPUT_FIXATE], data)) < 0)
+-        return r;
++    pa_hook_fire(&core->hooks[PA_CORE_HOOK_SINK_INPUT_FIXATE], data);
+ 
+     if (!data->volume_is_set) {
+         pa_cvolume_reset(&v, data->sample_spec.channels);
+@@ -473,12 +495,14 @@ int pa_sink_input_new(
+     if ((data->flags & PA_SINK_INPUT_NO_CREATE_ON_SUSPEND) &&
+         pa_sink_get_state(data->sink) == PA_SINK_SUSPENDED) {
+         pa_log_warn("Failed to create sink input: sink is suspended.");
+-        return -PA_ERR_BADSTATE;
++        r = -PA_ERR_BADSTATE;
++        goto fail;
+     }
+ 
+     if (pa_idxset_size(data->sink->inputs) >= PA_MAX_INPUTS_PER_SINK) {
+         pa_log_warn("Failed to create sink input: too many inputs per sink.");
+-        return -PA_ERR_TOOLARGE;
++        r = -PA_ERR_TOOLARGE;
++        goto fail;
+     }
+ 
+     if ((data->flags & PA_SINK_INPUT_VARIABLE_RATE) ||
+@@ -497,16 +521,15 @@ int pa_sink_input_new(
+                           (core->disable_remixing || (data->flags & PA_SINK_INPUT_NO_REMIX) ? PA_RESAMPLER_NO_REMIX : 0) |
+                           (core->disable_lfe_remixing ? PA_RESAMPLER_NO_LFE : 0)))) {
+                 pa_log_warn("Unsupported resampling operation.");
+-                return -PA_ERR_NOTSUPPORTED;
++                r = -PA_ERR_NOTSUPPORTED;
++                goto fail;
+             }
+     }
+ 
+-    i = pa_msgobject_new(pa_sink_input);
+     i->parent.parent.free = sink_input_free;
+     i->parent.process_msg = pa_sink_input_process_msg;
+ 
+     i->core = core;
+-    i->state = PA_SINK_INPUT_INIT;
+     i->flags = data->flags;
+     i->proplist = pa_proplist_copy(data->proplist);
+     i->driver = pa_xstrdup(pa_path_get_filename(data->driver));
+@@ -610,6 +633,16 @@ int pa_sink_input_new(
+ 
+     *_i = i;
+     return 0;
++
++fail:
++    if (i) {
++        pa_sink_input_unlink(i);
++        pa_sink_input_unref(i);
++    }
++
++    data->sink_input = NULL;
++
++    return r;
+ }
+ 
+ /* Called from main context */
+@@ -683,6 +716,11 @@ void pa_sink_input_unlink(pa_sink_input *i) {
+     pa_assert(i);
+     pa_assert_ctl_context();
+ 
++    if (i->unlinked)
++        return;
++
++    i->unlinked = true;
++
+     /* See pa_sink_unlink() for a couple of comments how this function
+      * works */
+ 
+@@ -691,7 +729,9 @@ void pa_sink_input_unlink(pa_sink_input *i) {
+     linked = PA_SINK_INPUT_IS_LINKED(i->state);
+ 
+     if (linked)
+-        pa_hook_fire(&i->core->hooks[PA_CORE_HOOK_SINK_INPUT_UNLINK], i);
++        pa_idxset_remove_by_data(i->core->sink_inputs, i, NULL);
++
++    pa_hook_fire(&i->core->hooks[PA_CORE_HOOK_SINK_INPUT_UNLINK], i);
+ 
+     if (i->sync_prev)
+         i->sync_prev->sync_next = i->sync_next;
+@@ -700,8 +740,6 @@ void pa_sink_input_unlink(pa_sink_input *i) {
+ 
+     i->sync_prev = i->sync_next = NULL;
+ 
+-    pa_idxset_remove_by_data(i->core->sink_inputs, i, NULL);
+-
+     if (i->sink)
+         if (pa_idxset_remove_by_data(i->sink->inputs, i, NULL))
+             pa_sink_input_unref(i);
+@@ -732,10 +770,10 @@ void pa_sink_input_unlink(pa_sink_input *i) {
+ 
+     reset_callbacks(i);
+ 
+-    if (linked) {
++    if (linked)
+         pa_subscription_post(i->core, PA_SUBSCRIPTION_EVENT_SINK_INPUT|PA_SUBSCRIPTION_EVENT_REMOVE, i->index);
+-        pa_hook_fire(&i->core->hooks[PA_CORE_HOOK_SINK_INPUT_UNLINK_POST], i);
+-    }
++
++    pa_hook_fire(&i->core->hooks[PA_CORE_HOOK_SINK_INPUT_UNLINK_POST], i);
+ 
+     if (i->sink) {
+         if (PA_SINK_IS_LINKED(pa_sink_get_state(i->sink)))
+diff --git a/src/pulsecore/sink-input.h b/src/pulsecore/sink-input.h
+index b2d4967..a4c6519 100644
+--- a/src/pulsecore/sink-input.h
++++ b/src/pulsecore/sink-input.h
+@@ -76,6 +76,7 @@ struct pa_sink_input {
+      * pa_sink_input_get_state(). That function will transparently
+      * merge the thread_info.drained value in. */
+     pa_sink_input_state_t state;
++    bool unlinked;
+     pa_sink_input_flags_t flags;
+ 
+     char *driver;                       /* may be NULL */
+@@ -289,6 +290,11 @@ typedef struct pa_sink_input_send_event_hook_data {
+ } pa_sink_input_send_event_hook_data;
+ 
+ typedef struct pa_sink_input_new_data {
++    /* The sink input object is not properly initialized, so don't access the
++     * member variables! You can only rely on the state variable being
++     * initialized to PA_SINK_INPUT_INIT. */
++    pa_sink_input *sink_input;
++
+     pa_sink_input_flags_t flags;
+ 
+     pa_proplist *proplist;
+diff --git a/src/pulsecore/source-output.c b/src/pulsecore/source-output.c
+index c929999..60f3391 100644
+--- a/src/pulsecore/source-output.c
++++ b/src/pulsecore/source-output.c
+@@ -265,6 +265,9 @@ int pa_source_output_new(
+     pa_assert(data);
+     pa_assert_ctl_context();
+ 
++    o = data->source_output = pa_msgobject_new(pa_source_output);
++    o->state = PA_SOURCE_OUTPUT_INIT;
++
+     if (data->client)
+         pa_proplist_update(data->proplist, PA_UPDATE_MERGE, data->client->proplist);
+ 
+@@ -282,28 +285,38 @@ int pa_source_output_new(
+                                              !(data->flags & PA_SOURCE_OUTPUT_FIX_FORMAT),
+                                              !(data->flags & PA_SOURCE_OUTPUT_FIX_RATE),
+                                              !(data->flags & PA_SOURCE_OUTPUT_FIX_CHANNELS));
+-        if (!f)
+-            return -PA_ERR_INVALID;
++        if (!f) {
++            r = -PA_ERR_INVALID;
++            goto fail;
++        }
+ 
+         formats = pa_idxset_new(NULL, NULL);
+         pa_idxset_put(formats, f, NULL);
+         pa_source_output_new_data_set_formats(data, formats);
+     }
+ 
+-    if ((r = pa_hook_fire(&core->hooks[PA_CORE_HOOK_SOURCE_OUTPUT_NEW], data)) < 0)
+-        return r;
++    pa_hook_fire(&core->hooks[PA_CORE_HOOK_SOURCE_OUTPUT_NEW], data);
+ 
+-    pa_return_val_if_fail(!data->driver || pa_utf8_valid(data->driver), -PA_ERR_INVALID);
++    if (data->driver && !pa_utf8_valid(data->driver)) {
++        r = -PA_ERR_INVALID;
++        goto fail;
++    }
+ 
+     if (!data->source) {
+         pa_source *source;
+ 
+         if (data->direct_on_input) {
+             source = data->direct_on_input->sink->monitor_source;
+-            pa_return_val_if_fail(source, -PA_ERR_INVALID);
++            if (!source) {
++                r = -PA_ERR_INVALID;
++                goto fail;
++            }
+         } else {
+             source = pa_namereg_get(core, NULL, PA_NAMEREG_SOURCE);
+-            pa_return_val_if_fail(source, -PA_ERR_NOENTITY);
++            if (!source) {
++                r = -PA_ERR_NOENTITY;
++                goto fail;
++            }
+         }
+ 
+         pa_source_output_new_data_set_source(data, source, false);
+@@ -324,11 +337,19 @@ int pa_source_output_new(
+         PA_IDXSET_FOREACH(format, data->req_formats, idx)
+             pa_log_info(" -- %s", pa_format_info_snprint(fmt, sizeof(fmt), format));
+ 
+-        return -PA_ERR_NOTSUPPORTED;
++        r = -PA_ERR_NOTSUPPORTED;
++        goto fail;
+     }
+ 
+-    pa_return_val_if_fail(PA_SOURCE_IS_LINKED(pa_source_get_state(data->source)), -PA_ERR_BADSTATE);
+-    pa_return_val_if_fail(!data->direct_on_input || data->direct_on_input->sink == data->source->monitor_of, -PA_ERR_INVALID);
++    if (!PA_SOURCE_IS_LINKED(pa_source_get_state(data->source))) {
++        r = -PA_ERR_BADSTATE;
++        goto fail;
++    }
++
++    if (data->direct_on_input && data->direct_on_input->sink != data->source->monitor_of) {
++        r = -PA_ERR_INVALID;
++        goto fail;
++    }
+ 
+     /* Routing is done. We have a source and a format. */
+ 
+@@ -339,7 +360,7 @@ int pa_source_output_new(
+          * modified in pa_format_info_to_sample_spec2(). */
+         r = pa_stream_get_volume_channel_map(&data->volume, data->channel_map_is_set ? &data->channel_map : NULL, data->format, &volume_map);
+         if (r < 0)
+-            return r;
++            goto fail;
+     }
+ 
+     /* Now populate the sample spec and channel map according to the final
+@@ -347,7 +368,7 @@ int pa_source_output_new(
+     r = pa_format_info_to_sample_spec2(data->format, &data->sample_spec, &data->channel_map, &data->source->sample_spec,
+                                        &data->source->channel_map);
+     if (r < 0)
+-        return r;
++        goto fail;
+ 
+     /* Now that the routing is done, we can finalize the volume if it has been
+      * set. If the set volume is relative, we convert it to absolute, and if
+@@ -374,12 +395,18 @@ int pa_source_output_new(
+     if (!data->volume_factor_is_set)
+         pa_cvolume_reset(&data->volume_factor, data->sample_spec.channels);
+ 
+-    pa_return_val_if_fail(pa_cvolume_compatible(&data->volume_factor, &data->sample_spec), -PA_ERR_INVALID);
++    if (!pa_cvolume_compatible(&data->volume_factor, &data->sample_spec)) {
++        r = -PA_ERR_INVALID;
++        goto fail;
++    }
+ 
+     if (!data->volume_factor_source_is_set)
+         pa_cvolume_reset(&data->volume_factor_source, data->source->sample_spec.channels);
+ 
+-    pa_return_val_if_fail(pa_cvolume_compatible(&data->volume_factor_source, &data->source->sample_spec), -PA_ERR_INVALID);
++    if (!pa_cvolume_compatible(&data->volume_factor_source, &data->source->sample_spec)) {
++        r = -PA_ERR_INVALID;
++        goto fail;
++    }
+ 
+     if (!data->muted_is_set)
+         data->muted = false;
+@@ -399,16 +426,19 @@ int pa_source_output_new(
+         /* rate update failed, or other parts of sample spec didn't match */
+ 
+         pa_log_debug("Could not update source sample spec to match passthrough stream");
+-        return -PA_ERR_NOTSUPPORTED;
++        r = -PA_ERR_NOTSUPPORTED;
++        goto fail;
+     }
+ 
+     if (data->resample_method == PA_RESAMPLER_INVALID)
+         data->resample_method = core->resample_method;
+ 
+-    pa_return_val_if_fail(data->resample_method < PA_RESAMPLER_MAX, -PA_ERR_INVALID);
++    if (data->resample_method >= PA_RESAMPLER_MAX) {
++        r = -PA_ERR_INVALID;
++        goto fail;
++    }
+ 
+-    if ((r = pa_hook_fire(&core->hooks[PA_CORE_HOOK_SOURCE_OUTPUT_FIXATE], data)) < 0)
+-        return r;
++    pa_hook_fire(&core->hooks[PA_CORE_HOOK_SOURCE_OUTPUT_FIXATE], data);
+ 
+     if (!data->volume_is_set) {
+         pa_cvolume_reset(&v, data->sample_spec.channels);
+@@ -419,12 +449,14 @@ int pa_source_output_new(
+     if ((data->flags & PA_SOURCE_OUTPUT_NO_CREATE_ON_SUSPEND) &&
+         pa_source_get_state(data->source) == PA_SOURCE_SUSPENDED) {
+         pa_log("Failed to create source output: source is suspended.");
+-        return -PA_ERR_BADSTATE;
++        r = -PA_ERR_BADSTATE;
++        goto fail;
+     }
+ 
+     if (pa_idxset_size(data->source->outputs) >= PA_MAX_OUTPUTS_PER_SOURCE) {
+         pa_log("Failed to create source output: too many outputs per source.");
+-        return -PA_ERR_TOOLARGE;
++        r = -PA_ERR_TOOLARGE;
++        goto fail;
+     }
+ 
+     if ((data->flags & PA_SOURCE_OUTPUT_VARIABLE_RATE) ||
+@@ -442,16 +474,15 @@ int pa_source_output_new(
+                         (core->disable_remixing || (data->flags & PA_SOURCE_OUTPUT_NO_REMIX) ? PA_RESAMPLER_NO_REMIX : 0) |
+                         (core->disable_lfe_remixing ? PA_RESAMPLER_NO_LFE : 0)))) {
+                 pa_log_warn("Unsupported resampling operation.");
+-                return -PA_ERR_NOTSUPPORTED;
++                r = -PA_ERR_NOTSUPPORTED;
++                goto fail;
+             }
+     }
+ 
+-    o = pa_msgobject_new(pa_source_output);
+     o->parent.parent.free = source_output_free;
+     o->parent.process_msg = pa_source_output_process_msg;
+ 
+     o->core = core;
+-    o->state = PA_SOURCE_OUTPUT_INIT;
+     o->flags = data->flags;
+     o->proplist = pa_proplist_copy(data->proplist);
+     o->driver = pa_xstrdup(pa_path_get_filename(data->driver));
+@@ -526,6 +557,16 @@ int pa_source_output_new(
+ 
+     *_o = o;
+     return 0;
++
++fail:
++    if (o) {
++        pa_source_output_unlink(o);
++        pa_source_output_unref(o);
++    }
++
++    data->source_output = NULL;
++
++    return r;
+ }
+ 
+ /* Called from main context */
+@@ -576,9 +617,15 @@ static void source_output_set_state(pa_source_output *o, pa_source_output_state_
+ /* Called from main context */
+ void pa_source_output_unlink(pa_source_output*o) {
+     bool linked;
++
+     pa_assert(o);
+     pa_assert_ctl_context();
+ 
++    if (o->unlinked)
++        return;
++
++    o->unlinked = true;
++
+     /* See pa_sink_unlink() for a couple of comments how this function
+      * works */
+ 
+@@ -587,13 +634,13 @@ void pa_source_output_unlink(pa_source_output*o) {
+     linked = PA_SOURCE_OUTPUT_IS_LINKED(o->state);
+ 
+     if (linked)
+-        pa_hook_fire(&o->core->hooks[PA_CORE_HOOK_SOURCE_OUTPUT_UNLINK], o);
++        pa_idxset_remove_by_data(o->core->source_outputs, o, NULL);
++
++    pa_hook_fire(&o->core->hooks[PA_CORE_HOOK_SOURCE_OUTPUT_UNLINK], o);
+ 
+     if (o->direct_on_input)
+         pa_idxset_remove_by_data(o->direct_on_input->direct_outputs, o, NULL);
+ 
+-    pa_idxset_remove_by_data(o->core->source_outputs, o, NULL);
+-
+     if (o->source)
+         if (pa_idxset_remove_by_data(o->source->outputs, o, NULL))
+             pa_source_output_unref(o);
+@@ -618,10 +665,10 @@ void pa_source_output_unlink(pa_source_output*o) {
+ 
+     reset_callbacks(o);
+ 
+-    if (linked) {
++    if (linked)
+         pa_subscription_post(o->core, PA_SUBSCRIPTION_EVENT_SOURCE_OUTPUT|PA_SUBSCRIPTION_EVENT_REMOVE, o->index);
+-        pa_hook_fire(&o->core->hooks[PA_CORE_HOOK_SOURCE_OUTPUT_UNLINK_POST], o);
+-    }
++
++    pa_hook_fire(&o->core->hooks[PA_CORE_HOOK_SOURCE_OUTPUT_UNLINK_POST], o);
+ 
+     if (o->source) {
+         if (PA_SOURCE_IS_LINKED(pa_source_get_state(o->source)))
+diff --git a/src/pulsecore/source-output.h b/src/pulsecore/source-output.h
+index dc82af9..af6d347 100644
+--- a/src/pulsecore/source-output.h
++++ b/src/pulsecore/source-output.h
+@@ -69,6 +69,7 @@ struct pa_source_output {
+     pa_core *core;
+ 
+     pa_source_output_state_t state;
++    bool unlinked;
+     pa_source_output_flags_t flags;
+ 
+     char *driver;                         /* may be NULL */
+@@ -236,6 +237,11 @@ typedef struct pa_source_output_send_event_hook_data {
+ } pa_source_output_send_event_hook_data;
+ 
+ typedef struct pa_source_output_new_data {
++    /* The source output object is not properly initialized, so don't access
++     * the member variables! You can only rely on the state variable being
++     * initialized to PA_SOURCE_OUTPUT_INIT. */
++    pa_source_output *source_output;
++
+     pa_source_output_flags_t flags;
+ 
+     pa_proplist *proplist;

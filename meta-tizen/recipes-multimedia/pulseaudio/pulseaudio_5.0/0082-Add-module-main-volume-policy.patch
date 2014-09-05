@@ -1,0 +1,1404 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Wed, 21 May 2014 14:13:41 +0300
+Subject: Add module-main-volume-policy
+
+Change-Id: I787141b43cafb652aa752c64ae28b6b7aa052d8e
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ Makefile.am                                        |   3 +
+ src/Makefile.am                                    |  15 +
+ src/daemon/default.pa.in                           |   4 +
+ .../main-volume-policy/main-volume-context.c       | 325 ++++++++++++
+ .../main-volume-policy/main-volume-context.h       |  75 +++
+ .../main-volume-policy/main-volume-policy.c        | 213 ++++++++
+ .../main-volume-policy.conf.example                |  20 +
+ .../main-volume-policy/main-volume-policy.h        |  72 +++
+ .../main-volume-policy/module-main-volume-policy.c | 556 +++++++++++++++++++++
+ 9 files changed, 1283 insertions(+)
+ create mode 100644 src/modules/main-volume-policy/main-volume-context.c
+ create mode 100644 src/modules/main-volume-policy/main-volume-context.h
+ create mode 100644 src/modules/main-volume-policy/main-volume-policy.c
+ create mode 100644 src/modules/main-volume-policy/main-volume-policy.conf.example
+ create mode 100644 src/modules/main-volume-policy/main-volume-policy.h
+ create mode 100644 src/modules/main-volume-policy/module-main-volume-policy.c
+
+diff --git a/Makefile.am b/Makefile.am
+index cf4a648..646b7fc 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -61,6 +61,9 @@ moduledevinternaldir   = $(includedir)/pulsemodule/pulse
+ moduledevvolumeapi_DATA = src/modules/volume-api/*.h
+ moduledevvolumeapidir   = $(includedir)/pulsemodule/modules/volume-api
+ 
++moduledevmainvolumepolicy_DATA = src/modules/main-volume-policy/*.h
++moduledevmainvolumepolicydir   = $(includedir)/pulsemodule/modules/main-volume-policy
++
+ filterdir = /etc/pulse/filter
+ filter_DATA = filter/filter_44100_48000.dat \
+ 	      filter/filter_44100_8000.dat \
+diff --git a/src/Makefile.am b/src/Makefile.am
+index a6bb319..8fa60ec 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -1017,6 +1017,7 @@ libpulsecore_foreign_la_CFLAGS = $(AM_CFLAGS) $(FOREIGN_CFLAGS)
+ 
+ modlibexec_LTLIBRARIES = \
+ 		libcli.la \
++		libmain-volume-policy.la \
+ 		libprotocol-cli.la \
+ 		libprotocol-simple.la \
+ 		libprotocol-http.la \
+@@ -1051,6 +1052,12 @@ libcli_la_SOURCES = pulsecore/cli.c pulsecore/cli.h
+ libcli_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version
+ libcli_la_LIBADD = $(AM_LIBADD) libpulsecore-@PA_MAJORMINOR@.la libpulsecommon-@PA_MAJORMINOR@.la libpulse.la
+ 
++libmain_volume_policy_la_SOURCES = \
++		modules/main-volume-policy/main-volume-context.c modules/main-volume-policy/main-volume-context.h \
++		modules/main-volume-policy/main-volume-policy.c modules/main-volume-policy/main-volume-policy.h
++libmain_volume_policy_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version
++libmain_volume_policy_la_LIBADD = $(AM_LIBADD) libpulsecore-@PA_MAJORMINOR@.la libpulsecommon-@PA_MAJORMINOR@.la libpulse.la libvolume-api.la
++
+ libprotocol_cli_la_SOURCES = pulsecore/protocol-cli.c pulsecore/protocol-cli.h
+ libprotocol_cli_la_LDFLAGS = $(AM_LDFLAGS) -avoid-version
+ libprotocol_cli_la_LIBADD = $(AM_LIBADD) libpulsecore-@PA_MAJORMINOR@.la libpulsecommon-@PA_MAJORMINOR@.la libpulse.la libcli.la
+@@ -1133,6 +1140,7 @@ endif
+ modlibexec_LTLIBRARIES += \
+ 		module-cli.la \
+ 		module-cli-protocol-tcp.la \
++		module-main-volume-policy.la \
+ 		module-simple-protocol-tcp.la \
+ 		module-volume-api.la \
+ 		module-null-sink.la \
+@@ -1426,6 +1434,7 @@ SYMDEF_FILES = \
+ 		module-cli-symdef.h \
+ 		module-cli-protocol-tcp-symdef.h \
+ 		module-cli-protocol-unix-symdef.h \
++		module-main-volume-policy-symdef.h \
+ 		module-pipe-sink-symdef.h \
+ 		module-pipe-source-symdef.h \
+ 		module-simple-protocol-tcp-symdef.h \
+@@ -1575,6 +1584,12 @@ module_cli_protocol_unix_la_CFLAGS = -DUSE_UNIX_SOCKETS -DUSE_PROTOCOL_CLI $(AM_
+ module_cli_protocol_unix_la_LDFLAGS = $(MODULE_LDFLAGS)
+ module_cli_protocol_unix_la_LIBADD = $(MODULE_LIBADD) libprotocol-cli.la
+ 
++# Main volume and mute policy
++
++module_main_volume_policy_la_SOURCES = modules/main-volume-policy/module-main-volume-policy.c
++module_main_volume_policy_la_LDFLAGS = $(MODULE_LDFLAGS)
++module_main_volume_policy_la_LIBADD = $(MODULE_LIBADD) libmain-volume-policy.la libvolume-api.la
++
+ # HTTP protocol
+ 
+ module_http_protocol_tcp_la_SOURCES = modules/module-protocol-stub.c
+diff --git a/src/daemon/default.pa.in b/src/daemon/default.pa.in
+index 7cf52a4..f70804c 100755
+--- a/src/daemon/default.pa.in
++++ b/src/daemon/default.pa.in
+@@ -197,6 +197,10 @@ load-module module-volume-api
+ load-module module-audio-groups
+ .endif
+ 
++.ifexists module-main-volume-policy
++load-module module-main-volume-policy
++.endif
++
+ ### Make some devices default
+ #set-default-sink output
+ #set-default-source input
+diff --git a/src/modules/main-volume-policy/main-volume-context.c b/src/modules/main-volume-policy/main-volume-context.c
+new file mode 100644
+index 0000000..7ac35c6
+--- /dev/null
++++ b/src/modules/main-volume-policy/main-volume-context.c
+@@ -0,0 +1,325 @@
++/***
++  This file is part of PulseAudio.
++
++  Copyright 2014 Intel Corporation
++
++  PulseAudio is free software; you can redistribute it and/or modify
++  it under the terms of the GNU Lesser General Public License as published
++  by the Free Software Foundation; either version 2.1 of the License,
++  or (at your option) any later version.
++
++  PulseAudio is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with PulseAudio; if not, write to the Free Software
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++  USA.
++***/
++
++#ifdef HAVE_CONFIG_H
++#include <config.h>
++#endif
++
++#include "main-volume-context.h"
++
++#include <modules/volume-api/mute-control.h>
++#include <modules/volume-api/volume-control.h>
++
++int pa_main_volume_context_new(pa_main_volume_policy *policy, const char *name, const char *description,
++                               pa_main_volume_context **context) {
++    pa_main_volume_context *context_local;
++    int r;
++
++    pa_assert(policy);
++    pa_assert(name);
++    pa_assert(description);
++    pa_assert(context);
++
++    context_local = pa_xnew0(struct pa_main_volume_context, 1);
++    context_local->main_volume_policy = policy;
++    context_local->index = pa_main_volume_policy_allocate_main_volume_context_index(policy);
++
++    r = pa_main_volume_policy_register_name(policy, name, true, &context_local->name);
++    if (r < 0)
++        goto fail;
++
++    context_local->description = pa_xstrdup(description);
++
++    *context = context_local;
++
++    return 0;
++
++fail:
++    pa_main_volume_context_free(context_local);
++
++    return r;
++}
++
++void pa_main_volume_context_put(pa_main_volume_context *context) {
++    pa_assert(context);
++
++    pa_main_volume_policy_add_main_volume_context(context->main_volume_policy, context);
++
++    context->linked = true;
++
++    pa_log_debug("Created main volume context #%u.", context->index);
++    pa_log_debug("    Name: %s", context->name);
++    pa_log_debug("    Description: %s", context->description);
++    pa_log_debug("    Main output volume control: %s",
++                 context->main_output_volume_control ? context->main_output_volume_control->name : "(unset)");
++    pa_log_debug("    Main input volume control: %s",
++                 context->main_input_volume_control ? context->main_input_volume_control->name : "(unset)");
++    pa_log_debug("    Main output mute control: %s",
++                 context->main_output_mute_control ? context->main_output_mute_control->name : "(unset)");
++    pa_log_debug("    Main input mute control: %s",
++                 context->main_input_mute_control ? context->main_input_mute_control->name : "(unset)");
++
++    pa_hook_fire(&context->main_volume_policy->hooks[PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_PUT], context);
++}
++
++void pa_main_volume_context_unlink(pa_main_volume_context *context) {
++    pa_assert(context);
++
++    if (context->unlinked) {
++        pa_log_debug("Unlinking main volume context %s (already unlinked, this is a no-op).", context->name);
++        return;
++    }
++
++    context->unlinked = true;
++
++    pa_log_debug("Unlinking main volume context %s.", context->name);
++
++    if (context->linked)
++        pa_hook_fire(&context->main_volume_policy->hooks[PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_UNLINK], context);
++
++    if (context->main_input_mute_control_binding) {
++        pa_binding_free(context->main_input_mute_control_binding);
++        context->main_input_mute_control_binding = NULL;
++    }
++
++    if (context->main_output_mute_control_binding) {
++        pa_binding_free(context->main_output_mute_control_binding);
++        context->main_output_mute_control_binding = NULL;
++    }
++
++    if (context->main_input_volume_control_binding) {
++        pa_binding_free(context->main_input_volume_control_binding);
++        context->main_input_volume_control_binding = NULL;
++    }
++
++    if (context->main_output_volume_control_binding) {
++        pa_binding_free(context->main_output_volume_control_binding);
++        context->main_output_volume_control_binding = NULL;
++    }
++
++    context->main_input_mute_control = NULL;
++    context->main_output_mute_control = NULL;
++    context->main_input_volume_control = NULL;
++    context->main_output_volume_control = NULL;
++
++    pa_main_volume_policy_remove_main_volume_context(context->main_volume_policy, context);
++}
++
++void pa_main_volume_context_free(pa_main_volume_context *context) {
++    pa_assert(context);
++
++    if (!context->unlinked)
++        pa_main_volume_context_unlink(context);
++
++    pa_xfree(context->description);
++
++    if (context->name)
++        pa_main_volume_policy_unregister_name(context->main_volume_policy, context->name);
++
++    pa_xfree(context);
++}
++
++const char *pa_main_volume_context_get_name(pa_main_volume_context *context) {
++    pa_assert(context);
++
++    return context->name;
++}
++
++static void set_main_output_volume_control_internal(pa_main_volume_context *context, pa_volume_control *control) {
++    pa_volume_control *old_control;
++
++    pa_assert(context);
++
++    old_control = context->main_output_volume_control;
++
++    if (control == old_control)
++        return;
++
++    context->main_output_volume_control = control;
++
++    if (!context->linked || context->unlinked)
++        return;
++
++    pa_log_debug("The main output volume control of main volume context %s changed from %s to %s.", context->name,
++                 old_control ? old_control->name : "(unset)", control ? control->name : "(unset)");
++
++    pa_hook_fire(&context->main_volume_policy->hooks
++                     [PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_MAIN_OUTPUT_VOLUME_CONTROL_CHANGED],
++                 context);
++}
++
++void pa_main_volume_context_bind_main_output_volume_control(pa_main_volume_context *context,
++                                                            pa_binding_target_info *target_info) {
++    pa_binding_owner_info owner_info = {
++        .userdata = context,
++        .set_value = (pa_binding_set_value_cb_t) set_main_output_volume_control_internal,
++    };
++
++    pa_assert(context);
++    pa_assert(target_info);
++
++    if (context->main_output_volume_control_binding)
++        pa_binding_free(context->main_output_volume_control_binding);
++
++    context->main_output_volume_control_binding = pa_binding_new(context->main_volume_policy->volume_api, &owner_info,
++                                                                 target_info);
++}
++
++static void set_main_input_volume_control_internal(pa_main_volume_context *context, pa_volume_control *control) {
++    pa_volume_control *old_control;
++
++    pa_assert(context);
++
++    old_control = context->main_input_volume_control;
++
++    if (control == old_control)
++        return;
++
++    context->main_input_volume_control = control;
++
++    if (!context->linked || context->unlinked)
++        return;
++
++    pa_log_debug("The main input volume control of main volume context %s changed from %s to %s.", context->name,
++                 old_control ? old_control->name : "(unset)", control ? control->name : "(unset)");
++
++    pa_hook_fire(&context->main_volume_policy->hooks
++                     [PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_MAIN_INPUT_VOLUME_CONTROL_CHANGED],
++                 context);
++}
++
++void pa_main_volume_context_bind_main_input_volume_control(pa_main_volume_context *context,
++                                                           pa_binding_target_info *target_info) {
++    pa_binding_owner_info owner_info = {
++        .userdata = context,
++        .set_value = (pa_binding_set_value_cb_t) set_main_input_volume_control_internal,
++    };
++
++    pa_assert(context);
++    pa_assert(target_info);
++
++    if (context->main_input_volume_control_binding)
++        pa_binding_free(context->main_input_volume_control_binding);
++
++    context->main_input_volume_control_binding = pa_binding_new(context->main_volume_policy->volume_api, &owner_info,
++                                                                target_info);
++}
++
++static void set_main_output_mute_control_internal(pa_main_volume_context *context, pa_mute_control *control) {
++    pa_mute_control *old_control;
++
++    pa_assert(context);
++
++    old_control = context->main_output_mute_control;
++
++    if (control == old_control)
++        return;
++
++    context->main_output_mute_control = control;
++
++    if (!context->linked || context->unlinked)
++        return;
++
++    pa_log_debug("The main output mute control of main volume context %s changed from %s to %s.", context->name,
++                 old_control ? old_control->name : "(unset)", control ? control->name : "(unset)");
++
++    pa_hook_fire(&context->main_volume_policy->hooks
++                     [PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_MAIN_OUTPUT_MUTE_CONTROL_CHANGED],
++                 context);
++}
++
++void pa_main_volume_context_bind_main_output_mute_control(pa_main_volume_context *context,
++                                                          pa_binding_target_info *target_info) {
++    pa_binding_owner_info owner_info = {
++        .userdata = context,
++        .set_value = (pa_binding_set_value_cb_t) set_main_output_mute_control_internal,
++    };
++
++    pa_assert(context);
++    pa_assert(target_info);
++
++    if (context->main_output_mute_control_binding)
++        pa_binding_free(context->main_output_mute_control_binding);
++
++    context->main_output_mute_control_binding = pa_binding_new(context->main_volume_policy->volume_api, &owner_info,
++                                                               target_info);
++}
++
++static void set_main_input_mute_control_internal(pa_main_volume_context *context, pa_mute_control *control) {
++    pa_mute_control *old_control;
++
++    pa_assert(context);
++
++    old_control = context->main_input_mute_control;
++
++    if (control == old_control)
++        return;
++
++    context->main_input_mute_control = control;
++
++    if (!context->linked || context->unlinked)
++        return;
++
++    pa_log_debug("The main input mute control of main volume context %s changed from %s to %s.", context->name,
++                 old_control ? old_control->name : "(unset)", control ? control->name : "(unset)");
++
++    pa_hook_fire(&context->main_volume_policy->hooks
++                     [PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_MAIN_INPUT_MUTE_CONTROL_CHANGED],
++                 context);
++}
++
++void pa_main_volume_context_bind_main_input_mute_control(pa_main_volume_context *context,
++                                                         pa_binding_target_info *target_info) {
++    pa_binding_owner_info owner_info = {
++        .userdata = context,
++        .set_value = (pa_binding_set_value_cb_t) set_main_input_mute_control_internal,
++    };
++
++    pa_assert(context);
++    pa_assert(target_info);
++
++    if (context->main_input_mute_control_binding)
++        pa_binding_free(context->main_input_mute_control_binding);
++
++    context->main_input_mute_control_binding = pa_binding_new(context->main_volume_policy->volume_api, &owner_info,
++                                                              target_info);
++}
++
++pa_binding_target_type *pa_main_volume_context_create_binding_target_type(pa_main_volume_policy *policy) {
++    pa_binding_target_type *type;
++
++    pa_assert(policy);
++
++    type = pa_binding_target_type_new(PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_TYPE, policy->main_volume_contexts,
++                                      &policy->hooks[PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_PUT],
++                                      &policy->hooks[PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_UNLINK],
++                                      (pa_binding_target_type_get_name_cb_t) pa_main_volume_context_get_name);
++    pa_binding_target_type_add_field(type, PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_OUTPUT_VOLUME_CONTROL,
++                                     PA_BINDING_CALCULATE_FIELD_OFFSET(pa_main_volume_context, main_output_volume_control));
++    pa_binding_target_type_add_field(type, PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_INPUT_VOLUME_CONTROL,
++                                     PA_BINDING_CALCULATE_FIELD_OFFSET(pa_main_volume_context, main_input_volume_control));
++    pa_binding_target_type_add_field(type, PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_OUTPUT_MUTE_CONTROL,
++                                     PA_BINDING_CALCULATE_FIELD_OFFSET(pa_main_volume_context, main_output_mute_control));
++    pa_binding_target_type_add_field(type, PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_INPUT_MUTE_CONTROL,
++                                     PA_BINDING_CALCULATE_FIELD_OFFSET(pa_main_volume_context, main_input_mute_control));
++
++    return type;
++}
+diff --git a/src/modules/main-volume-policy/main-volume-context.h b/src/modules/main-volume-policy/main-volume-context.h
+new file mode 100644
+index 0000000..4a0a6f7
+--- /dev/null
++++ b/src/modules/main-volume-policy/main-volume-context.h
+@@ -0,0 +1,75 @@
++#ifndef foomainvolumecontexthfoo
++#define foomainvolumecontexthfoo
++
++/***
++  This file is part of PulseAudio.
++
++  Copyright 2014 Intel Corporation
++
++  PulseAudio is free software; you can redistribute it and/or modify
++  it under the terms of the GNU Lesser General Public License as published
++  by the Free Software Foundation; either version 2.1 of the License,
++  or (at your option) any later version.
++
++  PulseAudio is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with PulseAudio; if not, write to the Free Software
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++  USA.
++***/
++
++#include <modules/main-volume-policy/main-volume-policy.h>
++
++#include <modules/volume-api/binding.h>
++
++typedef struct pa_main_volume_context pa_main_volume_context;
++
++#define PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_TYPE "MainVolumeContext"
++#define PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_OUTPUT_VOLUME_CONTROL "main_output_volume_control"
++#define PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_INPUT_VOLUME_CONTROL "main_input_volume_control"
++#define PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_OUTPUT_MUTE_CONTROL "main_output_mute_control"
++#define PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_INPUT_MUTE_CONTROL "main_input_mute_control"
++
++struct pa_main_volume_context {
++    pa_main_volume_policy *main_volume_policy;
++    uint32_t index;
++    const char *name;
++    char *description;
++    pa_volume_control *main_output_volume_control;
++    pa_volume_control *main_input_volume_control;
++    pa_mute_control *main_output_mute_control;
++    pa_mute_control *main_input_mute_control;
++
++    pa_binding *main_output_volume_control_binding;
++    pa_binding *main_input_volume_control_binding;
++    pa_binding *main_output_mute_control_binding;
++    pa_binding *main_input_mute_control_binding;
++
++    bool linked;
++    bool unlinked;
++};
++
++int pa_main_volume_context_new(pa_main_volume_policy *policy, const char *name, const char *description,
++                               pa_main_volume_context **context);
++void pa_main_volume_context_put(pa_main_volume_context *context);
++void pa_main_volume_context_unlink(pa_main_volume_context *context);
++void pa_main_volume_context_free(pa_main_volume_context *context);
++
++const char *pa_main_volume_context_get_name(pa_main_volume_context *context);
++
++void pa_main_volume_context_bind_main_output_volume_control(pa_main_volume_context *context,
++                                                            pa_binding_target_info *target_info);
++void pa_main_volume_context_bind_main_input_volume_control(pa_main_volume_context *context,
++                                                           pa_binding_target_info *target_info);
++void pa_main_volume_context_bind_main_output_mute_control(pa_main_volume_context *context,
++                                                          pa_binding_target_info *target_info);
++void pa_main_volume_context_bind_main_input_mute_control(pa_main_volume_context *context, pa_binding_target_info *target_info);
++
++/* Called from main-volume-policy.c only. */
++pa_binding_target_type *pa_main_volume_context_create_binding_target_type(pa_main_volume_policy *policy);
++
++#endif
+diff --git a/src/modules/main-volume-policy/main-volume-policy.c b/src/modules/main-volume-policy/main-volume-policy.c
+new file mode 100644
+index 0000000..b0b4ede
+--- /dev/null
++++ b/src/modules/main-volume-policy/main-volume-policy.c
+@@ -0,0 +1,213 @@
++/***
++  This file is part of PulseAudio.
++
++  Copyright 2014 Intel Corporation
++
++  PulseAudio is free software; you can redistribute it and/or modify
++  it under the terms of the GNU Lesser General Public License as published
++  by the Free Software Foundation; either version 2.1 of the License,
++  or (at your option) any later version.
++
++  PulseAudio is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with PulseAudio; if not, write to the Free Software
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++  USA.
++***/
++
++#ifdef HAVE_CONFIG_H
++#include <config.h>
++#endif
++
++#include "main-volume-policy.h"
++
++#include <modules/main-volume-policy/main-volume-context.h>
++
++#include <pulsecore/core-util.h>
++#include <pulsecore/shared.h>
++
++static pa_main_volume_policy *main_volume_policy_new(pa_core *core);
++static void main_volume_policy_free(pa_main_volume_policy *policy);
++
++pa_main_volume_policy *pa_main_volume_policy_get(pa_core *core) {
++    pa_main_volume_policy *policy;
++
++    pa_assert(core);
++
++    policy = pa_shared_get(core, "main-volume-policy");
++
++    if (policy)
++        pa_main_volume_policy_ref(policy);
++    else {
++        policy = main_volume_policy_new(core);
++        pa_assert_se(pa_shared_set(core, "main-volume-policy", policy) >= 0);
++    }
++
++    return policy;
++}
++
++pa_main_volume_policy *pa_main_volume_policy_ref(pa_main_volume_policy *policy) {
++    pa_assert(policy);
++
++    policy->refcnt++;
++
++    return policy;
++}
++
++void pa_main_volume_policy_unref(pa_main_volume_policy *policy) {
++    pa_assert(policy);
++    pa_assert(policy->refcnt > 0);
++
++    policy->refcnt--;
++
++    if (policy->refcnt == 0) {
++        pa_assert_se(pa_shared_remove(policy->core, "main-volume-policy") >= 0);
++        main_volume_policy_free(policy);
++    }
++}
++
++static pa_main_volume_policy *main_volume_policy_new(pa_core *core) {
++    pa_main_volume_policy *policy;
++    unsigned i;
++
++    pa_assert(core);
++
++    policy = pa_xnew0(pa_main_volume_policy, 1);
++    policy->core = core;
++    policy->refcnt = 1;
++    policy->volume_api = pa_volume_api_get(core);
++    policy->names = pa_hashmap_new_full(pa_idxset_string_hash_func, pa_idxset_string_compare_func, NULL, pa_xfree);
++    policy->main_volume_contexts = pa_hashmap_new(pa_idxset_string_hash_func, pa_idxset_string_compare_func);
++
++    for (i = 0; i < PA_MAIN_VOLUME_POLICY_HOOK_MAX; i++)
++        pa_hook_init(&policy->hooks[i], policy);
++
++    policy->main_volume_context_binding_target_type = pa_main_volume_context_create_binding_target_type(policy);
++    pa_volume_api_add_binding_target_type(policy->volume_api, policy->main_volume_context_binding_target_type);
++
++    pa_log_debug("Created a pa_main_volume_policy object.");
++
++    return policy;
++}
++
++static void main_volume_policy_free(pa_main_volume_policy *policy) {
++    unsigned i;
++
++    pa_assert(policy);
++    pa_assert(policy->refcnt == 0);
++
++    pa_log_debug("Freeing the pa_main_volume_policy object.");
++
++    if (policy->main_volume_context_binding_target_type) {
++        pa_volume_api_remove_binding_target_type(policy->volume_api, policy->main_volume_context_binding_target_type);
++        pa_binding_target_type_free(policy->main_volume_context_binding_target_type);
++    }
++
++    for (i = 0; i < PA_MAIN_VOLUME_POLICY_HOOK_MAX; i++)
++        pa_hook_done(&policy->hooks[i]);
++
++    if (policy->main_volume_contexts) {
++        pa_assert(pa_hashmap_isempty(policy->main_volume_contexts));
++        pa_hashmap_free(policy->main_volume_contexts);
++    }
++
++    if (policy->names) {
++        pa_assert(pa_hashmap_isempty(policy->names));
++        pa_hashmap_free(policy->names);
++    }
++
++    if (policy->volume_api)
++        pa_volume_api_unref(policy->volume_api);
++
++    pa_xfree(policy);
++}
++
++int pa_main_volume_policy_register_name(pa_main_volume_policy *policy, const char *requested_name,
++                                        bool fail_if_already_registered, const char **registered_name) {
++    char *n;
++
++    pa_assert(policy);
++    pa_assert(requested_name);
++    pa_assert(registered_name);
++
++    n = pa_xstrdup(requested_name);
++
++    if (pa_hashmap_put(policy->names, n, n) < 0) {
++        unsigned i = 1;
++
++        pa_xfree(n);
++
++        if (fail_if_already_registered) {
++            pa_log("Name %s already registered.", requested_name);
++            return -PA_ERR_EXIST;
++        }
++
++        do {
++            i++;
++            n = pa_sprintf_malloc("%s.%u", requested_name, i);
++        } while (pa_hashmap_put(policy->names, n, n) < 0);
++    }
++
++    *registered_name = n;
++
++    return 0;
++}
++
++void pa_main_volume_policy_unregister_name(pa_main_volume_policy *policy, const char *name) {
++    pa_assert(policy);
++    pa_assert(name);
++
++    pa_assert_se(pa_hashmap_remove_and_free(policy->names, name) >= 0);
++}
++
++uint32_t pa_main_volume_policy_allocate_main_volume_context_index(pa_main_volume_policy *policy) {
++    uint32_t idx;
++
++    pa_assert(policy);
++
++    idx = policy->next_main_volume_context_index++;
++
++    return idx;
++}
++
++void pa_main_volume_policy_add_main_volume_context(pa_main_volume_policy *policy, pa_main_volume_context *context) {
++    pa_assert(policy);
++    pa_assert(context);
++
++    pa_assert_se(pa_hashmap_put(policy->main_volume_contexts, (void *) context->name, context) >= 0);
++}
++
++int pa_main_volume_policy_remove_main_volume_context(pa_main_volume_policy *policy, pa_main_volume_context *context) {
++    pa_assert(policy);
++    pa_assert(context);
++
++    if (!pa_hashmap_remove(policy->main_volume_contexts, context->name))
++        return -1;
++
++    if (context == policy->active_main_volume_context)
++        pa_main_volume_policy_set_active_main_volume_context(policy, NULL);
++
++    return 0;
++}
++
++void pa_main_volume_policy_set_active_main_volume_context(pa_main_volume_policy *policy, pa_main_volume_context *context) {
++    pa_main_volume_context *old_context;
++
++    pa_assert(policy);
++
++    old_context = policy->active_main_volume_context;
++
++    if (context == old_context)
++        return;
++
++    policy->active_main_volume_context = context;
++
++    pa_log_debug("The active main volume context changed from %s to %s.", old_context ? old_context->name : "(unset)",
++                 context ? context->name : "(unset)");
++
++    pa_hook_fire(&policy->hooks[PA_MAIN_VOLUME_POLICY_HOOK_ACTIVE_MAIN_VOLUME_CONTEXT_CHANGED], NULL);
++}
+diff --git a/src/modules/main-volume-policy/main-volume-policy.conf.example b/src/modules/main-volume-policy/main-volume-policy.conf.example
+new file mode 100644
+index 0000000..a4a35d3
+--- /dev/null
++++ b/src/modules/main-volume-policy/main-volume-policy.conf.example
+@@ -0,0 +1,20 @@
++[General]
++output-volume-model = by-active-main-volume-context
++input-volume-model = by-active-main-volume-context
++output-mute-model = none
++input-mute-model = none
++main-volume-contexts = x-example-call-main-volume-context x-example-default-main-volume-context
++
++[MainVolumeContext x-example-call-main-volume-context]
++description = Call main volume context
++main-output-volume-control = bind:AudioGroup:x-example-call-downlink-audio-group
++main-input-volume-control = bind:AudioGroup:x-example-call-uplink-audio-group
++main-output-mute-control = none
++main-input-mute-control = none
++
++[MainVolumeContext x-example-default-main-volume-context]
++description = Default main volume context
++main-output-volume-control = bind:AudioGroup:x-example-default-output-audio-group
++main-input-volume-control = bind:AudioGroup:x-example-default-input-audio-group
++main-output-mute-control = none
++main-input-mute-control = none
+diff --git a/src/modules/main-volume-policy/main-volume-policy.h b/src/modules/main-volume-policy/main-volume-policy.h
+new file mode 100644
+index 0000000..5cd669e
+--- /dev/null
++++ b/src/modules/main-volume-policy/main-volume-policy.h
+@@ -0,0 +1,72 @@
++#ifndef foomainvolumepolicyhfoo
++#define foomainvolumepolicyhfoo
++
++/***
++  This file is part of PulseAudio.
++
++  Copyright 2014 Intel Corporation
++
++  PulseAudio is free software; you can redistribute it and/or modify
++  it under the terms of the GNU Lesser General Public License as published
++  by the Free Software Foundation; either version 2.1 of the License,
++  or (at your option) any later version.
++
++  PulseAudio is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with PulseAudio; if not, write to the Free Software
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++  USA.
++***/
++
++#include <modules/volume-api/binding.h>
++#include <modules/volume-api/volume-api.h>
++
++#include <pulsecore/core.h>
++
++typedef struct pa_main_volume_policy pa_main_volume_policy;
++
++/* Avoid circular dependencies... */
++typedef struct pa_main_volume_context pa_main_volume_context;
++
++enum {
++    PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_PUT,
++    PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_UNLINK,
++    PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_MAIN_OUTPUT_VOLUME_CONTROL_CHANGED,
++    PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_MAIN_INPUT_VOLUME_CONTROL_CHANGED,
++    PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_MAIN_OUTPUT_MUTE_CONTROL_CHANGED,
++    PA_MAIN_VOLUME_POLICY_HOOK_MAIN_VOLUME_CONTEXT_MAIN_INPUT_MUTE_CONTROL_CHANGED,
++    PA_MAIN_VOLUME_POLICY_HOOK_ACTIVE_MAIN_VOLUME_CONTEXT_CHANGED,
++    PA_MAIN_VOLUME_POLICY_HOOK_MAX,
++};
++
++struct pa_main_volume_policy {
++    pa_core *core;
++    unsigned refcnt;
++    pa_volume_api *volume_api;
++    pa_hashmap *names; /* object name -> object name (hashmap-as-a-set) */
++    pa_hashmap *main_volume_contexts; /* name -> pa_main_volume_context */
++    pa_main_volume_context *active_main_volume_context;
++
++    uint32_t next_main_volume_context_index;
++    pa_hook hooks[PA_MAIN_VOLUME_POLICY_HOOK_MAX];
++    pa_binding_target_type *main_volume_context_binding_target_type;
++};
++
++pa_main_volume_policy *pa_main_volume_policy_get(pa_core *core);
++pa_main_volume_policy *pa_main_volume_policy_ref(pa_main_volume_policy *policy);
++void pa_main_volume_policy_unref(pa_main_volume_policy *policy);
++
++int pa_main_volume_policy_register_name(pa_main_volume_policy *policy, const char *requested_name,
++                                        bool fail_if_already_registered, const char **registered_name);
++void pa_main_volume_policy_unregister_name(pa_main_volume_policy *policy, const char *name);
++
++uint32_t pa_main_volume_policy_allocate_main_volume_context_index(pa_main_volume_policy *policy);
++void pa_main_volume_policy_add_main_volume_context(pa_main_volume_policy *policy, pa_main_volume_context *context);
++int pa_main_volume_policy_remove_main_volume_context(pa_main_volume_policy *policy, pa_main_volume_context *context);
++void pa_main_volume_policy_set_active_main_volume_context(pa_main_volume_policy *policy, pa_main_volume_context *context);
++
++#endif
+diff --git a/src/modules/main-volume-policy/module-main-volume-policy.c b/src/modules/main-volume-policy/module-main-volume-policy.c
+new file mode 100644
+index 0000000..a14699d
+--- /dev/null
++++ b/src/modules/main-volume-policy/module-main-volume-policy.c
+@@ -0,0 +1,556 @@
++/***
++  This file is part of PulseAudio.
++
++  Copyright 2014 Intel Corporation
++
++  PulseAudio is free software; you can redistribute it and/or modify
++  it under the terms of the GNU Lesser General Public License as published
++  by the Free Software Foundation; either version 2.1 of the License,
++  or (at your option) any later version.
++
++  PulseAudio is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with PulseAudio; if not, write to the Free Software
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++  USA.
++***/
++
++#ifdef HAVE_CONFIG_H
++#include <config.h>
++#endif
++
++#include "module-main-volume-policy-symdef.h"
++
++#include <modules/main-volume-policy/main-volume-context.h>
++
++#include <modules/volume-api/binding.h>
++#include <modules/volume-api/volume-api.h>
++
++#include <pulse/direction.h>
++
++#include <pulsecore/conf-parser.h>
++#include <pulsecore/core-util.h>
++#include <pulsecore/i18n.h>
++
++PA_MODULE_AUTHOR("Tanu Kaskinen");
++PA_MODULE_DESCRIPTION(_("Main volume and mute policy"));
++PA_MODULE_VERSION(PACKAGE_VERSION);
++PA_MODULE_LOAD_ONCE(true);
++
++enum control_type {
++    CONTROL_TYPE_VOLUME,
++    CONTROL_TYPE_MUTE,
++};
++
++enum model {
++    MODEL_NONE,
++    MODEL_BY_ACTIVE_MAIN_VOLUME_CONTEXT,
++};
++
++struct userdata {
++    pa_main_volume_policy *main_volume_policy;
++    enum model output_volume_model;
++    enum model input_volume_model;
++    enum model output_mute_model;
++    enum model input_mute_model;
++    pa_hashmap *contexts; /* name -> struct context */
++
++    pa_hook_slot *active_main_volume_context_changed_slot;
++
++    /* The following fields are only used during initialization. */
++    pa_hashmap *context_names; /* name -> name (hashmap-as-a-set) */
++    pa_hashmap *unused_contexts; /* name -> struct context */
++};
++
++struct context {
++    struct userdata *userdata;
++    char *name;
++    char *description;
++    pa_binding_target_info *main_output_volume_control_target_info;
++    pa_binding_target_info *main_input_volume_control_target_info;
++    pa_binding_target_info *main_output_mute_control_target_info;
++    pa_binding_target_info *main_input_mute_control_target_info;
++    pa_main_volume_context *main_volume_context;
++
++    bool unlinked;
++};
++
++static void context_unlink(struct context *context);
++
++static const char *model_to_string(enum model model) {
++    switch (model) {
++        case MODEL_NONE:
++            return "none";
++
++        case MODEL_BY_ACTIVE_MAIN_VOLUME_CONTEXT:
++            return "by-active-main-volume-context";
++    }
++
++    pa_assert_not_reached();
++}
++
++static int model_from_string(const char *str, enum model *model) {
++    pa_assert(str);
++    pa_assert(model);
++
++    if (pa_streq(str, "none"))
++        *model = MODEL_NONE;
++    else if (pa_streq(str, "by-active-main-volume-context"))
++        *model = MODEL_BY_ACTIVE_MAIN_VOLUME_CONTEXT;
++    else
++        return -PA_ERR_INVALID;
++
++    return 0;
++}
++
++static struct context *context_new(struct userdata *u, const char *name) {
++    struct context *context;
++
++    pa_assert(u);
++    pa_assert(name);
++
++    context = pa_xnew0(struct context, 1);
++    context->userdata = u;
++    context->name = pa_xstrdup(name);
++    context->description = pa_xstrdup(name);
++
++    return context;
++}
++
++static int context_put(struct context *context) {
++    int r;
++
++    pa_assert(context);
++
++    r = pa_main_volume_context_new(context->userdata->main_volume_policy, context->name, context->description,
++                                   &context->main_volume_context);
++    if (r < 0)
++        goto fail;
++
++    if (context->main_output_volume_control_target_info)
++        pa_main_volume_context_bind_main_output_volume_control(context->main_volume_context,
++                                                               context->main_output_volume_control_target_info);
++
++    if (context->main_input_volume_control_target_info)
++        pa_main_volume_context_bind_main_input_volume_control(context->main_volume_context,
++                                                              context->main_input_volume_control_target_info);
++
++    if (context->main_output_mute_control_target_info)
++        pa_main_volume_context_bind_main_output_mute_control(context->main_volume_context,
++                                                             context->main_output_mute_control_target_info);
++
++    if (context->main_input_mute_control_target_info)
++        pa_main_volume_context_bind_main_input_mute_control(context->main_volume_context,
++                                                            context->main_input_mute_control_target_info);
++
++    pa_main_volume_context_put(context->main_volume_context);
++
++    return 0;
++
++fail:
++    context_unlink(context);
++
++    return r;
++}
++
++static void context_unlink(struct context *context) {
++    pa_assert(context);
++
++    if (context->unlinked)
++        return;
++
++    context->unlinked = true;
++
++    if (context->main_volume_context) {
++        pa_main_volume_context_free(context->main_volume_context);
++        context->main_volume_context = NULL;
++    }
++}
++
++static void context_free(struct context *context) {
++    pa_assert(context);
++
++    if (!context->unlinked)
++        context_unlink(context);
++
++    if (context->main_input_mute_control_target_info)
++        pa_binding_target_info_free(context->main_input_mute_control_target_info);
++
++    if (context->main_output_mute_control_target_info)
++        pa_binding_target_info_free(context->main_output_mute_control_target_info);
++
++    if (context->main_input_volume_control_target_info)
++        pa_binding_target_info_free(context->main_input_volume_control_target_info);
++
++    if (context->main_output_volume_control_target_info)
++        pa_binding_target_info_free(context->main_output_volume_control_target_info);
++
++    pa_xfree(context->description);
++    pa_xfree(context->name);
++    pa_xfree(context);
++}
++
++static void context_set_description(struct context *context, const char *description) {
++    pa_assert(context);
++    pa_assert(description);
++
++    pa_xfree(context->description);
++    context->description = pa_xstrdup(description);
++}
++
++static void context_set_main_control_target_info(struct context *context, enum control_type type, pa_direction_t direction,
++                                                 pa_binding_target_info *info) {
++    pa_assert(context);
++
++    switch (type) {
++        case CONTROL_TYPE_VOLUME:
++            if (direction == PA_DIRECTION_OUTPUT) {
++                if (context->main_output_volume_control_target_info)
++                    pa_binding_target_info_free(context->main_output_volume_control_target_info);
++
++                if (info)
++                    context->main_output_volume_control_target_info = pa_binding_target_info_copy(info);
++                else
++                    context->main_output_volume_control_target_info = NULL;
++            } else {
++                if (context->main_input_volume_control_target_info)
++                    pa_binding_target_info_free(context->main_input_volume_control_target_info);
++
++                if (info)
++                    context->main_input_volume_control_target_info = pa_binding_target_info_copy(info);
++                else
++                    context->main_input_volume_control_target_info = NULL;
++            }
++            break;
++
++        case CONTROL_TYPE_MUTE:
++            if (direction == PA_DIRECTION_OUTPUT) {
++                if (context->main_output_mute_control_target_info)
++                    pa_binding_target_info_free(context->main_output_mute_control_target_info);
++
++                if (info)
++                    context->main_output_mute_control_target_info = pa_binding_target_info_copy(info);
++                else
++                    context->main_output_mute_control_target_info = NULL;
++            } else {
++                if (context->main_input_mute_control_target_info)
++                    pa_binding_target_info_free(context->main_input_mute_control_target_info);
++
++                if (info)
++                    context->main_input_mute_control_target_info = pa_binding_target_info_copy(info);
++                else
++                    context->main_input_mute_control_target_info = NULL;
++            }
++            break;
++    }
++}
++
++static pa_hook_result_t active_main_volume_context_changed_cb(void *hook_data, void *call_data, void *userdata) {
++    struct userdata *u = userdata;
++    pa_main_volume_context *context;
++    pa_volume_api *api;
++    pa_binding_target_info *info = NULL;
++
++    pa_assert(u);
++
++    context = u->main_volume_policy->active_main_volume_context;
++    api = u->main_volume_policy->volume_api;
++
++    if (u->output_volume_model == MODEL_BY_ACTIVE_MAIN_VOLUME_CONTEXT) {
++        if (context) {
++            info = pa_binding_target_info_new(PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_TYPE, context->name,
++                                              PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_OUTPUT_VOLUME_CONTROL);
++            pa_volume_api_bind_main_output_volume_control(api, info);
++        } else
++            pa_volume_api_set_main_output_volume_control(api, NULL);
++    }
++
++    if (u->input_volume_model == MODEL_BY_ACTIVE_MAIN_VOLUME_CONTEXT) {
++        if (context) {
++            info = pa_binding_target_info_new(PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_TYPE, context->name,
++                                              PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_INPUT_VOLUME_CONTROL);
++            pa_volume_api_bind_main_input_volume_control(api, info);
++        } else
++            pa_volume_api_set_main_input_volume_control(api, NULL);
++    }
++
++    if (u->output_mute_model == MODEL_BY_ACTIVE_MAIN_VOLUME_CONTEXT) {
++        if (context) {
++            info = pa_binding_target_info_new(PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_TYPE, context->name,
++                                              PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_OUTPUT_MUTE_CONTROL);
++            pa_volume_api_bind_main_output_mute_control(api, info);
++        } else
++            pa_volume_api_set_main_output_mute_control(api, NULL);
++    }
++
++    if (u->input_mute_model == MODEL_BY_ACTIVE_MAIN_VOLUME_CONTEXT) {
++        if (context) {
++            info = pa_binding_target_info_new(PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_TYPE, context->name,
++                                              PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_INPUT_MUTE_CONTROL);
++            pa_volume_api_bind_main_input_mute_control(api, info);
++        } else
++            pa_volume_api_set_main_input_mute_control(api, NULL);
++    }
++
++    if (info)
++        pa_binding_target_info_free(info);
++
++    return PA_HOOK_OK;
++}
++
++static int parse_model(pa_config_parser_state *state) {
++    int r;
++
++    pa_assert(state);
++
++    r = model_from_string(state->rvalue, state->data);
++    if (r < 0)
++        pa_log("[%s:%u] Failed to parse model: %s", state->filename, state->lineno, state->rvalue);
++
++    return r;
++}
++
++static int parse_main_volume_contexts(pa_config_parser_state *state) {
++    struct userdata *u;
++    char *name;
++    const char *split_state = NULL;
++
++    pa_assert(state);
++
++    u = state->userdata;
++
++    while ((name = pa_split_spaces(state->rvalue, &split_state)))
++        pa_hashmap_put(u->context_names, name, name);
++
++    return 0;
++}
++
++static struct context *get_context(struct userdata *u, const char *section) {
++    const char *name;
++    struct context *context;
++
++    pa_assert(u);
++
++    if (!section)
++        return NULL;
++
++    if (!pa_startswith(section, "MainVolumeContext "))
++        return NULL;
++
++    name = section + 18;
++
++    context = pa_hashmap_get(u->unused_contexts, name);
++    if (!context) {
++        context = context_new(u, name);
++        pa_hashmap_put(u->unused_contexts, context->name, context);
++    }
++
++    return context;
++}
++
++static int parse_description(pa_config_parser_state *state) {
++    struct userdata *u;
++    struct context *context;
++
++    pa_assert(state);
++
++    u = state->userdata;
++
++    context = get_context(u, state->section);
++    if (!context) {
++        pa_log("[%s:%u] Key \"%s\" not expected in section %s.", state->filename, state->lineno, state->lvalue,
++               pa_strnull(state->section));
++        return -PA_ERR_INVALID;
++    }
++
++    context_set_description(context, state->rvalue);
++
++    return 0;
++}
++
++static const char *get_target_field_name(enum control_type type) {
++    switch (type) {
++        case CONTROL_TYPE_VOLUME:
++            return "volume_control";
++
++        case CONTROL_TYPE_MUTE:
++            return "mute_control";
++    }
++
++    pa_assert_not_reached();
++}
++
++static int parse_main_control(pa_config_parser_state *state, enum control_type type, pa_direction_t direction) {
++    struct userdata *u;
++    struct context *context;
++
++    pa_assert(state);
++
++    u = state->userdata;
++
++    context = get_context(u, state->section);
++    if (!context) {
++        pa_log("[%s:%u] Key \"%s\" not expected in section %s.", state->filename, state->lineno, state->lvalue,
++               pa_strnull(state->section));
++        return -PA_ERR_INVALID;
++    }
++
++    if (pa_streq(state->rvalue, "none"))
++        context_set_main_control_target_info(context, type, direction, NULL);
++    else if (pa_startswith(state->rvalue, "bind:")) {
++        int r;
++        pa_binding_target_info *info;
++
++        r = pa_binding_target_info_new_from_string(state->rvalue, get_target_field_name(type), &info);
++        if (r < 0) {
++            pa_log("[%s:%u] Failed to parse binding target \"%s\".", state->filename, state->lineno, state->rvalue);
++            return r;
++        }
++
++        context_set_main_control_target_info(context, type, direction, info);
++        pa_binding_target_info_free(info);
++    } else {
++        pa_log("[%s:%u] Failed to parse value \"%s\".", state->filename, state->lineno, state->rvalue);
++        return -PA_ERR_INVALID;
++    }
++
++    return 0;
++}
++
++static int parse_main_output_volume_control(pa_config_parser_state *state) {
++    pa_assert(state);
++
++    return parse_main_control(state, CONTROL_TYPE_VOLUME, PA_DIRECTION_OUTPUT);
++}
++
++static int parse_main_input_volume_control(pa_config_parser_state *state) {
++    pa_assert(state);
++
++    return parse_main_control(state, CONTROL_TYPE_VOLUME, PA_DIRECTION_INPUT);
++}
++
++static int parse_main_output_mute_control(pa_config_parser_state *state) {
++    pa_assert(state);
++
++    return parse_main_control(state, CONTROL_TYPE_MUTE, PA_DIRECTION_OUTPUT);
++}
++
++static int parse_main_input_mute_control(pa_config_parser_state *state) {
++    pa_assert(state);
++
++    return parse_main_control(state, CONTROL_TYPE_MUTE, PA_DIRECTION_INPUT);
++}
++
++static void finalize_config(struct userdata *u) {
++    const char *context_name;
++    void *state;
++    struct context *context;
++
++    pa_assert(u);
++
++    PA_HASHMAP_FOREACH(context_name, u->context_names, state) {
++        int r;
++
++        context = pa_hashmap_remove(u->unused_contexts, context_name);
++        if (!context)
++            context = context_new(u, context_name);
++
++        r = context_put(context);
++        if (r < 0) {
++            pa_log_warn("Failed to create main volume context %s.", context_name);
++            context_free(context);
++            continue;
++        }
++
++        pa_assert_se(pa_hashmap_put(u->contexts, context->name, context) >= 0);
++    }
++
++    PA_HASHMAP_FOREACH(context, u->unused_contexts, state)
++        pa_log_debug("Main volume context %s is not used.", context->name);
++
++    pa_hashmap_free(u->unused_contexts);
++    u->unused_contexts = NULL;
++
++    pa_hashmap_free(u->context_names);
++    u->context_names = NULL;
++}
++
++int pa__init(pa_module *module) {
++    struct userdata *u;
++    FILE *f;
++    char *fn = NULL;
++
++    pa_assert(module);
++
++    u = module->userdata = pa_xnew0(struct userdata, 1);
++    u->main_volume_policy = pa_main_volume_policy_get(module->core);
++    u->output_volume_model = MODEL_NONE;
++    u->input_volume_model = MODEL_NONE;
++    u->output_mute_model = MODEL_NONE;
++    u->input_mute_model = MODEL_NONE;
++    u->contexts = pa_hashmap_new_full(pa_idxset_string_hash_func, pa_idxset_string_compare_func, NULL,
++                                      (pa_free_cb_t) context_free);
++    u->active_main_volume_context_changed_slot =
++            pa_hook_connect(&u->main_volume_policy->hooks[PA_MAIN_VOLUME_POLICY_HOOK_ACTIVE_MAIN_VOLUME_CONTEXT_CHANGED],
++                            PA_HOOK_NORMAL, active_main_volume_context_changed_cb, u);
++    u->context_names = pa_hashmap_new_full(pa_idxset_string_hash_func, pa_idxset_string_compare_func, NULL, pa_xfree);
++    u->unused_contexts = pa_hashmap_new_full(pa_idxset_string_hash_func, pa_idxset_string_compare_func, NULL,
++                                             (pa_free_cb_t) context_free);
++
++    f = pa_open_config_file(PA_DEFAULT_CONFIG_DIR PA_PATH_SEP "main-volume-policy.conf", "main-volume-policy.conf", NULL, &fn);
++    if (f) {
++        pa_config_item config_items[] = {
++            { "output-volume-model", parse_model, &u->output_volume_model, "General" },
++            { "input-volume-model", parse_model, &u->input_volume_model, "General" },
++            { "output-mute-model", parse_model, &u->output_mute_model, "General" },
++            { "input-mute-model", parse_model, &u->input_mute_model, "General" },
++            { "main-volume-contexts", parse_main_volume_contexts, NULL, "General" },
++            { "description", parse_description, NULL, NULL },
++            { "main-output-volume-control", parse_main_output_volume_control, NULL, NULL },
++            { "main-input-volume-control", parse_main_input_volume_control, NULL, NULL },
++            { "main-output-mute-control", parse_main_output_mute_control, NULL, NULL },
++            { "main-input-mute-control", parse_main_input_mute_control, NULL, NULL },
++            { NULL },
++        };
++
++        pa_config_parse(fn, f, config_items, NULL, u);
++        pa_xfree(fn);
++        fn = NULL;
++        fclose(f);
++        f = NULL;
++    }
++
++    finalize_config(u);
++
++    pa_log_debug("Output volume model: %s", model_to_string(u->output_volume_model));
++    pa_log_debug("Input volume model: %s", model_to_string(u->input_volume_model));
++    pa_log_debug("Output mute model: %s", model_to_string(u->output_mute_model));
++    pa_log_debug("Input mute model: %s", model_to_string(u->input_mute_model));
++
++    return 0;
++}
++
++void pa__done(pa_module *module) {
++    struct userdata *u;
++
++    pa_assert(module);
++
++    u = module->userdata;
++    if (!u)
++        return;
++
++    if (u->active_main_volume_context_changed_slot)
++        pa_hook_slot_free(u->active_main_volume_context_changed_slot);
++
++    if (u->contexts)
++        pa_hashmap_free(u->contexts);
++
++    if (u->main_volume_policy)
++        pa_main_volume_policy_unref(u->main_volume_policy);
++
++    pa_xfree(u);
++}

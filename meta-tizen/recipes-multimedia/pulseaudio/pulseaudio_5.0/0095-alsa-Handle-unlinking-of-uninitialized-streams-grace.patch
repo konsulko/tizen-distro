@@ -1,0 +1,42 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Mon, 4 Aug 2014 15:33:01 +0300
+Subject: alsa: Handle unlinking of uninitialized streams gracefully
+
+There should be no assumptions about what has been initialized when
+the unlink hook is fired.
+
+Change-Id: I7502f0e7a3d244413dd806bc8657014999c9b9b3
+---
+ src/modules/alsa/module-alsa-card.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/src/modules/alsa/module-alsa-card.c b/src/modules/alsa/module-alsa-card.c
+index 1e63230..7c408ee 100644
+--- a/src/modules/alsa/module-alsa-card.c
++++ b/src/modules/alsa/module-alsa-card.c
+@@ -579,7 +579,11 @@ static pa_hook_result_t sink_input_unlink_hook_callback(pa_core *c, pa_sink_inpu
+     const char *role;
+     pa_sink *sink = sink_input->sink;
+ 
+-    pa_assert(sink);
++    if (!sink)
++        return PA_HOOK_OK;
++
++    if (!sink_input->proplist)
++        return PA_HOOK_OK;
+ 
+     role = pa_proplist_gets(sink_input->proplist, PA_PROP_MEDIA_ROLE);
+ 
+@@ -594,7 +598,11 @@ static pa_hook_result_t source_output_unlink_hook_callback(pa_core *c, pa_source
+     const char *role;
+     pa_source *source = source_output->source;
+ 
+-    pa_assert(source);
++    if (!source)
++        return PA_HOOK_OK;
++
++    if (!source_output->proplist)
++        return PA_HOOK_OK;
+ 
+     role = pa_proplist_gets(source_output->proplist, PA_PROP_MEDIA_ROLE);
+ 

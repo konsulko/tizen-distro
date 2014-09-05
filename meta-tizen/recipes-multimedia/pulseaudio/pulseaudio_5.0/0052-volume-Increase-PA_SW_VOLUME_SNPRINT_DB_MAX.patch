@@ -1,0 +1,26 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Sun, 9 Mar 2014 10:50:23 +0200
+Subject: volume: Increase PA_SW_VOLUME_SNPRINT_DB_MAX
+
+10 bytes isn't enough for "-123.45 dB", including the terminating null
+byte.
+
+Change-Id: I865060befd01d3dde69556c1f90b7de55350501a
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/pulse/volume.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/pulse/volume.h b/src/pulse/volume.h
+index 3ffb573..cfdc85c 100644
+--- a/src/pulse/volume.h
++++ b/src/pulse/volume.h
+@@ -216,7 +216,7 @@ char *pa_volume_snprint(char *s, size_t l, pa_volume_t v);
+  * any release without warning and without being considered API or ABI
+  * breakage. You should not use this definition anywhere where it
+  * might become part of an ABI. \since 0.9.15 */
+-#define PA_SW_VOLUME_SNPRINT_DB_MAX 10
++#define PA_SW_VOLUME_SNPRINT_DB_MAX 11
+ 
+ /** Pretty print a volume but show dB values. \since 0.9.15 */
+ char *pa_sw_volume_snprint_dB(char *s, size_t l, pa_volume_t v);

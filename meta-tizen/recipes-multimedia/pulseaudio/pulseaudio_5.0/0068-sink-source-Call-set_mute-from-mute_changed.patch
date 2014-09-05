@@ -1,0 +1,133 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Tue, 15 Apr 2014 09:39:49 +0300
+Subject: sink, source: Call set_mute() from mute_changed()
+
+This refactoring reduces duplication, as mute_changed() used to do the
+same things as set_mute(). Other benefits are improved logging
+(set_mute() logs the mute change, mute_changed() used to not do that)
+and the soft mute state is kept up to date, because set_mute() sends
+the SET_MUTE message to the IO thread.
+
+The set_mute_in_progress flag is an extra precaution for preventing
+recursion in case a sink/source implementation's set_mute() callback
+causes mute_changed() to be called. Currently there are no such
+implementations, but I think that would be a valid thing to do, so
+some day there might be such implementation.
+
+Change-Id: I33c81f4034001f777c4533c2c63eada67548c683
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/pulsecore/sink.c   | 19 ++++++++++++-------
+ src/pulsecore/sink.h   |  2 ++
+ src/pulsecore/source.c | 19 ++++++++++++-------
+ src/pulsecore/source.h |  2 ++
+ 4 files changed, 28 insertions(+), 14 deletions(-)
+
+diff --git a/src/pulsecore/sink.c b/src/pulsecore/sink.c
+index 7eb4cb4..4c348b5 100644
+--- a/src/pulsecore/sink.c
++++ b/src/pulsecore/sink.c
+@@ -2296,8 +2296,11 @@ void pa_sink_set_mute(pa_sink *s, bool mute, bool save) {
+     s->muted = mute;
+     s->save_muted = save;
+ 
+-    if (!(s->flags & PA_SINK_DEFERRED_VOLUME) && s->set_mute)
++    if (!(s->flags & PA_SINK_DEFERRED_VOLUME) && s->set_mute) {
++        s->set_mute_in_progress = true;
+         s->set_mute(s);
++        s->set_mute_in_progress = false;
++    }
+ 
+     if (!PA_SINK_IS_LINKED(s->state))
+         return;
+@@ -2341,15 +2344,17 @@ void pa_sink_mute_changed(pa_sink *s, bool new_muted) {
+     pa_assert_ctl_context();
+     pa_assert(PA_SINK_IS_LINKED(s->state));
+ 
+-    /* The sink implementor may call this if the volume changed to make sure everyone is notified */
+-
+-    if (s->muted == new_muted)
++    if (s->set_mute_in_progress)
+         return;
+ 
+-    s->muted = new_muted;
+-    s->save_muted = true;
++    /* pa_sink_set_mute() does this same check, so this may appear redundant,
++     * but we must have this here also, because the save parameter of
++     * pa_sink_set_mute() would otherwise have unintended side effects (saving
++     * the mute state when it shouldn't be saved). */
++    if (new_muted == s->muted)
++        return;
+ 
+-    pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SINK|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);
++    pa_sink_set_mute(s, new_muted, true);
+ }
+ 
+ /* Called from main thread */
+diff --git a/src/pulsecore/sink.h b/src/pulsecore/sink.h
+index 41a439b..72437a4 100644
+--- a/src/pulsecore/sink.h
++++ b/src/pulsecore/sink.h
+@@ -122,6 +122,8 @@ struct pa_sink {
+ 
+     unsigned priority;
+ 
++    bool set_mute_in_progress;
++
+     /* Called when the main loop requests a state change. Called from
+      * main loop context. If returns -1 the state change will be
+      * inhibited */
+diff --git a/src/pulsecore/source.c b/src/pulsecore/source.c
+index 3b6ad44..2f6aaad 100644
+--- a/src/pulsecore/source.c
++++ b/src/pulsecore/source.c
+@@ -1814,8 +1814,11 @@ void pa_source_set_mute(pa_source *s, bool mute, bool save) {
+     s->muted = mute;
+     s->save_muted = save;
+ 
+-    if (!(s->flags & PA_SOURCE_DEFERRED_VOLUME) && s->set_mute)
++    if (!(s->flags & PA_SOURCE_DEFERRED_VOLUME) && s->set_mute) {
++        s->set_mute_in_progress = true;
+         s->set_mute(s);
++        s->set_mute_in_progress = false;
++    }
+ 
+     if (!PA_SOURCE_IS_LINKED(s->state))
+         return;
+@@ -1859,15 +1862,17 @@ void pa_source_mute_changed(pa_source *s, bool new_muted) {
+     pa_assert_ctl_context();
+     pa_assert(PA_SOURCE_IS_LINKED(s->state));
+ 
+-    /* The source implementor may call this if the mute state changed to make sure everyone is notified */
+-
+-    if (s->muted == new_muted)
++    if (s->set_mute_in_progress)
+         return;
+ 
+-    s->muted = new_muted;
+-    s->save_muted = true;
++    /* pa_source_set_mute() does this same check, so this may appear redundant,
++     * but we must have this here also, because the save parameter of
++     * pa_source_set_mute() would otherwise have unintended side effects
++     * (saving the mute state when it shouldn't be saved). */
++    if (new_muted == s->muted)
++        return;
+ 
+-    pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SOURCE|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);
++    pa_source_set_mute(s, new_muted, true);
+ }
+ 
+ /* Called from main thread */
+diff --git a/src/pulsecore/source.h b/src/pulsecore/source.h
+index 6318595..ca2ed59 100644
+--- a/src/pulsecore/source.h
++++ b/src/pulsecore/source.h
+@@ -118,6 +118,8 @@ struct pa_source {
+ 
+     unsigned priority;
+ 
++    bool set_mute_in_progress;
++
+     /* Called when the main loop requests a state change. Called from
+      * main loop context. If returns -1 the state change will be
+      * inhibited */

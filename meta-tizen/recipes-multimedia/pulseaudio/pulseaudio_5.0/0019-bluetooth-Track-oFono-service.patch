@@ -1,0 +1,109 @@
+From: =?utf-8?q?Jo=C3=A3o_Paulo_Rechi_Vita?= <jprvita@openbossa.org>
+Date: Thu, 11 Jul 2013 11:43:48 -0300
+Subject: bluetooth: Track oFono service
+
+Change-Id: I6752f21b848757dbea20c92c68b581141cefbc67
+---
+ src/modules/bluetooth/hfaudioagent-ofono.c | 61 ++++++++++++++++++++++++++++--
+ 1 file changed, 58 insertions(+), 3 deletions(-)
+
+diff --git a/src/modules/bluetooth/hfaudioagent-ofono.c b/src/modules/bluetooth/hfaudioagent-ofono.c
+index 3684bed..97e0fa8 100644
+--- a/src/modules/bluetooth/hfaudioagent-ofono.c
++++ b/src/modules/bluetooth/hfaudioagent-ofono.c
+@@ -364,6 +364,7 @@ static void hf_audio_agent_unregister(hf_audio_agent_data *hfdata) {
+ 
+ static DBusHandlerResult filter_cb(DBusConnection *bus, DBusMessage *m, void *data) {
+     const char *sender;
++    DBusError err;
+     hf_audio_agent_data *hfdata = data;
+ 
+     pa_assert(bus);
+@@ -374,6 +375,46 @@ static DBusHandlerResult filter_cb(DBusConnection *bus, DBusMessage *m, void *da
+     if (!pa_safe_streq(hfdata->ofono_bus_id, sender) && !pa_streq("org.freedesktop.DBus", sender))
+         return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+ 
++    dbus_error_init(&err);
++
++    if (dbus_message_is_signal(m, "org.freedesktop.DBus", "NameOwnerChanged")) {
++        const char *name, *old_owner, *new_owner;
++
++        if (!dbus_message_get_args(m, &err,
++                                   DBUS_TYPE_STRING, &name,
++                                   DBUS_TYPE_STRING, &old_owner,
++                                   DBUS_TYPE_STRING, &new_owner,
++                                   DBUS_TYPE_INVALID)) {
++            pa_log_error("Failed to parse org.freedesktop.DBus.NameOwnerChanged: %s", err.message);
++            goto fail;
++        }
++
++        if (pa_streq(name, OFONO_SERVICE)) {
++
++            if (old_owner && *old_owner) {
++                pa_log_debug("oFono disappeared");
++
++                if (hfdata->hf_audio_cards) {
++                    pa_hashmap_free(hfdata->hf_audio_cards);
++                    hfdata->hf_audio_cards = NULL;
++                }
++
++                if(hfdata->ofono_bus_id) {
++                    pa_xfree(hfdata->ofono_bus_id);
++                    hfdata->ofono_bus_id = NULL;
++                }
++            }
++
++            if (new_owner && *new_owner) {
++                pa_log_debug("oFono appeared");
++                hf_audio_agent_register(hfdata);
++            }
++        }
++
++    }
++
++fail:
++    dbus_error_free(&err);
+     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+ }
+ 
+@@ -390,7 +431,20 @@ static DBusMessage *hf_audio_agent_release(DBusConnection *c, DBusMessage *m, vo
+         return r;
+     }
+ 
+-    r = dbus_message_new_error(m, "org.ofono.Error.NotImplemented", "Operation is not implemented");
++    pa_log_debug("HF audio agent has been unregistered by oFono (%s)", hfdata->ofono_bus_id);
++
++    if (hfdata->hf_audio_cards) {
++        pa_hashmap_free(hfdata->hf_audio_cards);
++        hfdata->hf_audio_cards = NULL;
++    }
++
++    if(hfdata->ofono_bus_id) {
++        pa_xfree(hfdata->ofono_bus_id);
++        hfdata->ofono_bus_id = NULL;
++    }
++
++    pa_assert_se(r = dbus_message_new_method_return(m));
++
+     return r;
+ }
+ 
+@@ -459,7 +513,8 @@ hf_audio_agent_data *hf_audio_agent_init(pa_core *c) {
+ 
+     hfdata = pa_xnew0(hf_audio_agent_data, 1);
+     hfdata->core = c;
+-    hfdata->hf_audio_cards = pa_hashmap_new(pa_idxset_string_hash_func, pa_idxset_string_compare_func);
++    hfdata->hf_audio_cards = pa_hashmap_new_full(pa_idxset_string_hash_func, pa_idxset_string_compare_func,
++                                                 NULL, hf_audio_card_free);
+     hfdata->discovery = pa_shared_get(c, "bluetooth-discovery");
+ 
+     dbus_error_init(&err);
+@@ -505,7 +560,7 @@ void hf_audio_agent_done(hf_audio_agent_data *data) {
+     pa_dbus_free_pending_list(&hfdata->pending);
+ 
+     if (hfdata->hf_audio_cards) {
+-        pa_hashmap_free(hfdata->hf_audio_cards, hf_audio_card_free);
++        pa_hashmap_free(hfdata->hf_audio_cards);
+         hfdata->hf_audio_cards = NULL;
+     }
+ 

@@ -1,0 +1,43 @@
+From: =?utf-8?q?Jo=C3=A3o_Paulo_Rechi_Vita?= <jprvita@openbossa.org>
+Date: Thu, 11 Jul 2013 12:53:10 -0300
+Subject: bluetooth: Handle CardRemoved signal
+
+Change-Id: I41083b3b5d8a318927dcdb373e871032c3f52748
+---
+ src/modules/bluetooth/hfaudioagent-ofono.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/src/modules/bluetooth/hfaudioagent-ofono.c b/src/modules/bluetooth/hfaudioagent-ofono.c
+index be20257..ee158af 100644
+--- a/src/modules/bluetooth/hfaudioagent-ofono.c
++++ b/src/modules/bluetooth/hfaudioagent-ofono.c
+@@ -429,6 +429,29 @@ static DBusHandlerResult filter_cb(DBusConnection *bus, DBusMessage *m, void *da
+ 
+         hf_audio_agent_card_found(hfdata, p, &props_i);
+ 
++    } else if (dbus_message_is_signal(m, "org.ofono.HandsfreeAudioManager", "CardRemoved")) {
++        const char *p;
++        hf_audio_card *hfac;
++        bool old_any_connected;
++
++        if (!dbus_message_get_args(m, &err, DBUS_TYPE_OBJECT_PATH, &p, DBUS_TYPE_INVALID)) {
++            pa_log_error("Failed to parse org.ofono.HandsfreeAudioManager.CardRemoved: %s", err.message);
++            goto fail;
++        }
++
++        if ((hfac = pa_hashmap_remove(hfdata->hf_audio_cards, p)) != NULL) {
++            old_any_connected = pa_bluetooth_device_any_transport_connected(hfac->transport->device);
++
++            hfac->transport->state = PA_BLUETOOTH_TRANSPORT_STATE_DISCONNECTED;
++            hfac->transport->device->transports[hfac->transport->profile] = NULL;
++            pa_hook_fire(pa_bluetooth_discovery_hook(hfdata->discovery, PA_BLUETOOTH_HOOK_TRANSPORT_STATE_CHANGED), hfac->transport);
++
++            if (old_any_connected != pa_bluetooth_device_any_transport_connected(hfac->transport->device)) {
++                pa_hook_fire(pa_bluetooth_discovery_hook(hfdata->discovery, PA_BLUETOOTH_HOOK_DEVICE_CONNECTION_CHANGED), hfac->transport->device);
++            }
++
++            hf_audio_card_free(hfac);
++        }
+     }
+ 
+ fail:

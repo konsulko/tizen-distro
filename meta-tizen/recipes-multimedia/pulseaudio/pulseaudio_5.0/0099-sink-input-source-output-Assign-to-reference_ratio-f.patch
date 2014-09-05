@@ -1,0 +1,243 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Mon, 4 Aug 2014 20:57:55 +0300
+Subject: sink-input,
+ source-output: Assign to reference_ratio from a single place
+
+This makes it easy to log a message every time the reference ratio
+changes. I also need to add a hook for reference ratio changes, but
+that need will go away if the stream relative volume controls will be
+created by the core in the future.
+
+Change-Id: I2344ba7825f76cd72241599bd138b21e16555e01
+---
+ src/pulsecore/sink-input.c    | 28 ++++++++++++++++++++++++++--
+ src/pulsecore/sink-input.h    |  6 ++++++
+ src/pulsecore/sink.c          | 11 +++++++----
+ src/pulsecore/source-output.c | 26 +++++++++++++++++++++++++-
+ src/pulsecore/source-output.h |  6 ++++++
+ src/pulsecore/source.c        | 11 +++++++----
+ 6 files changed, 77 insertions(+), 11 deletions(-)
+
+diff --git a/src/pulsecore/sink-input.c b/src/pulsecore/sink-input.c
+index 9d13269..57c906d 100644
+--- a/src/pulsecore/sink-input.c
++++ b/src/pulsecore/sink-input.c
+@@ -1305,7 +1305,7 @@ void pa_sink_input_set_volume(pa_sink_input *i, const pa_cvolume *volume, bool s
+         /* OK, we are in normal volume mode. The volume only affects
+          * ourselves */
+         set_real_ratio(i, volume);
+-        i->reference_ratio = i->volume;
++        pa_sink_input_set_reference_ratio(i, &i->volume);
+ 
+         /* Copy the new soft_volume to the thread_info struct */
+         pa_assert_se(pa_asyncmsgq_send(i->sink->asyncmsgq, PA_MSGOBJECT(i), PA_SINK_INPUT_MESSAGE_SET_SOFT_VOLUME, NULL, 0, NULL) == 0);
+@@ -1757,7 +1757,7 @@ static void update_volume_due_to_moving(pa_sink_input *i, pa_sink *dest) {
+ 
+             pa_cvolume_reset(&new_volume, i->volume.channels);
+             pa_sink_input_set_volume_direct(i, &new_volume);
+-            pa_cvolume_reset(&i->reference_ratio, i->reference_ratio.channels);
++            pa_sink_input_set_reference_ratio(i, &new_volume);
+             pa_assert(pa_cvolume_is_norm(&i->real_ratio));
+             pa_assert(pa_cvolume_equal(&i->soft_volume, &i->volume_factor));
+         }
+@@ -2329,3 +2329,27 @@ void pa_sink_input_set_volume_direct(pa_sink_input *i, const pa_cvolume *volume)
+     pa_subscription_post(i->core, PA_SUBSCRIPTION_EVENT_SINK_INPUT|PA_SUBSCRIPTION_EVENT_CHANGE, i->index);
+     pa_hook_fire(&i->core->hooks[PA_CORE_HOOK_SINK_INPUT_VOLUME_CHANGED], i);
+ }
++
++/* Called from the main thread. */
++void pa_sink_input_set_reference_ratio(pa_sink_input *i, const pa_cvolume *ratio) {
++    pa_cvolume old_ratio;
++    char old_ratio_str[PA_CVOLUME_SNPRINT_VERBOSE_MAX];
++    char new_ratio_str[PA_CVOLUME_SNPRINT_VERBOSE_MAX];
++
++    pa_assert(i);
++    pa_assert(ratio);
++
++    old_ratio = i->reference_ratio;
++
++    if (pa_cvolume_equal(ratio, &old_ratio))
++        return;
++
++    i->reference_ratio = *ratio;
++
++    if (!PA_SINK_INPUT_IS_LINKED(i->state))
++        return;
++
++    pa_log_debug("Sink input %u reference ratio changed from %s to %s.", i->index,
++                 pa_cvolume_snprint_verbose(old_ratio_str, sizeof(old_ratio_str), &old_ratio, &i->channel_map, true),
++                 pa_cvolume_snprint_verbose(new_ratio_str, sizeof(new_ratio_str), ratio, &i->channel_map, true));
++}
+diff --git a/src/pulsecore/sink-input.h b/src/pulsecore/sink-input.h
+index 1bd3eee..e5b0ae8 100644
+--- a/src/pulsecore/sink-input.h
++++ b/src/pulsecore/sink-input.h
+@@ -437,6 +437,12 @@ pa_memchunk* pa_sink_input_get_silence(pa_sink_input *i, pa_memchunk *ret);
+  * and fires change notifications. */
+ void pa_sink_input_set_volume_direct(pa_sink_input *i, const pa_cvolume *volume);
+ 
++/* Called from the main thread, from sink.c only. This shouldn't be a public
++ * function, but the flat volume logic in sink.c currently needs a way to
++ * directly set the sink input reference ratio. This function simply sets
++ * i->reference_ratio and logs a message if the value changes. */
++void pa_sink_input_set_reference_ratio(pa_sink_input *i, const pa_cvolume *ratio);
++
+ #define pa_sink_input_assert_io_context(s) \
+     pa_assert(pa_thread_mq_get() || !PA_SINK_INPUT_IS_LINKED((s)->state))
+ 
+diff --git a/src/pulsecore/sink.c b/src/pulsecore/sink.c
+index 41cffcc..400d06d 100644
+--- a/src/pulsecore/sink.c
++++ b/src/pulsecore/sink.c
+@@ -1670,6 +1670,7 @@ void pa_sink_leave_passthrough(pa_sink *s) {
+ static void compute_reference_ratio(pa_sink_input *i) {
+     unsigned c = 0;
+     pa_cvolume remapped;
++    pa_cvolume ratio;
+ 
+     pa_assert(i);
+     pa_assert(pa_sink_flat_volume_enabled(i->sink));
+@@ -1684,7 +1685,7 @@ static void compute_reference_ratio(pa_sink_input *i) {
+     remapped = i->sink->reference_volume;
+     pa_cvolume_remap(&remapped, &i->sink->channel_map, &i->channel_map);
+ 
+-    i->reference_ratio.channels = i->sample_spec.channels;
++    ratio = i->reference_ratio;
+ 
+     for (c = 0; c < i->sample_spec.channels; c++) {
+ 
+@@ -1694,14 +1695,16 @@ static void compute_reference_ratio(pa_sink_input *i) {
+ 
+         /* Don't update the reference ratio unless necessary */
+         if (pa_sw_volume_multiply(
+-                    i->reference_ratio.values[c],
++                    ratio.values[c],
+                     remapped.values[c]) == i->volume.values[c])
+             continue;
+ 
+-        i->reference_ratio.values[c] = pa_sw_volume_divide(
++        ratio.values[c] = pa_sw_volume_divide(
+                 i->volume.values[c],
+                 remapped.values[c]);
+     }
++
++    pa_sink_input_set_reference_ratio(i, &ratio);
+ }
+ 
+ /* Called from main context. Only called for the root sink in volume sharing
+@@ -2195,7 +2198,7 @@ static void propagate_real_volume(pa_sink *s, const pa_cvolume *old_real_volume)
+ 
+             /* 2. Since the sink's reference and real volumes are equal
+              * now our ratios should be too. */
+-            i->reference_ratio = i->real_ratio;
++            pa_sink_input_set_reference_ratio(i, &i->real_ratio);
+ 
+             /* 3. Recalculate the new stream reference volume based on the
+              * reference ratio and the sink's reference volume.
+diff --git a/src/pulsecore/source-output.c b/src/pulsecore/source-output.c
+index d3d15f1..0012be3 100644
+--- a/src/pulsecore/source-output.c
++++ b/src/pulsecore/source-output.c
+@@ -1313,7 +1313,7 @@ static void update_volume_due_to_moving(pa_source_output *o, pa_source *dest) {
+ 
+             pa_cvolume_reset(&new_volume, o->volume.channels);
+             pa_source_output_set_volume_direct(o, &new_volume);
+-            pa_cvolume_reset(&o->reference_ratio, o->reference_ratio.channels);
++            pa_source_output_set_reference_ratio(o, &new_volume);
+             pa_assert(pa_cvolume_is_norm(&o->real_ratio));
+             pa_assert(pa_cvolume_equal(&o->soft_volume, &o->volume_factor));
+         }
+@@ -1695,3 +1695,27 @@ void pa_source_output_set_volume_direct(pa_source_output *o, const pa_cvolume *v
+     pa_subscription_post(o->core, PA_SUBSCRIPTION_EVENT_SOURCE_OUTPUT|PA_SUBSCRIPTION_EVENT_CHANGE, o->index);
+     pa_hook_fire(&o->core->hooks[PA_CORE_HOOK_SOURCE_OUTPUT_VOLUME_CHANGED], o);
+ }
++
++/* Called from the main thread. */
++void pa_source_output_set_reference_ratio(pa_source_output *o, const pa_cvolume *ratio) {
++    pa_cvolume old_ratio;
++    char old_ratio_str[PA_CVOLUME_SNPRINT_VERBOSE_MAX];
++    char new_ratio_str[PA_CVOLUME_SNPRINT_VERBOSE_MAX];
++
++    pa_assert(o);
++    pa_assert(ratio);
++
++    old_ratio = o->reference_ratio;
++
++    if (pa_cvolume_equal(ratio, &old_ratio))
++        return;
++
++    o->reference_ratio = *ratio;
++
++    if (!PA_SOURCE_OUTPUT_IS_LINKED(o->state))
++        return;
++
++    pa_log_debug("Source output %u reference ratio changed from %s to %s.", o->index,
++                 pa_cvolume_snprint_verbose(old_ratio_str, sizeof(old_ratio_str), &old_ratio, &o->channel_map, true),
++                 pa_cvolume_snprint_verbose(new_ratio_str, sizeof(new_ratio_str), ratio, &o->channel_map, true));
++}
+diff --git a/src/pulsecore/source-output.h b/src/pulsecore/source-output.h
+index 73170d3..3ed950b 100644
+--- a/src/pulsecore/source-output.h
++++ b/src/pulsecore/source-output.h
+@@ -359,6 +359,12 @@ pa_usec_t pa_source_output_set_requested_latency_within_thread(pa_source_output
+  * o->volume and fires change notifications. */
+ void pa_source_output_set_volume_direct(pa_source_output *o, const pa_cvolume *volume);
+ 
++/* Called from the main thread, from source.c only. This shouldn't be a public
++ * function, but the flat volume logic in source.c currently needs a way to
++ * directly set the source output reference ratio. This function simply sets
++ * o->reference_ratio and logs a message if the value changes. */
++void pa_source_output_set_reference_ratio(pa_source_output *o, const pa_cvolume *ratio);
++
+ #define pa_source_output_assert_io_context(s) \
+     pa_assert(pa_thread_mq_get() || !PA_SOURCE_OUTPUT_IS_LINKED((s)->state))
+ 
+diff --git a/src/pulsecore/source.c b/src/pulsecore/source.c
+index db7f667..293ab28 100644
+--- a/src/pulsecore/source.c
++++ b/src/pulsecore/source.c
+@@ -1214,6 +1214,7 @@ void pa_source_leave_passthrough(pa_source *s) {
+ static void compute_reference_ratio(pa_source_output *o) {
+     unsigned c = 0;
+     pa_cvolume remapped;
++    pa_cvolume ratio;
+ 
+     pa_assert(o);
+     pa_assert(pa_source_flat_volume_enabled(o->source));
+@@ -1228,7 +1229,7 @@ static void compute_reference_ratio(pa_source_output *o) {
+     remapped = o->source->reference_volume;
+     pa_cvolume_remap(&remapped, &o->source->channel_map, &o->channel_map);
+ 
+-    o->reference_ratio.channels = o->sample_spec.channels;
++    ratio = o->reference_ratio;
+ 
+     for (c = 0; c < o->sample_spec.channels; c++) {
+ 
+@@ -1238,14 +1239,16 @@ static void compute_reference_ratio(pa_source_output *o) {
+ 
+         /* Don't update the reference ratio unless necessary */
+         if (pa_sw_volume_multiply(
+-                    o->reference_ratio.values[c],
++                    ratio.values[c],
+                     remapped.values[c]) == o->volume.values[c])
+             continue;
+ 
+-        o->reference_ratio.values[c] = pa_sw_volume_divide(
++        ratio.values[c] = pa_sw_volume_divide(
+                 o->volume.values[c],
+                 remapped.values[c]);
+     }
++
++    pa_source_output_set_reference_ratio(o, &ratio);
+ }
+ 
+ /* Called from main context. Only called for the root source in volume sharing
+@@ -1712,7 +1715,7 @@ static void propagate_real_volume(pa_source *s, const pa_cvolume *old_real_volum
+ 
+             /* 2. Since the source's reference and real volumes are equal
+              * now our ratios should be too. */
+-            o->reference_ratio = o->real_ratio;
++            pa_source_output_set_reference_ratio(o, &o->real_ratio);
+ 
+             /* 3. Recalculate the new stream reference volume based on the
+              * reference ratio and the sink's reference volume.

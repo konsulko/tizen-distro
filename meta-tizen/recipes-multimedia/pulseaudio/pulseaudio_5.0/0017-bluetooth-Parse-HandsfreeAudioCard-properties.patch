@@ -1,0 +1,192 @@
+From: =?utf-8?q?Jo=C3=A3o_Paulo_Rechi_Vita?= <jprvita@openbossa.org>
+Date: Tue, 9 Jul 2013 21:37:26 -0300
+Subject: bluetooth: Parse HandsfreeAudioCard properties
+
+Change-Id: I37600ca3ab60d1b82608f4e395fa427fdaf62164
+---
+ src/modules/bluetooth/hfaudioagent-ofono.c | 128 ++++++++++++++++++++++++++++-
+ 1 file changed, 126 insertions(+), 2 deletions(-)
+
+diff --git a/src/modules/bluetooth/hfaudioagent-ofono.c b/src/modules/bluetooth/hfaudioagent-ofono.c
+index 6b27f80..2e16a48 100644
+--- a/src/modules/bluetooth/hfaudioagent-ofono.c
++++ b/src/modules/bluetooth/hfaudioagent-ofono.c
+@@ -25,6 +25,9 @@
+ 
+ #include <pulsecore/core-util.h>
+ #include <pulsecore/dbus-shared.h>
++#include <pulsecore/shared.h>
++
++#include "bluez5-util.h"
+ 
+ #include "hfaudioagent.h"
+ 
+@@ -56,9 +59,21 @@
+     "  </interface>"                                                \
+     "</node>"
+ 
++typedef struct hf_audio_card {
++    char *path;
++    char *remote;
++    char *local;
++
++    int fd;
++    uint8_t codec;
++
++    pa_bluetooth_transport *transport;
++} hf_audio_card;
++
+ struct hf_audio_agent_data {
+     pa_core *core;
+     pa_dbus_connection *connection;
++    pa_bluetooth_discovery *discovery;
+ 
+     bool filter_added;
+     char *ofono_bus_id;
+@@ -84,6 +99,111 @@ static pa_dbus_pending* pa_bluetooth_dbus_send_and_add_to_pending(hf_audio_agent
+     return p;
+ }
+ 
++static hf_audio_card *hf_audio_card_new(hf_audio_agent_data *hfdata, const char *path) {
++    hf_audio_card *hfac = pa_xnew0(hf_audio_card, 1);
++
++    hfac->path = pa_xstrdup(path);
++    hfac->fd = -1;
++
++    return hfac;
++}
++
++static void hf_audio_card_free(void *data) {
++    hf_audio_card *hfac = data;
++
++    pa_assert(hfac);
++
++    pa_bluetooth_transport_free(hfac->transport);
++    pa_xfree(hfac->path);
++    pa_xfree(hfac->remote);
++    pa_xfree(hfac->local);
++    pa_xfree(hfac);
++}
++
++static int hf_audio_agent_transport_acquire(pa_bluetooth_transport *t, bool optional, size_t *imtu, size_t *omtu) {
++    return -1;
++}
++
++static void hf_audio_agent_transport_release(pa_bluetooth_transport *t) {
++}
++
++static void hf_audio_agent_card_found(hf_audio_agent_data *hfdata, const char *path, DBusMessageIter *props_i) {
++    DBusMessageIter i, value_i;
++    const char *key, *value;
++    hf_audio_card *hfac;
++    pa_bluetooth_device *d;
++
++    pa_assert(hfdata);
++    pa_assert(path);
++    pa_assert(props_i);
++
++    pa_log_debug("New HF card found: %s", path);
++
++    hfac = hf_audio_card_new(hfdata, path);
++
++    while (dbus_message_iter_get_arg_type(props_i) != DBUS_TYPE_INVALID) {
++        char c;
++
++        if ((c = dbus_message_iter_get_arg_type(props_i)) != DBUS_TYPE_DICT_ENTRY) {
++            pa_log_error("Invalid properties for %s: expected \'e\', received \'%c\'", path, c);
++            goto fail;
++        }
++
++        dbus_message_iter_recurse(props_i, &i);
++
++        if ((c = dbus_message_iter_get_arg_type(&i)) != DBUS_TYPE_STRING) {
++            pa_log_error("Invalid properties for %s: expected \'s\', received \'%c\'", path, c);
++            goto fail;
++        }
++
++        dbus_message_iter_get_basic(&i, &key);
++        dbus_message_iter_next(&i);
++
++        if ((c = dbus_message_iter_get_arg_type(&i)) != DBUS_TYPE_VARIANT) {
++            pa_log_error("Invalid properties for %s: expected \'v\', received \'%c\'", path, c);
++            goto fail;
++        }
++
++        dbus_message_iter_recurse(&i, &value_i);
++
++        if ((c = dbus_message_iter_get_arg_type(&value_i)) != DBUS_TYPE_STRING) {
++            pa_log_error("Invalid properties for %s: expected \'s\', received \'%c\'", path, c);
++            goto fail;
++        }
++
++        dbus_message_iter_get_basic(&value_i, &value);
++
++        if (pa_streq(key, "RemoteAddress"))
++            hfac->remote = pa_xstrdup(value);
++        else if (pa_streq(key, "LocalAddress"))
++            hfac->local = pa_xstrdup(value);
++
++        pa_log_debug("%s: %s", key, value);
++
++        dbus_message_iter_next(props_i);
++    }
++
++    pa_hashmap_put(hfdata->hf_audio_cards, hfac->path, hfac);
++
++    d = pa_bluetooth_discovery_get_device_by_address(hfdata->discovery, hfac->remote, hfac->local);
++    if (d) {
++        hfac->transport = pa_bluetooth_transport_new(d, hfdata->ofono_bus_id, path, PA_BLUETOOTH_PROFILE_HEADSET_AUDIO_GATEWAY, NULL, 0);
++        hfac->transport->acquire = hf_audio_agent_transport_acquire;
++        hfac->transport->release = hf_audio_agent_transport_release;
++        hfac->transport->userdata = hfdata;
++
++        d->transports[PA_BLUETOOTH_PROFILE_HEADSET_AUDIO_GATEWAY] = hfac->transport;
++
++        pa_bluetooth_transport_put(hfac->transport);
++    } else
++        pa_log_error("Device doesnt exist for %s", path);
++
++    return;
++
++fail:
++    pa_xfree(hfac);
++}
++
+ static void hf_audio_agent_get_cards_reply(DBusPendingCall *pending, void *userdata) {
+     DBusMessage *r;
+     pa_dbus_pending *p;
+@@ -132,7 +252,7 @@ static void hf_audio_agent_get_cards_reply(DBusPendingCall *pending, void *userd
+ 
+         dbus_message_iter_recurse(&struct_i, &props_i);
+ 
+-        /* TODO: Parse HandsfreeAudioCard properties */
++        hf_audio_agent_card_found(hfdata, path, &props_i);
+ 
+         dbus_message_iter_next(&array_i);
+     }
+@@ -314,6 +434,7 @@ hf_audio_agent_data *hf_audio_agent_init(pa_core *c) {
+     hfdata = pa_xnew0(hf_audio_agent_data, 1);
+     hfdata->core = c;
+     hfdata->hf_audio_cards = pa_hashmap_new(pa_idxset_string_hash_func, pa_idxset_string_compare_func);
++    hfdata->discovery = pa_shared_get(c, "bluetooth-discovery");
+ 
+     dbus_error_init(&err);
+ 
+@@ -358,7 +479,7 @@ void hf_audio_agent_done(hf_audio_agent_data *data) {
+     pa_dbus_free_pending_list(&hfdata->pending);
+ 
+     if (hfdata->hf_audio_cards) {
+-        pa_hashmap_free(hfdata->hf_audio_cards, NULL);
++        pa_hashmap_free(hfdata->hf_audio_cards, hf_audio_card_free);
+         hfdata->hf_audio_cards = NULL;
+     }
+ 
+@@ -382,5 +503,8 @@ void hf_audio_agent_done(hf_audio_agent_data *data) {
+         pa_dbus_connection_unref(hfdata->connection);
+     }
+ 
++    if (hfdata->discovery)
++        hfdata->discovery = NULL;
++
+     pa_xfree(hfdata);
+ }

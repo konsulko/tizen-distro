@@ -1,0 +1,1317 @@
+From: "vivian,zhang" <vivian.zhang@intel.com>
+Date: Tue, 18 Jun 2013 16:21:32 +0800
+Subject: add policy module - samsung
+
+Change-Id: I2111a9c4dc0a371dbea5b347cf77adbe8f930528
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ configure.ac                |  18 +
+ src/Makefile.am             |  28 +-
+ src/modules/module-policy.c | 926 ++++++++++++++++++++++++++++++++++++++++++++
+ src/pulse/ext-policy.c      | 177 +++++++++
+ src/pulse/ext-policy.h      |  61 +++
+ src/pulse/proplist.h        |   3 +
+ 6 files changed, 1211 insertions(+), 2 deletions(-)
+ create mode 100644 src/modules/module-policy.c
+ create mode 100644 src/pulse/ext-policy.c
+ create mode 100644 src/pulse/ext-policy.h
+
+diff --git a/configure.ac b/configure.ac
+index c0beac0..0e205d3 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -643,6 +643,24 @@ PKG_CHECK_MODULES(LIBJSON, [ json-c >= 0.11 ], [],
+ 
+ PKG_CHECK_MODULES(LIBSNDFILE, [ sndfile >= 1.0.20 ])
+ 
++dnl use samsung policy module --------------------------------------------------------
++AC_ARG_ENABLE(samsung-policy, AC_HELP_STRING([--enable-samsung-policy], [using samsung-policy]),
++[
++ case "${enableval}" in
++	 yes) USE_SAMSUNG_POLICY=yes ;;
++	 no)  USE_SAMSUNG_POLICY=no ;;
++	 *)   AC_MSG_ERROR(bad value ${enableval} for --enable-samsung_policy) ;;
++ esac
++ ],[USE_SAMSUNG_POLICY=no])
++
++if test "x$USE_SAMSUNG_POLICY" = "xyes"; then
++	PKG_CHECK_MODULES(VCONF, vconf)
++	AC_SUBST(VCONF_CFLAGS)
++	AC_SUBST(VCONF_LIBS)
++fi
++AM_CONDITIONAL(USE_SAMSUNG_POLICY, test "x$USE_SAMSUNG_POLICY" = "xyes")
++dnl end --------------------------------------------------------------------
++
+ dnl use dlog --------------------------------------------------------------------------
+ AC_ARG_ENABLE(dlog, AC_HELP_STRING([--enable-dlog], [using dlog]),
+ [
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 3e41300..4872dfd 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -149,7 +149,7 @@ pulseaudio_SOURCES = \
+ 		daemon/ltdl-bind-now.c daemon/ltdl-bind-now.h \
+ 		daemon/main.c
+ 
+-pulseaudio_CFLAGS = $(AM_CFLAGS) $(CAP_CFLAGS)
++pulseaudio_CFLAGS = $(AM_CFLAGS) $(LIBSNDFILE_CFLAGS) $(CAP_CFLAGS) $(DBUS_CFLAGS)
+ pulseaudio_LDADD = $(AM_LDADD) libpulsecore-@PA_MAJORMINOR@.la libpulsecommon-@PA_MAJORMINOR@.la libpulse.la $(LIBLTDL) $(CAP_LIBS)
+ # This is needed because automake doesn't properly expand the foreach below
+ pulseaudio_DEPENDENCIES = libpulsecore-@PA_MAJORMINOR@.la libpulsecommon-@PA_MAJORMINOR@.la libpulse.la $(PREOPEN_LIBS)
+@@ -787,6 +787,11 @@ pulseinclude_HEADERS = \
+ 		pulse/volume.h \
+ 		pulse/xmalloc.h
+ 
++if USE_SAMSUNG_POLICY
++pulseinclude_HEADERS += \
++		pulse/ext-policy.h
++endif
++
+ lib_LTLIBRARIES = \
+ 		libpulse.la \
+ 		libpulse-simple.la
+@@ -833,6 +838,11 @@ libpulse_la_SOURCES = \
+ 		pulse/volume.c pulse/volume.h \
+ 		pulse/xmalloc.c pulse/xmalloc.h
+ 
++if USE_SAMSUNG_POLICY
++libpulse_la_SOURCES += \
++        pulse/ext-policy.c pulse/ext-policy.h
++endif
++
+ libpulse_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) $(LIBJSON_CFLAGS)
+ libpulse_la_LIBADD = $(AM_LIBADD) $(WINSOCK_LIBS) $(LTLIBICONV) $(LIBJSON_LIBS) libpulsecommon-@PA_MAJORMINOR@.la
+ libpulse_la_LDFLAGS = $(AM_LDFLAGS) $(VERSIONING_LDFLAGS) -version-info $(LIBPULSE_VERSION_INFO)
+@@ -1088,6 +1098,10 @@ if HAVE_DBUS
+ # Serveral module (e.g. libalsa-util.la)
+ modlibexec_LTLIBRARIES += \
+ 		module-console-kit.la
++if USE_SAMSUNG_POLICY
++modlibexec_LTLIBRARIES += \
++		module-policy.la
++endif
+ endif
+ 
+ modlibexec_LTLIBRARIES += \
+@@ -1470,7 +1484,10 @@ SYMDEF_FILES = \
+ 		module-switch-on-port-available-symdef.h \
+ 		module-filter-apply-symdef.h \
+ 		module-filter-heuristics-symdef.h
+-
++if USE_SAMSUNG_POLICY
++SYMDEF_FILES += \
++		module-policy-symdef.h
++endif
+ if HAVE_ESOUND
+ SYMDEF_FILES += \
+ 		module-esound-protocol-tcp-symdef.h \
+@@ -2120,6 +2137,13 @@ module_rygel_media_server_la_LDFLAGS = $(MODULE_LDFLAGS)
+ module_rygel_media_server_la_LIBADD = $(MODULE_LIBADD) $(DBUS_LIBS) libprotocol-http.la
+ module_rygel_media_server_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
+ 
++if USE_SAMSUNG_POLICY
++module_policy_la_SOURCES = modules/module-policy.c
++module_policy_la_LDFLAGS = $(MODULE_LDFLAGS)
++module_policy_la_LIBADD = $(AM_LIBADD) $(DBUS_LIBS) $(VCONF_LIBS) libprotocol-native.la libpulsecore-@PA_MAJORMINOR@.la libpulsecommon-@PA_MAJORMINOR@.la libpulse.la
++module_policy_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) $(VCONF_CFLAGS)
++endif
++
+ ###################################
+ #        Some minor stuff         #
+ ###################################
+diff --git a/src/modules/module-policy.c b/src/modules/module-policy.c
+new file mode 100644
+index 0000000..2172018
+--- /dev/null
++++ b/src/modules/module-policy.c
+@@ -0,0 +1,926 @@
++#ifdef HAVE_CONFIG_H
++#include <config.h>
++#endif
++
++#include <pulsecore/core.h>
++#include <pulsecore/module.h>
++#include <pulsecore/modargs.h>
++#include <pulsecore/core-rtclock.h>
++#include <pulsecore/core-util.h>
++#include <pulsecore/log.h>
++#include <stdbool.h>
++#include <strings.h>
++
++#include <pulsecore/log.h>
++#include <pulsecore/core-subscribe.h>
++#include <pulsecore/sink-input.h>
++#include <pulsecore/source-output.h>
++#include <pulsecore/namereg.h>
++#include <pulsecore/core-error.h>
++
++#include <pulsecore/protocol-native.h>
++#include <pulsecore/pstream-util.h>
++#include <vconf.h> // for mono
++
++#include "module-policy-symdef.h"
++
++PA_MODULE_AUTHOR("Seungbae Shin");
++PA_MODULE_DESCRIPTION("Media Policy module");
++PA_MODULE_VERSION(PACKAGE_VERSION);
++PA_MODULE_LOAD_ONCE(true);
++PA_MODULE_USAGE(
++        "on_hotplug=<When new device becomes available, recheck streams?> ");
++
++static const char* const valid_modargs[] = {
++    "on_hotplug",
++    NULL
++};
++
++struct userdata {
++    pa_core *core;
++    pa_module *module;
++
++    pa_hook_slot *sink_input_new_hook_slot,*sink_put_hook_slot;
++
++    pa_hook_slot *sink_input_unlink_slot,*sink_unlink_slot;
++    pa_hook_slot *sink_input_unlink_post_slot, *sink_unlink_post_slot;
++    pa_hook_slot *sink_input_move_start_slot,*sink_input_move_finish_slot;
++    pa_subscription *subscription;
++
++    bool on_hotplug:1;
++    int	bt_off_idx;
++
++    int is_mono;
++    float balance;
++    pa_module* module_mono_bt;
++    pa_module* module_combined;
++    pa_module* module_mono_combined;
++    pa_native_protocol *protocol;
++    pa_hook_slot *source_output_new_hook_slot;
++};
++
++enum {
++    SUBCOMMAND_TEST,
++    SUBCOMMAND_MONO,
++    SUBCOMMAND_BALANCE,
++};
++
++/* DEFINEs */
++#define AEC_SINK			"alsa_output.0.analog-stereo.echo-cancel"
++#define AEC_SOURCE			"alsa_input.0.analog-stereo.echo-cancel"
++#define	SINK_ALSA			"alsa_output.0.analog-stereo"
++#define SINK_MONO_ALSA		"mono_alsa"
++#define SINK_MONO_BT		"mono_bt"
++#define SINK_COMBINED		"combined"
++#define SINK_MONO_COMBINED	"mono_combined"
++#define POLICY_AUTO			"auto"
++#define POLICY_PHONE		"phone"
++#define POLICY_ALL			"all"
++#define POLICY_VOIP			"voip"
++#define BLUEZ_API			"bluez"
++#define ALSA_API			"alsa"
++#define MONO_KEY 			VCONFKEY_SETAPPL_ACCESSIBILITY_MONO_AUDIO
++
++/* check if this sink is bluez */
++static bool policy_is_bluez (pa_sink* sink)
++{
++	const char* api_name = NULL;
++
++	if (sink == NULL) {
++		pa_log_warn ("input param sink is null");
++		return false;
++	}
++
++    api_name = pa_proplist_gets(sink->proplist, PA_PROP_DEVICE_API);
++	if (api_name) {
++		if (pa_streq (api_name, BLUEZ_API)) {
++#ifdef DEBUG_DETAIL
++			pa_log_debug("[POLICY][%s] [%s] exists and it is [%s]...true !!", __func__, PA_PROP_DEVICE_API, api_name);
++#endif
++			return true;
++		} else {
++#ifdef DEBUG_DETAIL
++			pa_log_debug("[POLICY][%s] [%s] exists, but not bluez...false !!", __func__, PA_PROP_DEVICE_API);
++#endif
++		}
++	} else {
++#ifdef DEBUG_DETAIL
++		pa_log_debug("[POLICY][%s] No [%s] exists...false!!", __func__, PA_PROP_DEVICE_API);
++#endif
++	}
++
++	return false;
++}
++
++/* check if this sink is bluez */
++static bool policy_is_usb_alsa (pa_sink* sink)
++{
++	const char* api_name = NULL;
++	const char* device_bus_name = NULL;
++
++	if (sink == NULL) {
++		pa_log_warn ("input param sink is null");
++		return false;
++	}
++
++    api_name = pa_proplist_gets(sink->proplist, PA_PROP_DEVICE_API);
++	if (api_name) {
++		if (pa_streq (api_name, ALSA_API)) {
++#ifdef DEBUG_DETAIL
++			pa_log_debug("[POLICY][%s] [%s] exists and it is [%s]...true !!", __func__, PA_PROP_DEVICE_API, api_name);
++#endif
++			device_bus_name = pa_proplist_gets(sink->proplist, PA_PROP_DEVICE_BUS);
++			if (device_bus_name) {
++				if (pa_streq (device_bus_name, "usb")) {
++					return true;
++				}
++			}
++		} else {
++#ifdef DEBUG_DETAIL
++			pa_log_debug("[POLICY][%s] [%s] exists, but not alsa...false !!", __func__, PA_PROP_DEVICE_API);
++#endif
++		}
++	} else {
++#ifdef DEBUG_DETAIL
++		pa_log_debug("[POLICY][%s] No [%s] exists...false!!", __func__, PA_PROP_DEVICE_API);
++#endif
++	}
++
++	return false;
++}
++
++/* Get sink by name */
++static pa_sink* policy_get_sink_by_name (pa_core *c, const char* sink_name)
++{
++    pa_sink *s = NULL;
++    uint32_t idx;
++
++    if (c == NULL || sink_name == NULL) {
++		pa_log_warn ("input param is null");
++		return NULL;
++    }
++
++	PA_IDXSET_FOREACH(s, c->sinks, idx) {
++		if (pa_streq (s->name, sink_name)) {
++			pa_log_debug ("[POLICY][%s] return [%p] for [%s]\n",  __func__, s, sink_name);
++			return s;
++		}
++	}
++	return NULL;
++}
++
++/* Get bt sink if available */
++static pa_sink* policy_get_bt_sink (pa_core *c)
++{
++    pa_sink *s = NULL;
++    uint32_t idx;
++
++    if (c == NULL) {
++		pa_log_warn ("input param is null");
++		return NULL;
++    }
++
++	PA_IDXSET_FOREACH(s, c->sinks, idx) {
++		if (policy_is_bluez (s)) {
++			pa_log_debug ("[POLICY][%s] return [%p] for [%s]\n", __func__, s, s->name);
++			return s;
++		}
++	}
++	return NULL;
++}
++
++/* Select sink for given condition */
++static pa_sink* policy_select_proper_sink (pa_core *c, const char* policy, int is_mono)
++{
++	pa_sink* sink = NULL;
++	pa_sink* bt_sink = NULL;
++	pa_sink* def = NULL;
++
++	if (c == NULL || policy == NULL) {
++		pa_log_warn ("input param is null");
++		return NULL;
++	}
++
++	pa_assert (c);
++
++	bt_sink = policy_get_bt_sink(c);
++	def = pa_namereg_get_default_sink(c);
++	if (def == NULL) {
++		pa_log_warn ("POLICY][%s] pa_namereg_get_default_sink() returns null", __func__);
++		return NULL;
++	}
++
++	pa_log_debug ("[POLICY][%s] policy[%s], is_mono[%d], current default[%s], bt sink[%s]\n",
++			__func__, policy, is_mono, def->name, (bt_sink)? bt_sink->name:"null");
++
++	/* Select sink to */
++	if (pa_streq(policy, POLICY_ALL)) {
++		/* all */
++		if (bt_sink) {
++			sink = policy_get_sink_by_name(c, (is_mono)? SINK_MONO_COMBINED : SINK_COMBINED);
++		} else {
++			sink = policy_get_sink_by_name (c, (is_mono)? SINK_MONO_ALSA : SINK_ALSA);
++		}
++
++	} else if (pa_streq(policy, POLICY_PHONE)) {
++		/* phone */
++		sink = policy_get_sink_by_name (c, (is_mono)? SINK_MONO_ALSA : SINK_ALSA);
++	} else if (pa_streq(policy, POLICY_VOIP)) {
++		/* VOIP */
++		sink = policy_get_sink_by_name (c,AEC_SINK);
++	} else {
++		/* auto */
++		if (policy_is_bluez(def)) {
++			sink = (is_mono)? policy_get_sink_by_name (c, SINK_MONO_BT) : def;
++		} else if (policy_is_usb_alsa(def)) {
++			sink = def;
++		} else {
++			sink = (is_mono)? policy_get_sink_by_name (c, SINK_MONO_ALSA) : def;
++		}
++	}
++
++	pa_log_debug ("[POLICY][%s] selected sink : [%s]\n", __func__, (sink)? sink->name : "null");
++	return sink;
++}
++
++static bool policy_is_filter (pa_sink_input* si)
++{
++	const char* role = NULL;
++
++	if (si == NULL) {
++		pa_log_warn ("input param sink-input is null");
++		return false;
++	}
++
++	if ((role = pa_proplist_gets(si->proplist, PA_PROP_MEDIA_ROLE))) {
++#ifdef DEBUG_DETAIL
++		pa_log_debug("[POLICY][%s] Role of sink input [%d] = %s", __func__, si->index, role);
++#endif
++		if (pa_streq(role, "filter")) {
++#ifdef DEBUG_DETAIL
++			pa_log_debug("[POLICY] no need to change of sink for %s", role);
++#endif
++			return true;
++		}
++	}
++
++	return false;
++}
++
++
++
++#define EXT_VERSION 1
++
++static int extension_cb(pa_native_protocol *p, pa_module *m, pa_native_connection *c, uint32_t tag, pa_tagstruct *t) {
++  struct userdata *u = NULL;
++  uint32_t command;
++  pa_tagstruct *reply = NULL;
++
++  pa_sink_input *si = NULL;
++  pa_sink *s = NULL;
++  uint32_t idx;
++  pa_sink* sink_to_move  = NULL;
++
++  pa_assert(p);
++  pa_assert(m);
++  pa_assert(c);
++  pa_assert(t);
++
++  u = m->userdata;
++
++  if (pa_tagstruct_getu32(t, &command) < 0)
++    goto fail;
++
++  reply = pa_tagstruct_new(NULL, 0);
++  pa_tagstruct_putu32(reply, PA_COMMAND_REPLY);
++  pa_tagstruct_putu32(reply, tag);
++
++  switch (command) {
++    case SUBCOMMAND_TEST: {
++		if (!pa_tagstruct_eof(t))
++			goto fail;
++
++		pa_tagstruct_putu32(reply, EXT_VERSION);
++		break;
++    }
++
++    case SUBCOMMAND_MONO: {
++
++        bool enable;
++
++        if (pa_tagstruct_get_boolean(t, &enable) < 0)
++            goto fail;
++
++        pa_log_debug ("[POLICY][%s] new mono value = %d\n", __func__, enable);
++        if (enable == u->is_mono) {
++			pa_log_debug ("[POLICY][%s] No changes in mono value = %d", __func__, u->is_mono);
++			break;
++        }
++
++        u->is_mono = enable;
++
++		/* Move current sink-input to proper mono sink */
++		PA_IDXSET_FOREACH(si, u->core->sink_inputs, idx) {
++			const char *policy = NULL;
++
++			/* Skip this if it is already in the process of being moved
++			 * anyway */
++			if (!si->sink)
++				continue;
++
++			/* It might happen that a stream and a sink are set up at the
++			   same time, in which case we want to make sure we don't
++			   interfere with that */
++			if (!PA_SINK_INPUT_IS_LINKED(pa_sink_input_get_state(si)))
++				continue;
++
++			/* Get role (if role is filter, skip it) */
++			if (policy_is_filter(si))
++				continue;
++
++			/* Check policy, if no policy exists, treat as AUTO */
++			if (!(policy = pa_proplist_gets(si->proplist, PA_PROP_MEDIA_POLICY))) {
++				pa_log_debug("[POLICY] set policy of sink-input[%d] from [%s] to [auto]", si->index, "null");
++				policy  = POLICY_AUTO;
++			}
++			pa_log_debug("[POLICY] Policy of sink input [%d] = %s", si->index, policy);
++
++			/* Select sink to move and move to it */
++			sink_to_move = policy_select_proper_sink (u->core, policy, u->is_mono);
++			if (sink_to_move) {
++				pa_log_debug("[POLICY][%s] Moving sink-input[%d] from [%s] to [%s]", __func__, si->index, si->sink->name, sink_to_move->name);
++				pa_sink_input_move_to(si, sink_to_move, false);
++			} else {
++				pa_log_debug("[POLICY][%s] Can't move sink-input....", __func__);
++			}
++		}
++        break;
++    }
++
++    case SUBCOMMAND_BALANCE: {
++		float balance;
++		pa_cvolume cvol;
++		pa_channel_map map;
++
++		if (pa_tagstruct_get_cvolume(t, &cvol) < 0)
++			goto fail;
++
++		pa_channel_map_init_stereo(&map);
++		balance = pa_cvolume_get_balance(&cvol, &map);
++
++		pa_log_debug ("[POLICY][%s] new balance value = [%f]\n", __func__, balance);
++
++		if (balance == u->balance) {
++			pa_log_debug ("[POLICY][%s] No changes in balance value = [%f]", __func__, u->balance);
++			break;
++		}
++
++		u->balance = balance;
++
++		/* Apply balance value to each Sinks */
++		PA_IDXSET_FOREACH(s, u->core->sinks, idx) {
++			pa_cvolume* cvol = pa_sink_get_volume (s, false);
++			pa_cvolume_set_balance (cvol, &s->channel_map, u->balance);
++			pa_sink_set_volume(s, cvol, true, true);
++		}
++		break;
++	}
++
++    default:
++      goto fail;
++  }
++
++  pa_pstream_send_tagstruct(pa_native_connection_get_pstream(c), reply);
++  return 0;
++
++  fail:
++
++  if (reply)
++	  pa_tagstruct_free(reply);
++
++  return -1;
++}
++
++/*  Called when new sink-input is creating  */
++static pa_hook_result_t sink_input_new_hook_callback(pa_core *c, pa_sink_input_new_data *new_data, struct userdata *u)
++{
++    const char *policy = NULL;
++
++    pa_assert(c);
++    pa_assert(new_data);
++    pa_assert(u);
++
++    if (!new_data->proplist) {
++        pa_log_debug("[POLICY] New stream lacks property data.");
++        return PA_HOOK_OK;
++    }
++
++    /* If sink-input has already sink, skip */
++    if (new_data->sink) {
++    	/* sink-input with filter role will be also here because sink is already set */
++#ifdef DEBUG_DETAIL
++        pa_log_debug("[POLICY] Not setting device for stream [%s], because already set.",
++        		pa_strnull(pa_proplist_gets(new_data->proplist, PA_PROP_MEDIA_NAME)));
++#endif
++        return PA_HOOK_OK;
++    }
++
++    /* If no policy exists, skip */
++    if (!(policy = pa_proplist_gets(new_data->proplist, PA_PROP_MEDIA_POLICY))) {
++        pa_log_debug("[POLICY][%s] Not setting device for stream [%s], because it lacks policy.",
++        		__func__, pa_strnull(pa_proplist_gets(new_data->proplist, PA_PROP_MEDIA_NAME)));
++        return PA_HOOK_OK;
++    }
++    pa_log_debug("[POLICY][%s] Policy for stream [%s] = [%s]",
++    		__func__, pa_strnull(pa_proplist_gets(new_data->proplist, PA_PROP_MEDIA_NAME)), policy);
++
++    /* Set proper sink to sink-input */
++    pa_sink* new_sink = policy_select_proper_sink(c, policy, u->is_mono);
++    if(new_sink != new_data->sink)
++    {
++        pa_sink_input_new_data_set_sink(new_data, new_sink, false);
++    }
++	/*new_data->save_sink = false;
++	new_data->sink = policy_select_proper_sink (c, policy, u->is_mono);*/
++	pa_log_debug("[POLICY][%s] set sink of sink-input to [%s]", __func__, (new_data->sink)? new_data->sink->name : "null");
++
++    return PA_HOOK_OK;
++}
++
++/*  Called when new sink is added while sink-input is existing  */
++static pa_hook_result_t sink_put_hook_callback(pa_core *c, pa_sink *sink, struct userdata *u)
++{
++    pa_sink_input *si;
++    pa_sink *sink_to_move;
++    uint32_t idx;
++    char *args = NULL;
++
++    bool is_bt;
++    bool is_usb_alsa;
++
++    pa_assert(c);
++    pa_assert(sink);
++    pa_assert(u);
++    pa_assert(u->on_hotplug);
++
++    /* If connected sink is BLUETOOTH, set as default */
++    /* we are checking with device.api property */
++    is_bt = policy_is_bluez(sink);
++    is_usb_alsa = policy_is_usb_alsa(sink);
++
++	if (is_bt || is_usb_alsa) {
++		pa_log_debug("[POLICY][%s] set default sink to sink[%s][%d]", __func__, sink->name, sink->index);
++		pa_namereg_set_default_sink (c,sink);
++	} else {
++		pa_log_debug("[POLICY][%s] this sink [%s][%d] is not a bluez....return", __func__, sink->name, sink->index);
++		return PA_HOOK_OK;
++	}
++
++	if (is_bt) {
++		/* Load mono_bt sink */
++		args = pa_sprintf_malloc("sink_name=%s master=%s channels=1", SINK_MONO_BT, sink->name);
++		u->module_mono_bt = pa_module_load(u->module->core, "module-remap-sink", args);
++		pa_xfree(args);
++
++		/* load combine sink */
++		args = pa_sprintf_malloc("sink_name=%s slaves=\"%s,%s\"", SINK_COMBINED, sink->name, SINK_ALSA);
++		u->module_combined = pa_module_load(u->module->core, "module-combine", args);
++		pa_xfree(args);
++
++		/* load mono_combine sink */
++		args = pa_sprintf_malloc("sink_name=%s master=%s channels=1", SINK_MONO_COMBINED, SINK_COMBINED);
++		u->module_mono_combined = pa_module_load(u->module->core, "module-remap-sink", args);
++		pa_xfree(args);
++	}
++
++	/* Iterate each sink inputs to decide whether we should move to new sink */
++    PA_IDXSET_FOREACH(si, c->sink_inputs, idx) {
++        const char *policy = NULL;
++
++        if (si->sink == sink)
++        	continue;
++
++        /* Skip this if it is already in the process of being moved
++         * anyway */
++        if (!si->sink)
++            continue;
++
++        /* It might happen that a stream and a sink are set up at the
++           same time, in which case we want to make sure we don't
++           interfere with that */
++        if (!PA_SINK_INPUT_IS_LINKED(pa_sink_input_get_state(si)))
++            continue;
++
++		/* Get role (if role is filter, skip it) */
++        if (policy_is_filter(si))
++        	continue;
++
++		/* Check policy */
++		if (!(policy = pa_proplist_gets(si->proplist, PA_PROP_MEDIA_POLICY))) {
++			/* No policy exists, this means auto */
++			pa_log_debug("[POLICY][%s] set policy of sink-input[%d] from [%s] to [auto]", __func__, si->index, "null");
++			policy = POLICY_AUTO;
++		}
++
++		sink_to_move = policy_select_proper_sink (c, policy, u->is_mono);
++		if (sink_to_move) {
++			pa_log_debug("[POLICY][%s] Moving sink-input[%d] from [%s] to [%s]", __func__, si->index, si->sink->name, sink_to_move->name);
++			pa_sink_input_move_to(si, sink_to_move, false);
++		} else {
++			pa_log_debug("[POLICY][%s] Can't move sink-input....",__func__);
++		}
++    }
++
++	/* Reset sink volume with balance from userdata */
++	pa_cvolume* cvol = pa_sink_get_volume(sink, false);
++	pa_cvolume_set_balance(cvol, &sink->channel_map, u->balance);
++	pa_sink_set_volume(sink, cvol, true, true);
++
++    return PA_HOOK_OK;
++}
++
++static void subscribe_cb(pa_core *c, pa_subscription_event_type_t t, uint32_t idx, void *userdata)
++{
++    struct userdata *u = userdata;
++    pa_sink *def;
++    pa_sink_input *si;
++    uint32_t idx2;
++    pa_sink *sink_to_move = NULL;
++    pa_assert(u);
++
++    pa_log_debug("[POLICY][%s] subscribe_cb() t=[0x%x], idx=[%d]", __func__, t, idx);
++
++    /* We only handle server changes */
++    if (t == (PA_SUBSCRIPTION_EVENT_SERVER|PA_SUBSCRIPTION_EVENT_CHANGE)) {
++
++    	def = pa_namereg_get_default_sink(c);
++		if (def == NULL) {
++			pa_log_warn("[POLICY][%s] pa_namereg_get_default_sink() returns null", __func__);
++			return;
++		}
++    	pa_log_debug("[POLICY][%s] trying to move stream to current default sink = [%s]", __func__, def->name);
++
++    	/* Iterate each sink inputs to decide whether we should move to new DEFAULT sink */
++    	PA_IDXSET_FOREACH(si, c->sink_inputs, idx2) {
++			const char *policy = NULL;
++
++			if (!si->sink)
++				continue;
++
++			/* Get role (if role is filter, skip it) */
++			if (policy_is_filter(si))
++				continue;
++
++			/* Get policy */
++			if (!(policy = pa_proplist_gets(si->proplist, PA_PROP_MEDIA_POLICY))) {
++				/* No policy exists, this means auto */
++				pa_log_debug("[POLICY][%s] set policy of sink-input[%d] from [%s] to [auto]", __func__, si->index, "null");
++				policy = POLICY_AUTO;
++			}
++
++			sink_to_move = policy_select_proper_sink (c, policy, u->is_mono);
++			if (sink_to_move) {
++				/* Move sink-input to new DEFAULT sink */
++				pa_log_debug("[POLICY][%s] Moving sink-input[%d] from [%s] to [%s]", __func__, si->index, si->sink->name, sink_to_move->name);
++				pa_sink_input_move_to(si, sink_to_move, false);
++			}
++    	}
++    }
++}
++
++static pa_hook_result_t sink_unlink_hook_callback(pa_core *c, pa_sink *sink, void* userdata) {
++    struct userdata *u = userdata;
++    uint32_t idx;
++    pa_sink *sink_to_move;
++    pa_sink_input	*si;
++
++    pa_assert(c);
++    pa_assert(sink);
++    pa_assert(u);
++
++     /* There's no point in doing anything if the core is shut down anyway */
++    if (c->state == PA_CORE_SHUTDOWN)
++        return PA_HOOK_OK;
++
++    /* if unloading sink is not bt, just return */
++	if (!policy_is_bluez (sink)) {
++		pa_log_debug("[POLICY][%s] sink[%s][%d] unlinked but not a bluez....return\n", __func__,  sink->name, sink->index);
++		return PA_HOOK_OK;
++	}
++
++	pa_log_debug ("[POLICY][%s] SINK unlinked ================================ sink [%s][%d], bt_off_idx was [%d]",
++	    		__func__, sink->name, sink->index,u->bt_off_idx);
++
++	u->bt_off_idx = sink->index;
++	pa_log_debug ("[POLICY][%s] bt_off_idx is set to [%d]", __func__, u->bt_off_idx);
++
++	/* BT sink is unloading, move sink-input to proper sink */
++	PA_IDXSET_FOREACH(si, c->sink_inputs, idx) {
++
++		if (!si->sink)
++			continue;
++
++		/* Get role (if role is filter, skip it) */
++		if (policy_is_filter(si))
++			continue;
++
++		/* Find who were using bt sink or bt related sink and move them to proper sink (alsa/mono_alsa) */
++		if (pa_streq (si->sink->name, SINK_MONO_BT) ||
++			pa_streq (si->sink->name, SINK_MONO_COMBINED) ||
++			pa_streq (si->sink->name, SINK_COMBINED) ||
++			policy_is_bluez (si->sink)) {
++
++			/* Move sink-input to proper sink : only alsa related sink is available now */
++			sink_to_move = policy_get_sink_by_name (c, (u->is_mono)? SINK_MONO_ALSA : SINK_ALSA);
++			if (sink_to_move) {
++				pa_log_debug("[POLICY][%s] Moving sink-input[%d] from [%s] to [%s]", __func__, si->index, si->sink->name, sink_to_move->name);
++				pa_sink_input_move_to(si, sink_to_move, false);
++			} else {
++				pa_log_warn("[POLICY][%s] No sink to move", __func__);
++			}
++		}
++	}
++
++	pa_log_debug ("[POLICY][%s] unload sink in dependencies", __func__);
++
++    /* Unload mono_combine sink */
++    if (u->module_mono_combined) {
++        pa_module_unload(u->module->core, u->module_mono_combined, true);
++    	u->module_mono_combined = NULL;
++    }
++
++	/* Unload combine sink */
++    if (u->module_combined) {
++        pa_module_unload(u->module->core, u->module_combined, true);
++        u->module_combined = NULL;
++    }
++
++    /* Unload mono_bt sink */
++	if (u->module_mono_bt) {
++		pa_module_unload(u->module->core, u->module_mono_bt, true);
++		u->module_mono_bt = NULL;
++	}
++
++    return PA_HOOK_OK;
++}
++
++static pa_hook_result_t sink_unlink_post_hook_callback(pa_core *c, pa_sink *sink, void* userdata) {
++    struct userdata *u = userdata;
++
++    pa_assert(c);
++    pa_assert(sink);
++    pa_assert(u);
++
++    pa_log_debug("[POLICY][%s] SINK unlinked POST ================================ sink [%s][%d]", __func__, sink->name, sink->index);
++
++     /* There's no point in doing anything if the core is shut down anyway */
++    if (c->state == PA_CORE_SHUTDOWN)
++        return PA_HOOK_OK;
++
++    /* if unloading sink is not bt, just return */
++	if (!policy_is_bluez (sink)) {
++		pa_log_debug("[POLICY][%s] not a bluez....return\n", __func__);
++		return PA_HOOK_OK;
++	}
++
++    u->bt_off_idx = -1;
++    pa_log_debug ("[POLICY][%s] bt_off_idx is cleared to [%d]", __func__, u->bt_off_idx);
++
++    return PA_HOOK_OK;
++}
++
++static pa_hook_result_t sink_input_move_start_cb(pa_core *core, pa_sink_input *i, struct userdata *u) {
++    pa_core_assert_ref(core);
++    pa_sink_input_assert_ref(i);
++
++    /* There's no point in doing anything if the core is shut down anyway */
++   if (core->state == PA_CORE_SHUTDOWN)
++       return PA_HOOK_OK;
++
++    pa_log_debug ("[POLICY][%s]  sink_input_move_start_cb -------------------------------------- sink-input [%d] was sink [%s][%d] : Trying to mute!!!",
++    		__func__, i->index, i->sink->name, i->sink->index);
++    pa_sink_input_set_mute(i, true, false);
++
++    return PA_HOOK_OK;
++}
++
++static pa_hook_result_t sink_input_move_finish_cb(pa_core *core, pa_sink_input *i, struct userdata *u) {
++    pa_core_assert_ref(core);
++    pa_sink_input_assert_ref(i);
++
++    /* There's no point in doing anything if the core is shut down anyway */
++   if (core->state == PA_CORE_SHUTDOWN)
++       return PA_HOOK_OK;
++
++    pa_log_debug("[POLICY][%s] sink_input_move_finish_cb -------------------------------------- sink-input [%d], sink [%s][%d], bt_off_idx [%d] : %s",
++    		__func__, i->index, i->sink->name, i->sink->index, u->bt_off_idx,
++    		(u->bt_off_idx == -1)? "Trying to un-mute!!!!" : "skip un-mute...");
++
++    /* If sink input move is caused by bt sink unlink, then skip un-mute operation */
++    if (u->bt_off_idx == -1) {
++        pa_sink_input_set_mute(i, false, false);
++    }
++
++    return PA_HOOK_OK;
++}
++
++static pa_source* policy_get_source_by_name (pa_core *c, const char* source_name)
++{
++	pa_source *s = NULL;
++	uint32_t idx;
++
++	if (c == NULL || source_name == NULL) {
++		pa_log_warn ("input param is null");
++		return NULL;
++	}
++
++	PA_IDXSET_FOREACH(s, c->sources, idx) {
++		if (pa_streq (s->name, source_name)) {
++			pa_log_debug ("[POLICY][%s] return [%p] for [%s]\n",  __func__, s, source_name);
++			return s;
++		}
++	}
++	return NULL;
++}
++
++/* Select source for given condition */
++static pa_source* policy_select_proper_source (pa_core *c, const char* policy)
++{
++	pa_source* source = NULL;
++	pa_source* def = NULL;
++
++	if (c == NULL || policy == NULL) {
++		pa_log_warn ("input param is null");
++		return NULL;
++	}
++
++	pa_assert (c);
++	def = pa_namereg_get_default_source(c);
++	if (def == NULL) {
++		pa_log_warn ("POLICY][%s] pa_namereg_get_default_source() returns null", __func__);
++		return NULL;
++	}
++
++	/* Select source  to */
++	if (pa_streq(policy, POLICY_VOIP)) {
++		source = policy_get_source_by_name (c, AEC_SOURCE);
++
++	} else {
++		source = def;
++	}
++
++	pa_log_debug ("[POLICY][%s] selected source : [%s]\n", __func__, (source)? source->name : "null");
++	return source;
++}
++
++
++/*  Called when new source-output is creating  */
++static pa_hook_result_t source_output_new_hook_callback(pa_core *c, pa_source_output_new_data *new_data, struct userdata *u) {
++	const char *policy = NULL;
++	pa_assert(c);
++	pa_assert(new_data);
++	pa_assert(u);
++
++	if (!new_data->proplist) {
++		pa_log_debug("New stream lacks property data.");
++		return PA_HOOK_OK;
++	}
++
++	if (new_data->source) {
++		pa_log_debug("Not setting device for stream %s, because already set.", pa_strnull(pa_proplist_gets(new_data->proplist, PA_PROP_MEDIA_NAME)));
++		return PA_HOOK_OK;
++	}
++
++	/* If no policy exists, skip */
++	if (!(policy = pa_proplist_gets(new_data->proplist, PA_PROP_MEDIA_POLICY))) {
++		pa_log_debug("[POLICY][%s] Not setting device for stream [%s], because it lacks policy.",
++				__func__, pa_strnull(pa_proplist_gets(new_data->proplist, PA_PROP_MEDIA_NAME)));
++		return PA_HOOK_OK;
++	}
++	pa_log_debug("[POLICY][%s] Policy for stream [%s] = [%s]",
++			__func__, pa_strnull(pa_proplist_gets(new_data->proplist, PA_PROP_MEDIA_NAME)), policy);
++
++	/* Set proper source to source-output */
++    pa_source* new_source = policy_select_proper_source(c, policy);
++    if(new_source != new_data->source)
++    {
++        pa_source_output_new_data_set_source(new_data, new_source, false);
++    }
++	/*new_data->save_source= false;
++	new_data->source= policy_select_proper_source (c, policy);*/
++	pa_log_debug("[POLICY][%s] set source of source-input to [%s]", __func__, (new_data->source)? new_data->source->name : "null");
++
++	return PA_HOOK_OK;
++}
++
++int pa__init(pa_module *m)
++{
++	pa_modargs *ma = NULL;
++	struct userdata *u;
++	bool on_hotplug = true, on_rescue = true;
++
++	pa_assert(m);
++
++	if (!(ma = pa_modargs_new(m->argument, valid_modargs))) {
++		pa_log("Failed to parse module arguments");
++		goto fail;
++	}
++
++	if (pa_modargs_get_value_boolean(ma, "on_hotplug", &on_hotplug) < 0 ||
++		pa_modargs_get_value_boolean(ma, "on_rescue", &on_rescue) < 0) {
++		pa_log("on_hotplug= and on_rescue= expect boolean arguments");
++		goto fail;
++	}
++
++	m->userdata = u = pa_xnew0(struct userdata, 1);
++	u->core = m->core;
++	u->module = m;
++	u->on_hotplug = on_hotplug;
++
++
++	/* A little bit later than module-stream-restore */
++	u->sink_input_new_hook_slot =
++			pa_hook_connect(&m->core->hooks[PA_CORE_HOOK_SINK_INPUT_NEW], PA_HOOK_EARLY+10, (pa_hook_cb_t) sink_input_new_hook_callback, u);
++
++	u->source_output_new_hook_slot =
++			pa_hook_connect(&m->core->hooks[PA_CORE_HOOK_SOURCE_OUTPUT_NEW], PA_HOOK_EARLY+10, (pa_hook_cb_t) source_output_new_hook_callback, u);
++
++	if (on_hotplug) {
++		/* A little bit later than module-stream-restore */
++		u->sink_put_hook_slot =
++			pa_hook_connect(&m->core->hooks[PA_CORE_HOOK_SINK_PUT], PA_HOOK_LATE+10, (pa_hook_cb_t) sink_put_hook_callback, u);
++	}
++
++	/* sink unlink comes before sink-input unlink */
++	u->sink_unlink_slot = pa_hook_connect(&m->core->hooks[PA_CORE_HOOK_SINK_UNLINK], PA_HOOK_EARLY, (pa_hook_cb_t) sink_unlink_hook_callback, u);
++	u->sink_unlink_post_slot = pa_hook_connect(&m->core->hooks[PA_CORE_HOOK_SINK_UNLINK_POST], PA_HOOK_EARLY, (pa_hook_cb_t) sink_unlink_post_hook_callback, u);
++
++	u->sink_input_move_start_slot = pa_hook_connect(&m->core->hooks[PA_CORE_HOOK_SINK_INPUT_MOVE_START], PA_HOOK_LATE, (pa_hook_cb_t) sink_input_move_start_cb, u);
++	u->sink_input_move_finish_slot = pa_hook_connect(&m->core->hooks[PA_CORE_HOOK_SINK_INPUT_MOVE_FINISH], PA_HOOK_LATE, (pa_hook_cb_t) sink_input_move_finish_cb, u);
++
++	u->subscription = pa_subscription_new(u->core, PA_SUBSCRIPTION_MASK_SERVER, subscribe_cb, u);
++
++
++	u->bt_off_idx = -1;	/* initial bt off sink index */
++
++	u->module_mono_bt = NULL;
++	u->module_combined = NULL;
++	u->module_mono_combined = NULL;
++
++    u->protocol = pa_native_protocol_get(m->core);
++    pa_native_protocol_install_ext(u->protocol, m, extension_cb);
++
++    /* Get mono key value for init */
++	vconf_get_bool(MONO_KEY, &u->is_mono);
++
++	pa_log_info("policy module is loaded\n");
++
++	if (ma)
++		pa_modargs_free(ma);
++
++	return 0;
++
++fail:
++	if (ma)
++		pa_modargs_free(ma);
++
++	pa__done(m);
++
++	return -1;
++}
++
++void pa__done(pa_module *m)
++{
++    struct userdata* u;
++
++    pa_assert(m);
++
++    if (!(u = m->userdata))
++        return;
++
++    if (u->sink_input_new_hook_slot)
++        pa_hook_slot_free(u->sink_input_new_hook_slot);
++    if (u->sink_put_hook_slot)
++        pa_hook_slot_free(u->sink_put_hook_slot);
++    if (u->sink_unlink_slot)
++        pa_hook_slot_free(u->sink_unlink_slot);
++    if (u->sink_unlink_post_slot)
++        pa_hook_slot_free(u->sink_unlink_post_slot);
++    if (u->sink_input_move_start_slot)
++        pa_hook_slot_free(u->sink_input_move_start_slot);
++    if (u->sink_input_move_finish_slot)
++        pa_hook_slot_free(u->sink_input_move_finish_slot);
++    if (u->subscription)
++        pa_subscription_free(u->subscription);
++    if (u->protocol) {
++        pa_native_protocol_remove_ext(u->protocol, m);
++        pa_native_protocol_unref(u->protocol);
++    }
++    if (u->source_output_new_hook_slot)
++        pa_hook_slot_free(u->source_output_new_hook_slot);
++
++    pa_xfree(u);
++
++
++	pa_log_info("policy module is unloaded\n");
++}
+diff --git a/src/pulse/ext-policy.c b/src/pulse/ext-policy.c
+new file mode 100644
+index 0000000..f3a3a8c
+--- /dev/null
++++ b/src/pulse/ext-policy.c
+@@ -0,0 +1,177 @@
++/***
++  This file is part of PulseAudio.
++
++  PulseAudio is free software; you can redistribute it and/or modify
++  it under the terms of the GNU Lesser General Public License as published
++  by the Free Software Foundation; either version 2.1 of the License,
++  or (at your option) any later version.
++
++  PulseAudio is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with PulseAudio; if not, write to the Free Software
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++  USA.
++***/
++
++#ifdef HAVE_CONFIG_H
++#include <config.h>
++#endif
++
++#include <pulse/context.h>
++#include <pulse/gccmacro.h>
++#include <pulse/xmalloc.h>
++
++#include <pulsecore/macro.h>
++#include <pulsecore/pstream-util.h>
++
++#include "internal.h"
++#include "operation.h"
++#include "fork-detect.h"
++
++#include "ext-policy.h"
++
++enum {
++    SUBCOMMAND_TEST,
++    SUBCOMMAND_MONO,
++    SUBCOMMAND_BALANCE,
++};
++
++static void ext_policy_test_cb(pa_pdispatch *pd, uint32_t command, uint32_t tag, pa_tagstruct *t, void *userdata) {
++    pa_operation *o = userdata;
++    uint32_t version = PA_INVALID_INDEX;
++
++    pa_assert(pd);
++    pa_assert(o);
++    pa_assert(PA_REFCNT_VALUE(o) >= 1);
++
++    if (!o->context)
++        goto finish;
++
++    if (command != PA_COMMAND_REPLY) {
++        if (pa_context_handle_error(o->context, command, t, FALSE) < 0)
++            goto finish;
++
++    } else if (pa_tagstruct_getu32(t, &version) < 0 ||
++               !pa_tagstruct_eof(t)) {
++
++        pa_context_fail(o->context, PA_ERR_PROTOCOL);
++        goto finish;
++    }
++
++    if (o->callback) {
++        pa_ext_policy_test_cb_t cb = (pa_ext_policy_test_cb_t) o->callback;
++        cb(o->context, version, o->userdata);
++    }
++
++finish:
++    pa_operation_done(o);
++    pa_operation_unref(o);
++}
++
++pa_operation *pa_ext_policy_test(
++        pa_context *c,
++        pa_ext_device_manager_test_cb_t cb,
++        void *userdata) {
++
++    uint32_t tag;
++    pa_operation *o;
++    pa_tagstruct *t;
++
++    pa_assert(c);
++    pa_assert(PA_REFCNT_VALUE(c) >= 1);
++
++    PA_CHECK_VALIDITY_RETURN_NULL(c, !pa_detect_fork(), PA_ERR_FORKED);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->state == PA_CONTEXT_READY, PA_ERR_BADSTATE);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->version >= 14, PA_ERR_NOTSUPPORTED);
++
++    o = pa_operation_new(c, NULL, (pa_operation_cb_t) cb, userdata);
++
++    t = pa_tagstruct_command(c, PA_COMMAND_EXTENSION, &tag);
++    pa_tagstruct_putu32(t, PA_INVALID_INDEX);
++    pa_tagstruct_puts(t, "module-policy");
++    pa_tagstruct_putu32(t, SUBCOMMAND_TEST);
++    pa_pstream_send_tagstruct(c->pstream, t);
++    pa_pdispatch_register_reply(c->pdispatch, tag, DEFAULT_TIMEOUT, ext_policy_test_cb, pa_operation_ref(o), (pa_free_cb_t) pa_operation_unref);
++
++    return o;
++}
++
++pa_operation *pa_ext_policy_set_mono (
++        pa_context *c,
++        int enable,
++        pa_context_success_cb_t cb,
++        void *userdata) {
++
++    uint32_t tag;
++    pa_operation *o = NULL;
++    pa_tagstruct *t = NULL;
++
++    pa_assert(c);
++    pa_assert(PA_REFCNT_VALUE(c) >= 1);
++
++    PA_CHECK_VALIDITY_RETURN_NULL(c, !pa_detect_fork(), PA_ERR_FORKED);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->state == PA_CONTEXT_READY, PA_ERR_BADSTATE);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->version >= 14, PA_ERR_NOTSUPPORTED);
++
++    o = pa_operation_new(c, NULL, (pa_operation_cb_t) cb, userdata);
++
++    t = pa_tagstruct_command(c, PA_COMMAND_EXTENSION, &tag);
++    pa_tagstruct_putu32(t, PA_INVALID_INDEX);
++    pa_tagstruct_puts(t, "module-policy");
++    pa_tagstruct_putu32(t, SUBCOMMAND_MONO);
++    pa_tagstruct_put_boolean(t, !!enable);
++
++    pa_pstream_send_tagstruct(c->pstream, t);
++    pa_pdispatch_register_reply(c->pdispatch, tag, DEFAULT_TIMEOUT, pa_context_simple_ack_callback, pa_operation_ref(o), (pa_free_cb_t) pa_operation_unref);
++
++    return o;
++}
++
++pa_operation *pa_ext_policy_set_balance (
++        pa_context *c,
++        double *balance,
++        pa_context_success_cb_t cb,
++        void *userdata) {
++
++    uint32_t tag;
++    pa_operation *o = NULL;
++    pa_tagstruct *t = NULL;
++    pa_cvolume cvol;
++    pa_channel_map map;
++
++    pa_assert(c);
++    pa_assert(PA_REFCNT_VALUE(c) >= 1);
++
++    PA_CHECK_VALIDITY_RETURN_NULL(c, !pa_detect_fork(), PA_ERR_FORKED);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->state == PA_CONTEXT_READY, PA_ERR_BADSTATE);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->version >= 14, PA_ERR_NOTSUPPORTED);
++
++    o = pa_operation_new(c, NULL, (pa_operation_cb_t) cb, userdata);
++
++    t = pa_tagstruct_command(c, PA_COMMAND_EXTENSION, &tag);
++    pa_tagstruct_putu32(t, PA_INVALID_INDEX);
++    pa_tagstruct_puts(t, "module-policy");
++    pa_tagstruct_putu32(t, SUBCOMMAND_BALANCE);
++
++    /* Prepare cvolume for transfer */
++    pa_channel_map_init_stereo(&map);
++    pa_cvolume_set(&cvol, map.channels, 65535);
++
++    pa_log_error ("balance = %f", *balance);
++
++    pa_cvolume_set_balance(&cvol, &map, *balance);
++
++    pa_log_error ("balance get = %f", pa_cvolume_get_balance(&cvol, &map));
++
++    pa_tagstruct_put_cvolume(t, &cvol);
++
++    pa_pstream_send_tagstruct(c->pstream, t);
++    pa_pdispatch_register_reply(c->pdispatch, tag, DEFAULT_TIMEOUT, pa_context_simple_ack_callback, pa_operation_ref(o), (pa_free_cb_t) pa_operation_unref);
++
++    return o;
++}
++
+diff --git a/src/pulse/ext-policy.h b/src/pulse/ext-policy.h
+new file mode 100644
+index 0000000..ec62ead
+--- /dev/null
++++ b/src/pulse/ext-policy.h
+@@ -0,0 +1,61 @@
++#ifndef foopulseextpolicyhfoo
++#define foopulseextpolicyhfoo
++
++/***
++  This file is part of PulseAudio.
++
++  PulseAudio is free software; you can redistribute it and/or modify
++  it under the terms of the GNU Lesser General Public License as published
++  by the Free Software Foundation; either version 2.1 of the License,
++  or (at your option) any later version.
++
++  PulseAudio is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with PulseAudio; if not, write to the Free Software
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++  USA.
++***/
++
++#include <pulse/context.h>
++#include <pulse/version.h>
++
++/** \file
++ *
++ * Routines for controlling module-policy
++ */
++
++PA_C_DECL_BEGIN
++
++/** Callback prototype for pa_ext_policy_test(). \since 0.9.21 */
++typedef void (*pa_ext_policy_test_cb_t)(
++        pa_context *c,
++        uint32_t version,
++        void *userdata);
++
++/** Test if this extension module is available in the server. \since 0.9.21 */
++pa_operation *pa_ext_policy_test(
++        pa_context *c,
++        pa_ext_policy_test_cb_t cb,
++        void *userdata);
++
++/** Enable the mono mode. \since 0.9.21 */
++pa_operation *pa_ext_policy_set_mono (
++        pa_context *c,
++        int enable,
++        pa_context_success_cb_t cb,
++        void *userdata);
++
++/** Enable the balance mode. \since 0.9.21 */
++pa_operation *pa_ext_policy_set_balance (
++        pa_context *c,
++        double *balance,
++        pa_context_success_cb_t cb,
++        void *userdata);
++
++PA_C_DECL_END
++
++#endif
+diff --git a/src/pulse/proplist.h b/src/pulse/proplist.h
+index dc3cddc..341abaa 100644
+--- a/src/pulse/proplist.h
++++ b/src/pulse/proplist.h
+@@ -65,6 +65,9 @@ PA_C_DECL_BEGIN
+ /** For streams: logic role of this media. One of the strings "video", "music", "game", "event", "phone", "animation", "production", "a11y", "test" */
+ #define PA_PROP_MEDIA_ROLE                     "media.role"
+ 
++/** For streams: logic role of this media. One of the strings "auto", "phone" */
++#define PA_PROP_MEDIA_POLICY                "media.policy"
++
+ /** For streams: the name of a filter that is desired, e.g.\ "echo-cancel" or "equalizer-sink". PulseAudio may choose to not apply the filter if it does not make sense (for example, applying echo-cancellation on a Bluetooth headset probably does not make sense. \since 1.0 */
+ #define PA_PROP_FILTER_WANT                    "filter.want"
+ 

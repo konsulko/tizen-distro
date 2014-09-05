@@ -1,0 +1,37 @@
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Date: Mon, 16 Sep 2013 15:10:51 +0300
+Subject: bluetooth: Set 'off' profile as default for newly create cards
+
+This makes sure that pa_card_new doesn't select one profile based on
+priority which may conflict with audio policy.
+
+Change-Id: Ifa5ad111d0c9f58701f93bcfd85b70d1f096efac
+---
+ src/modules/bluetooth/module-bluez4-device.c | 1 +
+ src/modules/bluetooth/module-bluez5-device.c | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/src/modules/bluetooth/module-bluez4-device.c b/src/modules/bluetooth/module-bluez4-device.c
+index 83e603f..b0b12f8 100644
+--- a/src/modules/bluetooth/module-bluez4-device.c
++++ b/src/modules/bluetooth/module-bluez4-device.c
+@@ -2295,6 +2295,7 @@ static int add_card(struct userdata *u) {
+     d = PA_CARD_PROFILE_DATA(p);
+     *d = PA_BLUEZ4_PROFILE_OFF;
+     pa_hashmap_put(data.profiles, p->name, p);
++    pa_card_new_data_set_profile(&data, "off");
+ 
+     if ((default_profile = pa_modargs_get_value(u->modargs, "profile", NULL))) {
+         if (pa_hashmap_get(data.profiles, default_profile))
+diff --git a/src/modules/bluetooth/module-bluez5-device.c b/src/modules/bluetooth/module-bluez5-device.c
+index 39fa5d0..a0776c8 100644
+--- a/src/modules/bluetooth/module-bluez5-device.c
++++ b/src/modules/bluetooth/module-bluez5-device.c
+@@ -1888,6 +1888,7 @@ static int add_card(struct userdata *u) {
+     p = PA_CARD_PROFILE_DATA(cp);
+     *p = PA_BLUETOOTH_PROFILE_OFF;
+     pa_hashmap_put(data.profiles, cp->name, cp);
++    pa_card_new_data_set_profile(&data, "off");
+ 
+     u->card = pa_card_new(u->core, &data);
+     pa_card_new_data_done(&data);

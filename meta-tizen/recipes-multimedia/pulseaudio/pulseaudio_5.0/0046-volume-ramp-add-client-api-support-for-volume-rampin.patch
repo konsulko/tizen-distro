@@ -1,0 +1,461 @@
+From: Jaska Uimonen <jaska.uimonen@helsinki.fi>
+Date: Wed, 8 Aug 2012 11:14:40 +0300
+Subject: volume ramp: add client api support for volume ramping
+
+Change-Id: I6afc7540af68400db54eec258bdf4a80c311bb69
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/map-file                    |  3 ++
+ src/pulse/introspect.c          | 74 +++++++++++++++++++++++++++++++++++++
+ src/pulse/introspect.h          |  9 +++++
+ src/pulse/stream.c              |  6 ++-
+ src/pulsecore/native-common.h   |  3 ++
+ src/pulsecore/pdispatch.c       |  2 +
+ src/pulsecore/protocol-native.c | 81 ++++++++++++++++++++++++++++++++++++++++-
+ src/pulsecore/tagstruct.c       | 74 +++++++++++++++++++++++++++++++++++++
+ src/pulsecore/tagstruct.h       |  3 ++
+ 9 files changed, 252 insertions(+), 3 deletions(-)
+
+diff --git a/src/map-file b/src/map-file
+index d51596c..20e577a 100644
+--- a/src/map-file
++++ b/src/map-file
+@@ -94,12 +94,15 @@ pa_context_set_event_callback;
+ pa_context_set_name;
+ pa_context_set_sink_input_mute;
+ pa_context_set_sink_input_volume;
++pa_context_set_sink_input_volume_ramp;
+ pa_context_set_sink_mute_by_index;
+ pa_context_set_sink_mute_by_name;
+ pa_context_set_sink_port_by_index;
+ pa_context_set_sink_port_by_name;
+ pa_context_set_sink_volume_by_index;
+ pa_context_set_sink_volume_by_name;
++pa_context_set_sink_volume_ramp_by_index;
++pa_context_set_sink_volume_ramp_by_name;
+ pa_context_set_source_output_mute;
+ pa_context_set_source_output_volume;
+ pa_context_set_source_mute_by_index;
+diff --git a/src/pulse/introspect.c b/src/pulse/introspect.c
+index 2d54fdb..a72020a 100644
+--- a/src/pulse/introspect.c
++++ b/src/pulse/introspect.c
+@@ -1446,6 +1446,56 @@ pa_operation* pa_context_set_sink_volume_by_name(pa_context *c, const char *name
+     return o;
+ }
+ 
++pa_operation* pa_context_set_sink_volume_ramp_by_index(pa_context *c, uint32_t idx, const pa_cvolume_ramp *ramp, pa_context_success_cb_t cb, void *userdata) {
++    pa_operation *o;
++    pa_tagstruct *t;
++    uint32_t tag;
++
++    pa_assert(c);
++    pa_assert(PA_REFCNT_VALUE(c) >= 1);
++    pa_assert(ramp);
++
++    PA_CHECK_VALIDITY_RETURN_NULL(c, !pa_detect_fork(), PA_ERR_FORKED);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->state == PA_CONTEXT_READY, PA_ERR_BADSTATE);
++
++    o = pa_operation_new(c, NULL, (pa_operation_cb_t) cb, userdata);
++
++    t = pa_tagstruct_command(c, PA_COMMAND_SET_SINK_VOLUME_RAMP, &tag);
++    pa_tagstruct_putu32(t, idx);
++    pa_tagstruct_puts(t, NULL);
++    pa_tagstruct_put_cvolume_ramp(t, ramp);
++    pa_pstream_send_tagstruct(c->pstream, t);
++    pa_pdispatch_register_reply(c->pdispatch, tag, DEFAULT_TIMEOUT, pa_context_simple_ack_callback, pa_operation_ref(o), (pa_free_cb_t) pa_operation_unref);
++
++    return o;
++}
++
++pa_operation* pa_context_set_sink_volume_ramp_by_name(pa_context *c, const char *name, const pa_cvolume_ramp *ramp, pa_context_success_cb_t cb, void *userdata) {
++    pa_operation *o;
++    pa_tagstruct *t;
++    uint32_t tag;
++
++    pa_assert(c);
++    pa_assert(PA_REFCNT_VALUE(c) >= 1);
++    pa_assert(name);
++    pa_assert(ramp);
++
++    PA_CHECK_VALIDITY_RETURN_NULL(c, !pa_detect_fork(), PA_ERR_FORKED);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->state == PA_CONTEXT_READY, PA_ERR_BADSTATE);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, !name || *name, PA_ERR_INVALID);
++
++    o = pa_operation_new(c, NULL, (pa_operation_cb_t) cb, userdata);
++
++    t = pa_tagstruct_command(c, PA_COMMAND_SET_SINK_VOLUME_RAMP, &tag);
++    pa_tagstruct_putu32(t, PA_INVALID_INDEX);
++    pa_tagstruct_puts(t, name);
++    pa_tagstruct_put_cvolume_ramp(t, ramp);
++    pa_pstream_send_tagstruct(c->pstream, t);
++    pa_pdispatch_register_reply(c->pdispatch, tag, DEFAULT_TIMEOUT, pa_context_simple_ack_callback, pa_operation_ref(o), (pa_free_cb_t) pa_operation_unref);
++
++    return o;
++}
++
+ pa_operation* pa_context_set_sink_mute_by_index(pa_context *c, uint32_t idx, int mute, pa_context_success_cb_t cb, void *userdata) {
+     pa_operation *o;
+     pa_tagstruct *t;
+@@ -1543,6 +1593,30 @@ pa_operation* pa_context_set_sink_input_mute(pa_context *c, uint32_t idx, int mu
+     return o;
+ }
+ 
++pa_operation* pa_context_set_sink_input_volume_ramp(pa_context *c, uint32_t idx, const pa_cvolume_ramp *ramp, pa_context_success_cb_t cb, void *userdata) {
++    pa_operation *o;
++    pa_tagstruct *t;
++    uint32_t tag;
++
++    pa_assert(c);
++    pa_assert(PA_REFCNT_VALUE(c) >= 1);
++    pa_assert(ramp);
++
++    PA_CHECK_VALIDITY_RETURN_NULL(c, !pa_detect_fork(), PA_ERR_FORKED);
++    PA_CHECK_VALIDITY_RETURN_NULL(c, c->state == PA_CONTEXT_READY, PA_ERR_BADSTATE);
++
++    o = pa_operation_new(c, NULL, (pa_operation_cb_t) cb, userdata);
++
++    t = pa_tagstruct_command(c, PA_COMMAND_SET_SINK_INPUT_VOLUME_RAMP, &tag);
++    pa_tagstruct_putu32(t, idx);
++    pa_tagstruct_puts(t, NULL);
++    pa_tagstruct_put_cvolume_ramp(t, ramp);
++    pa_pstream_send_tagstruct(c->pstream, t);
++    pa_pdispatch_register_reply(c->pdispatch, tag, DEFAULT_TIMEOUT, pa_context_simple_ack_callback, pa_operation_ref(o), (pa_free_cb_t) pa_operation_unref);
++
++    return o;
++}
++
+ pa_operation* pa_context_set_source_volume_by_index(pa_context *c, uint32_t idx, const pa_cvolume *volume, pa_context_success_cb_t cb, void *userdata) {
+     pa_operation *o;
+     pa_tagstruct *t;
+diff --git a/src/pulse/introspect.h b/src/pulse/introspect.h
+index 22fefed..127cade 100644
+--- a/src/pulse/introspect.h
++++ b/src/pulse/introspect.h
+@@ -287,6 +287,12 @@ pa_operation* pa_context_set_sink_mute_by_index(pa_context *c, uint32_t idx, int
+ /** Set the mute switch of a sink device specified by its name */
+ pa_operation* pa_context_set_sink_mute_by_name(pa_context *c, const char *name, int mute, pa_context_success_cb_t cb, void *userdata);
+ 
++/** Set the volume ramp of a sink device specified by its index */
++pa_operation* pa_context_set_sink_volume_ramp_by_index(pa_context *c, uint32_t idx, const pa_cvolume_ramp *ramp, pa_context_success_cb_t cb, void *userdata);
++
++/** Set the volume ramp of a sink device specified by its name */
++pa_operation* pa_context_set_sink_volume_ramp_by_name(pa_context *c, const char *name, const pa_cvolume_ramp *ramp, pa_context_success_cb_t cb, void *userdata);
++
+ /** Suspend/Resume a sink. \since 0.9.7 */
+ pa_operation* pa_context_suspend_sink_by_name(pa_context *c, const char *sink_name, int suspend, pa_context_success_cb_t cb, void* userdata);
+ 
+@@ -604,6 +610,9 @@ pa_operation* pa_context_set_sink_input_mute(pa_context *c, uint32_t idx, int mu
+ /** Kill a sink input. */
+ pa_operation* pa_context_kill_sink_input(pa_context *c, uint32_t idx, pa_context_success_cb_t cb, void *userdata);
+ 
++/** Set the volume ramp of a sink input specified by its index */
++pa_operation* pa_context_set_sink_input_volume_ramp(pa_context *c, uint32_t idx, const pa_cvolume_ramp *ramp, pa_context_success_cb_t cb, void *userdata);
++
+ /** @} */
+ 
+ /** @{ \name Source Outputs */
+diff --git a/src/pulse/stream.c b/src/pulse/stream.c
+index 8e35c29..501b5b6 100644
+--- a/src/pulse/stream.c
++++ b/src/pulse/stream.c
+@@ -1213,7 +1213,8 @@ static int create_stream(
+                                               PA_STREAM_START_UNMUTED|
+                                               PA_STREAM_FAIL_ON_SUSPEND|
+                                               PA_STREAM_RELATIVE_VOLUME|
+-                                              PA_STREAM_PASSTHROUGH)), PA_ERR_INVALID);
++                                              PA_STREAM_PASSTHROUGH|
++                                              PA_STREAM_START_RAMP_MUTED)), PA_ERR_INVALID);
+ 
+     PA_CHECK_VALIDITY(s->context, s->context->version >= 12 || !(flags & PA_STREAM_VARIABLE_RATE), PA_ERR_NOTSUPPORTED);
+     PA_CHECK_VALIDITY(s->context, s->context->version >= 13 || !(flags & PA_STREAM_PEAK_DETECT), PA_ERR_NOTSUPPORTED);
+@@ -1372,6 +1373,9 @@ static int create_stream(
+         pa_tagstruct_put_boolean(t, flags & (PA_STREAM_PASSTHROUGH));
+     }
+ 
++    if (s->context->version >= 22 && s->direction == PA_STREAM_PLAYBACK)
++        pa_tagstruct_put_boolean(t, flags & (PA_STREAM_START_RAMP_MUTED));
++
+     pa_pstream_send_tagstruct(s->context->pstream, t);
+     pa_pdispatch_register_reply(s->context->pdispatch, tag, DEFAULT_TIMEOUT, pa_create_stream_callback, s, NULL);
+ 
+diff --git a/src/pulsecore/native-common.h b/src/pulsecore/native-common.h
+index dad82e0..301e2e7 100644
+--- a/src/pulsecore/native-common.h
++++ b/src/pulsecore/native-common.h
+@@ -176,6 +176,9 @@ enum {
+     /* Supported since protocol v27 (3.0) */
+     PA_COMMAND_SET_PORT_LATENCY_OFFSET,
+ 
++    PA_COMMAND_SET_SINK_VOLUME_RAMP,
++    PA_COMMAND_SET_SINK_INPUT_VOLUME_RAMP,
++
+     PA_COMMAND_MAX
+ };
+ 
+diff --git a/src/pulsecore/pdispatch.c b/src/pulsecore/pdispatch.c
+index 4033240..8643378 100644
+--- a/src/pulsecore/pdispatch.c
++++ b/src/pulsecore/pdispatch.c
+@@ -190,6 +190,8 @@ static const char *command_names[PA_COMMAND_MAX] = {
+     [PA_COMMAND_SET_SOURCE_OUTPUT_VOLUME] = "SET_SOURCE_OUTPUT_VOLUME",
+     [PA_COMMAND_SET_SOURCE_OUTPUT_MUTE] = "SET_SOURCE_OUTPUT_MUTE",
+ 
++    [PA_COMMAND_SET_SINK_VOLUME_RAMP] = "SET_SINK_VOLUME_RAMP",
++    [PA_COMMAND_SET_SINK_INPUT_VOLUME_RAMP] = "SET_SINK_INPUT_VOLUME_RAMP",
+ };
+ 
+ #endif
+diff --git a/src/pulsecore/protocol-native.c b/src/pulsecore/protocol-native.c
+index 41b4b50..4304cd4 100644
+--- a/src/pulsecore/protocol-native.c
++++ b/src/pulsecore/protocol-native.c
+@@ -294,6 +294,7 @@ static void command_extension(pa_pdispatch *pd, uint32_t command, uint32_t tag,
+ static void command_set_card_profile(pa_pdispatch *pd, uint32_t command, uint32_t tag, pa_tagstruct *t, void *userdata);
+ static void command_set_sink_or_source_port(pa_pdispatch *pd, uint32_t command, uint32_t tag, pa_tagstruct *t, void *userdata);
+ static void command_set_port_latency_offset(pa_pdispatch *pd, uint32_t command, uint32_t tag, pa_tagstruct *t, void *userdata);
++static void command_set_volume_ramp(pa_pdispatch *pd, uint32_t command, uint32_t tag, pa_tagstruct *t, void *userdata);
+ 
+ static const pa_pdispatch_cb_t command_table[PA_COMMAND_MAX] = {
+     [PA_COMMAND_ERROR] = NULL,
+@@ -397,6 +398,9 @@ static const pa_pdispatch_cb_t command_table[PA_COMMAND_MAX] = {
+ 
+     [PA_COMMAND_SET_PORT_LATENCY_OFFSET] = command_set_port_latency_offset,
+ 
++    [PA_COMMAND_SET_SINK_VOLUME_RAMP] = command_set_volume_ramp,
++    [PA_COMMAND_SET_SINK_INPUT_VOLUME_RAMP] = command_set_volume_ramp,
++
+     [PA_COMMAND_EXTENSION] = command_extension
+ };
+ 
+@@ -1994,7 +1998,8 @@ static void command_create_playback_stream(pa_pdispatch *pd, uint32_t command, u
+         muted_set = false,
+         fail_on_suspend = false,
+         relative_volume = false,
+-        passthrough = false;
++        passthrough = false,
++        ramp_muted = false;
+ 
+     pa_sink_input_flags_t flags = 0;
+     pa_proplist *p = NULL;
+@@ -2122,6 +2127,7 @@ static void command_create_playback_stream(pa_pdispatch *pd, uint32_t command, u
+             }
+             pa_idxset_put(formats, format, NULL);
+         }
++
+     }
+ 
+     if (n_formats == 0) {
+@@ -2134,6 +2140,11 @@ static void command_create_playback_stream(pa_pdispatch *pd, uint32_t command, u
+         }
+     }
+ 
++    if (pa_tagstruct_get_boolean(t, &ramp_muted) < 0 ) {
++        protocol_error(c);
++        goto finish;
++    }
++
+     if (!pa_tagstruct_eof(t)) {
+         protocol_error(c);
+         goto finish;
+@@ -2165,7 +2176,8 @@ static void command_create_playback_stream(pa_pdispatch *pd, uint32_t command, u
+         (variable_rate ? PA_SINK_INPUT_VARIABLE_RATE : 0) |
+         (dont_inhibit_auto_suspend ? PA_SINK_INPUT_DONT_INHIBIT_AUTO_SUSPEND : 0) |
+         (fail_on_suspend ? PA_SINK_INPUT_NO_CREATE_ON_SUSPEND|PA_SINK_INPUT_KILL_ON_SUSPEND : 0) |
+-        (passthrough ? PA_SINK_INPUT_PASSTHROUGH : 0);
++        (passthrough ? PA_SINK_INPUT_PASSTHROUGH : 0) |
++        (ramp_muted ? PA_SINK_INPUT_START_RAMP_MUTED : 0);
+ 
+     /* Only since protocol version 15 there's a separate muted_set
+      * flag. For older versions we synthesize it here */
+@@ -3797,6 +3809,71 @@ static void command_set_volume(
+     pa_pstream_send_simple_ack(c->pstream, tag);
+ }
+ 
++static void command_set_volume_ramp(
++        pa_pdispatch *pd,
++        uint32_t command,
++        uint32_t tag,
++        pa_tagstruct *t,
++        void *userdata) {
++
++    pa_native_connection *c = PA_NATIVE_CONNECTION(userdata);
++    uint32_t idx;
++    pa_cvolume_ramp ramp;
++    pa_sink *sink = NULL;
++    pa_sink_input *si = NULL;
++    const char *name = NULL;
++    const char *client_name;
++
++    pa_native_connection_assert_ref(c);
++    pa_assert(t);
++
++    if (pa_tagstruct_getu32(t, &idx) < 0 ||
++        (command == PA_COMMAND_SET_SINK_VOLUME_RAMP && pa_tagstruct_gets(t, &name) < 0) ||
++        (command == PA_COMMAND_SET_SINK_INPUT_VOLUME_RAMP && pa_tagstruct_gets(t, &name) < 0) ||
++        pa_tagstruct_get_cvolume_ramp(t, &ramp) ||
++        !pa_tagstruct_eof(t)) {
++        protocol_error(c);
++        return;
++    }
++
++    CHECK_VALIDITY(c->pstream, c->authorized, tag, PA_ERR_ACCESS);
++    CHECK_VALIDITY(c->pstream, !name || pa_namereg_is_valid_name_or_wildcard(name, command == PA_COMMAND_SET_SINK_VOLUME ? PA_NAMEREG_SINK : PA_NAMEREG_SOURCE), tag, PA_ERR_INVALID);
++    CHECK_VALIDITY(c->pstream, idx != PA_INVALID_INDEX || name, tag, PA_ERR_INVALID);
++    CHECK_VALIDITY(c->pstream, idx == PA_INVALID_INDEX || !name, tag, PA_ERR_INVALID);
++    CHECK_VALIDITY(c->pstream, !name || idx == PA_INVALID_INDEX, tag, PA_ERR_INVALID);
++
++    switch (command) {
++
++        case PA_COMMAND_SET_SINK_VOLUME_RAMP:
++            if (idx != PA_INVALID_INDEX)
++                sink = pa_idxset_get_by_index(c->protocol->core->sinks, idx);
++            else
++                sink = pa_namereg_get(c->protocol->core, name, PA_NAMEREG_SINK);
++            break;
++
++        case PA_COMMAND_SET_SINK_INPUT_VOLUME_RAMP:
++            si = pa_idxset_get_by_index(c->protocol->core->sink_inputs, idx);
++            break;
++
++        default:
++            pa_assert_not_reached();
++    }
++
++    CHECK_VALIDITY(c->pstream, sink || si, tag, PA_ERR_NOENTITY);
++
++    client_name = pa_strnull(pa_proplist_gets(c->client->proplist, PA_PROP_APPLICATION_PROCESS_BINARY));
++
++    if (sink) {
++        pa_log_debug("Client %s changes volume ramp of sink %s.", client_name, sink->name);
++        pa_sink_set_volume_ramp(sink, &ramp, TRUE, TRUE);
++    } else if (si) {
++        pa_log_debug("Client %s changes volume ramp of sink input %s.", client_name, pa_strnull(pa_proplist_gets(si->proplist, PA_PROP_MEDIA_NAME)));
++        pa_sink_input_set_volume_ramp(si, &ramp, TRUE, TRUE);
++    }
++
++    pa_pstream_send_simple_ack(c->pstream, tag);
++}
++
+ static void command_set_mute(
+         pa_pdispatch *pd,
+         uint32_t command,
+diff --git a/src/pulsecore/tagstruct.c b/src/pulsecore/tagstruct.c
+index e51fcf2..aba0178 100644
+--- a/src/pulsecore/tagstruct.c
++++ b/src/pulsecore/tagstruct.c
+@@ -256,6 +256,35 @@ void pa_tagstruct_put_cvolume(pa_tagstruct *t, const pa_cvolume *cvolume) {
+     }
+ }
+ 
++void pa_tagstruct_put_cvolume_ramp(pa_tagstruct *t, const pa_cvolume_ramp *ramp) {
++    unsigned i;
++    pa_volume_ramp_type_t type;
++    long length;
++    pa_volume_t target;
++
++    pa_assert(t);
++    pa_assert(ramp);
++    extend(t, 2 + ramp->channels * (sizeof(pa_volume_ramp_type_t) + sizeof(long) + sizeof(pa_volume_t)));
++
++    t->data[t->length++] = PA_TAG_CVOLUME_RAMP;
++    t->data[t->length++] = ramp->channels;
++
++    for (i = 0; i < ramp->channels; i++) {
++        type = htonl(ramp->ramps[i].type);
++        target = htonl(ramp->ramps[i].target);
++        length = htonl(ramp->ramps[i].length);
++
++        memcpy(t->data + t->length, &type, sizeof(pa_volume_ramp_type_t));
++        t->length += sizeof(pa_volume_ramp_type_t);
++
++        memcpy(t->data + t->length, &length, sizeof(long));
++        t->length += sizeof(long);
++
++        memcpy(t->data + t->length, &target, sizeof(pa_volume_t));
++        t->length += sizeof(pa_volume_t);
++    }
++}
++
+ void pa_tagstruct_put_volume(pa_tagstruct *t, pa_volume_t vol) {
+     uint32_t u;
+     pa_assert(t);
+@@ -579,6 +608,51 @@ int pa_tagstruct_get_cvolume(pa_tagstruct *t, pa_cvolume *cvolume) {
+     return 0;
+ }
+ 
++int pa_tagstruct_get_cvolume_ramp(pa_tagstruct *t, pa_cvolume_ramp *ramp) {
++    unsigned i;
++    pa_volume_ramp_type_t type;
++    long length;
++    pa_volume_t target;
++    uint8_t *read_ptr;
++
++    pa_assert(t);
++    pa_assert(ramp);
++
++    if (t->rindex+2 > t->length)
++        return -1;
++
++    if (t->data[t->rindex] != PA_TAG_CVOLUME_RAMP)
++        return -1;
++
++    if ((ramp->channels = t->data[t->rindex+1]) > PA_CHANNELS_MAX)
++        return -1;
++
++    if (t->rindex+2+ramp->channels*(sizeof(pa_volume_ramp_type_t)+sizeof(long)+sizeof(pa_volume_t)) > t->length)
++        return -1;
++
++    read_ptr = t->data + t->rindex + 2;
++
++    for (i = 0; i < ramp->channels; i++) {
++        memcpy(&type, read_ptr, sizeof(pa_volume_ramp_type_t));
++        ramp->ramps[i].type = (pa_volume_ramp_type_t) ntohl(type);
++        read_ptr += sizeof(pa_volume_ramp_type_t);
++
++
++        memcpy(&length, read_ptr, sizeof(long));
++        ramp->ramps[i].length = (long) ntohl(length);
++        read_ptr += sizeof(long);
++
++
++        memcpy(&target, read_ptr, sizeof(pa_volume_t));
++        ramp->ramps[i].target = (pa_volume_t) ntohl(target);
++        read_ptr += sizeof(pa_volume_t);
++    }
++
++    t->rindex = read_ptr - t->data;
++
++    return 0;
++}
++
+ int pa_tagstruct_get_volume(pa_tagstruct*t, pa_volume_t *vol) {
+     uint32_t u;
+ 
+diff --git a/src/pulsecore/tagstruct.h b/src/pulsecore/tagstruct.h
+index 9fef255..4634bd6 100644
+--- a/src/pulsecore/tagstruct.h
++++ b/src/pulsecore/tagstruct.h
+@@ -60,6 +60,7 @@ enum {
+     PA_TAG_PROPLIST = 'P',
+     PA_TAG_VOLUME = 'V',
+     PA_TAG_FORMAT_INFO = 'f',
++    PA_TAG_CVOLUME_RAMP = 'J'
+ };
+ 
+ pa_tagstruct *pa_tagstruct_new(const uint8_t* data, size_t length);
+@@ -86,6 +87,7 @@ void pa_tagstruct_put_cvolume(pa_tagstruct *t, const pa_cvolume *cvolume);
+ void pa_tagstruct_put_proplist(pa_tagstruct *t, pa_proplist *p);
+ void pa_tagstruct_put_volume(pa_tagstruct *t, pa_volume_t volume);
+ void pa_tagstruct_put_format_info(pa_tagstruct *t, pa_format_info *f);
++void pa_tagstruct_put_cvolume_ramp(pa_tagstruct *t, const pa_cvolume_ramp *ramp);
+ 
+ int pa_tagstruct_get(pa_tagstruct *t, ...);
+ 
+@@ -104,5 +106,6 @@ int pa_tagstruct_get_cvolume(pa_tagstruct *t, pa_cvolume *v);
+ int pa_tagstruct_get_proplist(pa_tagstruct *t, pa_proplist *p);
+ int pa_tagstruct_get_volume(pa_tagstruct *t, pa_volume_t *v);
+ int pa_tagstruct_get_format_info(pa_tagstruct *t, pa_format_info *f);
++int pa_tagstruct_get_cvolume_ramp(pa_tagstruct *t, pa_cvolume_ramp *ramp);
+ 
+ #endif

@@ -1,0 +1,23 @@
+From: Jaska Uimonen <jaska.uimonen@intel.com>
+Date: Mon, 30 Dec 2013 18:03:18 +0200
+Subject: hfp do safe strcmp in dbus handler
+
+Change-Id: I4ba64d22b2b807530263b5f274cd89f208c675ac
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/modules/bluetooth/hfaudioagent-ofono.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/modules/bluetooth/hfaudioagent-ofono.c b/src/modules/bluetooth/hfaudioagent-ofono.c
+index 7f93c6b..2ac8a82 100644
+--- a/src/modules/bluetooth/hfaudioagent-ofono.c
++++ b/src/modules/bluetooth/hfaudioagent-ofono.c
+@@ -381,7 +381,7 @@ static DBusHandlerResult filter_cb(DBusConnection *bus, DBusMessage *m, void *da
+     pa_assert(hfdata);
+ 
+     sender = dbus_message_get_sender(m);
+-    if (!pa_safe_streq(hfdata->ofono_bus_id, sender) && !pa_streq("org.freedesktop.DBus", sender))
++    if (!pa_safe_streq(hfdata->ofono_bus_id, sender) && !pa_safe_streq("org.freedesktop.DBus", sender))
+         return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+ 
+     dbus_error_init(&err);

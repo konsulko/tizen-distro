@@ -1,0 +1,60 @@
+From: =?utf-8?q?Jo=C3=A3o_Paulo_Rechi_Vita?= <jprvita@openbossa.org>
+Date: Wed, 27 Mar 2013 01:43:42 -0300
+Subject: bluetooth: Suspend sink/source on HFP's stream HUP
+
+When the Audio Connection is disconnected the sink and source should be
+suspended.
+
+Change-Id: Ifedd5e7fe70ee74e509b82270ce84aba762f2412
+---
+ src/modules/bluetooth/module-bluez5-device.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/src/modules/bluetooth/module-bluez5-device.c b/src/modules/bluetooth/module-bluez5-device.c
+index b511b92..ae5ec1d 100644
+--- a/src/modules/bluetooth/module-bluez5-device.c
++++ b/src/modules/bluetooth/module-bluez5-device.c
+@@ -74,6 +74,7 @@ static const char* const valid_modargs[] = {
+ 
+ enum {
+     BLUETOOTH_MESSAGE_IO_THREAD_FAILED,
++    BLUETOOTH_MESSAGE_TRANSPORT_STATE_CHANGED,
+     BLUETOOTH_MESSAGE_MAX
+ };
+ 
+@@ -1427,6 +1428,12 @@ io_fail:
+         pending_read_bytes = 0;
+         writable = false;
+ 
++        if (u->profile == PA_BLUETOOTH_PROFILE_HEADSET_AUDIO_GATEWAY) {
++            u->transport->state = PA_BLUETOOTH_TRANSPORT_STATE_IDLE;
++            pa_asyncmsgq_post(pa_thread_mq_get()->outq, PA_MSGOBJECT(u->msg), BLUETOOTH_MESSAGE_TRANSPORT_STATE_CHANGED, u, 0,
++                              NULL, NULL);
++        }
++
+         teardown_stream(u);
+     }
+ 
+@@ -1994,15 +2001,19 @@ static pa_hook_result_t transport_state_changed_cb(pa_bluetooth_discovery *y, pa
+ 
+ /* Run from main thread context */
+ static int device_process_msg(pa_msgobject *obj, int code, void *data, int64_t offset, pa_memchunk *chunk) {
+-    struct bluetooth_msg *u = BLUETOOTH_MSG(obj);
++    struct bluetooth_msg *b = BLUETOOTH_MSG(obj);
++    struct userdata *u = data;
+ 
+     switch (code) {
++        case BLUETOOTH_MESSAGE_TRANSPORT_STATE_CHANGED:
++            handle_transport_state_change(u, u->transport);
++            break;
+         case BLUETOOTH_MESSAGE_IO_THREAD_FAILED:
+-            if (u->card->module->unload_requested)
++            if (b->card->module->unload_requested)
+                 break;
+ 
+             pa_log_debug("Switching the profile to off due to IO thread failure.");
+-            pa_assert_se(pa_card_set_profile(u->card, pa_hashmap_get(u->card->profiles, "off"), false) >= 0);
++            pa_assert_se(pa_card_set_profile(b->card, "off", false) >= 0);
+             break;
+     }
+ 

@@ -1,0 +1,51 @@
+From: =?utf-8?q?Jo=C3=A3o_Paulo_Rechi_Vita?= <jprvita@openbossa.org>
+Date: Wed, 10 Jul 2013 13:00:16 -0300
+Subject: bluetooth: Create pa_bluetooth_dbus_send_and_add_to_pending() for
+ oFono backend
+
+Change-Id: I9b6ea22d6bd1059e5d7b3a12ec13b2768cacce0d
+---
+ src/modules/bluetooth/hfaudioagent-ofono.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/src/modules/bluetooth/hfaudioagent-ofono.c b/src/modules/bluetooth/hfaudioagent-ofono.c
+index 0e3ffc4..38975b2 100644
+--- a/src/modules/bluetooth/hfaudioagent-ofono.c
++++ b/src/modules/bluetooth/hfaudioagent-ofono.c
+@@ -59,8 +59,27 @@ struct hf_audio_agent_data {
+ 
+     bool filter_added;
+     pa_hashmap *hf_audio_cards;
++
++    PA_LLIST_HEAD(pa_dbus_pending, pending);
+ };
+ 
++static pa_dbus_pending* pa_bluetooth_dbus_send_and_add_to_pending(hf_audio_agent_data *hfdata, DBusMessage *m,
++                                                                  DBusPendingCallNotifyFunction func, void *call_data) {
++    pa_dbus_pending *p;
++    DBusPendingCall *call;
++
++    pa_assert(hfdata);
++    pa_assert(m);
++
++    pa_assert_se(dbus_connection_send_with_reply(pa_dbus_connection_get(hfdata->connection), m, &call, -1));
++
++    p = pa_dbus_pending_new(pa_dbus_connection_get(hfdata->connection), m, call, hfdata, call_data);
++    PA_LLIST_PREPEND(pa_dbus_pending, hfdata->pending, p);
++    dbus_pending_call_set_notify(call, func, p, NULL);
++
++    return p;
++}
++
+ static DBusHandlerResult filter_cb(DBusConnection *bus, DBusMessage *m, void *data) {
+     pa_assert(bus);
+     pa_assert(m);
+@@ -166,6 +185,8 @@ void hf_audio_agent_done(hf_audio_agent_data *data) {
+ 
+     pa_assert(hfdata);
+ 
++    pa_dbus_free_pending_list(&hfdata->pending);
++
+     if (hfdata->hf_audio_cards) {
+         pa_hashmap_free(hfdata->hf_audio_cards, NULL);
+         hfdata->hf_audio_cards = NULL;

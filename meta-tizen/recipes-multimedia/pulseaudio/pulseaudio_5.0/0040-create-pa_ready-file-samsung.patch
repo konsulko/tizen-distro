@@ -1,0 +1,40 @@
+From: Jaska Uimonen <jaska.uimonen@intel.com>
+Date: Thu, 8 Aug 2013 11:23:38 +0300
+Subject: create pa_ready file - samsung
+
+Change-Id: I2146599f2e814be064864f8ca76879b761642f11
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/daemon/main.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/daemon/main.c b/src/daemon/main.c
+index e01371e..74cb45f 100644
+--- a/src/daemon/main.c
++++ b/src/daemon/main.c
+@@ -38,6 +38,8 @@
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ 
++#include <fcntl.h>
++
+ #ifdef HAVE_SYS_MMAN_H
+ #include <sys/mman.h>
+ #endif
+@@ -101,6 +103,7 @@
+ #include "ltdl-bind-now.h"
+ #include "server-lookup.h"
+ 
++#define PA_READY "/tmp/.pa_ready"
+ #ifdef HAVE_LIBWRAP
+ /* Only one instance of these variables */
+ int allow_severity = LOG_INFO;
+@@ -1145,6 +1148,8 @@ int main(int argc, char *argv[]) {
+ #endif
+ 
+     pa_log_info(_("Daemon startup complete."));
++    /* broadcast if we're ready */
++    creat(PA_READY, 0644);
+ 
+     retval = 0;
+     if (pa_mainloop_run(mainloop, &retval) < 0)

@@ -1,0 +1,64 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Tue, 27 May 2014 11:06:10 +0300
+Subject: main-volume-policy: Fix a memory leak
+
+There can be multiple calls to pa_binding_target_info_new() in this
+function, but only the last allocated info object was freed.
+
+Change-Id: I9df43f0663b27b07ba7b8d01bc8ea9cc0a6c1b51
+---
+ src/modules/main-volume-policy/module-main-volume-policy.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/src/modules/main-volume-policy/module-main-volume-policy.c b/src/modules/main-volume-policy/module-main-volume-policy.c
+index a14699d..0a89aa7 100644
+--- a/src/modules/main-volume-policy/module-main-volume-policy.c
++++ b/src/modules/main-volume-policy/module-main-volume-policy.c
+@@ -253,7 +253,7 @@ static pa_hook_result_t active_main_volume_context_changed_cb(void *hook_data, v
+     struct userdata *u = userdata;
+     pa_main_volume_context *context;
+     pa_volume_api *api;
+-    pa_binding_target_info *info = NULL;
++    pa_binding_target_info *info;
+ 
+     pa_assert(u);
+ 
+@@ -265,6 +265,7 @@ static pa_hook_result_t active_main_volume_context_changed_cb(void *hook_data, v
+             info = pa_binding_target_info_new(PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_TYPE, context->name,
+                                               PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_OUTPUT_VOLUME_CONTROL);
+             pa_volume_api_bind_main_output_volume_control(api, info);
++            pa_binding_target_info_free(info);
+         } else
+             pa_volume_api_set_main_output_volume_control(api, NULL);
+     }
+@@ -274,6 +275,7 @@ static pa_hook_result_t active_main_volume_context_changed_cb(void *hook_data, v
+             info = pa_binding_target_info_new(PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_TYPE, context->name,
+                                               PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_INPUT_VOLUME_CONTROL);
+             pa_volume_api_bind_main_input_volume_control(api, info);
++            pa_binding_target_info_free(info);
+         } else
+             pa_volume_api_set_main_input_volume_control(api, NULL);
+     }
+@@ -283,6 +285,7 @@ static pa_hook_result_t active_main_volume_context_changed_cb(void *hook_data, v
+             info = pa_binding_target_info_new(PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_TYPE, context->name,
+                                               PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_OUTPUT_MUTE_CONTROL);
+             pa_volume_api_bind_main_output_mute_control(api, info);
++            pa_binding_target_info_free(info);
+         } else
+             pa_volume_api_set_main_output_mute_control(api, NULL);
+     }
+@@ -292,13 +295,11 @@ static pa_hook_result_t active_main_volume_context_changed_cb(void *hook_data, v
+             info = pa_binding_target_info_new(PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_TYPE, context->name,
+                                               PA_MAIN_VOLUME_CONTEXT_BINDING_TARGET_FIELD_MAIN_INPUT_MUTE_CONTROL);
+             pa_volume_api_bind_main_input_mute_control(api, info);
++            pa_binding_target_info_free(info);
+         } else
+             pa_volume_api_set_main_input_mute_control(api, NULL);
+     }
+ 
+-    if (info)
+-        pa_binding_target_info_free(info);
+-
+     return PA_HOOK_OK;
+ }
+ 

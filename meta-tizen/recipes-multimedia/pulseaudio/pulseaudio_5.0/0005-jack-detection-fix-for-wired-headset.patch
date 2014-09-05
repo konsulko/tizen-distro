@@ -1,0 +1,23 @@
+From: Jaska Uimonen <jaska.uimonen@intel.com>
+Date: Sun, 10 Jun 2012 15:13:11 +0300
+Subject: jack detection fix for wired headset
+
+Change-Id: I53d465bf56adc2e3e5551b43d59ff99b63bc76cc
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/modules/alsa/mixer/paths/analog-output-headphones.conf | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/modules/alsa/mixer/paths/analog-output-headphones.conf b/src/modules/alsa/mixer/paths/analog-output-headphones.conf
+index 89d794f..4771bc6 100644
+--- a/src/modules/alsa/mixer/paths/analog-output-headphones.conf
++++ b/src/modules/alsa/mixer/paths/analog-output-headphones.conf
+@@ -95,7 +95,7 @@ volume = off
+ 
+ ; On some machines Front is actually a part of the Headphone path
+ [Element Front]
+-switch = mute
++switch = off
+ volume = zero
+ 
+ [Element Rear]

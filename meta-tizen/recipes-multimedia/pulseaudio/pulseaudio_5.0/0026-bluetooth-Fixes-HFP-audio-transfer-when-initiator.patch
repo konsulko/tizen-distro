@@ -1,0 +1,59 @@
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Date: Fri, 23 Aug 2013 19:44:23 +0300
+Subject: bluetooth: Fixes HFP audio transfer when initiator
+
+This makes sure org.ofono.HandsfreeAudioCard.Connect is called regardless
+of the optional flag and also makes sure to update the profile state
+whenever SCO is disconnected.
+
+Change-Id: I4400753333f14a2381eb75d5b62d2ea51d1c7139
+---
+ src/modules/bluetooth/hfaudioagent-ofono.c   |  2 +-
+ src/modules/bluetooth/module-bluez5-device.c | 14 +++++++-------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/src/modules/bluetooth/hfaudioagent-ofono.c b/src/modules/bluetooth/hfaudioagent-ofono.c
+index a0474df..59eafdb 100644
+--- a/src/modules/bluetooth/hfaudioagent-ofono.c
++++ b/src/modules/bluetooth/hfaudioagent-ofono.c
+@@ -126,7 +126,7 @@ static int hf_audio_agent_transport_acquire(pa_bluetooth_transport *t, bool opti
+     hf_audio_agent_data *hfdata = t->userdata;
+     hf_audio_card *hfac = pa_hashmap_get(hfdata->hf_audio_cards, t->path);
+ 
+-    if (!optional) {
++    if (hfac->fd < 0) {
+         DBusMessage *m;
+ 
+         pa_assert_se(m = dbus_message_new_method_call(t->owner, t->path, "org.ofono.HandsfreeAudioCard", "Connect"));
+diff --git a/src/modules/bluetooth/module-bluez5-device.c b/src/modules/bluetooth/module-bluez5-device.c
+index ae5ec1d..39fa5d0 100644
+--- a/src/modules/bluetooth/module-bluez5-device.c
++++ b/src/modules/bluetooth/module-bluez5-device.c
+@@ -768,6 +768,12 @@ static void transport_release(struct userdata *u) {
+ 
+     u->transport_acquired = false;
+ 
++    if (u->profile == PA_BLUETOOTH_PROFILE_HEADSET_AUDIO_GATEWAY) {
++        u->transport->state = PA_BLUETOOTH_TRANSPORT_STATE_IDLE;
++        pa_asyncmsgq_post(pa_thread_mq_get()->outq, PA_MSGOBJECT(u->msg), BLUETOOTH_MESSAGE_TRANSPORT_STATE_CHANGED, u, 0,
++                              NULL, NULL);
++    }
++
+     teardown_stream(u);
+ }
+ 
+@@ -1428,13 +1434,7 @@ io_fail:
+         pending_read_bytes = 0;
+         writable = false;
+ 
+-        if (u->profile == PA_BLUETOOTH_PROFILE_HEADSET_AUDIO_GATEWAY) {
+-            u->transport->state = PA_BLUETOOTH_TRANSPORT_STATE_IDLE;
+-            pa_asyncmsgq_post(pa_thread_mq_get()->outq, PA_MSGOBJECT(u->msg), BLUETOOTH_MESSAGE_TRANSPORT_STATE_CHANGED, u, 0,
+-                              NULL, NULL);
+-        }
+-
+-        teardown_stream(u);
++        transport_release(u);
+     }
+ 
+ fail:

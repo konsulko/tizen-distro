@@ -1,0 +1,346 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Mon, 14 Apr 2014 14:52:16 +0300
+Subject: sink, source: Assign to s->muted from only one place
+
+Forcing all mute changes to go through set_mute() makes it easier to
+check where the muted field is changed, and it also allows us to have
+only one place where notifications for changed mute are sent.
+
+Change-Id: Idb1bd6ef923a165e249d42265ebedc30a6c8fca4
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/modules/alsa/alsa-sink.c   | 17 ++++++++++-------
+ src/modules/alsa/alsa-source.c | 17 ++++++++++-------
+ src/modules/module-solaris.c   | 17 +++++++++++------
+ src/pulsecore/sink.c           | 26 ++++++++++----------------
+ src/pulsecore/sink.h           | 24 ++++++++++++++++++------
+ src/pulsecore/source.c         | 26 ++++++++++----------------
+ src/pulsecore/source.h         | 24 ++++++++++++++++++------
+ 7 files changed, 87 insertions(+), 64 deletions(-)
+
+diff --git a/src/modules/alsa/alsa-sink.c b/src/modules/alsa/alsa-sink.c
+index 03babb3..2bc27ff 100644
+--- a/src/modules/alsa/alsa-sink.c
++++ b/src/modules/alsa/alsa-sink.c
+@@ -1401,18 +1401,17 @@ static void sink_write_volume_cb(pa_sink *s) {
+     }
+ }
+ 
+-static void sink_get_mute_cb(pa_sink *s) {
++static int sink_get_mute_cb(pa_sink *s, bool *mute) {
+     struct userdata *u = s->userdata;
+-    bool b;
+ 
+     pa_assert(u);
+     pa_assert(u->mixer_path);
+     pa_assert(u->mixer_handle);
+ 
+-    if (pa_alsa_path_get_mute(u->mixer_path, u->mixer_handle, &b) < 0)
+-        return;
++    if (pa_alsa_path_get_mute(u->mixer_path, u->mixer_handle, mute) < 0)
++        return -1;
+ 
+-    s->muted = b;
++    return 0;
+ }
+ 
+ static void sink_set_mute_cb(pa_sink *s) {
+@@ -2399,8 +2398,12 @@ pa_sink *pa_alsa_sink_new(pa_module *m, pa_modargs *ma, const char*driver, pa_ca
+         if (u->sink->set_mute)
+             u->sink->set_mute(u->sink);
+     } else {
+-        if (u->sink->get_mute)
+-            u->sink->get_mute(u->sink);
++        if (u->sink->get_mute) {
++            bool mute;
++
++            if (u->sink->get_mute(u->sink, &mute) >= 0)
++                pa_sink_set_mute(u->sink, mute, false);
++        }
+     }
+ 
+     if ((data.volume_is_set || data.muted_is_set) && u->sink->write_volume)
+diff --git a/src/modules/alsa/alsa-source.c b/src/modules/alsa/alsa-source.c
+index 2e93e0f..e181a30 100644
+--- a/src/modules/alsa/alsa-source.c
++++ b/src/modules/alsa/alsa-source.c
+@@ -1277,18 +1277,17 @@ static void source_write_volume_cb(pa_source *s) {
+     }
+ }
+ 
+-static void source_get_mute_cb(pa_source *s) {
++static int source_get_mute_cb(pa_source *s, bool *mute) {
+     struct userdata *u = s->userdata;
+-    bool b;
+ 
+     pa_assert(u);
+     pa_assert(u->mixer_path);
+     pa_assert(u->mixer_handle);
+ 
+-    if (pa_alsa_path_get_mute(u->mixer_path, u->mixer_handle, &b) < 0)
+-        return;
++    if (pa_alsa_path_get_mute(u->mixer_path, u->mixer_handle, mute) < 0)
++        return -1;
+ 
+-    s->muted = b;
++    return 0;
+ }
+ 
+ static void source_set_mute_cb(pa_source *s) {
+@@ -2088,8 +2087,12 @@ pa_source *pa_alsa_source_new(pa_module *m, pa_modargs *ma, const char*driver, p
+         if (u->source->set_mute)
+             u->source->set_mute(u->source);
+     } else {
+-        if (u->source->get_mute)
+-            u->source->get_mute(u->source);
++        if (u->source->get_mute) {
++            bool mute;
++
++            if (u->source->get_mute(u->source, &mute) >= 0)
++                pa_source_set_mute(u->source, mute, false);
++        }
+     }
+ 
+     if ((data.volume_is_set || data.muted_is_set) && u->source->write_volume)
+diff --git a/src/modules/module-solaris.c b/src/modules/module-solaris.c
+index b4fa734..71a98e9 100644
+--- a/src/modules/module-solaris.c
++++ b/src/modules/module-solaris.c
+@@ -571,18 +571,23 @@ static void sink_set_mute(pa_sink *s) {
+     }
+ }
+ 
+-static void sink_get_mute(pa_sink *s) {
++static int sink_get_mute(pa_sink *s, bool *mute) {
+     struct userdata *u = s->userdata;
+     audio_info_t info;
+ 
+     pa_assert(u);
+ 
+-    if (u->fd >= 0) {
+-        if (ioctl(u->fd, AUDIO_GETINFO, &info) < 0)
+-            pa_log("AUDIO_SETINFO: %s", pa_cstrerror(errno));
+-        else
+-            s->muted = !!info.output_muted;
++    if (u->fd < 0)
++        return -1;
++
++    if (ioctl(u->fd, AUDIO_GETINFO, &info) < 0) {
++        pa_log("AUDIO_GETINFO: %s", pa_cstrerror(errno));
++        return -1;
+     }
++
++    *mute = info.output_muted;
++
++    return 0;
+ }
+ 
+ static void process_rewind(struct userdata *u) {
+diff --git a/src/pulsecore/sink.c b/src/pulsecore/sink.c
+index 4c348b5..b64001b 100644
+--- a/src/pulsecore/sink.c
++++ b/src/pulsecore/sink.c
+@@ -519,7 +519,7 @@ void pa_sink_set_write_volume_callback(pa_sink *s, pa_sink_cb_t cb) {
+         pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SINK|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);
+ }
+ 
+-void pa_sink_set_get_mute_callback(pa_sink *s, pa_sink_cb_t cb) {
++void pa_sink_set_get_mute_callback(pa_sink *s, pa_sink_get_mute_cb_t cb) {
+     pa_assert(s);
+ 
+     s->get_mute = cb;
+@@ -2317,21 +2317,15 @@ bool pa_sink_get_mute(pa_sink *s, bool force_refresh) {
+     pa_assert_ctl_context();
+     pa_assert(PA_SINK_IS_LINKED(s->state));
+ 
+-    if (s->refresh_muted || force_refresh) {
+-        bool old_muted = s->muted;
++    if ((s->refresh_muted || force_refresh) && s->get_mute) {
++        bool mute;
+ 
+-        if (!(s->flags & PA_SINK_DEFERRED_VOLUME) && s->get_mute)
+-            s->get_mute(s);
+-
+-        pa_assert_se(pa_asyncmsgq_send(s->asyncmsgq, PA_MSGOBJECT(s), PA_SINK_MESSAGE_GET_MUTE, NULL, 0, NULL) == 0);
+-
+-        if (old_muted != s->muted) {
+-            s->save_muted = true;
+-
+-            pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SINK|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);
+-
+-            /* Make sure the soft mute status stays in sync */
+-            pa_assert_se(pa_asyncmsgq_send(s->asyncmsgq, PA_MSGOBJECT(s), PA_SINK_MESSAGE_SET_MUTE, NULL, 0, NULL) == 0);
++        if (s->flags & PA_SINK_DEFERRED_VOLUME) {
++            if (pa_asyncmsgq_send(s->asyncmsgq, PA_MSGOBJECT(s), PA_SINK_MESSAGE_GET_MUTE, &mute, 0, NULL) >= 0)
++                pa_sink_mute_changed(s, mute);
++        } else {
++            if (s->get_mute(s, &mute) >= 0)
++                pa_sink_mute_changed(s, mute);
+         }
+     }
+ 
+@@ -2848,7 +2842,7 @@ int pa_sink_process_msg(pa_msgobject *o, int code, void *userdata, int64_t offse
+         case PA_SINK_MESSAGE_GET_MUTE:
+ 
+             if (s->flags & PA_SINK_DEFERRED_VOLUME && s->get_mute)
+-                s->get_mute(s);
++                return s->get_mute(s, userdata);
+ 
+             return 0;
+ 
+diff --git a/src/pulsecore/sink.h b/src/pulsecore/sink.h
+index 72437a4..e069d02 100644
+--- a/src/pulsecore/sink.h
++++ b/src/pulsecore/sink.h
+@@ -59,6 +59,8 @@ static inline bool PA_SINK_IS_LINKED(pa_sink_state_t x) {
+ /* A generic definition for void callback functions */
+ typedef void(*pa_sink_cb_t)(pa_sink *s);
+ 
++typedef int (*pa_sink_get_mute_cb_t)(pa_sink *s, bool *mute);
++
+ struct pa_sink {
+     pa_msgobject parent;
+ 
+@@ -195,14 +197,24 @@ struct pa_sink {
+      * set this callback. */
+     pa_sink_cb_t write_volume; /* may be NULL */
+ 
+-    /* Called when the mute setting is queried. A PA_SINK_MESSAGE_GET_MUTE
+-     * message will also be sent. Called from IO thread if PA_SINK_DEFERRED_VOLUME
+-     * flag is set otherwise from main loop context. If refresh_mute is false
+-     * neither this function is called nor a message is sent.
++    /* If the sink mute can change "spontaneously" (i.e. initiated by the sink
++     * implementation, not by someone else calling pa_sink_set_mute()), then
++     * the sink implementation can notify about changed mute either by calling
++     * pa_sink_mute_changed() or by calling pa_sink_get_mute() with
++     * force_refresh=true. If the implementation chooses the latter approach,
++     * it should implement the get_mute callback. Otherwise get_mute can be
++     * NULL.
++     *
++     * This is called when pa_sink_get_mute() is called with
++     * force_refresh=true. This is called from the IO thread if the
++     * PA_SINK_DEFERRED_VOLUME flag is set, otherwise this is called from the
++     * main thread. On success, the implementation is expected to return 0 and
++     * set the mute parameter that is passed as a reference. On failure, the
++     * implementation is expected to return -1.
+      *
+      * You must use the function pa_sink_set_get_mute_callback() to
+      * set this callback. */
+-    pa_sink_cb_t get_mute; /* may be NULL */
++    pa_sink_get_mute_cb_t get_mute;
+ 
+     /* Called when the mute setting shall be changed. A PA_SINK_MESSAGE_SET_MUTE
+      * message will also be sent. Called from IO thread if PA_SINK_DEFERRED_VOLUME
+@@ -386,7 +398,7 @@ pa_sink* pa_sink_new(
+ void pa_sink_set_get_volume_callback(pa_sink *s, pa_sink_cb_t cb);
+ void pa_sink_set_set_volume_callback(pa_sink *s, pa_sink_cb_t cb);
+ void pa_sink_set_write_volume_callback(pa_sink *s, pa_sink_cb_t cb);
+-void pa_sink_set_get_mute_callback(pa_sink *s, pa_sink_cb_t cb);
++void pa_sink_set_get_mute_callback(pa_sink *s, pa_sink_get_mute_cb_t cb);
+ void pa_sink_set_set_mute_callback(pa_sink *s, pa_sink_cb_t cb);
+ void pa_sink_enable_decibel_volume(pa_sink *s, bool enable);
+ 
+diff --git a/src/pulsecore/source.c b/src/pulsecore/source.c
+index 2f6aaad..24e8be9 100644
+--- a/src/pulsecore/source.c
++++ b/src/pulsecore/source.c
+@@ -467,7 +467,7 @@ void pa_source_set_write_volume_callback(pa_source *s, pa_source_cb_t cb) {
+         pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SOURCE|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);
+ }
+ 
+-void pa_source_set_get_mute_callback(pa_source *s, pa_source_cb_t cb) {
++void pa_source_set_get_mute_callback(pa_source *s, pa_source_get_mute_cb_t cb) {
+     pa_assert(s);
+ 
+     s->get_mute = cb;
+@@ -1835,21 +1835,15 @@ bool pa_source_get_mute(pa_source *s, bool force_refresh) {
+     pa_assert_ctl_context();
+     pa_assert(PA_SOURCE_IS_LINKED(s->state));
+ 
+-    if (s->refresh_muted || force_refresh) {
+-        bool old_muted = s->muted;
++    if ((s->refresh_muted || force_refresh) && s->get_mute) {
++        bool mute;
+ 
+-        if (!(s->flags & PA_SOURCE_DEFERRED_VOLUME) && s->get_mute)
+-            s->get_mute(s);
+-
+-        pa_assert_se(pa_asyncmsgq_send(s->asyncmsgq, PA_MSGOBJECT(s), PA_SOURCE_MESSAGE_GET_MUTE, NULL, 0, NULL) == 0);
+-
+-        if (old_muted != s->muted) {
+-            s->save_muted = true;
+-
+-            pa_subscription_post(s->core, PA_SUBSCRIPTION_EVENT_SOURCE|PA_SUBSCRIPTION_EVENT_CHANGE, s->index);
+-
+-            /* Make sure the soft mute status stays in sync */
+-            pa_assert_se(pa_asyncmsgq_send(s->asyncmsgq, PA_MSGOBJECT(s), PA_SOURCE_MESSAGE_SET_MUTE, NULL, 0, NULL) == 0);
++        if (s->flags & PA_SOURCE_DEFERRED_VOLUME) {
++            if (pa_asyncmsgq_send(s->asyncmsgq, PA_MSGOBJECT(s), PA_SOURCE_MESSAGE_GET_MUTE, &mute, 0, NULL) >= 0)
++                pa_source_mute_changed(s, mute);
++        } else {
++            if (s->get_mute(s, &mute) >= 0)
++                pa_source_mute_changed(s, mute);
+         }
+     }
+ 
+@@ -2136,7 +2130,7 @@ int pa_source_process_msg(pa_msgobject *object, int code, void *userdata, int64_
+         case PA_SOURCE_MESSAGE_GET_MUTE:
+ 
+             if (s->flags & PA_SOURCE_DEFERRED_VOLUME && s->get_mute)
+-                s->get_mute(s);
++                return s->get_mute(s, userdata);
+ 
+             return 0;
+ 
+diff --git a/src/pulsecore/source.h b/src/pulsecore/source.h
+index ca2ed59..83bc2dd 100644
+--- a/src/pulsecore/source.h
++++ b/src/pulsecore/source.h
+@@ -58,6 +58,8 @@ static inline bool PA_SOURCE_IS_LINKED(pa_source_state_t x) {
+ /* A generic definition for void callback functions */
+ typedef void(*pa_source_cb_t)(pa_source *s);
+ 
++typedef int (*pa_source_get_mute_cb_t)(pa_source *s, bool *mute);
++
+ struct pa_source {
+     pa_msgobject parent;
+ 
+@@ -158,14 +160,24 @@ struct pa_source {
+      * set this callback. */
+     pa_source_cb_t write_volume; /* may be NULL */
+ 
+-    /* Called when the mute setting is queried. Called from main loop
+-     * context. If this is NULL a PA_SOURCE_MESSAGE_GET_MUTE message
+-     * will be sent to the IO thread instead. If refresh_mute is
+-     * false neither this function is called nor a message is sent.
++    /* If the source mute can change "spontaneously" (i.e. initiated by the
++     * source implementation, not by someone else calling
++     * pa_source_set_mute()), then the source implementation can notify about
++     * changed mute either by calling pa_source_mute_changed() or by calling
++     * pa_source_get_mute() with force_refresh=true. If the implementation
++     * chooses the latter approach, it should implement the get_mute callback.
++     * Otherwise get_mute can be NULL.
++     *
++     * This is called when pa_source_get_mute() is called with
++     * force_refresh=true. This is called from the IO thread if the
++     * PA_SOURCE_DEFERRED_VOLUME flag is set, otherwise this is called from the
++     * main thread. On success, the implementation is expected to return 0 and
++     * set the mute parameter that is passed as a reference. On failure, the
++     * implementation is expected to return -1.
+      *
+      * You must use the function pa_source_set_get_mute_callback() to
+      * set this callback. */
+-    pa_source_cb_t get_mute; /* may be NULL */
++    pa_source_get_mute_cb_t get_mute;
+ 
+     /* Called when the mute setting shall be changed. Called from main
+      * loop context. If this is NULL a PA_SOURCE_MESSAGE_SET_MUTE
+@@ -316,7 +328,7 @@ pa_source* pa_source_new(
+ void pa_source_set_get_volume_callback(pa_source *s, pa_source_cb_t cb);
+ void pa_source_set_set_volume_callback(pa_source *s, pa_source_cb_t cb);
+ void pa_source_set_write_volume_callback(pa_source *s, pa_source_cb_t cb);
+-void pa_source_set_get_mute_callback(pa_source *s, pa_source_cb_t cb);
++void pa_source_set_get_mute_callback(pa_source *s, pa_source_get_mute_cb_t cb);
+ void pa_source_set_set_mute_callback(pa_source *s, pa_source_cb_t cb);
+ void pa_source_enable_decibel_volume(pa_source *s, bool enable);
+ 

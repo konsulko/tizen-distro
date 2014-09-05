@@ -1,0 +1,285 @@
+From: "vivian,zhang" <vivian.zhang@intel.com>
+Date: Tue, 18 Jun 2013 16:20:04 +0800
+Subject: add support for dlog - samsung
+
+Change-Id: Ieddf2f3bdab50926372e9e2b5cedb2756b6cfd5c
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ configure.ac                | 18 +++++++++
+ src/Makefile.am             |  9 +++++
+ src/daemon/cmdline.c        |  8 +++-
+ src/daemon/daemon-conf.c    | 10 ++++-
+ src/pulsecore/cli-command.c |  8 ++++
+ src/pulsecore/log.c         | 95 +++++++++++++++++++++++++++++++++++++++++++++
+ src/pulsecore/log.h         |  4 ++
+ 7 files changed, 150 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 9a79b36..c0beac0 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -643,6 +643,24 @@ PKG_CHECK_MODULES(LIBJSON, [ json-c >= 0.11 ], [],
+ 
+ PKG_CHECK_MODULES(LIBSNDFILE, [ sndfile >= 1.0.20 ])
+ 
++dnl use dlog --------------------------------------------------------------------------
++AC_ARG_ENABLE(dlog, AC_HELP_STRING([--enable-dlog], [using dlog]),
++[
++ case "${enableval}" in
++	 yes) USE_DLOG=yes ;;
++	 no)  USE_DLOG=no ;;
++	 *)   AC_MSG_ERROR(bad value ${enableval} for --enable-dlog) ;;
++ esac
++ ],[USE_DLOG=no])
++
++if test "x$USE_DLOG" = "xyes"; then
++	PKG_CHECK_MODULES(DLOG, dlog)
++	AC_SUBST(DLOG_CFLAGS)
++	AC_SUBST(DLOG_LIBS)
++fi
++AM_CONDITIONAL(USE_DLOG, test "x$USE_DLOG" = "xyes")
++dnl end --------------------------------------------------------------------
++
+ #### atomic-ops ####
+ 
+ AC_MSG_CHECKING([whether we need libatomic_ops])
+diff --git a/src/Makefile.am b/src/Makefile.am
+index ae841e3..3e41300 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -172,6 +172,10 @@ else
+ pulseaudio_LDFLAGS = $(AM_LDFLAGS) $(BINLDFLAGS) $(IMMEDIATE_LDFLAGS) -dlopen force $(foreach f,$(PREOPEN_LIBS),-dlopen $(f))
+ endif
+ 
++if USE_DLOG
++pulseaudio_CFLAGS += -DUSE_DLOG
++endif
++
+ ###################################
+ #       Utility programs          #
+ ###################################
+@@ -740,6 +744,11 @@ libpulsecommon_@PA_MAJORMINOR@_la_CFLAGS += $(DBUS_CFLAGS)
+ libpulsecommon_@PA_MAJORMINOR@_la_LIBADD += $(DBUS_LIBS)
+ endif
+ 
++if USE_DLOG
++libpulsecommon_@PA_MAJORMINOR@_la_CFLAGS += $(DLOG_CFLAGS) -DUSE_DLOG
++libpulsecommon_@PA_MAJORMINOR@_la_LIBADD += $(DLOG_LIBS)
++endif
++
+ ###################################
+ #         Client library          #
+ ###################################
+diff --git a/src/daemon/cmdline.c b/src/daemon/cmdline.c
+index 68579c5..5bb1a0a 100644
+--- a/src/daemon/cmdline.c
++++ b/src/daemon/cmdline.c
+@@ -140,8 +140,12 @@ void pa_cmdline_help(const char *argv0) {
+            "      --scache-idle-time=SECS           Unload autoloaded samples when idle and\n"
+            "                                        this time passed\n"
+            "      --log-level[=LEVEL]               Increase or set verbosity level\n"
+-           "  -v  --verbose                         Increase the verbosity level\n"
++           "  -v                                    Increase the verbosity level\n"
++#ifdef USE_DLOG
++           "      --log-target={auto,syslog,stderr,file:PATH,newfile:PATH,dlog,dlog-color}\n"
++#else
+            "      --log-target={auto,syslog,stderr,file:PATH,newfile:PATH}\n"
++#endif
+            "                                        Specify the log target\n"
+            "      --log-meta[=BOOL]                 Include code location in log messages\n"
+            "      --log-time[=BOOL]                 Include timestamps in log messages\n"
+@@ -325,6 +329,8 @@ int pa_cmdline_parse(pa_daemon_conf *conf, int argc, char *const argv [], int *d
+                 if (pa_daemon_conf_set_log_target(conf, optarg) < 0) {
+ #ifdef HAVE_JOURNAL
+                     pa_log(_("Invalid log target: use either 'syslog', 'journal','stderr' or 'auto' or a valid file name 'file:<path>', 'newfile:<path>'."));
++#elif defined(USE_DLOG)
++                    pa_log(_("Invalid log target: use either 'syslog', 'stderr' or 'auto' or a valid file name 'file:<path>', 'newfile:<path>' or 'dlog' or 'dlog-color'."));
+ #else
+                     pa_log(_("Invalid log target: use either 'syslog', 'stderr' or 'auto' or a valid file name 'file:<path>', 'newfile:<path>'."));
+ #endif
+diff --git a/src/daemon/daemon-conf.c b/src/daemon/daemon-conf.c
+index ce777a6..1dde213 100644
+--- a/src/daemon/daemon-conf.c
++++ b/src/daemon/daemon-conf.c
+@@ -188,9 +188,17 @@ int pa_daemon_conf_set_log_target(pa_daemon_conf *c, const char *string) {
+ 
+         if (!log_target)
+             return -1;
++
++        c->log_target = log_target;
+     }
+ 
+-    c->log_target = log_target;
++#ifdef USE_DLOG
++    else if (!strcmp(string, "dlog")) {
++        c->log_target = PA_LOG_DLOG;
++    } else if (!strcmp(string, "dlog-color")) {
++        c->log_target = PA_LOG_DLOG_COLOR;
++    }
++#endif
+ 
+     return 0;
+ }
+diff --git a/src/pulsecore/cli-command.c b/src/pulsecore/cli-command.c
+index 8c956ac..2497b41 100644
+--- a/src/pulsecore/cli-command.c
++++ b/src/pulsecore/cli-command.c
+@@ -188,7 +188,11 @@ static const struct command commands[] = {
+     { "kill-client",             pa_cli_command_kill_client,        "Kill a client (args: index)", 2},
+     { "kill-sink-input",         pa_cli_command_kill_sink_input,    "Kill a sink input (args: index)", 2},
+     { "kill-source-output",      pa_cli_command_kill_source_output, "Kill a source output (args: index)", 2},
++#ifdef USE_DLOG
++    { "set-log-target",          pa_cli_command_log_target,         "Change the log target (args: null|auto|syslog|stderr|file:PATH|newfile:PATH|dlog|dlog-color)", 2},
++#else
+     { "set-log-target",          pa_cli_command_log_target,         "Change the log target (args: null|auto|syslog|stderr|file:PATH|newfile:PATH)", 2},
++#endif
+     { "set-log-level",           pa_cli_command_log_level,          "Change the log level (args: numeric level)", 2},
+     { "set-log-meta",            pa_cli_command_log_meta,           "Show source code location in log messages (args: bool)", 2},
+     { "set-log-time",            pa_cli_command_log_time,           "Show timestamps in log messages (args: bool)", 2},
+@@ -1508,7 +1512,11 @@ static int pa_cli_command_log_target(pa_core *c, pa_tokenizer *t, pa_strbuf *buf
+     pa_assert(fail);
+ 
+     if (!(m = pa_tokenizer_get(t, 1))) {
++#ifdef USE_DLOG
++        pa_strbuf_puts(buf, "You need to specify a log target (null|auto|syslog|stderr|file:PATH|newfile:PATH|dlog|dlog-color).\n");
++#else
+         pa_strbuf_puts(buf, "You need to specify a log target (null|auto|syslog|stderr|file:PATH|newfile:PATH).\n");
++#endif
+         return -1;
+     }
+ 
+diff --git a/src/pulsecore/log.c b/src/pulsecore/log.c
+index cf96dce..dfb1d0f 100644
+--- a/src/pulsecore/log.c
++++ b/src/pulsecore/log.c
+@@ -61,6 +61,27 @@
+ 
+ #include "log.h"
+ 
++#ifdef USE_DLOG
++#include <dlog.h>
++#define	DLOG_TAG	"PULSEAUDIO"
++
++#define COLOR_BLACK		30
++#define COLOR_RED		31
++#define COLOR_GREEN		32
++#define COLOR_BLUE		34
++#define COLOR_MAGENTA		35
++#define COLOR_CYAN		36
++#define COLOR_WHITE		97
++#define COLOR_B_GRAY		100
++#define COLOR_B_RED		101
++#define COLOR_B_GREEN		102
++#define COLOR_B_YELLOW		103
++#define COLOR_B_BLUE		104
++#define COLOR_B_MAGENTA	105
++#define COLOR_B_CYAN		106
++#define COLOR_REVERSE		7
++
++#endif
+ #define ENV_LOG_SYSLOG "PULSE_LOG_SYSLOG"
+ #define ENV_LOG_LEVEL "PULSE_LOG"
+ #define ENV_LOG_COLORS "PULSE_LOG_COLORS"
+@@ -545,6 +566,74 @@ void pa_log_levelv_meta(
+ 
+                 break;
+             }
++
++#ifdef USE_DLOG
++            case PA_LOG_DLOG: {
++                char *local_t;
++
++                openlog(ident, LOG_PID, LOG_USER);
++
++                if ((local_t = pa_utf8_to_locale(t)))
++                    t = local_t;
++
++                switch (level)
++                {
++					case PA_LOG_DEBUG:
++						SLOG (LOG_DEBUG, DLOG_TAG, "%s%s%s%s",  timestamp, location, t, pa_strempty(bt));
++						break;
++					case PA_LOG_INFO:
++					case PA_LOG_NOTICE:	// no notice category in dlog, use info instead.
++						SLOG (LOG_INFO, DLOG_TAG, "%s%s%s%s", timestamp, location, t, pa_strempty(bt));
++						break;
++					case PA_LOG_WARN:
++						SLOG (LOG_WARN, DLOG_TAG, "%s%s%s%s", timestamp, location, t, pa_strempty(bt));
++						break;
++					case PA_LOG_ERROR:
++						SLOG (LOG_ERROR, DLOG_TAG, "%s%s%s%s", timestamp, location, t, pa_strempty(bt));
++						break;
++					default:
++						SLOG (LOG_DEBUG, DLOG_TAG, "%s%s%s%s", timestamp, location, t, pa_strempty(bt));
++						break;
++                }
++
++                pa_xfree(local_t);
++
++                break;
++            }
++            case PA_LOG_DLOG_COLOR: {
++				char *local_t;
++
++				openlog(ident, LOG_PID, LOG_USER);
++
++				if ((local_t = pa_utf8_to_locale(t)))
++					t = local_t;
++
++				switch (level)
++				{
++					case PA_LOG_DEBUG:
++						SLOG (LOG_DEBUG, DLOG_TAG, "\033[%dm%s%s%s%s\033[0m", COLOR_GREEN, timestamp, location, t, pa_strempty(bt));
++						break;
++					case PA_LOG_INFO:
++					case PA_LOG_NOTICE:	// no notice category in dlog, use info instead.
++						SLOG (LOG_INFO, DLOG_TAG, "\033[%dm%s%s%s%s\033[0m", COLOR_BLUE, timestamp, location, t, pa_strempty(bt));
++						break;
++					case PA_LOG_WARN:
++						SLOG (LOG_WARN, DLOG_TAG, "\033[%dm%s%s%s%s\033[0m", COLOR_MAGENTA, timestamp, location, t, pa_strempty(bt));
++						break;
++					case PA_LOG_ERROR:
++						SLOG (LOG_ERROR, DLOG_TAG, "\033[%dm%s%s%s%s\033[0m", COLOR_RED, timestamp, location, t, pa_strempty(bt));
++						break;
++					default:
++						SLOG (LOG_DEBUG, DLOG_TAG, "%s%s%s%s", timestamp, location, t, pa_strempty(bt));
++						break;
++				}
++
++				pa_xfree(local_t);
++
++				break;
++			}
++
++#endif
+             case PA_LOG_NULL:
+             default:
+                 break;
+@@ -629,6 +718,12 @@ pa_log_target *pa_log_parse_target(const char *string) {
+         t = pa_log_target_new(PA_LOG_FILE, string + 5);
+     else if (pa_startswith(string, "newfile:"))
+         t = pa_log_target_new(PA_LOG_NEWFILE, string + 8);
++#ifdef USE_DLOG
++    else if (pa_streq(string, "dlog"))
++        t = pa_log_target_new(PA_LOG_DLOG, NULL);
++    else if (pa_streq(string, "dlog-color"))
++        t = pa_log_target_new(PA_LOG_DLOG_COLOR, NULL);
++#endif
+     else
+         pa_log(_("Invalid log target."));
+ 
+diff --git a/src/pulsecore/log.h b/src/pulsecore/log.h
+index 5e9611d..031040f 100644
+--- a/src/pulsecore/log.h
++++ b/src/pulsecore/log.h
+@@ -41,6 +41,10 @@ typedef enum pa_log_target_type {
+     PA_LOG_NULL,        /* to /dev/null */
+     PA_LOG_FILE,        /* to a user specified file */
+     PA_LOG_NEWFILE,     /* with an automatic suffix to avoid overwriting anything */
++#ifdef USE_DLOG
++    PA_LOG_DLOG,
++    PA_LOG_DLOG_COLOR,
++#endif
+ } pa_log_target_type_t;
+ 
+ typedef enum pa_log_level {

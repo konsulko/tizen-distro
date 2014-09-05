@@ -1,0 +1,32 @@
+From: Jaska Uimonen <jaska.uimonen@intel.com>
+Date: Thu, 8 Aug 2013 11:24:25 +0300
+Subject: set alsa suspend timeout to zero - samsung
+
+Change-Id: Ie7c93c727d878226189f751efbd6e088ece7f36f
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/modules/alsa/alsa-sink.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/modules/alsa/alsa-sink.c b/src/modules/alsa/alsa-sink.c
+index 5a41cf6..03babb3 100644
+--- a/src/modules/alsa/alsa-sink.c
++++ b/src/modules/alsa/alsa-sink.c
+@@ -60,6 +60,7 @@
+ #include "alsa-util.h"
+ #include "alsa-sink.h"
+ 
++#define ALSA_SUSPEND_ON_IDLE_TIMEOUT	"0"
+ /* #define DEBUG_TIMING */
+ 
+ #define DEFAULT_DEVICE "default"
+@@ -2275,6 +2276,9 @@ pa_sink *pa_alsa_sink_new(pa_module *m, pa_modargs *ma, const char*driver, pa_ca
+     pa_proplist_setf(data.proplist, PA_PROP_DEVICE_BUFFERING_FRAGMENT_SIZE, "%lu", (unsigned long) (period_frames * frame_size));
+     pa_proplist_sets(data.proplist, PA_PROP_DEVICE_ACCESS_MODE, u->use_tsched ? "mmap+timer" : (u->use_mmap ? "mmap" : "serial"));
+ 
++    /* Set Suspend timeout to ZERO to avoid noise */
++    pa_log_info("Set suspend-on-idle timeout to ZERO to avoid noise");
++    pa_proplist_sets(data.proplist, "module-suspend-on-idle.timeout", ALSA_SUSPEND_ON_IDLE_TIMEOUT);
+     if (mapping) {
+         pa_proplist_sets(data.proplist, PA_PROP_DEVICE_PROFILE_NAME, mapping->name);
+         pa_proplist_sets(data.proplist, PA_PROP_DEVICE_PROFILE_DESCRIPTION, mapping->description);

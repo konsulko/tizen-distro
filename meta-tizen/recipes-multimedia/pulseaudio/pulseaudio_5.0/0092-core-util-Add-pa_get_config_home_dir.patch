@@ -1,0 +1,116 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Sun, 8 Jun 2014 16:32:59 +0300
+Subject: core-util: Add pa_get_config_home_dir()
+
+Change-Id: I6aa3df386a7414563b03435683bad2596cf60b8b
+---
+ src/pulsecore/core-util.c | 58 ++++++++++++++++++++++++++++++++---------------
+ src/pulsecore/core-util.h |  1 +
+ 2 files changed, 41 insertions(+), 18 deletions(-)
+
+diff --git a/src/pulsecore/core-util.c b/src/pulsecore/core-util.c
+index 99aa51f..2569cfd 100644
+--- a/src/pulsecore/core-util.c
++++ b/src/pulsecore/core-util.c
+@@ -1581,16 +1581,6 @@ int pa_unlock_lockfile(const char *fn, int fd) {
+     return r;
+ }
+ 
+-static char *get_config_home(char *home) {
+-    char *t;
+-
+-    t = getenv("XDG_CONFIG_HOME");
+-    if (t)
+-        return pa_xstrdup(t);
+-
+-    return pa_sprintf_malloc("%s" PA_PATH_SEP ".config", home);
+-}
+-
+ static int check_ours(const char *p) {
+     struct stat st;
+ 
+@@ -1608,7 +1598,7 @@ static int check_ours(const char *p) {
+ }
+ 
+ static char *get_pulse_home(void) {
+-    char *h, *ret, *config_home;
++    char *h, *ret;
+     int t;
+ 
+     h = pa_get_home_dir_malloc();
+@@ -1626,17 +1616,14 @@ static char *get_pulse_home(void) {
+ 
+     /* If the old directory exists, use it. */
+     ret = pa_sprintf_malloc("%s" PA_PATH_SEP ".pulse", h);
+-    if (access(ret, F_OK) >= 0) {
+-        free(h);
++    pa_xfree(h);
++    if (access(ret, F_OK) >= 0)
+         return ret;
+-    }
+     free(ret);
+ 
+     /* Otherwise go for the XDG compliant directory. */
+-    config_home = get_config_home(h);
+-    free(h);
+-    ret = pa_sprintf_malloc("%s" PA_PATH_SEP "pulse", config_home);
+-    free(config_home);
++    if (pa_get_config_home_dir(false, &ret) < 0)
++        return NULL;
+ 
+     return ret;
+ }
+@@ -1702,6 +1689,41 @@ int pa_append_to_home_dir(const char *path, char **_r) {
+     return 0;
+ }
+ 
++int pa_get_config_home_dir(bool use_machine_id, char **_r) {
++    const char *e;
++    char *base = NULL;
++    int r = 0;
++    char *machine_id = NULL;
++
++    pa_assert(_r);
++
++    e = getenv("XDG_CONFIG_HOME");
++    if (e && *e)
++        base = pa_sprintf_malloc("%s" PA_PATH_SEP "pulse", e);
++    else {
++        r = pa_append_to_home_dir(".config" PA_PATH_SEP "pulse", &base);
++        if (r < 0)
++            goto finish;
++    }
++
++    if (use_machine_id) {
++        machine_id = pa_machine_id();
++        if (!machine_id) {
++            r = -PA_ERR_NOENTITY;
++            goto finish;
++        }
++
++        *_r = pa_sprintf_malloc("%s" PA_PATH_SEP "%s", base, machine_id);
++    } else
++        *_r = pa_xstrdup(base);
++
++finish:
++    pa_xfree(machine_id);
++    pa_xfree(base);
++
++    return r;
++}
++
+ char *pa_get_binary_name_malloc(void) {
+     char *t;
+     size_t allocated = 128;
+diff --git a/src/pulsecore/core-util.h b/src/pulsecore/core-util.h
+index 05d628e..e222874 100644
+--- a/src/pulsecore/core-util.h
++++ b/src/pulsecore/core-util.h
+@@ -138,6 +138,7 @@ char *pa_get_runtime_dir(void);
+ char *pa_get_state_dir(void);
+ char *pa_get_home_dir_malloc(void);
+ int pa_append_to_home_dir(const char *path, char **_r);
++int pa_get_config_home_dir(bool use_machine_id, char **_r);
+ char *pa_get_binary_name_malloc(void);
+ char *pa_runtime_path(const char *fn);
+ char *pa_state_path(const char *fn, bool prepend_machine_id);

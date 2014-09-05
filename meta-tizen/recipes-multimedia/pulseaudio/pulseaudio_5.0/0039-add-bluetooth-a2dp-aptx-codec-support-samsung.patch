@@ -1,0 +1,1024 @@
+From: "vivian,zhang" <vivian.zhang@intel.com>
+Date: Tue, 18 Jun 2013 16:23:45 +0800
+Subject: add bluetooth a2dp aptx codec support - samsung
+
+Change-Id: I2c90198774c1e7d3e2ecb99f2dd365d56308f157
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ configure.ac                                      |  20 ++
+ src/Makefile.am                                   |  27 +++
+ src/modules/bluetooth/a2dp-codecs.h               |  39 ++++
+ src/modules/bluetooth/bluetooth-util.h            | 183 +++++++++++++++++
+ src/modules/bluetooth/bluez4-util.c               | 184 ++++++++++++++++-
+ src/modules/bluetooth/module-bluetooth-discover.c |  37 ++++
+ src/modules/bluetooth/module-bluez4-device.c      | 236 ++++++++++++++++++++++
+ 7 files changed, 724 insertions(+), 2 deletions(-)
+ create mode 100644 src/modules/bluetooth/bluetooth-util.h
+
+diff --git a/configure.ac b/configure.ac
+index 0e205d3..ebff16c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1079,6 +1079,26 @@ else
+ fi
+ AC_SUBST(BLUETOOTH_HEADSET_BACKEND)
+ 
++#### Bluetooth A2DP aptx codec support(optional) ####
++AC_ARG_ENABLE([bt_a2dp_aptx],
++    AS_HELP_STRING([--enable-bt-a2dp-aptx],[Enable optional Bluetooth A2DP aptx codec support(arm only)]),
++        [
++            case "${enableval}" in
++                yes) bt_a2dp_aptx=yes ;;
++                no) bt_a2dp_aptx=no ;;
++                *) AC_MSG_ERROR(bad value ${enableval} for --enable-bt-a2dp-aptx) ;;
++            esac
++        ],
++        [bt_a2dp_aptx=false])
++if test "x${bt_a2dp_aptx}" == xyes ; then
++	HAVE_BT_A2DP_APTX=1
++else
++	HAVE_BT_A2DP_APTX=0
++fi
++
++AC_SUBST(HAVE_BT_A2DP_APTX)
++AM_CONDITIONAL([HAVE_BT_A2DP_APTX], [test "x$HAVE_BT_A2DP_APTX" = x1])
++
+ #### UDEV support (optional) ####
+ 
+ AC_ARG_ENABLE([udev],
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 4872dfd..3c062eb 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -2078,7 +2078,11 @@ module_bluetooth_policy_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
+ module_bluetooth_discover_la_SOURCES = modules/bluetooth/module-bluetooth-discover.c
+ module_bluetooth_discover_la_LDFLAGS = $(MODULE_LDFLAGS)
+ module_bluetooth_discover_la_LIBADD = $(MODULE_LIBADD)
++if HAVE_BT_A2DP_APTX
++module_bluetooth_discover_la_CFLAGS = $(AM_CFLAGS) -DBLUETOOTH_APTX_SUPPORT
++else
+ module_bluetooth_discover_la_CFLAGS = $(AM_CFLAGS)
++endif
+ 
+ # Bluetooth BlueZ 4 sink / source
+ module_bluez4_discover_la_SOURCES = modules/bluetooth/module-bluez4-discover.c
+@@ -2092,12 +2096,23 @@ libbluez4_util_la_SOURCES = \
+ 		modules/bluetooth/bluez4-util.h
+ libbluez4_util_la_LDFLAGS = -avoid-version
+ libbluez4_util_la_LIBADD = $(MODULE_LIBADD) $(DBUS_LIBS)
++
++if HAVE_BT_A2DP_APTX
++libbluez4_util_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) -DBLUETOOTH_APTX_SUPPORT
++else
+ libbluez4_util_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
++endif
+ 
+ module_bluez4_device_la_SOURCES = modules/bluetooth/module-bluez4-device.c modules/bluetooth/rtp.h
+ module_bluez4_device_la_LDFLAGS = $(MODULE_LDFLAGS)
+ module_bluez4_device_la_LIBADD = $(MODULE_LIBADD) $(DBUS_LIBS) $(SBC_LIBS) libbluez4-util.la
++
++if HAVE_BT_A2DP_APTX
++module_bluez4_device_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) $(SBC_CFLAGS) \
++                                    -DBLUETOOTH_APTX_SUPPORT
++else
+ module_bluez4_device_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) $(SBC_CFLAGS)
++endif
+ 
+ # Bluetooth BlueZ 5 sink / source
+ libbluez5_util_la_SOURCES = \
+@@ -2108,7 +2123,12 @@ libbluez5_util_la_SOURCES = \
+ 		modules/bluetooth/hfaudioagent-@BLUETOOTH_HEADSET_BACKEND@.c
+ libbluez5_util_la_LDFLAGS = -avoid-version
+ libbluez5_util_la_LIBADD = $(MODULE_LIBADD) $(DBUS_LIBS)
++
++if HAVE_BT_A2DP_APTX
++libbluez5_util_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS) -DBLUETOOTH_APTX_SUPPORT
++else
+ libbluez5_util_la_CFLAGS = $(AM_CFLAGS) $(DBUS_CFLAGS)
++endif
+ 
+ module_bluez5_discover_la_SOURCES = modules/bluetooth/module-bluez5-discover.c
+ module_bluez5_discover_la_LDFLAGS = $(MODULE_LDFLAGS)
+@@ -2120,6 +2140,13 @@ module_bluez5_device_la_LDFLAGS = $(MODULE_LDFLAGS)
+ module_bluez5_device_la_LIBADD = $(MODULE_LIBADD) $(SBC_LIBS) libbluez5-util.la
+ module_bluez5_device_la_CFLAGS = $(AM_CFLAGS) $(SBC_CFLAGS)
+ 
++if HAVE_BT_A2DP_APTX
++module_bluez5_device_la_CFLAGS = $(AM_CFLAGS) $(SBC_CFLAGS) \
++                                    -DBLUETOOTH_APTX_SUPPORT
++else
++module_bluez5_device_la_CFLAGS = $(AM_CFLAGS) $(SBC_CFLAGS)
++endif
++
+ # Apple Airtunes/RAOP
+ module_raop_sink_la_SOURCES = modules/raop/module-raop-sink.c
+ module_raop_sink_la_LDFLAGS = $(MODULE_LDFLAGS)
+diff --git a/src/modules/bluetooth/a2dp-codecs.h b/src/modules/bluetooth/a2dp-codecs.h
+index 51c796a..c94812b 100644
+--- a/src/modules/bluetooth/a2dp-codecs.h
++++ b/src/modules/bluetooth/a2dp-codecs.h
+@@ -27,6 +27,7 @@
+ #define A2DP_CODEC_MPEG24		0x02
+ #define A2DP_CODEC_ATRAC		0x03
+ 
++#define A2DP_CODEC_NON_A2DP		0xFF
+ #define SBC_SAMPLING_FREQ_16000		(1 << 3)
+ #define SBC_SAMPLING_FREQ_32000		(1 << 2)
+ #define SBC_SAMPLING_FREQ_44100		(1 << 1)
+@@ -67,6 +68,32 @@
+ #define MAX_BITPOOL 64
+ #define MIN_BITPOOL 2
+ 
++/*#define APTX_CHANNEL_MODE_STEREO			2 */
++/*
++ * aptX codec for Bluetooth only supports stereo mode with value 2
++ * But we do have sink devices programmed to send capabilities with other channel mode support.
++ * So to handle the case and keeping codec symmetry with SBC etc., we do define other channel mode,
++ * and we always make sure to set configuration with APTX_CHANNEL_MODE_STEREO only.
++ *
++ * */
++
++#define APTX_CHANNEL_MODE_MONO			(1 << 3)
++#define APTX_CHANNEL_MODE_DUAL_CHANNEL	(1 << 2)
++#define APTX_CHANNEL_MODE_STEREO		(1 << 1)
++#define APTX_CHANNEL_MODE_JOINT_STEREO	1
++
++#define APTX_VENDOR_ID0		0x4F /*APTX codec ID 79*/
++#define APTX_VENDOR_ID1		0x0
++#define APTX_VENDOR_ID2		0x0
++#define APTX_VENDOR_ID3		0x0
++
++#define APTX_CODEC_ID0		0x1
++#define APTX_CODEC_ID1		0x0
++
++#define APTX_SAMPLING_FREQ_16000	(1 << 3)
++#define APTX_SAMPLING_FREQ_32000	(1 << 2)
++#define APTX_SAMPLING_FREQ_44100	(1 << 1)
++#define APTX_SAMPLING_FREQ_48000	1
+ #if __BYTE_ORDER == __LITTLE_ENDIAN
+ 
+ typedef struct {
+@@ -89,6 +116,12 @@ typedef struct {
+ 	uint16_t bitrate;
+ } __attribute__ ((packed)) a2dp_mpeg_t;
+ 
++typedef struct {
++	uint8_t vendor_id[4];
++	uint8_t codec_id[2];
++	uint8_t channel_mode:4;
++	uint8_t frequency:4;
++} __attribute__ ((packed)) a2dp_aptx_t;
+ #elif __BYTE_ORDER == __BIG_ENDIAN
+ 
+ typedef struct {
+@@ -110,6 +143,12 @@ typedef struct {
+ 	uint8_t frequency:6;
+ 	uint16_t bitrate;
+ } __attribute__ ((packed)) a2dp_mpeg_t;
++typedef struct {
++	uint8_t vendor_id[4];
++	uint8_t codec_id[2];
++	uint8_t frequency:4;
++	uint8_t channel_mode:4;
++} __attribute__ ((packed)) a2dp_aptx_t;
+ 
+ #else
+ #error "Unknown byte order"
+diff --git a/src/modules/bluetooth/bluetooth-util.h b/src/modules/bluetooth/bluetooth-util.h
+new file mode 100644
+index 0000000..859ad2d
+--- /dev/null
++++ b/src/modules/bluetooth/bluetooth-util.h
+@@ -0,0 +1,183 @@
++#ifndef foobluetoothutilhfoo
++#define foobluetoothutilhfoo
++
++/***
++  This file is part of PulseAudio.
++
++  Copyright 2008-2009 Joao Paulo Rechi Vita
++
++  PulseAudio is free software; you can redistribute it and/or modify
++  it under the terms of the GNU Lesser General Public License as
++  published by the Free Software Foundation; either version 2.1 of the
++  License, or (at your option) any later version.
++
++  PulseAudio is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public
++  License along with PulseAudio; if not, write to the Free Software
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++  USA.
++***/
++
++#include <dbus/dbus.h>
++
++#include <pulsecore/llist.h>
++#include <pulsecore/macro.h>
++
++#define PA_BLUETOOTH_ERROR_NOT_SUPPORTED "org.bluez.Error.NotSupported"
++
++/* UUID copied from bluez/audio/device.h */
++#define GENERIC_AUDIO_UUID      "00001203-0000-1000-8000-00805f9b34fb"
++
++#define HSP_HS_UUID             "00001108-0000-1000-8000-00805f9b34fb"
++#define HSP_AG_UUID             "00001112-0000-1000-8000-00805f9b34fb"
++
++#define HFP_HS_UUID             "0000111e-0000-1000-8000-00805f9b34fb"
++#define HFP_AG_UUID             "0000111f-0000-1000-8000-00805f9b34fb"
++
++#define ADVANCED_AUDIO_UUID     "0000110d-0000-1000-8000-00805f9b34fb"
++
++#define A2DP_SOURCE_UUID        "0000110a-0000-1000-8000-00805f9b34fb"
++#define A2DP_SINK_UUID          "0000110b-0000-1000-8000-00805f9b34fb"
++
++#define HSP_MAX_GAIN 15
++
++typedef struct pa_bluetooth_uuid pa_bluetooth_uuid;
++typedef struct pa_bluetooth_device pa_bluetooth_device;
++typedef struct pa_bluetooth_discovery pa_bluetooth_discovery;
++typedef struct pa_bluetooth_transport pa_bluetooth_transport;
++
++struct userdata;
++
++struct pa_bluetooth_uuid {
++    char *uuid;
++    PA_LLIST_FIELDS(pa_bluetooth_uuid);
++};
++
++enum profile {
++    PROFILE_A2DP,
++    PROFILE_A2DP_SOURCE,
++    PROFILE_HSP,
++    PROFILE_HFGW,
++    PROFILE_OFF
++};
++
++#define PA_BLUETOOTH_PROFILE_COUNT PROFILE_OFF
++
++struct pa_bluetooth_hook_uuid_data {
++    pa_bluetooth_device *device;
++    const char *uuid;
++};
++
++/* Hook data: pa_bluetooth_discovery pointer. */
++typedef enum pa_bluetooth_hook {
++    PA_BLUETOOTH_HOOK_DEVICE_CONNECTION_CHANGED, /* Call data: pa_bluetooth_device */
++    PA_BLUETOOTH_HOOK_DEVICE_UUID_ADDED, /* Call data: pa_bluetooth_hook_uuid_data */
++    PA_BLUETOOTH_HOOK_TRANSPORT_STATE_CHANGED, /* Call data: pa_bluetooth_transport */
++    PA_BLUETOOTH_HOOK_TRANSPORT_NREC_CHANGED, /* Call data: pa_bluetooth_transport */
++    PA_BLUETOOTH_HOOK_TRANSPORT_MICROPHONE_GAIN_CHANGED, /* Call data: pa_bluetooth_transport */
++    PA_BLUETOOTH_HOOK_TRANSPORT_SPEAKER_GAIN_CHANGED, /* Call data: pa_bluetooth_transport */
++    PA_BLUETOOTH_HOOK_MAX
++} pa_bluetooth_hook_t;
++
++typedef enum pa_bluetooth_transport_state {
++    PA_BLUETOOTH_TRANSPORT_STATE_DISCONNECTED,
++    PA_BLUETOOTH_TRANSPORT_STATE_IDLE, /* Connected but not playing */
++    PA_BLUETOOTH_TRANSPORT_STATE_PLAYING
++} pa_bluetooth_transport_state_t;
++
++struct pa_bluetooth_transport {
++    pa_bluetooth_device *device;
++    char *owner;
++    char *path;
++    enum profile profile;
++    uint8_t codec;
++    uint8_t *config;
++    int config_size;
++
++    pa_bluetooth_transport_state_t state;
++    bool nrec;
++    uint16_t microphone_gain; /* Used for HSP/HFP */
++    uint16_t speaker_gain; /* Used for HSP/HFP */
++};
++
++/* This enum is shared among Audio, Headset, AudioSink, and AudioSource, although not all values are acceptable in all profiles */
++typedef enum pa_bt_audio_state {
++    PA_BT_AUDIO_STATE_INVALID = -1,
++    PA_BT_AUDIO_STATE_DISCONNECTED,
++    PA_BT_AUDIO_STATE_CONNECTING,
++    PA_BT_AUDIO_STATE_CONNECTED,
++    PA_BT_AUDIO_STATE_PLAYING
++} pa_bt_audio_state_t;
++
++struct pa_bluetooth_device {
++    pa_bluetooth_discovery *discovery;
++    bool dead;
++
++    int device_info_valid;      /* 0: no results yet; 1: good results; -1: bad results ... */
++
++    /* Device information */
++    char *name;
++    char *path;
++    pa_bluetooth_transport *transports[PA_BLUETOOTH_PROFILE_COUNT];
++    int paired;
++    char *alias;
++    PA_LLIST_HEAD(pa_bluetooth_uuid, uuids);
++    char *address;
++    int class;
++    int trusted;
++
++    /* Audio state */
++    pa_bt_audio_state_t audio_state;
++
++    /* AudioSink, AudioSource, Headset and HandsfreeGateway states */
++    pa_bt_audio_state_t profile_state[PA_BLUETOOTH_PROFILE_COUNT];
++};
++
++pa_bluetooth_discovery* pa_bluetooth_discovery_get(pa_core *core);
++pa_bluetooth_discovery* pa_bluetooth_discovery_ref(pa_bluetooth_discovery *y);
++void pa_bluetooth_discovery_unref(pa_bluetooth_discovery *d);
++
++pa_bluetooth_device* pa_bluetooth_discovery_get_by_path(pa_bluetooth_discovery *d, const char* path);
++pa_bluetooth_device* pa_bluetooth_discovery_get_by_address(pa_bluetooth_discovery *d, const char* address);
++
++bool pa_bluetooth_device_any_audio_connected(const pa_bluetooth_device *d);
++
++int pa_bluetooth_transport_acquire(pa_bluetooth_transport *t, bool optional, size_t *imtu, size_t *omtu);
++void pa_bluetooth_transport_release(pa_bluetooth_transport *t);
++
++void pa_bluetooth_transport_set_microphone_gain(pa_bluetooth_transport *t, uint16_t value);
++void pa_bluetooth_transport_set_speaker_gain(pa_bluetooth_transport *t, uint16_t value);
++
++pa_hook* pa_bluetooth_discovery_hook(pa_bluetooth_discovery *y, pa_bluetooth_hook_t hook);
++
++typedef enum pa_bt_form_factor {
++    PA_BT_FORM_FACTOR_UNKNOWN,
++    PA_BT_FORM_FACTOR_HEADSET,
++    PA_BT_FORM_FACTOR_HANDSFREE,
++    PA_BT_FORM_FACTOR_MICROPHONE,
++    PA_BT_FORM_FACTOR_SPEAKER,
++    PA_BT_FORM_FACTOR_HEADPHONE,
++    PA_BT_FORM_FACTOR_PORTABLE,
++    PA_BT_FORM_FACTOR_CAR,
++    PA_BT_FORM_FACTOR_HIFI,
++    PA_BT_FORM_FACTOR_PHONE,
++} pa_bt_form_factor_t;
++
++pa_bt_form_factor_t pa_bluetooth_get_form_factor(uint32_t class);
++const char *pa_bt_form_factor_to_string(pa_bt_form_factor_t ff);
++
++char *pa_bluetooth_cleanup_name(const char *name);
++
++bool pa_bluetooth_uuid_has(pa_bluetooth_uuid *uuids, const char *uuid);
++const char *pa_bt_profile_to_string(enum profile profile);
++
++#ifdef BLUETOOTH_APTX_SUPPORT
++int pa_load_aptx(const char *aptx_lib_name);
++int pa_unload_aptx(void);
++void* pa_aptx_get_handle(void);
++#endif
++#endif
+diff --git a/src/modules/bluetooth/bluez4-util.c b/src/modules/bluetooth/bluez4-util.c
+index f047b73..7e7aed0 100644
+--- a/src/modules/bluetooth/bluez4-util.c
++++ b/src/modules/bluetooth/bluez4-util.c
+@@ -22,6 +22,9 @@
+ #ifdef HAVE_CONFIG_H
+ #include <config.h>
+ #endif
++#ifdef BLUETOOTH_APTX_SUPPORT
++#include <dlfcn.h>
++#endif
+ 
+ #include <pulse/xmalloc.h>
+ 
+@@ -36,6 +39,9 @@
+ #define ENDPOINT_PATH_HFP_HS "/MediaEndpoint/BlueZ4/HFPHS"
+ #define ENDPOINT_PATH_A2DP_SOURCE "/MediaEndpoint/BlueZ4/A2DPSource"
+ #define ENDPOINT_PATH_A2DP_SINK "/MediaEndpoint/BlueZ4/A2DPSink"
++#ifdef BLUETOOTH_APTX_SUPPORT
++#define ENDPOINT_PATH_A2DP_APTX_SOURCE "/MediaEndpoint/Bluez4/A2DPSource_aptx"
++#endif
+ 
+ #define ENDPOINT_INTROSPECT_XML                                         \
+     DBUS_INTROSPECT_1_0_XML_DOCTYPE_DECL_NODE                           \
+@@ -80,6 +86,56 @@ static pa_dbus_pending* send_and_add_to_pending(pa_bluez4_discovery *y, DBusMess
+ static void found_adapter(pa_bluez4_discovery *y, const char *path);
+ static pa_bluez4_device *found_device(pa_bluez4_discovery *y, const char* path);
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++static void *aptx_handle = NULL;
++
++int pa_unload_aptx(void)
++{
++	if (aptx_handle == NULL) {
++		pa_log_warn("Unable to unload apt-X library");
++		return -1;
++	}
++
++	dlclose(aptx_handle);
++	aptx_handle = NULL;
++
++	pa_log_debug("unloaded apt-X library successfully");
++	return 0;
++}
++
++int pa_load_aptx(const char *aptx_lib_name)
++{
++	char* lib_path = NULL ;
++
++        if(aptx_lib_name == NULL)
++		return -1;
++
++        lib_path = pa_sprintf_malloc("%s/%s", PA_DLSEARCHPATH, aptx_lib_name);
++
++	if (!lib_path)
++		return -1;
++
++	pa_log_info("aptx_lib_path = [%s]", lib_path);
++
++	aptx_handle = dlopen(lib_path, RTLD_LAZY);
++	if (aptx_handle == NULL) {
++		pa_log_warn("Unable to load apt-X library [%s]", dlerror());
++		pa_xfree(lib_path);
++		return -1;
++	}
++
++	pa_log_debug("loaded apt-X library successfully");
++	pa_xfree(lib_path);
++
++	return 0;
++}
++
++void* pa_aptx_get_handle(void)
++{
++	return aptx_handle;
++}
++#endif
++
+ static pa_bluez4_audio_state_t audio_state_from_string(const char* value) {
+     pa_assert(value);
+ 
+@@ -835,6 +891,8 @@ static void register_endpoint(pa_bluez4_discovery *y, const char *path, const ch
+         uint8_t capability = 0;
+         pa_dbus_append_basic_array_variant_dict_entry(&d, "Capabilities", DBUS_TYPE_BYTE, &capability, 1);
+     } else {
++        pa_log_debug("register_endpoint: codec=%d[%s]", codec, codec==A2DP_CODEC_SBC ? "A2DP_CODEC_SBC" : codec==A2DP_CODEC_NON_A2DP ? "A2DP_CODEC_NON_A2DP" : "unknown");
++        if (codec == A2DP_CODEC_SBC) {
+         a2dp_sbc_t capabilities;
+ 
+         capabilities.channel_mode = SBC_CHANNEL_MODE_MONO | SBC_CHANNEL_MODE_DUAL_CHANNEL |
+@@ -849,6 +907,23 @@ static void register_endpoint(pa_bluez4_discovery *y, const char *path, const ch
+         capabilities.max_bitpool = MAX_BITPOOL;
+ 
+         pa_dbus_append_basic_array_variant_dict_entry(&d, "Capabilities", DBUS_TYPE_BYTE, &capabilities, sizeof(capabilities));
++        } else if (codec == A2DP_CODEC_NON_A2DP ) {
++          /* aptx */
++            a2dp_aptx_t capabilities;
++
++            capabilities.vendor_id[0] = APTX_VENDOR_ID0;
++            capabilities.vendor_id[1] = APTX_VENDOR_ID1;
++            capabilities.vendor_id[2] = APTX_VENDOR_ID2;
++            capabilities.vendor_id[3] = APTX_VENDOR_ID3;
++
++            capabilities.codec_id[0] = APTX_CODEC_ID0;
++            capabilities.codec_id[1] = APTX_CODEC_ID1;
++
++            capabilities.channel_mode= APTX_CHANNEL_MODE_STEREO;
++            capabilities.frequency= APTX_SAMPLING_FREQ_44100;
++
++            pa_dbus_append_basic_array_variant_dict_entry(&d, "Capabilities", DBUS_TYPE_BYTE, &capabilities, sizeof(capabilities));
++        }
+     }
+ 
+     dbus_message_iter_close_container(&i, &d);
+@@ -857,6 +932,7 @@ static void register_endpoint(pa_bluez4_discovery *y, const char *path, const ch
+ }
+ 
+ static void found_adapter(pa_bluez4_discovery *y, const char *path) {
++
+     DBusMessage *m;
+ 
+     pa_assert_se(m = dbus_message_new_method_call("org.bluez", path, "org.bluez.Adapter", "GetProperties"));
+@@ -866,6 +942,10 @@ static void found_adapter(pa_bluez4_discovery *y, const char *path) {
+     register_endpoint(y, path, ENDPOINT_PATH_HFP_HS, HFP_HS_UUID);
+     register_endpoint(y, path, ENDPOINT_PATH_A2DP_SOURCE, A2DP_SOURCE_UUID);
+     register_endpoint(y, path, ENDPOINT_PATH_A2DP_SINK, A2DP_SINK_UUID);
++#ifdef BLUETOOTH_APTX_SUPPORT
++    if (aptx_handle)
++        register_endpoint(y, path, ENDPOINT_PATH_A2DP_APTX_SOURCE, A2DP_SOURCE_UUID);
++#endif
+ }
+ 
+ static void list_adapters(pa_bluez4_discovery *y) {
+@@ -1349,7 +1429,11 @@ static DBusMessage *endpoint_set_configuration(DBusConnection *conn, DBusMessage
+         p = PA_BLUEZ4_PROFILE_HSP;
+     else if (dbus_message_has_path(m, ENDPOINT_PATH_HFP_HS))
+         p = PA_BLUEZ4_PROFILE_HFGW;
++#ifdef BLUETOOTH_APTX_SUPPORT
++    else if (dbus_message_has_path(m, ENDPOINT_PATH_A2DP_SOURCE) || dbus_message_has_path(m, ENDPOINT_PATH_A2DP_APTX_SOURCE))
++#else
+     else if (dbus_message_has_path(m, ENDPOINT_PATH_A2DP_SOURCE))
++#endif
+         p = PA_BLUEZ4_PROFILE_A2DP;
+     else
+         p = PA_BLUEZ4_PROFILE_A2DP_SOURCE;
+@@ -1475,6 +1559,84 @@ static uint8_t a2dp_default_bitpool(uint8_t freq, uint8_t mode) {
+     }
+ }
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++static DBusMessage *endpoint_select_configuration_for_aptx(DBusConnection *c, DBusMessage *m, void *userdata) {
++    a2dp_aptx_t *cap;
++    a2dp_aptx_t config;
++    uint8_t *pconf = (uint8_t *) &config;
++    int size;
++    DBusMessage *r;
++    DBusError e;
++
++    dbus_error_init(&e);
++
++    if (!dbus_message_get_args(m, &e, DBUS_TYPE_ARRAY, DBUS_TYPE_BYTE, &cap, &size, DBUS_TYPE_INVALID)) {
++        pa_log("org.bluez.MediaEndpoint.SelectConfiguration: %s", e.message);
++        dbus_error_free(&e);
++        goto fail;
++    }
++
++    pa_assert(size == sizeof(config));
++
++    memset(&config, 0, sizeof(config));
++
++    if (cap->vendor_id[0] == APTX_VENDOR_ID0 &&
++        cap->vendor_id[1] == APTX_VENDOR_ID1 &&
++        cap->vendor_id[2] == APTX_VENDOR_ID2 &&
++        cap->vendor_id[3] == APTX_VENDOR_ID3 &&
++         cap->codec_id[0] == APTX_CODEC_ID0  &&
++         cap->codec_id[1] == APTX_CODEC_ID1  )
++        pa_log_debug("A2DP_CODEC_NON_A2DP and this is APTX Codec");
++    else {
++        pa_log_debug("A2DP_CODEC_NON_A2DP but this is not APTX Codec");
++        goto fail;
++    }
++
++    memcpy(&config,cap, sizeof(config));
++
++/* The below code shuld be re-written by aptx */
++/* And we should configure pulseaudio freq */
++
++    if (cap->frequency & APTX_SAMPLING_FREQ_44100)
++        config.frequency = APTX_SAMPLING_FREQ_44100;
++    else if (cap->frequency & APTX_SAMPLING_FREQ_48000)
++        config.frequency = APTX_SAMPLING_FREQ_48000;
++    else if (cap->frequency & APTX_SAMPLING_FREQ_32000)
++        config.frequency = APTX_SAMPLING_FREQ_32000;
++    else if (cap->frequency & APTX_SAMPLING_FREQ_16000)
++        config.frequency = APTX_SAMPLING_FREQ_16000;
++    else {
++        pa_log_error("No aptx supported frequencies");
++        goto fail;
++    }
++
++    if (cap->channel_mode & APTX_CHANNEL_MODE_JOINT_STEREO)
++        config.channel_mode = APTX_CHANNEL_MODE_STEREO;
++    else if (cap->channel_mode & APTX_CHANNEL_MODE_STEREO)
++        config.channel_mode = APTX_CHANNEL_MODE_STEREO;
++    else if (cap->channel_mode & APTX_CHANNEL_MODE_DUAL_CHANNEL)
++        config.channel_mode = APTX_CHANNEL_MODE_STEREO;
++    else {
++        pa_log_error("No aptx supported channel modes");
++        goto fail;
++    }
++
++    pa_assert_se(r = dbus_message_new_method_return(m));
++
++    pa_assert_se(dbus_message_append_args(
++                                     r,
++                                     DBUS_TYPE_ARRAY, DBUS_TYPE_BYTE, &pconf, size,
++                                     DBUS_TYPE_INVALID));
++
++    return r;
++
++fail:
++    pa_assert_se(r = (dbus_message_new_error(m, "org.bluez.MediaEndpoint.Error.InvalidArguments",
++                                                        "Unable to select configuration")));
++    return r;
++}
++#endif
++
+ static DBusMessage *endpoint_select_configuration(DBusConnection *c, DBusMessage *m, void *userdata) {
+     pa_bluez4_discovery *y = userdata;
+     a2dp_sbc_t *cap, config;
+@@ -1493,6 +1655,10 @@ static DBusMessage *endpoint_select_configuration(DBusConnection *c, DBusMessage
+         { 48000U, SBC_SAMPLING_FREQ_48000 }
+     };
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++    if (dbus_message_has_path(m, A2DP_APTX_SOURCE_ENDPOINT))
++        return endpoint_select_configuration_for_aptx(c ,m ,userdata);
++#endif
+     dbus_error_init(&e);
+ 
+     if (!dbus_message_get_args(m, &e, DBUS_TYPE_ARRAY, DBUS_TYPE_BYTE, &cap, &size, DBUS_TYPE_INVALID)) {
+@@ -1614,8 +1780,13 @@ static DBusHandlerResult endpoint_handler(DBusConnection *c, DBusMessage *m, voi
+ 
+     dbus_error_init(&e);
+ 
+-    if (!pa_streq(path, ENDPOINT_PATH_A2DP_SOURCE) && !pa_streq(path, ENDPOINT_PATH_A2DP_SINK)
+-            && !pa_streq(path, ENDPOINT_PATH_HFP_AG) && !pa_streq(path, ENDPOINT_PATH_HFP_HS))
++    if (!pa_streq(path, ENDPOINT_PATH_A2DP_SOURCE) &&
++        !pa_streq(path, ENDPOINT_PATH_A2DP_SINK) &&
++        !pa_streq(path, ENDPOINT_PATH_HFP_AG) &&
++#ifdef BLUETOOTH_APTX_SUPPORT
++        !pa_streq(path, ENDPOINT_PATH_A2DP_APTX_SOURCE) &&
++#endif
++        !pa_streq(path, ENDPOINT_PATH_HFP_HS))
+         return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+ 
+     if (dbus_message_is_method_call(m, "org.freedesktop.DBus.Introspectable", "Introspect")) {
+@@ -1706,6 +1877,11 @@ pa_bluez4_discovery* pa_bluez4_discovery_get(pa_core *c) {
+     pa_assert_se(dbus_connection_register_object_path(conn, ENDPOINT_PATH_A2DP_SOURCE, &vtable_endpoint, y));
+     pa_assert_se(dbus_connection_register_object_path(conn, ENDPOINT_PATH_A2DP_SINK, &vtable_endpoint, y));
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++    if (aptx_handle)
++        pa_assert_se(dbus_connection_register_object_path(conn, ENDPOINT_PATH_A2DP_APTX_SOURCE, &vtable_endpoint, y));
++#endif
++
+     list_adapters(y);
+ 
+     return y;
+@@ -1754,6 +1930,10 @@ void pa_bluez4_discovery_unref(pa_bluez4_discovery *y) {
+         dbus_connection_unregister_object_path(pa_dbus_connection_get(y->connection), ENDPOINT_PATH_HFP_HS);
+         dbus_connection_unregister_object_path(pa_dbus_connection_get(y->connection), ENDPOINT_PATH_A2DP_SOURCE);
+         dbus_connection_unregister_object_path(pa_dbus_connection_get(y->connection), ENDPOINT_PATH_A2DP_SINK);
++#ifdef BLUETOOTH_APTX_SUPPORT
++        if (aptx_handle)
++            dbus_connection_unregister_object_path(pa_dbus_connection_get(y->connection), ENDPOINT_PATH_A2DP_APTX_SOURCE);
++#endif
+         pa_dbus_remove_matches(
+             pa_dbus_connection_get(y->connection),
+             "type='signal',sender='org.freedesktop.DBus',interface='org.freedesktop.DBus',member='NameOwnerChanged'"
+diff --git a/src/modules/bluetooth/module-bluetooth-discover.c b/src/modules/bluetooth/module-bluetooth-discover.c
+index 0bcfcf9..e1dbec5 100644
+--- a/src/modules/bluetooth/module-bluetooth-discover.c
++++ b/src/modules/bluetooth/module-bluetooth-discover.c
+@@ -34,6 +34,17 @@ PA_MODULE_DESCRIPTION("Detect available Bluetooth daemon and load the correspond
+ PA_MODULE_VERSION(PACKAGE_VERSION);
+ PA_MODULE_LOAD_ONCE(true);
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++PA_MODULE_USAGE("aptx_lib_name=<name of aptx library name>");
++#endif
++
++#ifdef BLUETOOTH_APTX_SUPPORT
++static const char* const valid_modargs[] = {
++    "aptx_lib_name",
++    NULL
++};
++#endif
++
+ struct userdata {
+     uint32_t bluez5_module_idx;
+     uint32_t bluez4_module_idx;
+@@ -43,8 +54,30 @@ int pa__init(pa_module* m) {
+     struct userdata *u;
+     pa_module *mm;
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++    pa_modargs *ma = NULL;
++    const char *aptx_lib_name = NULL;
++#endif
++
+     pa_assert(m);
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++    if (!(ma = pa_modargs_new(m->argument, valid_modargs))) {
++        pa_log("Failed to parse module arguments");
++        goto fail;
++    }
++
++    if (pa_modargs_get_value(ma, "async", NULL))
++        pa_log_warn("The 'async' argument is deprecated and does nothing.");
++
++
++    aptx_lib_name = pa_modargs_get_value(ma, "aptx_lib_name", NULL);
++    if (aptx_lib_name)
++        pa_load_aptx(aptx_lib_name);
++    else
++        pa_log("Failed to parse aptx_lib_name argument.");
++#endif
++
+     m->userdata = u = pa_xnew0(struct userdata, 1);
+     u->bluez5_module_idx = PA_INVALID_INDEX;
+     u->bluez4_module_idx = PA_INVALID_INDEX;
+@@ -83,5 +116,9 @@ void pa__done(pa_module* m) {
+     if (u->bluez4_module_idx != PA_INVALID_INDEX)
+         pa_module_unload_by_index(m->core, u->bluez4_module_idx, true);
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++    pa_unload_aptx();
++#endif
++
+     pa_xfree(u);
+ }
+diff --git a/src/modules/bluetooth/module-bluez4-device.c b/src/modules/bluetooth/module-bluez4-device.c
+index b0b12f8..eba92c6 100644
+--- a/src/modules/bluetooth/module-bluez4-device.c
++++ b/src/modules/bluetooth/module-bluez4-device.c
+@@ -29,6 +29,9 @@
+ #include <math.h>
+ #include <linux/sockios.h>
+ #include <arpa/inet.h>
++#ifdef BLUETOOTH_APTX_SUPPORT
++#include <dlfcn.h>
++#endif
+ 
+ #include <pulse/rtclock.h>
+ #include <pulse/sample.h>
+@@ -107,6 +110,10 @@ struct a2dp_info {
+     bool sbc_initialized;                /* Keep track if the encoder is initialized */
+     size_t codesize, frame_length;       /* SBC Codesize, frame_length. We simply cache those values here */
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++    pa_bool_t aptx_initialized; 	/* Keep track if the encoder is initialized */
++    void *aptx; 			/* Codec data */
++#endif
+     void* buffer;                        /* Codec transfer buffer */
+     size_t buffer_size;                  /* Size of the buffer */
+ 
+@@ -207,6 +214,42 @@ enum {
+ 
+ static int init_profile(struct userdata *u);
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++void* (*aptx_new)(short endian);
++int (*aptx_encode)(void* _state, void* _pcmL, void* _pcmR, void* _buffer);
++
++const char *aptx_new_name = "NewAptxEnc";
++const char *aptx_encode_name = "aptxbtenc_encodestereo";
++
++static pa_bool_t pa_load_aptx_sym(void *handle )
++{
++	if (!handle)
++		return FALSE;
++
++	aptx_new = (void* (*)(short endian))dlsym(handle, aptx_new_name);
++
++	if (aptx_new) {
++	    pa_log_debug("Load Symbol(%s)", aptx_new_name);
++        } else {
++	    pa_log_debug("Fail to Load Symbol(%s)", aptx_new_name);
++	    return FALSE;
++	}
++
++	aptx_encode = (int (*)(void* _state, void* _pcmL, void* _pcmR,
++                                void* _buffer))
++                      dlsym(handle, "aptxbtenc_encodestereo");
++
++	if (aptx_encode) {
++	    pa_log_debug("Load Symbol(%s)", aptx_encode_name);
++        } else {
++	    pa_log_debug("Fail to Load Symbol(%s)", aptx_encode_name);
++	    return FALSE;
++        }
++
++	return TRUE;
++}
++#endif
++
+ /* from IO thread */
+ static void a2dp_set_bitpool(struct userdata *u, uint8_t bitpool) {
+     struct a2dp_info *a2dp;
+@@ -859,6 +902,123 @@ static int a2dp_process_render(struct userdata *u) {
+     return ret;
+ }
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++/* Run from IO thread */
++static int a2dp_aptx_process_render(struct userdata *u) {
++    struct a2dp_info *a2dp;
++    size_t nbytes;
++    void *d;
++    const void *p;
++    size_t to_write, to_encode;
++    int ret = 0;
++
++    int pcmL[4],pcmR[4];
++    int i=0;
++    const short *mybuffer;
++
++    pa_assert(u);
++    pa_assert(u->profile == PROFILE_A2DP);
++    pa_assert(u->sink);
++
++    /* First, render some data */
++    if (!u->write_memchunk.memblock)
++        pa_sink_render_full(u->sink, u->write_block_size, &u->write_memchunk);
++
++    pa_assert(u->write_memchunk.length == u->write_block_size);
++
++    a2dp_prepare_buffer(u);
++
++    a2dp = &u->a2dp;
++
++    /* Try to create a packet of the full MTU */
++    p = (const uint8_t*) pa_memblock_acquire(u->write_memchunk.memblock) + u->write_memchunk.index;
++    to_encode = u->write_memchunk.length;
++
++    d = (uint8_t*) a2dp->buffer ;
++    to_write = a2dp->buffer_size;
++
++    while (PA_LIKELY(to_encode > 0 && to_write > 0)) {
++        size_t written;
++        ssize_t encoded;
++
++        mybuffer=(uint8_t *)p;
++
++        for (i = 0; i < 4; i += 1) {
++           pcmL[i] = mybuffer[2*i];
++           pcmR[i] = mybuffer[2*i+1];
++        }
++	/*(8 audio samples)16 bytes of audo data encoded to 4 bytes*/
++	aptx_encode(a2dp->aptx, pcmL, pcmR, (short*)d);
++
++        encoded=16;
++        written=4;
++
++        pa_assert_fp((size_t) encoded <= to_encode);
++        pa_assert_fp((size_t) written <= to_write);
++
++        p = (const uint8_t*) p + encoded;
++        to_encode -= encoded;
++
++        d = (uint8_t*) d + written;
++        to_write -= written;
++
++    }
++
++    pa_memblock_release(u->write_memchunk.memblock);
++
++    pa_assert(to_encode == 0);
++
++    PA_ONCE_BEGIN {
++        pa_log_debug("Using APTX encoder implementation");
++    } PA_ONCE_END;
++
++    nbytes = (uint8_t*) d - (uint8_t*) a2dp->buffer;
++
++    for (;;) {
++        ssize_t l;
++
++        l = pa_write(u->stream_fd, a2dp->buffer, nbytes, &u->stream_write_type);
++
++        pa_assert(l != 0);
++
++        if (l < 0) {
++
++            if (errno == EINTR)
++                /* Retry right away if we got interrupted */
++                continue;
++
++            else if (errno == EAGAIN)
++                /* Hmm, apparently the socket was not writable, give up for now */
++                break;
++
++            pa_log_error("Failed to write data to socket: %s", pa_cstrerror(errno));
++            ret  = -1;
++            break;
++        }
++
++        pa_assert((size_t) l <= nbytes);
++
++        if ((size_t) l != nbytes) {
++            pa_log_warn("Wrote memory block to socket only partially! %llu written, wanted to write %llu.",
++                        (unsigned long long) l,
++                        (unsigned long long) nbytes);
++            ret = -1;
++            break;
++        }
++
++        u->write_index += (uint64_t) u->write_memchunk.length;
++        pa_memblock_unref(u->write_memchunk.memblock);
++        pa_memchunk_reset(&u->write_memchunk);
++
++        ret = 1;
++
++        break;
++    }
++
++    return ret;
++}
++#endif
++
+ static int a2dp_process_push(struct userdata *u) {
+     int ret = 0;
+     pa_memchunk memchunk;
+@@ -1104,8 +1264,13 @@ static void thread_func(void *userdata) {
+                         u->started_at = pa_rtclock_now();
+ 
+                     if (u->profile == PA_BLUEZ4_PROFILE_A2DP) {
++#ifdef BLUETOOTH_APTX_SUPPORT
++                        if ((n_written = a2dp_aptx_process_render(u)) < 0)
++                                goto io_fail;
++#else
+                         if ((n_written = a2dp_process_render(u)) < 0)
+                             goto io_fail;
++#endif
+                     } else {
+                         if ((n_written = hsp_process_render(u)) < 0)
+                             goto io_fail;
+@@ -1689,14 +1854,73 @@ static int add_source(struct userdata *u) {
+     return 0;
+ }
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++/* should be implemeted */
++static int bt_transport_config_a2dp_for_aptx(struct userdata *u) {
++    //const pa_bluetooth_transport *t;
++    struct a2dp_info *a2dp = &u->a2dp;
++    //a2dp_sbc_t *config;
++
++    //t = pa_bluetooth_discovery_get_transport(u->discovery, u->transport);
++    //pa_assert(t);
++
++    //config = (a2dp_sbc_t *) t->config;
++
++    u->sample_spec.format = PA_SAMPLE_S16LE;
++
++    if (!a2dp->aptx_initialized){
++	#if __BYTE_ORDER==__LITTLE_ENDIAN
++		a2dp->aptx = aptx_new(1);
++	#elif __BYTE_ORDER==__BIG_ENDIAN
++		a2dp->aptx = aptx_new(0);
++	#else
++		#error "Unknown byte order"
++	#endif
++		a2dp->aptx_initialized = TRUE;
++    }
++
++    pa_log_debug("aptx Encoder is intialized !!");
++
++    u->write_block_size =(size_t)(u->write_link_mtu/(size_t)16) *16*4 ;
++    u->read_block_size =(size_t)(u->read_link_mtu/(size_t)16) *16*4 ;
++
++    pa_log_info("APTX parameters write_block_size(%d),write_link_mtu(%d)",u->write_block_size,u->write_link_mtu);
++    pa_log_info("APTX parameters read_block_size(%d),read_link_mtu(%d)",u->read_block_size,u->read_link_mtu);
++
++    return 0;
++}
++#endif
++
+ static void bt_transport_config_a2dp(struct userdata *u) {
+     const pa_bluez4_transport *t;
+     struct a2dp_info *a2dp = &u->a2dp;
+     a2dp_sbc_t *config;
++#ifdef BLUETOOTH_APTX_SUPPORT
++    a2dp_aptx_t *aptx_config;
++#endif
+ 
+     t = u->transport;
+     pa_assert(t);
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++    if (t->codec == A2DP_CODEC_NON_A2DP) {
++        aptx_config = (a2dp_aptx_t *) t->config;
++        if (aptx_config->vendor_id[0] == APTX_VENDOR_ID0 &&
++            aptx_config->vendor_id[1] == APTX_VENDOR_ID1 &&
++            aptx_config->vendor_id[2] == APTX_VENDOR_ID2 &&
++            aptx_config->vendor_id[3] == APTX_VENDOR_ID3 &&
++            aptx_config->codec_id[0] == APTX_CODEC_ID0  &&
++            aptx_config->codec_id[1] == APTX_CODEC_ID1  ){
++            pa_log("A2DP_CODEC_NON_A2DP and this is APTX Codec");
++
++            return bt_transport_config_a2dp_for_aptx(u);
++        } else {
++            pa_log("A2DP_CODEC_NON_A2DP but this is not APTX Codec");
++            return -1;
++        }
++    }
++#endif
++
+     config = (a2dp_sbc_t *) t->config;
+ 
+     u->sample_spec.format = PA_SAMPLE_S16LE;
+@@ -2424,6 +2648,9 @@ int pa__init(pa_module *m) {
+     struct userdata *u;
+     const char *address, *path;
+     pa_bluez4_device *device;
++#ifdef BLUETOOTH_APTX_SUPPORT
++    void *handle;
++#endif
+ 
+     pa_assert(m);
+ 
+@@ -2524,6 +2751,15 @@ int pa__init(pa_module *m) {
+     u->msg->parent.process_msg = device_process_msg;
+     u->msg->card = u->card;
+ 
++#ifdef BLUETOOTH_APTX_SUPPORT
++    handle = pa_aptx_get_handle();
++
++    if (handle) {
++        pa_log_debug("Aptx Library loaded\n");
++        pa_load_aptx_sym(handle);
++    }
++#endif
++
+     if (u->profile != PA_BLUEZ4_PROFILE_OFF)
+         if (init_profile(u) < 0)
+             goto off;

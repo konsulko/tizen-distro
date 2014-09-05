@@ -1,0 +1,36 @@
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Wed, 26 Mar 2014 13:33:31 +0200
+Subject: dynarray: Add pa_dynarray_get_raw_array()
+
+Change-Id: I6e40c2a20586d13c99c9d98059e4dbb1d0e9e562
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+---
+ src/pulsecore/dynarray.c | 6 ++++++
+ src/pulsecore/dynarray.h | 1 +
+ 2 files changed, 7 insertions(+)
+
+diff --git a/src/pulsecore/dynarray.c b/src/pulsecore/dynarray.c
+index b207eca..b65fb62 100644
+--- a/src/pulsecore/dynarray.c
++++ b/src/pulsecore/dynarray.c
+@@ -93,3 +93,9 @@ unsigned pa_dynarray_size(pa_dynarray *array) {
+ 
+     return array->n_entries;
+ }
++
++void * const *pa_dynarray_get_raw_array(pa_dynarray *array) {
++    pa_assert(array);
++
++    return array->data;
++}
+diff --git a/src/pulsecore/dynarray.h b/src/pulsecore/dynarray.h
+index 04dd2d2..078acec 100644
+--- a/src/pulsecore/dynarray.h
++++ b/src/pulsecore/dynarray.h
+@@ -54,5 +54,6 @@ void *pa_dynarray_get(pa_dynarray *array, unsigned i);
+ void *pa_dynarray_steal_last(pa_dynarray *array);
+ 
+ unsigned pa_dynarray_size(pa_dynarray *array);
++void * const *pa_dynarray_get_raw_array(pa_dynarray *array);
+ 
+ #endif
