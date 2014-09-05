@@ -1,3 +1,8 @@
+inherit useradd
+
+USERADD_PARAM_${PN} += " -d /home/app   -m -u 5000   -g users   -G users,display -r -s /bin/sh app "
+USERADD_PARAM_${PN} += " -d /home/guest -m -u 9999   -g users   -G users,display -r -s /bin/sh guest; "
+
 do_configure_prepend() {
     # pkg-config check for wayland scanner even though it is present and wayland-scanner.pc seems ok.
     sed -i 's/PKG_CHECK_MODULES(WAYLAND_SCANNER, wayland-scanner)//' configure.ac
@@ -52,4 +57,14 @@ do_install_append() {
  rm -fr ${D}/usr/lib/weston/gl-renderer.so
  rm -fr ${D}/usr/share/weston/wayland.svg
  rm -fr ${D}/usr/lib/pkgconfig/weston.pc
+}
+
+pkg_postinst_${PN} () {
+    for user in app guest; do
+        for appdir in desktop manifest dbspace; do
+            mkdir -p $D/home/$user/.applications/$appdir
+        done
+        find $D/home/$user/ -type d -exec chsmack -a User {} \;
+        chown -R $user:users $D/home/$user/
+    done
 }
