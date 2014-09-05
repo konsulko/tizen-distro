@@ -27,7 +27,7 @@ RDEPENDS_${PN}-dev += "dbus-python"
 #RDEPENDS of dbus-python (${PN})
 RDEPENDS_${PN} += "python-xml"
 RDEPENDS_${PN} += "dbus"
-RDEPENDS_${PN} += "libxml2-python"
+RDEPENDS_${PN} += "python-xml"
 
 
 DEPENDS = ""

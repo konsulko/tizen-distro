@@ -8,3 +8,6 @@ do_compile_prepend() {
 FILES_${PN}-dbg += "${prefix}/lib/python2.7/site-packages/.debug"
 
 FILES_${PN} += "/usr/share"
+
+PROVIDES += "python-dbus"
+RPROVIDES_${PN} += "python-dbus"
