@@ -140,17 +140,7 @@ do_install() {
  
 }
 
-pkg_postinst_${PN}() {
-    #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
-    # Update the app database.
-    $D${prefix}/bin/pkginfo --imd /usr/share/packages/org.tizen.ico.homescreen.xml
-    $D${prefix}/bin/pkginfo --imd /usr/share/packages/org.tizen.ico.statusbar.xml
-    $D${prefix}/bin/pkginfo --imd /usr/share/packages/org.tizen.ico.system-controller.xml
-    $D${prefix}/bin/pkginfo --imd /usr/share/packages/org.tizen.ico.onscreen.xml
-
-}
 
 pkg_prerm_${PN}() {
     #!/bin/sh -e
