@@ -1,5 +1,7 @@
 SRC_URI += "file://system-auth"
 
+inherit pkgconfig
+
 do_compile() {
  cd ${S}
   LANG=C
