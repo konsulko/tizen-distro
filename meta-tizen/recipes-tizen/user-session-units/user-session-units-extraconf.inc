@@ -1,5 +1,7 @@
 FILESEXTRAPATHS_append := "${THISDIR}/user-session-units"
 
+inherit pkgconfig
+
 do_install_append() {
     rm -f ${D}/lib/systemd/user/dbus.socket
 
