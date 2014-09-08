@@ -2,17 +2,17 @@ do_prep() {
 
     cd ${S}
     chmod -Rf a+rX,u+w,g-w,o-w ${S}
- 
-    mkdir -p weston
-    cp -av ${STAGING_DIR_TARGET}/usr/share/genivi-shell/protocol/*.xml weston/
-
-    ls weston/*.xml | while read protocol ; do
-        ${STAGING_BINDIR_NATIVE}/wayland-scanner client-header < "${protocol}" > "${protocol/.xml/}-client-protocol.h"
-        ${STAGING_BINDIR_NATIVE}/wayland-scanner code < "${protocol}" > "${protocol/.xml/.c}"
-    done
 }
 
 do_compile_prepend()  {
+ mkdir -p weston
+ cp -av ${STAGING_DIR_TARGET}/usr/share/genivi-shell/protocol/*.xml weston/
+
+ ls weston/*.xml | while read protocol ; do
+     ${STAGING_BINDIR_NATIVE}/wayland-scanner client-header < "${protocol}" > "${protocol/.xml/}-client-protocol.h"
+     ${STAGING_BINDIR_NATIVE}/wayland-scanner code < "${protocol}" > "${protocol/.xml/.c}"
+ done
+
  find ${S} -name Makefile.am -exec sed -i "s@-I/usr/include/ico-util@-I${PKG_CONFIG_SYSROOT_DIR}/usr/include/ico-util@g" {} \;
  find ${S} -name Makefile.am -exec sed -i "s@-I/usr/include/ilm@-I${PKG_CONFIG_SYSROOT_DIR}/usr/include/ilm@g" {} \;
  find ${S} -name Makefile.am -exec sed -i "s@-I/usr/include/layermanager@-I${PKG_CONFIG_SYSROOT_DIR}/usr/include/layermanager@g" {} \;
