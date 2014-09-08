@@ -1,7 +1,11 @@
 inherit useradd
 
-USERADD_PARAM_${PN} += " -d /home/app   -m -u 5000   -g users   -G users,display -r -s /bin/sh app "
-USERADD_PARAM_${PN} += " -d /home/guest -m -u 9999   -g users   -G users,display -r -s /bin/sh guest; "
+GROUPADD_PARAM_${PN} = "-g 100 users; -g 5000 app; -g 192 weston-launch"
+
+USERADD_PARAM_${PN} += " -u 5000 -d /home/app   -m -g users -G users,weston-launch -r -s /bin/sh app ; "
+USERADD_PARAM_${PN} += " -u 9999 -d /home/guest -m -g users -G users,weston-launch -r -s /bin/sh guest "
+
+USERADD_PACKAGES = "${PN}"
 
 do_configure_prepend() {
     # pkg-config check for wayland scanner even though it is present and wayland-scanner.pc seems ok.
@@ -36,10 +40,6 @@ FILES_${PN} += "/usr/lib/weston-ivi-shell/weston-ivi-shell-user-interface"
 FILES_${PN} += "/usr/lib/weston/gl-renderer.so"
 
 FILES_${PN}-dev += "/usr/lib/pkgconfig/weston.pc"
-
-
-
-
 
 do_install_append() {
  rm -fr ${D}/usr/include/weston/config-parser.h
