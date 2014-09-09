@@ -1,5 +1,3 @@
-inherit useradd
-
 FILESEXTRAPATHS_append := "${THISDIR}/weston-common"
 
 SRC_URI += "file://0001-Yocto-correct-paths-to-ln-and-chmod.patch"
@@ -7,16 +5,6 @@ SRC_URI += "file://0002-Add-a-script-to-export-UID.patch"
 SRC_URI += "file://0003-Automatically-restart-display-manager.patch"
 SRC_URI += "file://0004-Modifications-for-yocto-build.patch"
 
-USERADD_PACKAGES = "${PN}"
-
-GROUPADD_PARAM_${PN} = "-g 191 display;-g 100 users;-g 1004 input;-g 190 systemd-journal;-g 54 lock"
-
-USERADD_PARAM_${PN} = "  -d /run/display -m  -u 115  -g display -G users,input,tty,display  -s /bin/sh display; "
-USERADD_PARAM_${PN} += " -d /home/alice -m -u 5001   -g users   -G users,display -r -s /bin/sh alice; "
-USERADD_PARAM_${PN} += " -d /home/bob   -m -u 5002   -g users   -G users,display -r -s /bin/sh bob; "
-USERADD_PARAM_${PN} += " -d /home/carol -m -u 5003   -g users   -G users,display -r -s /bin/sh carol; "
-USERADD_PARAM_${PN} += " -d /home/guest -m -u 9999   -g users   -G users,display -r -s /bin/sh guest; "
-USERADD_PARAM_${PN} += " -d /home/app   -m -u 5000   -g users   -G users,display -r -s /bin/sh app "
 
 do_install_append() {
     install -m 755 uid.sh ${D}/etc/profile.d

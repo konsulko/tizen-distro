@@ -6,7 +6,8 @@ LICENSE = "MIT"
 
 DESCRIPTION = "A Tizen ivi image base on Tizen common ."
 
-WESTONSTARTUP="weston-ivi"
+WESTONSTARTUP = "weston-ivi"
+IMAGECONFIG = "config-tizen-ivi"
 
 CORE_IMAGE_EXTRA_INSTALL += "Modello_AMBSimulator"
 CORE_IMAGE_EXTRA_INSTALL += "Modello_Appmanager"
@@ -49,7 +50,7 @@ CORE_IMAGE_EXTRA_INSTALL += "genivi-shell"
 CORE_IMAGE_EXTRA_INSTALL += "weston-ivi-shell"
 
 # Crosswalk
-CORE_IMAGE_EXTRA_INSTALL += "packagegroup-tizen-crosswalk"
+#CORE_IMAGE_EXTRA_INSTALL += "packagegroup-tizen-crosswalk"
 
 # Time zone
 CORE_IMAGE_EXTRA_INSTALL += "tzdata"

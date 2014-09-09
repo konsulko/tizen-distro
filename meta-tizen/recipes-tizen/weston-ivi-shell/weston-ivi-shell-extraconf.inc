@@ -1,11 +1,5 @@
-inherit useradd
-
-GROUPADD_PARAM_${PN} = "-g 100 users; -g 5000 app; -g 192 weston-launch;-g 1004 input;-g 190 systemd-journal;-g 54 lock"
-
-USERADD_PARAM_${PN} += " -u 5000 -d /home/app   -m -g users -G users,weston-launch -r -s /bin/sh app  "
-#USERADD_PARAM_${PN} += " -u 9999 -d /home/guest -m -g users -G users,weston-launch -r -s /bin/sh guest "
-
-USERADD_PACKAGES = "${PN}"
+DEPENDS += "config-tizen-ivi"
+RDEPENDS_${PN} += "config-tizen-ivi"
 
 do_configure_prepend() {
     # pkg-config check for wayland scanner even though it is present and wayland-scanner.pc seems ok.
