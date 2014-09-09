@@ -10,10 +10,10 @@ SRC_URI += "file://weston.target \
             "
 
 do_install_append() {
-    install -d ${D}/usr/lib/systemd/user
-    install -m 644 ${WORKDIR}/weston.target ${D}/usr/lib/systemd/user/weston.target
+    install -d ${D}/lib/systemd/user
+    install -m 644 ${WORKDIR}/weston.target ${D}/lib/systemd/user/weston.target
 }
 
-FILES_${PN} += " ${prefix}/lib/systemd/user/weston.target"
+FILES_${PN} += " /lib/systemd/user/weston.target"
 
 EXTRA_OECONF += "--enable-sys-uid"

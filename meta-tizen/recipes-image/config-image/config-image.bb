@@ -46,6 +46,8 @@ pkg_postinst_${PN} () {
   chsmack -a 'System::Shared' $D${sysconfdir}
   
   mkdir -p $D${localstatedir}/volatile/log
+  mkdir -p $D${localstatedir}/volatile/tmp
+  
   chsmack -t $D${localstatedir}/volatile/log
   chsmack -a 'System::Log'  $D${localstatedir}/volatile/log
 
@@ -55,8 +57,20 @@ pkg_postinst_${PN} () {
   touch $D${localstatedir}/volatile/log/btmp
   
   mkdir -p $D${sysconfdir}/profile.d
-
   
+  if [ "x$D" != "x" ]; then  
+    cp -fra $D/lib  $D/usr
+    cp -fra $D/sbin $D/usr
+    #cp -fra $D/bin  $D/usr
+  
+    rm -fr $D/lib
+    rm -fr $D/sbin
+    #rm -fr $D/bin
+  
+    ln -s usr/lib  $D/lib
+    ln -s usr/sbin $D/sbin
+    #ln -s usr/bin  $D/bin
+ fi
 }
 
 FILES_${PN} = "${sysconfdir}/tizen \
