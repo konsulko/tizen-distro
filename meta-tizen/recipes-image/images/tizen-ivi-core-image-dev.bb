@@ -5,6 +5,7 @@ DESCRIPTION = "A Tizen ivi image base on Tizen common and \
 
 IMAGE_FEATURES += "dev-pkgs tools-debug debug-tweaks ssh-server-openssh"
 CORE_IMAGE_EXTRA_INSTALL += "attr"
+CORE_IMAGE_EXTRA_INSTALL += "acl"
 CORE_IMAGE_EXTRA_INSTALL += "util-linux-agetty"
 CORE_IMAGE_EXTRA_INSTALL += "strace"
 CORE_IMAGE_EXTRA_INSTALL += "gdb"

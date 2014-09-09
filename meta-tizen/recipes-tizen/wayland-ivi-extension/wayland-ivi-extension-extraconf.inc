@@ -48,3 +48,5 @@ PACKAGES += " genivi-shell-dbg "
 FILES_genivi-shell-dbg = "${prefix}/lib/weston/.debug/ivi-controller.so"
 
 B="${S}"
+
+FILES_genivi-shell += "${prefix}/bin/IVISurfaceCreator"
