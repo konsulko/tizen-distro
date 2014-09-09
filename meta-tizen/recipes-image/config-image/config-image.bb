@@ -61,22 +61,21 @@ pkg_postinst_${PN} () {
   mkdir -p $D${sysconfdir}/profile.d
   
   if [ "x$D" != "x" ]; then  
-    cp -fra $D/lib  $D/usr
-    cp -fra $D/sbin $D/usr
+    cp -fra $D/lib/systemd  $D/usr/lib
+    #cp -fra $D/sbin $D/usr
     #cp -fra $D/bin  $D/usr
   
-    rm -fr $D/lib
-    rm -fr $D/sbin
+    #rm -fr $D/lib
+    #rm -fr $D/sbin
     #rm -fr $D/bin
   
-    ln -s usr/lib  $D/lib
-    ln -s usr/sbin $D/sbin
+    #ln -s usr/lib  $D/lib
+    #ln -s usr/sbin $D/sbin
     #ln -s usr/bin  $D/bin
  fi
 }
 
 FILES_${PN} = "${sysconfdir}/tizen \
                ${sysconfdir}/environment \
-               ${localstatedir}/log \
                ${sysconfdir}/profile.d/bash_prompt_custom.sh \
                "
