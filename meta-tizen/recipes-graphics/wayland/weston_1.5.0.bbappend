@@ -7,6 +7,7 @@ SRC_URI += "file://weston.target \
             file://0004-downstream-shell-make-panel-optional-panel-false-in-.patch \
             file://0005-downstream-Hack-to-allow-selecting-a-default-output.patch \
             file://0006-downstream-accept-the-new-enable-sys-uid-configure-o.patch \
+            file://0001-fix:-missingpanelregressionintroducedbypanelopt.patch \
             "
 
 do_install_append() {

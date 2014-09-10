@@ -1,0 +1,29 @@
+From beedbb821fe9fd068d7ef7b2bf102516c1f73074 Mon Sep 17 00:00:00 2001
+From: Philippe Coval <philippe.coval@open.eurogiciel.org>
+Date: Wed, 25 Jun 2014 14:14:05 +0200
+Subject: [PATCH] meta-tizen: fix: missing panel regression introduced by panel opt
+
+to be squashed into d733bcef2670f30da232748f09b10eab98d625b8
+
+Change-Id: I63b5860b2d8be106abab1eaf287142e15fef59d9
+Signed-off-by: Philippe Coval <philippe.coval@open.eurogiciel.org>
+---
+ clients/desktop-shell.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/clients/desktop-shell.c b/clients/desktop-shell.c
+index 161d3ac..1c36b2f 100644
+--- a/clients/desktop-shell.c
++++ b/clients/desktop-shell.c
+@@ -1206,7 +1206,7 @@ static void
+ output_init(struct output *output, struct desktop *desktop)
+ {
+ 	struct wl_surface *surface;
+-	if(output->panel) {
++	if(desktop->panel) {
+ 		output->panel = panel_create(desktop);
+ 		surface = window_get_wl_surface(output->panel->window);
+ 		desktop_shell_set_panel(desktop->shell,
+-- 
+1.8.1.4
+
