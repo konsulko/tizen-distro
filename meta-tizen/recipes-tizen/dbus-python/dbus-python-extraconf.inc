@@ -1,3 +1,8 @@
+PROVIDES += "python-dbus"
+RPROVIDES_${PN} += "python-dbus"
+
+DEPENDS += "python"
+
 do_compile_prepend() {
     export BUILD_SYS=${BUILD_SYS}
     export HOST_SYS=${HOST_SYS}
@@ -8,6 +13,3 @@ do_compile_prepend() {
 FILES_${PN}-dbg += "${prefix}/lib/python2.7/site-packages/.debug"
 
 FILES_${PN} += "/usr/share"
-
-PROVIDES += "python-dbus"
-RPROVIDES_${PN} += "python-dbus"
