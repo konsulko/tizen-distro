@@ -67,11 +67,12 @@ pkg_postinst_${PN} () {
     #rm -fr $D/sbin
     #rm -fr $D/bin
     rm -fr $D${localstatedir}/log
+    #rm -fr $D/usr/lib/systemd
 
     #ln -s usr/lib  $D/lib
     #ln -s usr/sbin $D/sbin
     #ln -s usr/bin  $D/bin
-    ln -s ../../lib/systemd  $D/usr/lib/systemd
+    #ln -s ../../lib/systemd  $D/usr/lib/systemd
     ln -s volatile/log  $D${localstatedir}/log
  fi
 }

@@ -23,12 +23,12 @@ CORE_IMAGE_EXTRA_INSTALL += "automotive-message-broker"
 CORE_IMAGE_EXTRA_INSTALL += "efl-theme-tizen-hd"
 CORE_IMAGE_EXTRA_INSTALL += "festival"
 CORE_IMAGE_EXTRA_INSTALL += "genivi-audio-manager"
-CORE_IMAGE_EXTRA_INSTALL += "ico-uxf-device-input-controller"
-CORE_IMAGE_EXTRA_INSTALL += "ico-uxf-homescreen"
 
-CORE_IMAGE_EXTRA_INSTALL += "ico-uxf-utilities"
-CORE_IMAGE_EXTRA_INSTALL += "ico-uxf-weston-plugin"
-
+#ico packages seems to be optional for IVI
+#CORE_IMAGE_EXTRA_INSTALL += "ico-uxf-device-input-controller"
+#CORE_IMAGE_EXTRA_INSTALL += "ico-uxf-homescreen"
+#CORE_IMAGE_EXTRA_INSTALL += "ico-uxf-utilities"
+#CORE_IMAGE_EXTRA_INSTALL += "ico-uxf-weston-plugin"
 #CORE_IMAGE_EXTRA_INSTALL += "ico-vic-amb-plugin"
 #CORE_IMAGE_EXTRA_INSTALL += "ico-vic-carsimulator"
 #CORE_IMAGE_EXTRA_INSTALL += "ico-uxf-homescreen-sample-apps"
@@ -38,6 +38,7 @@ CORE_IMAGE_EXTRA_INSTALL += "libwebsockets"
 CORE_IMAGE_EXTRA_INSTALL += "murphy"
 CORE_IMAGE_EXTRA_INSTALL += "node-startup-controller"
 CORE_IMAGE_EXTRA_INSTALL += "pulseaudio-module-murphy-ivi"
+CORE_IMAGE_EXTRA_INSTALL += "weston-ivi-config"
 # TMP Remove rygel
 # BTY-36
 #CORE_IMAGE_EXTRA_INSTALL += "rygel"
