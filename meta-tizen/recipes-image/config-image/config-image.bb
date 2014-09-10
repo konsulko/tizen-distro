@@ -14,9 +14,6 @@ do_install() {
   touch ${D}${sysconfdir}/environment
   chmod 0644 ${D}${sysconfdir}/environment
   
-  mkdir -p ${D}${localstatedir}
-  ln -s ${localstatedir}/volatile/log  ${D}${localstatedir}/log
-  
   mkdir -p ${D}${sysconfdir}/profile.d
 cat >${D}${sysconfdir}/profile.d/bash_prompt_custom.sh <<'EOF'
     # set a fancy prompt (overwrite the one in /etc/profile)
@@ -62,16 +59,20 @@ pkg_postinst_${PN} () {
   
   if [ "x$D" != "x" ]; then  
     cp -fra $D/lib/systemd  $D/usr/lib
+    cp -fra $D${localstatedir}/log $D${localstatedir}/volatile
     #cp -fra $D/sbin $D/usr
     #cp -fra $D/bin  $D/usr
   
     #rm -fr $D/lib
     #rm -fr $D/sbin
     #rm -fr $D/bin
-  
+    rm -fr $D${localstatedir}/log
+
     #ln -s usr/lib  $D/lib
     #ln -s usr/sbin $D/sbin
     #ln -s usr/bin  $D/bin
+    ln -s ../../lib/systemd  $D/usr/lib/systemd
+    ln -s volatile/log  $D${localstatedir}/log
  fi
 }
 

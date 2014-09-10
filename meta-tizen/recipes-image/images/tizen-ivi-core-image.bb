@@ -50,7 +50,7 @@ CORE_IMAGE_EXTRA_INSTALL += "genivi-shell"
 CORE_IMAGE_EXTRA_INSTALL += "weston-ivi-shell"
 
 # Crosswalk
-#CORE_IMAGE_EXTRA_INSTALL += "packagegroup-tizen-crosswalk"
+CORE_IMAGE_EXTRA_INSTALL += "packagegroup-tizen-crosswalk"
 
 # Time zone
 CORE_IMAGE_EXTRA_INSTALL += "tzdata"
