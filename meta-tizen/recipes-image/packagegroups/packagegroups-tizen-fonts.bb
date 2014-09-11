@@ -20,7 +20,7 @@ RDEPENDS_packagegroup-tizen-fonts-ttf = "\
                                         "
 
 # Pango modules
-RDEPENDS_packagegroup-tizen-fonts-pango += "\
+RDEPENDS_packagegroup-tizen-fonts-pango = " \
                                             pango-module-basic-fc \
                                             pango-module-arabic-lang \
                                             pango-module-indic-lang \
