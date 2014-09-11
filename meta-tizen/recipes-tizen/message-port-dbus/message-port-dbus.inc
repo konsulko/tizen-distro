@@ -55,7 +55,6 @@ do_prep() {
  #setup -q -n message-port-1.0.3
  cp -a ${S}/packaging/message-port.manifest .
  mkdir -p m4 > /dev/null
- autoreconf -f -i
  
  
  
@@ -76,7 +75,7 @@ do_compile() {
   
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   
@@ -105,6 +104,7 @@ do_install() {
  
  mkdir -p ${RPM_BUILD_ROOT}/lib/systemd/system
  cp messageportd.service $RPM_BUILD_ROOT/lib/systemd/system
+ 
  
  
 }
