@@ -9,6 +9,6 @@ ALLOW_EMPTY_${PN} = "1"
 
 USERADD_PACKAGES = "${PN}"
 
-GROUPADD_PARAM_${PN} = "-g 100 users; -g 5000 app; -g 192 weston-launch"
+GROUPADD_PARAM_${PN} = "-g 100 users; -g 5000 app"
 
-USERADD_PARAM_${PN} += " -u 5000 -d /home/app   -m -g users -G users,weston-launch -r -s /bin/sh app "
+USERADD_PARAM_${PN} += " -u 5000 -d /home/app -m -g users -G users,weston-launch -r -s /bin/sh app "
