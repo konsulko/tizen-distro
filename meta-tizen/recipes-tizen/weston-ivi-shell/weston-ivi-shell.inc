@@ -87,12 +87,14 @@ do_compile() {
   
    
   autotools_do_configure
-  make -j16
+  
+  oe_runmake -j16
+  
   
   
   
 }
-EXTRA_OECONF += " --disable-static --disable-libunwind --disable-xwayland --disable-xwayland-test --disable-drm-compositor --disable-x11-compositor --disable-rpi-compositor --disable-fbdev-compositor --disable-wayland-compositor --disable-headless-compositor --disable-weston-launch --enable-simple-clients --enable-clients --disable-wcap-tools --disable-demo-clients-install --disable-libinput-backend --disable-fullscreen-shell"
+EXTRA_OECONF += " --disable-static --disable-libunwind --disable-xwayland --disable-xwayland-test --disable-drm-compositor --disable-x11-compositor --disable-rpi-compositor --disable-fbdev-compositor --disable-wayland-compositor --disable-headless-compositor --disable-weston-launch --enable-simple-clients --enable-clients --disable-wcap-tools --enable-demo-clients-install --disable-libinput-backend --disable-fullscreen-shell --disable-desktop-shell --disable-simple-clients --enable-ivi-shell"
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -115,22 +117,23 @@ do_install() {
  
  # install example clients
  mkdir -p ${D}${prefix}/bin/ivi
- install -m 755 weston-calibrator ${D}${prefix}/bin/ivi
- install -m 755 weston-simple-touch ${D}${prefix}/bin/ivi
- install -m 755 weston-simple-shm ${D}${prefix}/bin/ivi
- install -m 755 weston-simple-egl ${D}${prefix}/bin/ivi
- install -m 755 weston-flower ${D}${prefix}/bin/ivi
- install -m 755 weston-image ${D}${prefix}/bin/ivi
- install -m 755 weston-cliptest ${D}${prefix}/bin/ivi
- install -m 755 weston-dnd ${D}${prefix}/bin/ivi
- install -m 755 weston-editor ${D}${prefix}/bin/ivi
- install -m 755 weston-smoke ${D}${prefix}/bin/ivi
- install -m 755 weston-resizor ${D}${prefix}/bin/ivi
- install -m 755 weston-eventdemo ${D}${prefix}/bin/ivi
- install -m 755 weston-clickdot ${D}${prefix}/bin/ivi
- install -m 755 weston-subsurfaces ${D}${prefix}/bin/ivi
- install -m 755 weston-transformed ${D}${prefix}/bin/ivi
- install -m 755 weston-fullscreen ${D}${prefix}/bin/ivi
+ #mv ${D}${prefix}/bin/weston-calibrator ${D}${prefix}/bin/ivi
+ #mv ${D}${prefix}/bin/weston-simple-touch ${D}${prefix}/bin/ivi
+ #mv ${D}${prefix}/bin/weston-simple-shm ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-simple-egl ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-flower ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-image ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-cliptest ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-dnd ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-editor ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-smoke ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-resizor ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-eventdemo ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-clickdot ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-subsurfaces ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-transformed ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-fullscreen ${D}${prefix}/bin/ivi
+ mv ${D}${prefix}/bin/weston-terminal ${D}${prefix}/bin/ivi
  
  install -d ${D}/${prefix}/share/weston-ivi-shell/protocol/
  
@@ -163,6 +166,7 @@ weston-ivi-shell-dev_files = ""
 weston-ivi-shell-dev_files += "${prefix}/include/weston/ivi-layout-export.h"
 weston-ivi-shell-dev_files += "${prefix}/include/weston/ivi-layout.h"
 weston-ivi-shell-dev_files += "${prefix}/include/weston/ivi-shell.h"
+weston-ivi-shell-dev_files += "${prefix}/include/weston/ivi-shell-ext.h"
 weston-ivi-shell-dev_files += "${prefix}/include/weston/ivi-layout-transition.h"
 weston-ivi-shell-dev_files += "${prefix}/share/weston-ivi-shell/protocol/*"
 MANIFESTFILES_${PN}-dev = "weston-ivi-shell.manifest"
@@ -174,8 +178,6 @@ CONFFILES_${PN}-config += "${sysconfdir}/xdg/weston/weston.ini"
 MANIFESTFILES_${PN}-config = "weston-ivi-shell.manifest"
 
 weston-ivi-shell-clients_files = ""
-weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-simple-touch"
-weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-simple-shm"
 weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-simple-egl"
 weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-flower"
 weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-image"
@@ -189,7 +191,7 @@ weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-clickdot"
 weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-subsurfaces"
 weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-transformed"
 weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-fullscreen"
-weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-calibrator"
+weston-ivi-shell-clients_files += "${prefix}/bin/ivi/weston-terminal"
 MANIFESTFILES_${PN}-clients = "weston-ivi-shell.manifest"
 
 weston-ivi-shell_files = ""

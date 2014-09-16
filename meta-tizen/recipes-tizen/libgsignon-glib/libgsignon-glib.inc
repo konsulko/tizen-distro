@@ -29,8 +29,10 @@ RDEPENDS_${PN}-dev += "libgsignon-glib"
 
 #RDEPENDS of libgsignon-glib (${PN})
 RDEPENDS_${PN} += "gsignon"
+RDEPENDS_${PN} += "gsignond-plugin-oauth"
 RDEPENDS_${PN} += "dbus"
 RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "gsignond-plugin-sasl"
 
 
 DEPENDS = ""
@@ -116,7 +118,7 @@ libgsignon-glib-dev_files += "${prefix}/bin/gsso-example"
 MANIFESTFILES_${PN}-dev = "libgsignon-glib.manifest"
 
 libgsignon-glib_files = ""
-libgsignon-glib_files += "AUTHORS ChangeLog INSTALL NEWS README"
+libgsignon-glib_files += "AUTHORS ChangeLog NEWS README"
 libgsignon-glib_files += "${prefix}/lib/libgsignon-glib.so.*"
 MANIFESTFILES_${PN} = "libgsignon-glib.manifest"
 

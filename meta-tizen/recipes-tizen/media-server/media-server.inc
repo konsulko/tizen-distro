@@ -25,7 +25,7 @@ PROVIDES += "libmedia-utils"
 
 RDEPENDS = ""
 #RDEPENDS of libmedia-utils-dev (libmedia-utils-dev)
-RDEPENDS_libmedia-utils-dev += "libtzplatform-config-dev"
+RDEPENDS_libmedia-utils-dev += "tizen-platform-config"
 RDEPENDS_libmedia-utils-dev += "libmedia-utils"
 
 #RDEPENDS of media-server (${PN})

@@ -1,7 +1,7 @@
 DESCRIPTION = "Speech Recognition Engine"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
-LICENSE = "BSD"
+LICENSE = "BSD-2-Clause"
 
 SRC_URI = ""
 
@@ -65,8 +65,7 @@ do_compile() {
   
   
   autotools_do_configure
-  
-  make -j16
+  oe_runmake -j16
   
   
   
@@ -82,14 +81,22 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- rm -rf $RPM_BUILD_ROOT
- mkdir -p $RPM_BUILD_ROOT${prefix}/lib/python2.7/site-packages
- make install DESTDIR=$RPM_BUILD_ROOT
- rm -f $RPM_BUILD_ROOT${prefix}/lib/*.la
+ rm -rf ${D}
+ mkdir -p ${D}${prefix}/lib/python2.7/site-packages
+ 
+   oe_runmake \
+         DESTDIR=${D} \
+         INSTALL_ROOT=${D} \
+         BINDIR=${prefix}/bin \
+   install  
+   rm -f ${D}${infodir}/dir 
+   find ${D} -regex ".*\.la$" | xargs rm -f -- 
+   find ${D} -regex ".*\.a$" | xargs rm -f -- DESTDIR=${D}
+ rm -f ${D}${prefix}/lib/*.la
  
  # Install the man pages
- mkdir -p $RPM_BUILD_ROOT${mandir}/man1
- cp -p doc/*.1 $RPM_BUILD_ROOT${mandir}/man1
+ mkdir -p ${D}${mandir}/man1
+ cp -p doc/*.1 ${D}${mandir}/man1
  
  
 }
@@ -123,7 +130,7 @@ sphinxbase_files += "${prefix}/bin/*"
 sphinxbase_files += "${mandir}/man1/*"
 
 sphinxbase-libs_files = ""
-sphinxbase-libs_files += "AUTHORS ChangeLog COPYING NEWS README"
+sphinxbase-libs_files += "AUTHORS ChangeLog NEWS README"
 sphinxbase-libs_files += "${prefix}/lib/libsphinxad.so.*"
 sphinxbase-libs_files += "${prefix}/lib/libsphinxbase.so.*"
 

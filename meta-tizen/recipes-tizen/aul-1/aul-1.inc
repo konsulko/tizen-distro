@@ -38,11 +38,10 @@ DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "attr"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "bundle"
-DEPENDS += "xdgmime"
 DEPENDS += "ail"
 DEPENDS += "dlog"
 DEPENDS += "sqlite3"
-DEPENDS += "ecore"
+DEPENDS += "xdgmime"
 DEPENDS += "libprivilege-control"
 DEPENDS += "app-checker"
 DEPENDS += "vconf"
@@ -84,8 +83,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
-         ${EXTRA_OECMAKE} . \
-  -DWITH_WAYLAND=On \
+         ${EXTRA_OECMAKE} .
  
  make -j16
  

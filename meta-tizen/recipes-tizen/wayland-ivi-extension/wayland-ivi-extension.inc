@@ -22,6 +22,7 @@ PROVIDES += "genivi-shell-dev"
 
 RDEPENDS = ""
 #RDEPENDS of genivi-shell-dev (genivi-shell-dev)
+RDEPENDS_genivi-shell-dev += "weston"
 RDEPENDS_genivi-shell-dev += "wayland-ivi-extension"
 
 
@@ -31,6 +32,7 @@ DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "libxkbcommon"
 DEPENDS += "cairo"
+DEPENDS += "weston-ivi-shell"
 DEPENDS += "weston"
 DEPENDS += "wayland"
 DEPENDS += "libffi"
@@ -44,6 +46,12 @@ do_prep() {
  /usr/bin/wayland-scanner code < protocol/ivi-controller.xml \
      > protocol/ivi-controller-protocol.c
  
+ cat ivi-extension-protocol.pc.in \
+     | sed s\#@libdir@\#${prefix}/lib\#g \
+     | sed s\#@includedir@\#${prefix}/include/genivi-shell\#g \
+     | sed s\#@name@\#genivi-shell\#g \
+     | sed s\#@package_version@\#0.2.3\#g \
+     > ivi-extension-protocol.pc
  
  
    cmake \
@@ -75,7 +83,7 @@ do_compile() {
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
- make -j16
+ make -j16 V=1
  
  
  
@@ -100,6 +108,8 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
+ install -d ${D}/${prefix}/include/genivi-shell/
+ install -d ${D}/${prefix}/lib/pkgconfig/
  install -d ${D}/${prefix}/share/genivi-shell/protocol/
  
  install -m 644 protocol/ivi-application.xml ${D}/${prefix}/share/genivi-shell/protocol/
@@ -111,11 +121,23 @@ do_install() {
  install -m 644 protocol/ivi-application-protocol.c \
      ${D}/${prefix}/share/genivi-shell/protocol/
  
+ install -m 644 protocol/ivi-application-client-protocol.h \
+     ${D}/${prefix}/include/genivi-shell/
+ 
  install -m 644 protocol/ivi-controller-server-protocol.h \
      ${D}/${prefix}/share/genivi-shell/protocol/
  
  install -m 644 protocol/ivi-controller-protocol.c \
      ${D}/${prefix}/share/genivi-shell/protocol/
+ 
+ install -m 644 protocol/ivi-controller-client-protocol.h \
+     ${D}/${prefix}/include/genivi-shell/
+ 
+ install -m 644 protocol/libivi-extension-protocol.a \
+     ${D}/${prefix}/lib/
+ 
+ install -m 644  ivi-extension-protocol.pc \
+     ${D}/${prefix}/lib/pkgconfig/
  
  
 }
@@ -137,6 +159,7 @@ PACKAGES += " genivi-shell "
 PACKAGES += " genivi-shell-dev "
 
 genivi-shell_files = ""
+genivi-shell_files += "${prefix}/bin/IVISurfaceCreator"
 genivi-shell_files += "${prefix}/bin/LayerManagerControl"
 genivi-shell_files += "${prefix}/bin/EGLWLMockNavigation"
 genivi-shell_files += "${prefix}/lib/libilmClient.so.*"
@@ -151,9 +174,12 @@ genivi-shell-dev_files += "${prefix}/include/ilm/ilm_common.h"
 genivi-shell-dev_files += "${prefix}/include/ilm/ilm_control.h"
 genivi-shell-dev_files += "${prefix}/include/ilm/ilm_platform.h"
 genivi-shell-dev_files += "${prefix}/include/ilm/ilm_types.h"
+genivi-shell-dev_files += "${prefix}/include/genivi-shell/*.h"
 genivi-shell-dev_files += "${prefix}/lib/libilmClient.so"
 genivi-shell-dev_files += "${prefix}/lib/libilmCommon.so"
 genivi-shell-dev_files += "${prefix}/lib/libilmControl.so"
+genivi-shell-dev_files += "${prefix}/lib/libivi-extension-protocol.a"
+genivi-shell-dev_files += "${prefix}/lib/pkgconfig/ivi-extension-protocol.pc"
 genivi-shell-dev_files += "${prefix}/share/genivi-shell/protocol/*.xml"
 genivi-shell-dev_files += "${prefix}/share/genivi-shell/protocol/*.h"
 genivi-shell-dev_files += "${prefix}/share/genivi-shell/protocol/*.c"

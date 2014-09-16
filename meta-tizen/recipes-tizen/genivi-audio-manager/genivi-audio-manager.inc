@@ -29,6 +29,7 @@ RDEPENDS_${PN} += "eglibc"
 
 DEPENDS = ""
 #DEPENDS of genivi-audio-manager
+DEPENDS += "flex"
 DEPENDS += "systemd"
 DEPENDS += "dlt-daemon"
 DEPENDS_append_class-native = " cmake-native"
@@ -36,6 +37,9 @@ DEPENDS_append_class-target = " cmake-native"
 inherit pythonnative
 DEPENDS += "dbus"
 DEPENDS += "zlib"
+DEPENDS += "murphy"
+DEPENDS_append_class-native = " bison-native"
+DEPENDS_append_class-target = " bison-native"
 DEPENDS += "sqlite3"
 
 do_prep() {
@@ -62,7 +66,18 @@ do_compile() {
  mkdir -p build
  cd build
  
- cmake -DUSE_BUILD_LIBS=OFF -DWITH_TESTS=OFF -DWITH_DBUS_WRAPPER=ON -DWITH_NSM=OFF -DCMAKE_INSTALL_PREFIX=/usr ..
+ 
+   cmake \
+         -DCMAKE_VERBOSE_MAKEFILE=ON \
+         -DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
+         -DCMAKE_INSTALL_LIBDIR:PATH=${prefix}/lib \
+         -DINCLUDE_INSTALL_DIR:PATH=${prefix}/include \
+         -DLIB_INSTALL_DIR:PATH=${prefix}/lib \
+         -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
+         -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
+         -DCMAKE_SKIP_RPATH:BOOL=ON \
+         -DBUILD_SHARED_LIBS:BOOL=ON \
+         ${EXTRA_OECMAKE} -DUSE_BUILD_LIBS=OFF -DWITH_TESTS=OFF -DWITH_DBUS_WRAPPER=ON -DWITH_NSM=OFF -DWITH_DLT=OFF -DCMAKE_INSTALL_PREFIX=/usr ..
  #make VERBOSE=1
  oe_runmake -j16
  
@@ -107,10 +122,12 @@ genivi-audio-manager-dev_files += "${prefix}/include/genivi-audio-manager/*"
 genivi-audio-manager_files = ""
 genivi-audio-manager_files += "LICENCE README.html"
 genivi-audio-manager_files += "${prefix}/bin/AudioManager"
+genivi-audio-manager_files += "${prefix}/bin/domain-manager"
 genivi-audio-manager_files += "${prefix}/lib/audioManager/command/libPluginCommandInterfaceDbus.so*"
 genivi-audio-manager_files += "${prefix}/lib/audioManager/routing/libPluginRoutingInterfaceDbus.so*"
 genivi-audio-manager_files += "${prefix}/lib/audioManager/control/libPluginControlInterface.so*"
 genivi-audio-manager_files += "${prefix}/lib/audioManager/control/libPluginControlInterfaceDbus.so*"
+genivi-audio-manager_files += "${prefix}/lib/audioManager/control/libPluginControlInterfaceMurphy.so*"
 genivi-audio-manager_files += "${prefix}/share/audiomanager/*xml"
 
 FILES_${PN}-dev = "${genivi-audio-manager-dev_files}"

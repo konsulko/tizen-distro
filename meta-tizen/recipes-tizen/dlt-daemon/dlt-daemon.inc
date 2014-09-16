@@ -77,8 +77,19 @@ do_compile() {
  mkdir -p build
  cd build
  
- cmake -DWITH_SYSTEMD=ON -DWITH_SYSTEMD_JOURNAL=ON \
-       -DWITH_MAN=OFF -DWITH_DLT_EXAMPLES=OFF ..
+ 
+   cmake \
+         -DCMAKE_VERBOSE_MAKEFILE=ON \
+         -DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
+         -DCMAKE_INSTALL_LIBDIR:PATH=${prefix}/lib \
+         -DINCLUDE_INSTALL_DIR:PATH=${prefix}/include \
+         -DLIB_INSTALL_DIR:PATH=${prefix}/lib \
+         -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
+         -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
+         -DCMAKE_SKIP_RPATH:BOOL=ON \
+         -DBUILD_SHARED_LIBS:BOOL=ON \
+         ${EXTRA_OECMAKE} -DWITH_SYSTEMD=ON -DWITH_SYSTEMD_JOURNAL=ON \
+        -DWITH_MAN=OFF -DWITH_DLT_EXAMPLES=OFF ..
  make -j16
  
  

@@ -81,7 +81,8 @@ do_compile() {
           -DCMAKE_VERBOSE_MAKEFILE=ON \
           -DTZ_SYS_DB=${prefix}/dbspace \
           -DTZ_SYS_HOME=/home \
-          -DTZ_SYS_ETC=${sysconfdir}
+          -DTZ_SYS_ETC=${sysconfdir} \
+          -DSYSTEMD_UNIT_DIR=/lib/systemd/system
  
  VERBOSE=1 oe_runmake -j16
  
@@ -108,8 +109,8 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  mkdir -p ${D}${prefix}/share/privilege-control/
- mkdir -p ${D}${prefix}/lib/systemd/system/multi-user.target.wants
- ln -sf ${prefix}/lib/systemd/system/smack-rules.service ${D}${prefix}/lib/systemd/system/multi-user.target.wants/smack-rules.service
+ mkdir -p ${D}/lib/systemd/system/multi-user.target.wants
+ ln -sf /lib/systemd/system/smack-rules.service ${D}/lib/systemd/system/multi-user.target.wants/smack-rules.service
  mkdir -p ${D}${prefix}/dbspace
  sed -i 's|TZ_SYS_DB|${prefix}/dbspace|g' ${S}/packaging/libprivilege-control.manifest
  
@@ -139,9 +140,9 @@ PACKAGES += " libprivilege-control-dev "
 libprivilege-control_files = ""
 libprivilege-control_files += "${prefix}/lib/*.so.*"
 libprivilege-control_files += "${prefix}/lib/librules-db-sql-udf.so"
-libprivilege-control_files += "${prefix}/lib/systemd/system/smack-rules.service"
+libprivilege-control_files += "/lib/systemd/system/smack-rules.service"
 libprivilege-control_files += "${prefix}/bin/api_feature_loader"
-libprivilege-control_files += "${prefix}/lib/systemd/system/multi-user.target.wants/smack-rules.service"
+libprivilege-control_files += "/lib/systemd/system/multi-user.target.wants/smack-rules.service"
 libprivilege-control_files += "${prefix}/share/privilege-control/db/rules-db.sql"
 libprivilege-control_files += "${prefix}/share/privilege-control/db/rules-db-data.sql"
 libprivilege-control_files += "${prefix}/share/privilege-control/db/updater.sh"

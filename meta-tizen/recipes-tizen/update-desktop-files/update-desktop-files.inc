@@ -67,7 +67,7 @@ do_install() {
  mkdir -p ${D}/usr/share/spec2yocto/macro
  install -m0755 ${S}/packaging/tizen_update_desktop_file.sh ${S}/packaging/map-desktop-category.sh ${D}/usr/share/spec2yocto/macro
  install -m0644 -D ${S}/packaging/macro ${D}${sysconfdir}/rpm/macros.update-desktop-files
- install -m0755 -D ${S}/packaging/brp-trim-desktop.sh ${D}${prefix}/lib/rpm/brp-tizen.d/brp-70-trim-desktopfiles
+ install -m0755 -D ${S}/packaging/brp-trim-desktop.sh ${D}/usr/share/spec2yocto/macro/brp-tizen.d/brp-70-trim-desktopfiles
  
  
 }

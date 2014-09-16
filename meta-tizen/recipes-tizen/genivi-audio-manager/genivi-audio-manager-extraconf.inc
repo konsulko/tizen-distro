@@ -24,7 +24,6 @@ cmake_do_install_append() {
     rm $RPM_BUILD_ROOT${prefix}/lib/audioManager/routing/libPluginRoutingInterfaceAsync.so*
 }
 
-FILES_${PN}-dbg += "${prefix}/lib/audioManager/command/.debug/libPluginCommandInterfaceDbus.so.2.0"
-FILES_${PN}-dbg += "${prefix}/lib/audioManager/control/.debug/libPluginControlInterfaceDbus.so.2.0"
-FILES_${PN}-dbg += "${prefix}/lib/audioManager/control/.debug/libPluginControlInterface.so.2.0"
-FILES_${PN}-dbg += "${prefix}/lib/audioManager/routing/.debug/libPluginRoutingInterfaceDbus.so.2.0"
+FILES_${PN}-dbg += "${prefix}/lib/audioManager/command/.debug"
+FILES_${PN}-dbg += "${prefix}/lib/audioManager/control/.debug"
+FILES_${PN}-dbg += "${prefix}/lib/audioManager/routing/.debug"

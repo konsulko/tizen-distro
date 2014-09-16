@@ -124,6 +124,7 @@ ico-uxf-weston-plugin-dev_files += "${prefix}/lib/libico-uxf-weston-plugin.so"
 MANIFESTFILES_${PN}-dev = "ico-uxf-weston-plugin.manifest"
 
 ico-uxf-weston-plugin_files = ""
+ico-uxf-weston-plugin_files += "${prefix}/lib/weston/"
 ico-uxf-weston-plugin_files += "${prefix}/lib/weston/*.so"
 ico-uxf-weston-plugin_files += "${prefix}/lib/libico-uxf-weston-plugin.so.*"
 ico-uxf-weston-plugin_files += "${prefix}/bin/ico_send_inputevent"

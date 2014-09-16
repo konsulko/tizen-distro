@@ -50,8 +50,8 @@ DEPENDS += "audio-session-manager"
 DEPENDS += "libmm-log"
 DEPENDS += "security-server"
 DEPENDS += "glib-2.0"
+DEPENDS += "system-server"
 DEPENDS += "vconf"
-DEPENDS += "libslp-sysman"
 DEPENDS += "heynoti"
 DEPENDS += "libmm-session"
 
@@ -83,7 +83,8 @@ do_compile() {
   CFLAGS="$CFLAGS -DMURPHY"; export CFLAGS
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
+  
   
   
   
@@ -108,18 +109,17 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- install -d ${D}/usr/lib/systemd/system/multi-user.target.wants
- install -m0644 ${S}/packaging/sound-server.service ${D}/usr/lib/systemd/system/
- install -m0644 ${S}/packaging/sound-server.path ${D}/usr/lib/systemd/system/
- ln -sf ../sound-server.path ${D}/usr/lib/systemd/system/multi-user.target.wants/sound-server.path
+ install -d ${D}${prefix}/lib/systemd/system/multi-user.target.wants
+ install -m0644 ${S}/packaging/sound-server.service ${D}${prefix}/lib/systemd/system/
+ install -m0644 ${S}/packaging/sound-server.path ${D}${prefix}/lib/systemd/system/
+ ln -sf ../sound-server.path ${D}${prefix}/lib/systemd/system/multi-user.target.wants/sound-server.path
  
  # FIXME: remove after systemd is in
  mkdir -p ${D}${sysconfdir}/rc.d/rc3.d
  mkdir -p ${D}${sysconfdir}/rc.d/rc4.d
  mkdir -p ${D}${sysconfdir}/rc.d/rc5.d
- ln -s ${sysconfdir}/rc.d/init.d/soundserver ${D}${sysconfdir}/rc.d/rc3.d/S23soundserver
- ln -s ${sysconfdir}/rc.d/init.d/soundserver ${D}${sysconfdir}/rc.d/rc4.d/S23soundserver
- 
+ ln -sf ${sysconfdir}/rc.d/init.d/soundserver ${D}${sysconfdir}/rc.d/rc3.d/S23soundserver
+ ln -sf ${sysconfdir}/rc.d/init.d/soundserver ${D}${sysconfdir}/rc.d/rc4.d/S23soundserver
  
  
  
@@ -177,10 +177,10 @@ libmm-sound_files += "${prefix}/lib/soundplugins/libsoundpluginkeytone.so"
 libmm-sound_files += "${sysconfdir}/rc.d/init.d/soundserver"
 libmm-sound_files += "${sysconfdir}/rc.d/rc3.d/S23soundserver"
 libmm-sound_files += "${sysconfdir}/rc.d/rc4.d/S23soundserver"
-libmm-sound_files += "/usr/share/sounds/sound-server/*"
-libmm-sound_files += "/usr/lib/systemd/system/multi-user.target.wants/sound-server.path"
-libmm-sound_files += "/usr/lib/systemd/system/sound-server.service"
-libmm-sound_files += "/usr/lib/systemd/system/sound-server.path"
+libmm-sound_files += "${prefix}/share/sounds/sound-server/*"
+libmm-sound_files += "${prefix}/lib/systemd/system/multi-user.target.wants/sound-server.path"
+libmm-sound_files += "${prefix}/lib/systemd/system/sound-server.service"
+libmm-sound_files += "${prefix}/lib/systemd/system/sound-server.path"
 MANIFESTFILES_${PN} = "libmm-sound.manifest"
 
 libmm-sound-tool_files = ""

@@ -41,7 +41,7 @@ DEPENDS += "avsystem"
 DEPENDS += "libmm-common"
 DEPENDS += "security-server"
 DEPENDS += "glib-2.0"
-DEPENDS += "libslp-sysman"
+DEPENDS += "system-server"
 DEPENDS += "vconf"
 
 do_prep() {

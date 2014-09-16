@@ -118,10 +118,6 @@ do_install() {
  
  mkdir -p ${D}/${sysconfdir}/dbus-1/system.d
  install -m0644  ${S}/packaging/alarm-service.conf ${D}${sysconfdir}/dbus-1/system.d/
- mkdir -p ${D}${prefix}/share/license
- cp LICENSE ${D}${prefix}/share/license/alarm-server
- cp LICENSE ${D}${prefix}/share/license/libalarm
- cp LICENSE ${D}${prefix}/share/license/libalarm-devel
  
  
 }
@@ -178,7 +174,6 @@ PACKAGES += " libalarm-dev "
 libalarm_files = ""
 libalarm_files += "${prefix}/lib/libalarm.so.0.0.0"
 libalarm_files += "${prefix}/lib/libalarm.so.0"
-libalarm_files += "${prefix}/share/license/libalarm"
 MANIFESTFILES_libalarm = "alarm-manager.manifest"
 
 alarm-server_files = ""
@@ -186,15 +181,15 @@ alarm-server_files += "${prefix}/bin/alarm-server"
 alarm-server_files += "/lib/systemd/system/multi-user.target.wants/alarm-server.service"
 alarm-server_files += "/lib/systemd/system/alarm-server.service"
 alarm-server_files += "${sysconfdir}/dbus-1/system.d/alarm-service.conf"
-alarm-server_files += "${sysconfdir}/udev/rules.d/60-alarm-manager-rtc.rules"
-alarm-server_files += "${prefix}/share/license/alarm-server"
+alarm-server_files += "%config ${sysconfdir}/udev/rules.d/60-alarm-manager-rtc.rules"
+CONFFILES_alarm-server = ""
+CONFFILES_alarm-server += "${sysconfdir}/dbus-1/system.d/alarm-service.conf"
 MANIFESTFILES_alarm-server = "alarm-manager.manifest"
 
 libalarm-dev_files = ""
 libalarm-dev_files += "${prefix}/include/*.h"
 libalarm-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 libalarm-dev_files += "${prefix}/lib/libalarm.so"
-libalarm-dev_files += "${prefix}/share/license/libalarm-devel"
 MANIFESTFILES_libalarm-dev = "alarm-manager.manifest"
 
 FILES_libalarm = "${libalarm_files}"

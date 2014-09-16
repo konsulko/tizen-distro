@@ -34,7 +34,6 @@ DEPENDS += "libxml2"
 DEPENDS += "iniparser"
 DEPENDS += "common"
 DEPENDS += "ecore"
-DEPENDS += "sound-manager"
 DEPENDS += "vconf"
 
 do_prep() {

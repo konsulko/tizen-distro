@@ -38,6 +38,7 @@ DEPENDS = ""
 #DEPENDS of libmm-utility
 DEPENDS += "libmm-common"
 DEPENDS += "libjpeg-turbo"
+DEPENDS += "tizen-platform-config"
 DEPENDS += "libmm-log"
 DEPENDS += "glib-2.0"
 DEPENDS += "libmm-ta"

@@ -13,3 +13,7 @@ do_compile_prepend() {
 FILES_${PN}-dbg += "${prefix}/lib/python2.7/site-packages/.debug"
 
 FILES_${PN} += "/usr/share"
+
+RDEPENDS_${PN}_remove = "libxml2-python"
+
+RDEPENDS_${PN} += "python-xml"

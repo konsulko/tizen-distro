@@ -1,7 +1,7 @@
 DESCRIPTION = "A free speech synthesis and text-to-speech system"
 HOMEPAGE = "http://www.cstr.ed.ac.uk/projects/festival/"
 SECTION = "System/Libraries"
-LICENSE = "MIT and GPL+ and TCL"
+LICENSE = "MIT and GPL-2.0+ and TCL"
 
 SRC_URI = ""
 
@@ -74,7 +74,6 @@ do_prep() {
  #patch103 -p1
  cat ${S}/packaging/speech_tools-gcc47.patch | patch -s  -p1 --fuzz=2
  #patch104 -p1
- 
  cat ${S}/packaging/festival-1.96-speechtools-shared-build.patch | patch -s  -p2 -b --suffix .shared-build --fuzz=2
  #patch200 -p2 -b .shared-build
  cat ${S}/packaging/festival-1.96-bettersonamehack.patch | patch -s  -p2 -b --suffix .bettersoname --fuzz=2
@@ -115,9 +114,8 @@ do_install() {
  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/speech_tools/lib
  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/festival-2.1/src/lib
  cd -
- #%%make_install
-   find ${D} -regex ".*\.a$" | xargs rm -f --
- #make INSTALLED_BIN=$RPM_BUILD_ROOT${prefix}/bin make_installed_bin_shared
+ #%make_install
+ #make INSTALLED_BIN=%{buildroot}%{_bindir} make_installed_bin_shared
  cd ../speech_tools
  
    oe_runmake \
@@ -130,61 +128,61 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  cd ../festival-2.1
  # install binarys
- install -D bin/text2wave $RPM_BUILD_ROOT${prefix}/bin/text2wave
- install -m 755 src/main/festival $RPM_BUILD_ROOT${prefix}/bin/
- install -m 755 src/main/festival_client $RPM_BUILD_ROOT${prefix}/bin/
- install -m 755 bin/festival_server* $RPM_BUILD_ROOT${prefix}/bin/
- install -m 755 examples/saytime $RPM_BUILD_ROOT${prefix}/bin/
+ install -D bin/text2wave ${D}${prefix}/bin/text2wave
+ install -m 755 src/main/festival ${D}${prefix}/bin/
+ install -m 755 src/main/festival_client ${D}${prefix}/bin/
+ install -m 755 bin/festival_server* ${D}${prefix}/bin/
+ install -m 755 examples/saytime ${D}${prefix}/bin/
  # install manpages
- install -D -m 644 doc/festival.1 $RPM_BUILD_ROOT${mandir}/man1/festival.1
- install -m 644 doc/festival_client.1 $RPM_BUILD_ROOT${mandir}/man1/
- install -m 644 doc/text2wave.1 $RPM_BUILD_ROOT${mandir}/man1/
+ install -D -m 644 doc/festival.1 ${D}${mandir}/man1/festival.1
+ install -m 644 doc/festival_client.1 ${D}${mandir}/man1/
+ install -m 644 doc/text2wave.1 ${D}${mandir}/man1/
  # install configs
- install -D lib/festival.scm $RPM_BUILD_ROOT${sysconfdir}/festival.scm
+ install -D lib/festival.scm ${D}${sysconfdir}/festival.scm
  # install dictionarys
- install -D lib/dicts/cmu/cmudict-0.4.out $RPM_BUILD_ROOT${prefix}/share/festival/dicts/cmu/cmudict-0.4.out
- install -m 644 lib/dicts/cmu/*.scm $RPM_BUILD_ROOT${prefix}/share/festival/dicts/cmu/
- install -m 644 lib/dicts/wsj.wp39.poslexR $RPM_BUILD_ROOT${prefix}/share/festival/dicts/
- install -m 644 lib/dicts/wsj.wp39.tri.ngrambin $RPM_BUILD_ROOT${prefix}/share/festival/dicts/
+ install -D lib/dicts/cmu/cmudict-0.4.out ${D}${prefix}/share/festival/dicts/cmu/cmudict-0.4.out
+ install -m 644 lib/dicts/cmu/*.scm ${D}${prefix}/share/festival/dicts/cmu/
+ install -m 644 lib/dicts/wsj.wp39.poslexR ${D}${prefix}/share/festival/dicts/
+ install -m 644 lib/dicts/wsj.wp39.tri.ngrambin ${D}${prefix}/share/festival/dicts/
  # install voices
- mkdir -p $RPM_BUILD_ROOT/usr/share/festival/voices/english/kal_diphone/festvox
- mkdir -p $RPM_BUILD_ROOT/usr/share/festival/voices/english/kal_diphone/group
- cp lib/voices/english/kal_diphone/group/* $RPM_BUILD_ROOT/usr/share/festival/voices/english/kal_diphone/group/
- cp lib/voices/english/kal_diphone/festvox/*.scm $RPM_BUILD_ROOT/usr/share/festival/voices/english/kal_diphone/festvox
+ mkdir -p ${D}${prefix}/share/festival/voices/english/kal_diphone/festvox
+ mkdir -p ${D}${prefix}/share/festival/voices/english/kal_diphone/group
+ cp lib/voices/english/kal_diphone/group/* ${D}${prefix}/share/festival/voices/english/kal_diphone/group/
+ cp lib/voices/english/kal_diphone/festvox/*.scm ${D}${prefix}/share/festival/voices/english/kal_diphone/festvox
  # install data
- cp lib/*.scm $RPM_BUILD_ROOT/usr/share/festival/
- cp lib/*.ngrambin $RPM_BUILD_ROOT/usr/share/festival/
- cp lib/*.gram $RPM_BUILD_ROOT/usr/share/festival/
- cp lib/*.el $RPM_BUILD_ROOT/usr/share/festival/
- install -D lib/etc/unknown_Linux/audsp $RPM_BUILD_ROOT/usr/lib/festival/audsp
+ cp lib/*.scm ${D}${prefix}/share/festival/
+ cp lib/*.ngrambin ${D}${prefix}/share/festival/
+ cp lib/*.gram ${D}${prefix}/share/festival/
+ cp lib/*.el ${D}${prefix}/share/festival/
+ install -D lib/etc/unknown_Linux/audsp ${D}${prefix}/lib/festival/audsp
  # install libs
- install -D src/lib/libFestival.so  $RPM_BUILD_ROOT/${prefix}/lib/libFestival.so
+ install -D src/lib/libFestival.so  ${D}/${prefix}/lib/libFestival.so
  # install includes
- mkdir -p $RPM_BUILD_ROOT${prefix}/include/
- install -m 644 src/include/*.h $RPM_BUILD_ROOT${prefix}/include/
+ mkdir -p ${D}${prefix}/include/
+ install -m 644 src/include/*.h ${D}${prefix}/include/
  cd ../speech_tools
  # install includes
- mkdir -p $RPM_BUILD_ROOT${prefix}/include/instantiate
- mkdir -p $RPM_BUILD_ROOT${prefix}/include/ling_class
- mkdir -p $RPM_BUILD_ROOT${prefix}/include/rxp
- mkdir -p $RPM_BUILD_ROOT${prefix}/include/sigpr
- mkdir -p $RPM_BUILD_ROOT${prefix}/include/unix
- install -m 644 include/*h $RPM_BUILD_ROOT${prefix}/include
- install -m 644 include/instantiate/*h $RPM_BUILD_ROOT${prefix}/include/instantiate
- install -m 644 include/ling_class/*h $RPM_BUILD_ROOT${prefix}/include/ling_class
- install -m 644 include/rxp/*h $RPM_BUILD_ROOT${prefix}/include/rxp
- install -m 644 include/sigpr/*h $RPM_BUILD_ROOT${prefix}/include/sigpr
- install -m 644 include/unix/*h $RPM_BUILD_ROOT${prefix}/include/unix
+ mkdir -p ${D}${prefix}/include/instantiate
+ mkdir -p ${D}${prefix}/include/ling_class
+ mkdir -p ${D}${prefix}/include/rxp
+ mkdir -p ${D}${prefix}/include/sigpr
+ mkdir -p ${D}${prefix}/include/unix
+ install -m 644 include/*h ${D}${prefix}/include
+ install -m 644 include/instantiate/*h ${D}${prefix}/include/instantiate
+ install -m 644 include/ling_class/*h ${D}${prefix}/include/ling_class
+ install -m 644 include/rxp/*h ${D}${prefix}/include/rxp
+ install -m 644 include/sigpr/*h ${D}${prefix}/include/sigpr
+ install -m 644 include/unix/*h ${D}${prefix}/include/unix
  # make sure we have no static libs, install shared ones
- install -m 644 lib/lib*.so* $RPM_BUILD_ROOT${prefix}/lib
- rm -f $RPM_BUILD_ROOT${prefix}/lib/*.a
+ install -m 644 lib/lib*.so* ${D}${prefix}/lib
+ rm -f ${D}${prefix}/lib/*.a
  
  # install init script
- # install -m 755 -D %SOURCE6 $RPM_BUILD_ROOT/etc/init.d/festival
- # install -d $RPM_BUILD_ROOT${prefix}/sbin
- # ln -sf ../../etc/init.d/festival $RPM_BUILD_ROOT/usr/sbin/rcfestival
+ # install -m 755 -D %{S:6} %{buildroot}/etc/init.d/%name
+ # install -d %{buildroot}%_sbindir
+ # ln -sf ../../etc/init.d/%name %{buildroot}/usr/sbin/rc%name
  # installl sysconfig file
- #install -m 644 -D %SOURCE5 $RPM_BUILD_ROOT/var/adm/fillup-templates/sysconfig.festival
+ #install -m 644 -D %{S:5} %{buildroot}/var/adm/fillup-templates/sysconfig.%name
  
  
 }
@@ -222,7 +220,8 @@ PACKAGES += " festival "
 PACKAGES += " festival-dev "
 
 festival_files = ""
-festival_files += "COPYING README INSTALL examples/*.text examples/ex1.* examples/*.scm examples/*.dtd"
+festival_files += "MIT COPYING"
+festival_files += "README INSTALL examples/*.text examples/ex1.* examples/*.scm examples/*.dtd"
 festival_files += "${sysconfdir}/festival.scm"
 festival_files += "${prefix}/bin/festival"
 festival_files += "${prefix}/bin/festival_client"

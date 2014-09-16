@@ -1,0 +1,1 @@
+DEPENDS_remove_class-native = "dlog-native"

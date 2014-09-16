@@ -51,7 +51,8 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  [ ! -x autogen.sh ] || rm -f configure
+  [ ! -x autogen.sh ] ||  rm -f configure 
+  touch ChangeLog
   
   autotools_do_configure
   oe_runmake -j16
@@ -72,6 +73,7 @@ do_install() {
  
  make DESTDIR=${RPM_BUILD_ROOT} install
  rm -f ${D}${prefix}/lib/*.la
+ 
  
  
 }
@@ -101,7 +103,7 @@ libhangul-dev_files += "${prefix}/lib/pkgconfig/libhangul.pc"
 MANIFESTFILES_${PN}-dev = "libhangul.manifest"
 
 libhangul_files = ""
-libhangul_files += "AUTHORS NEWS README ChangeLog"
+libhangul_files += "AUTHORS NEWS README"
 libhangul_files += "${prefix}/lib/lib*.so.*"
 libhangul_files += "${prefix}/share/libhangul/hanja/"
 libhangul_files += "${prefix}/share/libhangul/hanja/hanja.txt"

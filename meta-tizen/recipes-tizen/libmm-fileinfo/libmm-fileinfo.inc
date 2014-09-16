@@ -84,9 +84,6 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/${prefix}/share/license
- cp -rf ${WORKDIR}/libmm-fileinfo-0.6.0/LICENSE.APLv2.0 ${D}/${prefix}/share/license/libmm-fileinfo
- 
  
  
 }
@@ -118,7 +115,6 @@ libmm-fileinfo_files += "${prefix}/lib/libmmffile.so"
 libmm-fileinfo_files += "${prefix}/lib/libmmfile_codecs.so"
 libmm-fileinfo_files += "${prefix}/lib/libmmfile_formats.so"
 libmm-fileinfo_files += "${prefix}/lib/libmmfile_utils.so"
-libmm-fileinfo_files += "${prefix}/share/license/libmm-fileinfo"
 MANIFESTFILES_${PN} = "libmm-fileinfo.manifest"
 
 libmm-fileinfo-dev_files = ""

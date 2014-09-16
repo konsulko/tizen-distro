@@ -131,7 +131,7 @@ DEPENDS += "boost"
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n automotive-message-broker-0.11.810
+ #setup -q -n automotive-message-broker-0.11.900
  
  
 }
@@ -167,7 +167,9 @@ do_compile() {
         -Dtest_plugin=ON \
         -Dgpsnmea_plugin=ON \
         -Dcangen_plugin=ON \
-        -Dcansim_plugin=ON
+        -Dcansim_plugin=ON \
+        -Denable_docs=ON
+ 
  
  oe_runmake -j16
  
@@ -318,7 +320,7 @@ automotive-message-broker-plugins-wheel_files += "${prefix}/lib/automotive-messa
 MANIFESTFILES_${PN}-plugins-wheel = "packaging.in/amb.manifest.plugins"
 
 automotive-message-broker-doc_files = ""
-automotive-message-broker-doc_files += "${prefix}/share/doc/packages/automotive-message-broker/*.txt"
+automotive-message-broker-doc_files += "${prefix}/share/doc/packages/automotive-message-broker/*"
 MANIFESTFILES_${PN}-doc = "packaging.in/amb.manifest.plugins"
 
 FILES_${PN}-plugins-cangen = "${automotive-message-broker-plugins-cangen_files}"

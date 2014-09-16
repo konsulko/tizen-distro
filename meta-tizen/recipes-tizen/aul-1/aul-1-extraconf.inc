@@ -1,10 +1,5 @@
 inherit pkgconfig cmake
 
-SRC_URI += "file://CMakeLists.txt.patch \
-            file://am_daemon.patch \
-            file://include.patch \
-            file://test.patch \
-           "
 
 #PROVIDES by aul
 PROVIDES += "aul"

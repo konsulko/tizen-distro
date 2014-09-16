@@ -152,7 +152,7 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --disable-dependency-tracking --with-lua --with-acl --with-cap --enable-shared --enable-python --with-msm "
+EXTRA_OECONF += " --disable-dependency-tracking --with-lua --with-acl --with-cap --enable-shared --enable-python --with-vendor=tizen --with-msm "
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -289,8 +289,8 @@ rpm-security-plugin_files += "${sysconfdir}/device-sec-policy"
 MANIFESTFILES_${PN}-security-plugin = "rpm.manifest"
 
 python-rpm_files = ""
-python-rpm_files += "${prefix}/lib/python*/site-packages/rpm"
-python-rpm_files += "${prefix}/lib/python*/site-packages/rpm/transaction.py"
+python-rpm_files += "${prefix}/lib/python2.7/site-packages/rpm"
+python-rpm_files += "${prefix}/lib/python2.7/site-packages/rpm/transaction.py"
 
 rpm-build_files = ""
 rpm-build_files += "${prefix}/bin/rpmbuild"

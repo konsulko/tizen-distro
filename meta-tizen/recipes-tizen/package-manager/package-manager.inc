@@ -60,7 +60,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- MAJORVER=`echo 0.0.29 | awk 'BEGIN {FS="."}{print $1}'`
+ MAJORVER=`echo 0.0.30 | awk 'BEGIN {FS="."}{print $1}'`
  
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
@@ -72,7 +72,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
-         ${EXTRA_OECMAKE} . -DFULLVER=0.0.29 -DMAJORVER=${MAJORVER}
+         ${EXTRA_OECMAKE} . -DFULLVER=0.0.30 -DMAJORVER=${MAJORVER}
  
  make -j16
  

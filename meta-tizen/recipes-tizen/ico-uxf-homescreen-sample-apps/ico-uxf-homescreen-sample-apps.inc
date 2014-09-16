@@ -1,6 +1,6 @@
 DESCRIPTION = "HomeScreen sample application"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "System/Utilities"
+SECTION = "Automotive/ICO Homescreen"
 LICENSE = "Apache-2.0"
 
 SRC_URI = ""
@@ -26,6 +26,7 @@ RDEPENDS_${PN} += "capi-appfw-application"
 RDEPENDS_${PN} += "weston-ivi-shell"
 RDEPENDS_${PN} += "weston"
 RDEPENDS_${PN} += "ico-vic-amb-plugin"
+RDEPENDS_${PN} += "wayland-ivi-extension"
 RDEPENDS_${PN} += "automotive-message-broker"
 RDEPENDS_${PN} += "elementary"
 RDEPENDS_${PN} += "ecore"
@@ -111,7 +112,7 @@ do_install() {
  mkdir -p ${D}/usr/apps/org.tizen.ico.app-soundsample/res/images/
  install -m 0644 ico-app-soundsample/soundsample_config.txt ${D}/usr/apps/org.tizen.ico.app-soundsample/res/
  install -m 0644 ico-app-soundsample/sound_bg.png ${D}/usr/apps/org.tizen.ico.app-soundsample/res/images/
- install -m 0644 ico-app-soundsample/org.tizen.ico.app-soundsample.png ${D}/usr/apps/org.tizen.ico.app-soundsample/res/icons/default/small/
+ install -m 0644 ico-app-soundsample/org.tizen.ico.app-soundsample.png ${D}${prefix}/share/icons/default/small/
  install -m 0644 ico-app-soundsample/musicbox.wav ${D}/usr/apps/org.tizen.ico.app-soundsample/sounds/
  install -m 0644 ico-app-soundsample/org.tizen.ico.app-soundsample.xml ${D}${prefix}/share/packages/
  
@@ -122,7 +123,7 @@ do_install() {
  mkdir -p ${D}/usr/apps/org.tizen.ico.app-vicsample/res/images/
  install -m 0644 ico-app-vicsample/vicsample_config.txt ${D}/usr/apps/org.tizen.ico.app-vicsample/res/
  install -m 0644 ico-app-vicsample/vicinfo_bg.png ${D}/usr/apps/org.tizen.ico.app-vicsample/res/images/
- install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.png ${D}/usr/apps/org.tizen.ico.app-vicsample/res/icons/default/small/
+ install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.png ${D}${prefix}/share/icons/default/small/
  install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.xml ${D}${prefix}/share/packages/
  
  # configurations(ico-app-miscellaneous)
@@ -138,6 +139,12 @@ do_install() {
  # install tizen package metadata for weekeyboard
  install -m 0644 ico-app-miscellaneous/weekeyboard.xml ${D}${prefix}/share/packages/
  
+ # install tizen package metadata for mock navigator
+ install -m 0644 ico-app-miscellaneous/navigator.xml ${D}${prefix}/share/packages/
+ install -m 0644 ico-app-miscellaneous/navigator.png ${D}${prefix}/share/icons/default/small/
+ 
+ 
+ 
  
 }
 
@@ -145,7 +152,7 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     [ "x\$D" == "x" ] && ldconfig
-    # This icon exists in main weston package so we don't package it in.
+    # This icons exists in main weston package so we don't package it in.
     # Create a symbolic link to it instead.
     ln -sf $D${prefix}/share/weston/terminal.png $D${prefix}/share/icons/default/small/
     # Update the app database.
@@ -153,6 +160,7 @@ pkg_postinst_${PN}() {
     $D${prefix}/bin/pkginfo --imd /usr/share/packages/org.tizen.ico.app-vicsample.xml
     $D${prefix}/bin/pkginfo --imd /usr/share/packages/browser.xml
     $D${prefix}/bin/pkginfo --imd /usr/share/packages/terminal.xml
+    $D${prefix}/bin/pkginfo --imd /usr/share/packages/navigator.xml
 
 }
 
@@ -164,6 +172,7 @@ pkg_prerm_${PN}() {
     $D${prefix}/bin/pkginfo --rmd /usr/share/packages/org.tizen.ico.app-vicsample.xml
     $D${prefix}/bin/pkginfo --rmd /usr/share/packages/browser.xml
     $D${prefix}/bin/pkginfo --rmd /usr/share/packages/terminal.xml
+    $D${prefix}/bin/pkginfo --rmd /usr/share/packages/navigator.xml
 
 }
 
@@ -186,19 +195,21 @@ ico-uxf-homescreen-sample-apps_files = ""
 ico-uxf-homescreen-sample-apps_files += "/usr/apps/org.tizen.ico.app-soundsample/bin/ico-app-soundsample"
 ico-uxf-homescreen-sample-apps_files += "/usr/apps/org.tizen.ico.app-soundsample/res/soundsample_config.txt"
 ico-uxf-homescreen-sample-apps_files += "/usr/apps/org.tizen.ico.app-soundsample/res/images/sound_bg.png"
-ico-uxf-homescreen-sample-apps_files += "/usr/apps/org.tizen.ico.app-soundsample/res/icons/default/small/org.tizen.ico.app-soundsample.png"
 ico-uxf-homescreen-sample-apps_files += "/usr/apps/org.tizen.ico.app-soundsample/sounds/musicbox.wav"
+ico-uxf-homescreen-sample-apps_files += "${prefix}/share/icons/default/small/org.tizen.ico.app-soundsample.png"
 ico-uxf-homescreen-sample-apps_files += "${prefix}/share/packages/org.tizen.ico.app-soundsample.xml"
 ico-uxf-homescreen-sample-apps_files += "/usr/apps/org.tizen.ico.app-vicsample/bin/ico-app-vicsample"
 ico-uxf-homescreen-sample-apps_files += "/usr/apps/org.tizen.ico.app-vicsample/res/vicsample_config.txt"
 ico-uxf-homescreen-sample-apps_files += "/usr/apps/org.tizen.ico.app-vicsample/res/images/vicinfo_bg.png"
-ico-uxf-homescreen-sample-apps_files += "/usr/apps/org.tizen.ico.app-vicsample/res/icons/default/small/org.tizen.ico.app-vicsample.png"
-ico-uxf-homescreen-sample-apps_files += "/usr/share/packages/org.tizen.ico.app-vicsample.xml"
+ico-uxf-homescreen-sample-apps_files += "${prefix}/share/icons/default/small/org.tizen.ico.app-vicsample.png"
+ico-uxf-homescreen-sample-apps_files += "${prefix}/share/packages/org.tizen.ico.app-vicsample.xml"
 ico-uxf-homescreen-sample-apps_files += "${prefix}/bin/browser"
 ico-uxf-homescreen-sample-apps_files += "${prefix}/share/packages/browser.xml"
 ico-uxf-homescreen-sample-apps_files += "${prefix}/share/packages/terminal.xml"
+ico-uxf-homescreen-sample-apps_files += "${prefix}/share/packages/navigator.xml"
 ico-uxf-homescreen-sample-apps_files += "${prefix}/share/packages/weekeyboard.xml"
 ico-uxf-homescreen-sample-apps_files += "${prefix}/share/icons/default/small/browser.png"
+ico-uxf-homescreen-sample-apps_files += "${prefix}/share/icons/default/small/navigator.png"
 MANIFESTFILES_${PN} = "ico-uxf-homescreen-sample-apps.manifest"
 
 FILES_${PN} = "${ico-uxf-homescreen-sample-apps_files}"

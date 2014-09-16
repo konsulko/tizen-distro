@@ -32,10 +32,16 @@ do_install_append() {
     rm -fr ${D}/usr/lib/weston/gl-renderer.so
     rm -fr ${D}/usr/lib/weston/.debug/gl-renderer.so
 
+
     # Enable a logind session for 'app' user on seat0 (the default seat for
     # graphical sessions)
     mkdir -p ${D}/lib/systemd/system/graphical.target.wants
     ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5000.service
+
+    
+    rm -fr ${D}${prefix}/bin/weston-scaler
+    rm -fr ${D}${prefix}/bin/weston-stacking
+    rm -fr ${D}${prefix}/bin/weston-multi-resource
 }
 
 pkg_postinst_${PN} () {

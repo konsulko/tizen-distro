@@ -58,6 +58,7 @@ DEPENDS += "libxkbcommon"
 DEPENDS += "pulseaudio"
 DEPENDS += "location-manager"
 DEPENDS += "libexif"
+DEPENDS += "ail"
 DEPENDS_append_class-native = " bison-native"
 DEPENDS_append_class-target = " bison-native"
 DEPENDS += "pciutils"
@@ -73,7 +74,7 @@ do_prep() {
  cp ${S}/packaging/crosswalk.manifest .
  cp ${S}/packaging/crosswalk.xml.in .
  cp ${S}/packaging/crosswalk.png .
- sed "s/@VERSION@/8.36.161.0/g" crosswalk.xml.in > crosswalk.xml
+ sed "s/@VERSION@/9.37.193.0/g" crosswalk.xml.in > crosswalk.xml
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.in > xwalk
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.service.in > xwalk.service
  
@@ -85,8 +86,6 @@ do_prep() {
  #patch9
  
  # The profiles using Wayland (and thus Ozone) do not need this patch.
- 
- ###patch11
  
  
 }
@@ -130,13 +129,23 @@ do_compile() {
     ln -s "${BUILDDIR_NAME}" src/out
  fi
  
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=1"
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=0"
  
  # Force gold binary from chroot ld.gold provided by binutils-gold
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1 -Dlinux_use_bundled_binutils=0 -Dlinux_use_bundled_gold=0 "
  
  # Linking fails in Tizen Common when fatal ld warnings are enabled. XWALK-1379.
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
+ 
+ # Temporarily disable Alsa support while snd_seq_* support is not enabled on
+ # Tizen. See https://codereview.chromium.org/264973012 and
+ # https://review.tizen.org/gerrit/#/c/24336/
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_alsa=0"
+ 
+ # Temporarily disable WebRTC support because its build currently hardcodes
+ # dependencies on X11 and OpenSSL. We are still trying to get some
+ # clarifications as to whether this is really necessary. See XWALK-2160.
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Denable_webrtc=0"
  
  # For building for arm in OBS, we need :
  # -> to unset sysroot value.
@@ -164,6 +173,7 @@ do_compile() {
  -Duse_system_libexif=1 \
  -Duse_system_libxml=1 \
  -Duse_system_nspr=1 \
+ -Dshared_process_mode=1 \
  -Denable_hidpi=1
  
  ninja -j16 -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
@@ -182,7 +192,6 @@ do_install() {
  mkdir -p ${D}
  
  # Binaries.
- install -p -D xwalk ${D}${prefix}/bin/xwalk
  install -p -D ${S}/packaging/org.crosswalkproject.Runtime1.service ${D}/usr/share/dbus-1/services/org.crosswalkproject.Runtime1.service
  install -p -D xwalk.service ${D}/usr/lib/systemd/user/xwalk.service
  install -p -D src/out/Release/xwalk ${D}${prefix}/lib/xwalk/xwalk
@@ -199,8 +208,8 @@ do_install() {
  # PNaCl
  
  # Register xwalk to the package manager.
- install -p -D crosswalk.xml ${D}/usr/share/packages/crosswalk.xml
- install -p -D crosswalk.png ${D}/usr/share/icons/default/small/crosswalk.png
+ install -p -D crosswalk.xml ${D}${prefix}/share/packages/crosswalk.xml
+ install -p -D crosswalk.png ${D}%TZ_SYS_RW_ICONS/default/small/crosswalk.png
  
  
 }
@@ -208,8 +217,8 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    mkdir -p /opt/share/icons/default/small
-    mkdir -p /opt/share/packages
+    mkdir -p %TZ_SYS_RO_ICONS/default/small
+    mkdir -p %TZ_SYS_RO_PACKAGE
 
 }
 
@@ -217,7 +226,6 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " crosswalk "
 
 crosswalk_files = ""
-crosswalk_files += "${prefix}/bin/xwalk"
 crosswalk_files += "${prefix}/bin/xwalkctl"
 crosswalk_files += "${prefix}/bin/xwalk-launcher"
 crosswalk_files += "${prefix}/bin/xwalk-pkg-helper"
@@ -225,8 +233,7 @@ crosswalk_files += "${prefix}/lib/xwalk/icudtl.dat"
 crosswalk_files += "${prefix}/lib/xwalk/libffmpegsumo.so"
 crosswalk_files += "${prefix}/lib/xwalk/xwalk"
 crosswalk_files += "${prefix}/lib/xwalk/xwalk.pak"
-crosswalk_files += "/usr/share/packages/crosswalk.xml"
-crosswalk_files += "/usr/share/icons/default/small/crosswalk.png"
+crosswalk_files += "${prefix}/share/packages/crosswalk.xml"
 crosswalk_files += "/usr/share/dbus-1/services/org.crosswalkproject.Runtime1.service"
 crosswalk_files += "/usr/lib/systemd/user/xwalk.service"
 MANIFESTFILES_${PN} = "crosswalk.manifest"
