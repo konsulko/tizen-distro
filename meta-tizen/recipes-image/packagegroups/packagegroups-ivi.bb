@@ -21,8 +21,9 @@ RDEPENDS_packagegroup-tizen-ivi-ico = " \
                                         "
 
 # Modello modules
-# To add: "Modello_Phone", "Modello_Installer" (related to BTY-36)
+# To add: "Modello_Phone"
 RDEPENDS_packagegroup-tizen-ivi-modello = " \
+                                            Modello_Installer-xwalk \ 
                                             Modello_AMBSimulator \
                                             Modello_Appmanager \
                                             Modello_Common \

@@ -1,6 +1,6 @@
 require recipes-image/images/tizen-core-image-minimal.bb
 
-SUMMARY = "Tizen IVI image"
+SUMMARY = "Tizen IVI core image"
 
 LICENSE = "MIT"
 
@@ -8,10 +8,6 @@ DESCRIPTION = "A Tizen IVI image based on Tizen common ."
 
 WESTONSTARTUP = "weston-ivi"
 IMAGECONFIG = "config-tizen-ivi"
-
-# Modello packages
-CORE_IMAGE_EXTRA_INSTALL += "packagegroup-tizen-ivi-modello"
-
 
 CORE_IMAGE_EXTRA_INSTALL += "automotive-message-broker"
 CORE_IMAGE_EXTRA_INSTALL += "efl-theme-tizen-hd"
@@ -34,9 +30,6 @@ CORE_IMAGE_EXTRA_INSTALL += "sphinxbase"
 CORE_IMAGE_EXTRA_INSTALL += "udev-rules-ivi"
 CORE_IMAGE_EXTRA_INSTALL += "genivi-shell"
 CORE_IMAGE_EXTRA_INSTALL += "weston-ivi-shell"
-
-# Crosswalk
-CORE_IMAGE_EXTRA_INSTALL += "packagegroup-tizen-crosswalk"
 
 # Time zone
 CORE_IMAGE_EXTRA_INSTALL += "tzdata"

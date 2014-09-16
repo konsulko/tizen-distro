@@ -3,6 +3,8 @@ inherit useradd
 RDEPENDS_${PN} += "xkeyboard-config"
 RRECOMMENDS_${PN} = "liberation-fonts"
 
+RDEPENDS_${PN}_remove = "weston-startup"
+
 SRC_URI += "file://make-lcms-explicitly-configurable.patch"
 SRC_URI += "file://make-libwebp-explicitly-configurable.patch"
 
@@ -39,6 +41,8 @@ FILES_${PN} += "${prefix}/lib/weston/weston-desktop-shell"
 FILES_${PN} += "${prefix}/lib/weston/cms-static.so"
 FILES_${PN} += "${prefix}/lib/weston/weston-screenshooter"
 FILES_${PN} += "${prefix}/lib/weston/weston-simple-im"
+
 FILES_${PN} += "${prefix}/bin/weston-scaler"
 FILES_${PN} += "${prefix}/bin/weston-stacking"
 FILES_${PN} += "${prefix}/bin/weston-multi-resource"
+
