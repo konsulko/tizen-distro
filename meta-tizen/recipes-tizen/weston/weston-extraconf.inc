@@ -45,4 +45,3 @@ FILES_${PN} += "${prefix}/lib/weston/weston-simple-im"
 FILES_${PN} += "${prefix}/bin/weston-scaler"
 FILES_${PN} += "${prefix}/bin/weston-stacking"
 FILES_${PN} += "${prefix}/bin/weston-multi-resource"
-

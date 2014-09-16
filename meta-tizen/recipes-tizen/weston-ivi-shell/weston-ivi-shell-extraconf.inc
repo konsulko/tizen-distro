@@ -31,6 +31,11 @@ do_install_append() {
     rm -fr ${D}/usr/lib/weston/.debug/desktop-shell.so
     rm -fr ${D}/usr/lib/weston/gl-renderer.so
     rm -fr ${D}/usr/lib/weston/.debug/gl-renderer.so
+
+    # Enable a logind session for 'app' user on seat0 (the default seat for
+    # graphical sessions)
+    mkdir -p ${D}/lib/systemd/system/graphical.target.wants
+    ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5000.service
 }
 
 pkg_postinst_${PN} () {
@@ -52,10 +57,6 @@ pkg_postinst_${PN} () {
     # home dir must have the same label
     chsmack -a User /home/app
 
-    # Enable a logind session for 'app' user on seat0 (the default seat for
-    # graphical sessions)
-    mkdir -p /usr/lib/systemd/system/graphical.target.wants
-    ln -s ../user-session-launch@.service /usr/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5000.service
     ln -sf weston.target  /usr/lib/systemd/user/default.target
 
     # Add over-riding environment to enable the web runtime to
@@ -95,5 +96,6 @@ FILES_${PN} += "${prefix}/lib/weston-ivi-shell/weston-desktop-shell"
 FILES_${PN} += "${prefix}/lib/weston-ivi-shell/weston-screenshooter"
 FILES_${PN} += "${prefix}/lib/weston-ivi-shell/weston-simple-im"
 FILES_${PN} += "${prefix}/lib/weston/cms-static.so"
+FILES_${PN} += "/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5000.service"
 
 FILES_${PN}-dev += "${prefix}/include/weston/ivi-shell-ext.h"

@@ -9,5 +9,4 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     ln -fs tizen_common.png $D${prefix}/share/backgrounds/tizen/current
-
 }
