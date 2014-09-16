@@ -12,6 +12,7 @@ IMAGECONFIG = "config-tizen-ivi"
 # Modello packages
 CORE_IMAGE_EXTRA_INSTALL += "packagegroup-tizen-ivi-modello"
 
+
 CORE_IMAGE_EXTRA_INSTALL += "automotive-message-broker"
 CORE_IMAGE_EXTRA_INSTALL += "efl-theme-tizen-hd"
 CORE_IMAGE_EXTRA_INSTALL += "festival"
@@ -27,6 +28,7 @@ CORE_IMAGE_EXTRA_INSTALL += "weston-ivi-config"
 # TMP Remove rygel
 # BTY-36
 #CORE_IMAGE_EXTRA_INSTALL += "rygel"
+
 
 CORE_IMAGE_EXTRA_INSTALL += "sphinxbase"
 CORE_IMAGE_EXTRA_INSTALL += "udev-rules-ivi"
