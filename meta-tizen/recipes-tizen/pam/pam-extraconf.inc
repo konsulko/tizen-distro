@@ -106,9 +106,11 @@ pkg_postinst_${PN}() {
 
     [ "x\$D" == "x" ] && ldconfig
     if [ ! -a $D/var/log/faillog ] ; then
+    	mkdir -p $D/var/log
     	/usr/bin/install -m 600 /dev/null $D/var/log/faillog
     fi
     if [ ! -a $D/var/log/tallylog ] ; then
+    	mkdir -p $D/var/log
     	/usr/bin/install -m 600 /dev/null $D/var/log/tallylog
     fi
 
