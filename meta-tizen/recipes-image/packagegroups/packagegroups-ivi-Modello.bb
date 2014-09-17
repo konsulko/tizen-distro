@@ -1,24 +1,12 @@
-SUMMARY = "Tizen IVI packagegroups"
+SUMMARY = "Tizen IVI packagegroups Modello"
 LICENSE = "Apache-2.0"
-DESCRIPTION = "ICO and Modello packages."
+DESCRIPTION = "Modello packages."
 
 inherit packagegroup
 
 PACKAGES = "\
-            packagegroup-tizen-ivi-ico \
             packagegroup-tizen-ivi-modello \
             "
-
-# ICO packages
-RDEPENDS_packagegroup-tizen-ivi-ico = " \
-                                        ico-uxf-device-input-controller \
-                                        ico-uxf-homescreen \
-                                        ico-uxf-utilities \
-                                        ico-uxf-weston-plugin \
-                                        ico-vic-amb-plugin \
-                                        ico-vic-carsimulator \
-                                        ico-uxf-homescreen-sample-apps \
-                                        "
 
 # Modello modules
 # To add: "Modello_Phone"
