@@ -27,12 +27,12 @@ RDEPENDS_capi-system-${PN}-dev += "capi-system-device"
 
 DEPENDS = ""
 #DEPENDS of capi-system-device
-DEPENDS += "vconf"
+DEPENDS += "system-server"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
-DEPENDS += "devman"
-DEPENDS += "dlog"
 DEPENDS += "common"
+DEPENDS += "dlog"
+DEPENDS += "vconf"
 
 do_prep() {
  cd ${S}
