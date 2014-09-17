@@ -1,0 +1,15 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c3c5f4d..6057c9e 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -25,7 +25,9 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
+ INCLUDE(FindPkgConfig)
+ 
+ pkg_check_modules(glib_pkg REQUIRED gobject-2.0)
+-pkg_check_modules(pkgs REQUIRED glib-2.0 dlog libtzplatform-config)
++pkg_check_modules(pkgs REQUIRED glib-2.0  libtzplatform-config)
++ADD_DEFINITIONS("-DUTIL_SYSLOG_OUT")
++
+ FOREACH(flag ${pkgs_CFLAGS})
+    SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+ ENDFOREACH(flag)
