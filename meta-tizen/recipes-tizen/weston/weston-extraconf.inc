@@ -1,5 +1,3 @@
-inherit useradd
-
 RDEPENDS_${PN} += "xkeyboard-config"
 RRECOMMENDS_${PN} = "liberation-fonts"
 
@@ -7,9 +5,6 @@ RDEPENDS_${PN}_remove = "weston-startup"
 
 SRC_URI += "file://make-lcms-explicitly-configurable.patch"
 SRC_URI += "file://make-libwebp-explicitly-configurable.patch"
-
-USERADD_PACKAGES = "${PN}"
-GROUPADD_PARAM_${PN} = "--system -g 192 weston-launch"
 
 EXTRA_OECONF += "   \
                     --enable-wayland-compositor \
