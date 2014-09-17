@@ -31,8 +31,8 @@ DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
+DEPENDS += "system-server"
 DEPENDS += "common"
-DEPENDS += "libslp-pm"
 DEPENDS += "vconf"
 
 do_prep() {

@@ -37,10 +37,10 @@ RDEPENDS_lib${PN}-haptic-dev += "libdevman-dev"
 
 DEPENDS = ""
 #DEPENDS of devman
-DEPENDS += "libhaptic"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "dlog"
+DEPENDS += "system-server"
 DEPENDS += "libdevice-node"
 DEPENDS += "heynoti"
 DEPENDS += "vconf"

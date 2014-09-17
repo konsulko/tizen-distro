@@ -47,7 +47,6 @@ RDEPENDS_${PN}-dev += "libsvi"
 
 DEPENDS = ""
 #DEPENDS of libfeedback
-DEPENDS += "libhaptic"
 DEPENDS += "libmm-sound"
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
@@ -55,6 +54,7 @@ DEPENDS += "libxml2"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
+DEPENDS += "system-server"
 DEPENDS += "common"
 DEPENDS += "vconf"
 

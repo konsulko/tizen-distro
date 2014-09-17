@@ -33,7 +33,6 @@ DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "system-server"
 DEPENDS += "application"
-DEPENDS += "libslp-pm"
 DEPENDS += "vconf"
 
 do_prep() {

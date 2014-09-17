@@ -51,6 +51,7 @@ DEPENDS += "app-svc"
 DEPENDS += "aul"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
+DEPENDS += "system-server"
 DEPENDS += "bluetooth-frwk"
 inherit pythonnative
 DEPENDS += "libsvi"
@@ -66,7 +67,6 @@ DEPENDS += "wav-player"
 DEPENDS += "wifi"
 DEPENDS += "openssl"
 DEPENDS += "neardal"
-DEPENDS += "libslp-pm"
 
 do_prep() {
  cd ${S}
