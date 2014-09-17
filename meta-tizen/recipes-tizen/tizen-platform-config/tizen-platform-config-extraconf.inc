@@ -11,5 +11,7 @@ do_install_append() {
  sed -i "s@=/usr@=\$SYSROOT/usr@g" ${D}${sysconfdir}/tizen-platform.conf
  sed -i "s@=/etc@=\$SYSROOT/etc@g" ${D}${sysconfdir}/tizen-platform.conf
  sed -i "s@=/root@=\$SYSROOT/root@g" ${D}${sysconfdir}/tizen-platform.conf
+ sed -i "s@=/var@=\$SYSROOT/var@g" ${D}${sysconfdir}/tizen-platform.conf
+ 
 }
 
