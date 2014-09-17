@@ -103,5 +103,6 @@ FILES_${PN} += "${prefix}/lib/weston-ivi-shell/weston-screenshooter"
 FILES_${PN} += "${prefix}/lib/weston-ivi-shell/weston-simple-im"
 FILES_${PN} += "${prefix}/lib/weston/cms-static.so"
 FILES_${PN} += "/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5000.service"
+FILES_${PN} += "${prefix}/bin/weston-calibrator"
 
 FILES_${PN}-dev += "${prefix}/include/weston/ivi-shell-ext.h"
