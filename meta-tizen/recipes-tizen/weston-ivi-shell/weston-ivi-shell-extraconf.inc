@@ -31,7 +31,7 @@ do_install_append() {
     rm -fr ${D}/usr/lib/weston/.debug/desktop-shell.so
     rm -fr ${D}/usr/lib/weston/gl-renderer.so
     rm -fr ${D}/usr/lib/weston/.debug/gl-renderer.so
-
+    rm -fr ${D}/usr/bin/weston-calibrator
 
     # Enable a logind session for 'app' user on seat0 (the default seat for
     # graphical sessions)
@@ -57,36 +57,36 @@ pkg_postinst_${PN} () {
     #------------------------------------------
     # Temporary work around for bug in filesystem package resulting in the 'app' user home
     # directory being only readable by root
-    chown -R app:app /home/app
+    chown -R app:app $D/home/app
 
     # Since weston-launch runs with the "User" label, the app
     # home dir must have the same label
-    chsmack -a User /home/app
+    chsmack -a User $D/home/app
 
-    ln -sf weston.target  /usr/lib/systemd/user/default.target
+    ln -sf weston.target  $D/usr/lib/systemd/user/default.target
 
     # Add over-riding environment to enable the web runtime to
     # run on an IVI image as a different user then the tizen user
     # Some notes on some of the variables:
     #  - ELM_THEME is needed in order for the wrt to have visible content
     #  - WRT_PROCESS_POOL_DISABLE is a work around for TIVI-2062
-    cat > /etc/sysconfig/wrt <<EOF
+    cat > $D/etc/sysconfig/wrt << EOF
     DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/5000/dbus/user_bus_socket
     XDG_RUNTIME_DIR=/run/user/5000
     ELM_ENGINE=wayland_egl
     ECORE_EVAS_ENGINE=wayland_egl
     ELM_THEME=tizen-HD-light
     WRT_PROCESS_POOL_DISABLE=1
-    EOF
+EOF
 
     # Use the same over-rides for the native prelaunch daemon
-    cp /etc/sysconfig/wrt /etc/sysconfig/launchpad
+    cp $D/etc/sysconfig/wrt $D/etc/sysconfig/launchpad
 
     # Add a rule to ensure the app user has permissions to
     # open the graphics device
-    cat > /etc/udev/rules.d/99-dri.rules <<EOF
+    cat > $D/etc/udev/rules.d/99-dri.rules << EOF
     SUBSYSTEM=="drm", MODE="0666"
-    EOF
+EOF
     #------------------------------------------
 }
 
