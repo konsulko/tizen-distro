@@ -18,23 +18,10 @@ index 2c3fafe..9adea33 100644
  
  INCLUDE(FindPkgConfig)
  
--pkg_check_modules(LPKGS REQUIRED glib-2.0 sqlite3 dlog db-util xdgmime vconf libtzplatform-config libsmack)
-+pkg_check_modules(LPKGS REQUIRED glib-2.0 sqlite3 db-util xdgmime vconf libtzplatform-config libsmack)
+-pkg_check_modules(LPKGS REQUIRED glib-2.0 sqlite3 dlog db-util xdgmime vconf libtzplatform-config)
++pkg_check_modules(LPKGS REQUIRED glib-2.0 sqlite3 db-util xdgmime vconf libtzplatform-config)
  STRING(REPLACE ";" " " EXTRA_CFLAGS "${LPKGS_CFLAGS}")
  SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} -fvisibility=hidden")
- 
-diff --git a/initdb/CMakeLists.txt b/initdb/CMakeLists.txt
-index 73474d8..040a8cb 100755
---- a/initdb/CMakeLists.txt
-+++ b/initdb/CMakeLists.txt
-@@ -3,7 +3,7 @@
- SET(INITDB ail_initdb)
- SET(SRCS src/initdb.c)
- 
--pkg_check_modules(INITDB_PKGS REQUIRED vconf dlog db-util sqlite3)
-+pkg_check_modules(INITDB_PKGS REQUIRED vconf db-util sqlite3)
- INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
- INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src)
  
 diff --git a/src/ail_private.h b/src/ail_private.h
 index efa2f66..28ed80c 100755
@@ -57,8 +44,8 @@ index e898c7e..e0dd903 100755
  SET(PKG ail_package)
  SET(PKGSRCS src/ail_package.c)
  
--pkg_check_modules(INITDB_PKGS REQUIRED vconf dlog db-util sqlite3)
-+pkg_check_modules(INITDB_PKGS REQUIRED vconf db-util sqlite3)
+-pkg_check_modules(INITDB_PKGS REQUIRED libsmack vconf dlog db-util sqlite3)
++pkg_check_modules(INITDB_PKGS REQUIRED libsmack vconf db-util sqlite3)
  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src)
  

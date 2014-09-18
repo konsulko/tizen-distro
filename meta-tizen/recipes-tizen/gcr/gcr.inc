@@ -146,25 +146,25 @@ pkg_postinst_${PN}() {
 pkg_postinst_libgcr() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_postinst_libgck() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_postrm_libgcr() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_postrm_libgck() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_postrm_${PN}() {

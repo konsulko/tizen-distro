@@ -29,7 +29,7 @@ do_compile_prepend() {
  CC="${CC}" export CC
  CXX="${CXX}" export CXX_host
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -I${WORKDIR}/oe-defaults.gypi -I${WORKDIR}/include.gypi"
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -I${WORKDIR}/oe-defaults.gypi -I${WORKDIR}/include.gypi"
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Dhost_clang=0 "
 }
 
 do_configure() {
@@ -68,23 +68,13 @@ do_compile() {
     ln -s "${BUILDDIR_NAME}" src/out
  fi
  
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=0"
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=1"
  
  # Force gold binary from chroot ld.gold provided by binutils-gold
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1 -Dlinux_use_bundled_binutils=0 -Dlinux_use_bundled_gold=0 "
  
  # Linking fails in Tizen Common when fatal ld warnings are enabled. XWALK-1379.
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
- 
- # Temporarily disable Alsa support while snd_seq_* support is not enabled on
- # Tizen. See https://codereview.chromium.org/264973012 and
- # https://review.tizen.org/gerrit/#/c/24336/
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_alsa=0"
- 
- # Temporarily disable WebRTC support because its build currently hardcodes
- # dependencies on X11 and OpenSSL. We are still trying to get some
- # clarifications as to whether this is really necessary. See XWALK-2160.
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Denable_webrtc=0"
  
  # For building for arm in OBS, we need :
  # -> to unset sysroot value.
@@ -94,6 +84,7 @@ do_compile() {
  # Crosswalk build fails if the fpu selected in the gcc option is different from neon in case of arm7 compilation
  # So force it.
  
+ 
  # --no-parallel is added because chroot does not mount a /dev/shm, this will
  # cause python multiprocessing.SemLock error.
  export GYP_GENERATORS='ninja'
@@ -101,6 +92,7 @@ do_compile() {
  --no-parallel \
  ${GYP_EXTRA_FLAGS} \
  -Dchromeos=0 \
+ -Dclang=0 \
  -Dtizen=1 \
  -Dpython_ver=2.7 \
  -Duse_aura=1 \
@@ -114,8 +106,7 @@ do_compile() {
  -Dshared_process_mode=1 \
  -Denable_hidpi=1
  
- ninja -j16 -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
- 
+ ninja -j16 -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper xwalk-backendlib
  
  
 }

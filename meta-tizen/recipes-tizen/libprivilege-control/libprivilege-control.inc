@@ -120,7 +120,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     $D${prefix}/share/privilege-control/db/updater.sh
     chsmack -a 'System' $D${prefix}/dbspace/.rules-db.db3*
 
@@ -129,7 +129,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

@@ -141,7 +141,7 @@ do_install() {
 pkg_postinst_nfc-client-lib-neard() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     USER_GROUP_ID=$(getent group users | cut -d: -f3)
     vconftool set -t bool db/nfc/feature 0 -g $USER_GROUP_ID -f
     vconftool set -t bool db/nfc/predefined_item_state 0 -g $USER_GROUP_ID -f
@@ -154,7 +154,7 @@ pkg_postinst_nfc-client-lib-neard() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     systemctl daemon-reload
     if [ $1 == 1 ]; then
         systemctl restart nfc-manager-neard.service
@@ -165,7 +165,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     if [ $1 == 0 ]; then
         systemctl stop nfc-manager-neard.service
     fi
@@ -176,7 +176,7 @@ pkg_postrm_${PN}() {
 pkg_postrm_nfc-client-lib-neard() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

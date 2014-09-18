@@ -107,7 +107,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     chmod u+s $D${prefix}/bin/gsignond
     getent group gsignond > /dev/null || /usr/sbin/groupadd -r gsignond
 
@@ -116,7 +116,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

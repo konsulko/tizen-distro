@@ -1,6 +1,6 @@
 DESCRIPTION = "Contacts Service"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Social & Contents/Contacts"
+SECTION = "Social & Contents/Pim"
 LICENSE = "Apache-2.0"
 
 SRC_URI = ""
@@ -93,7 +93,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DTZ_SYS_ETC=${sysconfdir}
- make -j16
+ oe_runmake -j16
  
  
  
@@ -120,13 +120,13 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}/usr/lib/systemd/user/tizen-middleware.target.wants
- install -m 0644 ${S}/packaging/contacts-service.service ${D}/usr/lib/systemd/user/contacts-service.service
- ln -s ../contacts-service.service ${D}/usr/lib/systemd/user/tizen-middleware.target.wants/contacts-service.service
+ mkdir -p ${D}/lib/systemd/user/tizen-middleware.target.wants
+ install -m 0644 ${S}/packaging/contacts-service.service ${D}/lib/systemd/user/contacts-service.service
+ ln -s ../contacts-service.service ${D}/lib/systemd/user/tizen-middleware.target.wants/contacts-service.service
  
- mkdir -p ${D}/usr/lib/systemd/user/sockets.target.wants
- install -m 0644 ${S}/packaging/contacts-service.socket ${D}/usr/lib/systemd/user/contacts-service.socket
- ln -s ../contacts-service.socket ${D}/usr/lib/systemd/user/sockets.target.wants/contacts-service.socket
+ mkdir -p ${D}/lib/systemd/user/sockets.target.wants
+ install -m 0644 ${S}/packaging/contacts-service.socket ${D}/lib/systemd/user/contacts-service.socket
+ ln -s ../contacts-service.socket ${D}/lib/systemd/user/sockets.target.wants/contacts-service.socket
  
  
  
@@ -135,7 +135,7 @@ do_install() {
 pkg_postinst_contacts-service2() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     vconftool set -t int file/private/contacts-service/default_lang 0 -g 6005 -s contacts-service::vconf-private
     vconftool set -t int db/contacts-svc/name_sorting_order 0 -g 6005 -s contacts-service::vconf
     vconftool set -t int db/contacts-svc/name_display_order 0 -g 6005 -s contacts-service::vconf
@@ -146,13 +146,13 @@ pkg_postinst_contacts-service2() {
 pkg_postrm_contacts-service2() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
@@ -162,10 +162,10 @@ PACKAGES += " contacts-service2-dev "
 contacts-service2_files = ""
 contacts-service2_files += "${prefix}/lib/libcontacts-service2.so.*"
 contacts-service2_files += "${prefix}/bin/contacts-service-ipcd*"
-contacts-service2_files += "/usr/lib/systemd/user/contacts-service.service"
-contacts-service2_files += "/usr/lib/systemd/user/tizen-middleware.target.wants/contacts-service.service"
-contacts-service2_files += "/usr/lib/systemd/user/sockets.target.wants/contacts-service.socket"
-contacts-service2_files += "/usr/lib/systemd/user/contacts-service.socket"
+contacts-service2_files += "/lib/systemd/user/contacts-service.service"
+contacts-service2_files += "/lib/systemd/user/tizen-middleware.target.wants/contacts-service.service"
+contacts-service2_files += "/lib/systemd/user/sockets.target.wants/contacts-service.socket"
+contacts-service2_files += "/lib/systemd/user/contacts-service.socket"
 MANIFESTFILES_${PN}2 = "contacts-service2.manifest"
 
 contacts-service2-dev_files = ""

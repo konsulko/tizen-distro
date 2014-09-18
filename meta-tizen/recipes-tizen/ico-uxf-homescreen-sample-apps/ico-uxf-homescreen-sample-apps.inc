@@ -151,7 +151,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     # This icons exists in main weston package so we don't package it in.
     # Create a symbolic link to it instead.
     ln -sf $D${prefix}/share/weston/terminal.png $D${prefix}/share/icons/default/small/
@@ -179,7 +179,7 @@ pkg_prerm_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     rm -f /usr/share/applications/org.tizen.ico.app-soundsample.desktop
     rm -f /usr/share/applications/org.tizen.ico.app-vicsample.desktop
     rm -f /usr/share/applications/browser.desktop

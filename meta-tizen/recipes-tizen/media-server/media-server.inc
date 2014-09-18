@@ -127,7 +127,7 @@ do_install() {
 pkg_postinst_libmedia-utils() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_postinst_${PN}() {
@@ -146,7 +146,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_libmedia-utils() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

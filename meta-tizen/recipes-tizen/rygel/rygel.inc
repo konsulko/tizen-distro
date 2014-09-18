@@ -123,7 +123,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     /bin/touch --no-create $D${prefix}/share/icons/hicolor || :
     $D${prefix}/bin/gtk-update-icon-cache \
       --quiet $D${prefix}/share/icons/hicolor 2> /dev/null|| :
@@ -142,7 +142,7 @@ pkg_prerm_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     /bin/touch --no-create $D${prefix}/share/icons/hicolor || :
     $D${prefix}/bin/gtk-update-icon-cache \
       --quiet $D${prefix}/share/icons/hicolor 2> /dev/null|| :

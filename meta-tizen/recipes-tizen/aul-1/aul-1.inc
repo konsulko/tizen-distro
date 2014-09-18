@@ -39,6 +39,7 @@ DEPENDS += "attr"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "bundle"
 DEPENDS += "ail"
+DEPENDS += "smack"
 DEPENDS += "dlog"
 DEPENDS += "sqlite3"
 DEPENDS += "xdgmime"
@@ -84,8 +85,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} .
- 
- make -j16
+ oe_runmake -j16
  
  
  
@@ -111,27 +111,27 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}/etc/init.d
- install -m 755 launchpad_run ${D}/etc/init.d
+ mkdir -p ${D}${sysconfdir}/init.d
+ install -m 755 launchpad_run ${D}${sysconfdir}/init.d
  
- mkdir -p ${D}/etc/rc.d/rc3.d
- mkdir -p ${D}/etc/rc.d/rc4.d
+ mkdir -p ${D}${sysconfdir}/rc.d/rc3.d
+ mkdir -p ${D}${sysconfdir}/rc.d/rc4.d
  ln -sf ../../init.d/launchpad_run ${D}/${sysconfdir}/rc.d/rc3.d/S34launchpad_run
  ln -sf ../../init.d/launchpad_run ${D}/${sysconfdir}/rc.d/rc4.d/S80launchpad_run
  
  mkdir -p ${D}${prefix}/dbspace
- sqlite3 ${D}${prefix}/dbspace/.mida.db < ${D}/usr/share/aul/mida_db.sql
- rm -rf ${D}/usr/share/aul/mida_db.sql
+ sqlite3 ${D}${prefix}/dbspace/.mida.db < ${D}${prefix}/share/aul/mida_db.sql
+ rm -rf ${D}${prefix}/share/aul/mida_db.sql
  
- mkdir -p ${D}/usr/lib/systemd/system/graphical.target.wants
- mkdir -p ${D}/usr/lib/systemd/user/default.target.wants
- install -m 0644 ${S}/packaging/launchpad-preload@.service ${D}/usr/lib/systemd/system/launchpad-preload@.service
- install -m 0644 ${S}/packaging/ac.service ${D}/usr/lib/systemd/system/ac.service
- ln -s ../launchpad-preload@.service ${D}/usr/lib/systemd/system/graphical.target.wants/launchpad-preload@5000.service
- ln -s ../ac.service ${D}/usr/lib/systemd/system/graphical.target.wants/ac.service
+ mkdir -p ${D}/lib/systemd/system/graphical.target.wants
+ mkdir -p ${D}/lib/systemd/user/default.target.wants
+ install -m 0644 ${S}/packaging/launchpad-preload@.service ${D}/lib/systemd/system/launchpad-preload@.service
+ install -m 0644 ${S}/packaging/ac.service ${D}/lib/systemd/system/ac.service
+ ln -s ../launchpad-preload@.service ${D}/lib/systemd/system/graphical.target.wants/launchpad-preload@5000.service
+ ln -s ../ac.service ${D}/lib/systemd/system/graphical.target.wants/ac.service
  
- install -m 0644 ${S}/packaging/amd_session_agent.service ${D}/usr/lib/systemd/user/amd_session_agent.service
- ln -s ../amd_session_agent.service ${D}/usr/lib/systemd/user/default.target.wants/amd_session_agent.service
+ install -m 0644 ${S}/packaging/amd_session_agent.service ${D}/lib/systemd/user/amd_session_agent.service
+ ln -s ../amd_session_agent.service ${D}/lib/systemd/user/default.target.wants/amd_session_agent.service
  
  
 }
@@ -139,7 +139,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     systemctl daemon-reload
     if [ $1 == 1 ]; then
         systemctl restart launchpad-preload@5000.service
@@ -161,7 +161,7 @@ pkg_prerm_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     systemctl daemon-reload
 
 }
@@ -185,23 +185,23 @@ aul_files += "${prefix}/bin/aul_test"
 aul_files += "${prefix}/bin/launch_app"
 aul_files += "${prefix}/bin/open_app"
 aul_files += "${prefix}/bin/amd_session_agent"
-aul_files += "/usr/share/aul/miregex/*"
-aul_files += "/usr/share/aul/service/*"
-aul_files += "/usr/share/aul/preload_list.txt"
-aul_files += "/usr/share/aul/preexec_list.txt"
-aul_files += "/usr/lib/systemd/system/graphical.target.wants/launchpad-preload@5000.service"
-aul_files += "/usr/lib/systemd/system/graphical.target.wants/ac.service"
-aul_files += "/usr/lib/systemd/system/launchpad-preload@.service"
-aul_files += "/usr/lib/systemd/system/ac.service"
-aul_files += "/usr/lib/systemd/user/amd_session_agent.service"
-aul_files += "/usr/lib/systemd/user/default.target.wants/amd_session_agent.service"
-aul_files += "/usr/bin/amd"
-aul_files += "/usr/bin/daemon-manager-release-agent"
-aul_files += "/usr/bin/daemon-manager-launch-agent"
+aul_files += "${prefix}/share/aul/miregex/*"
+aul_files += "${prefix}/share/aul/service/*"
+aul_files += "${prefix}/share/aul/preload_list.txt"
+aul_files += "${prefix}/share/aul/preexec_list.txt"
+aul_files += "/lib/systemd/system/graphical.target.wants/launchpad-preload@5000.service"
+aul_files += "/lib/systemd/system/graphical.target.wants/ac.service"
+aul_files += "/lib/systemd/system/launchpad-preload@.service"
+aul_files += "/lib/systemd/system/ac.service"
+aul_files += "/lib/systemd/user/amd_session_agent.service"
+aul_files += "/lib/systemd/user/default.target.wants/amd_session_agent.service"
+aul_files += "${prefix}/bin/amd"
+aul_files += "${prefix}/bin/daemon-manager-release-agent"
+aul_files += "${prefix}/bin/daemon-manager-launch-agent"
 MANIFESTFILES_aul = "aul.manifest"
 
 aul-dev_files = ""
-aul-dev_files += "/usr/include/aul/*.h"
+aul-dev_files += "${prefix}/include/aul/*.h"
 aul-dev_files += "${prefix}/lib/*.so"
 aul-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 

@@ -98,7 +98,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     vconftool set -t int db/location/last/gps/Timestamp "0" -f
     vconftool set -t double db/location/last/gps/Latitude "0.0" -f
     vconftool set -t double db/location/last/gps/Longitude "0.0" -f
@@ -123,7 +123,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

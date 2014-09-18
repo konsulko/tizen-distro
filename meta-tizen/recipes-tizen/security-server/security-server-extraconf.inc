@@ -1,4 +1,4 @@
-inherit cmake
+#inherit cmake
 
 B = "${S}"
 

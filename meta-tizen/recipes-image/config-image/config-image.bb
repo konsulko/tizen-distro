@@ -58,22 +58,29 @@ pkg_postinst_${PN} () {
   mkdir -p $D${sysconfdir}/profile.d
   
   if [ "x$D" != "x" ]; then  
-    cp -fra $D/lib/systemd  $D/usr/lib
     cp -fra $D${localstatedir}/log $D${localstatedir}/volatile
     #cp -fra $D/sbin $D/usr
     #cp -fra $D/bin  $D/usr
+    
+    #cp -fra $D/lib/systemd/*  $D/usr/lib/systemd/
+    cp -fra $D/usr/lib/systemd  $D/lib
   
     #rm -fr $D/lib
     #rm -fr $D/sbin
     #rm -fr $D/bin
     rm -fr $D${localstatedir}/log
+    
+    #rm -fr $D/lib/systemd
     #rm -fr $D/usr/lib/systemd
-
+    
     #ln -s usr/lib  $D/lib
     #ln -s usr/sbin $D/sbin
     #ln -s usr/bin  $D/bin
-    #ln -s ../../lib/systemd  $D/usr/lib/systemd
     ln -s volatile/log  $D${localstatedir}/log
+    
+    #ln -s ../usr/lib/systemd  $D/lib/systemd
+    #ln -s ../../lib/systemd  $D/usr/lib/systemd
+    
  fi
 }
 

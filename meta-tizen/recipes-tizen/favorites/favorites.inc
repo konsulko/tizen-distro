@@ -104,7 +104,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     source /etc/tizen-platform.conf
     users_gid=$(getent group $TZ_SYS_USER_GROUP | cut -f3 -d':')
     chsmack -a 'User' /opt/usr/dbspace/.browser-history.db*
@@ -122,7 +122,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

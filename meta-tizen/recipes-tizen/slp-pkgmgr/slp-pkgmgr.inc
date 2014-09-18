@@ -45,6 +45,10 @@ RDEPENDS = ""
 RDEPENDS_pkgmgr-client += "shared-mime-info"
 RDEPENDS_pkgmgr-client += "pkgmgr"
 
+#RDEPENDS of pkgmgr (pkgmgr)
+RDEPENDS_pkgmgr += "libcap"
+RDEPENDS_pkgmgr += "shadow"
+
 #RDEPENDS of pkgmgr-server (pkgmgr-server)
 RDEPENDS_pkgmgr-server += "pkgmgr"
 
@@ -75,6 +79,7 @@ DEPENDS += "security-server"
 DEPENDS += "dlog"
 DEPENDS += "app-core"
 DEPENDS += "ail"
+DEPENDS += "libsmack"
 DEPENDS += "bundle"
 DEPENDS += "ecore"
 DEPENDS += "tizen-platform-config"
@@ -153,47 +158,51 @@ do_install() {
  #find_lang package-manager
  
  
- 
 }
 
 pkg_postinst_pkgmgr-installer() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_postinst_pkgmgr-server() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     # For pkgmgr-install:
     # Update mime database to support package mime types
     update-mime-database /usr/share/mime
+    # Create tizenglobalapp user needed for global installation
+    $D${prefix}/sbin/useradd -d $D${prefix}/apps -m %TZ_SYS_GLOBALAPP_USER -r -c "system user for common applications" -g root
+    #mkdir -p $D${prefix}/apps/.config/xwalk-service/applications
+    #cd $D${prefix}/apps/
+    #ln -s .config/xwalk-service/applications/
 
 }
 
 pkg_postinst_pkgmgr-client() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_postrm_pkgmgr-client() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_postrm_pkgmgr-installer() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

@@ -30,6 +30,7 @@ DEPENDS = ""
 DEPENDS_append_class-native = " cmake-native"
 DEPENDS_append_class-target = " cmake-native"
 DEPENDS += "slp-pkgmgr"
+DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "pkgmgr-info"
 DEPENDS += "ail"
@@ -106,13 +107,13 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

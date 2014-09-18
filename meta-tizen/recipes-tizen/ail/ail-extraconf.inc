@@ -36,4 +36,5 @@ cmake_do_install_append() {
     mkdir -p ${D}${prefix}/share/applications/
 }
 
-ail_files += "/usr/dbspace"
+FILES_${PN} += "/usr/dbspace"
+FILES_${PN} += "/usr/share/applications"

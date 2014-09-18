@@ -138,7 +138,7 @@ pkg_postinst_alarm-server() {
 pkg_postinst_libalarm() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_prerm_alarm-server() {
@@ -153,7 +153,7 @@ pkg_prerm_alarm-server() {
 pkg_postrm_libalarm() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_postrm_alarm-server() {

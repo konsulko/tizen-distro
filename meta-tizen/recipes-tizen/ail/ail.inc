@@ -23,9 +23,13 @@ PROVIDES += "ail-dev"
 
 
 RDEPENDS = ""
+#RDEPENDS of ail (${PN})
+RDEPENDS_${PN} += "libcap"
+
 #RDEPENDS of ail-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "tizen-platform-config"
 RDEPENDS_${PN}-dev += "libail"
+RDEPENDS_${PN}-dev += "smack"
 
 
 DEPENDS = ""
@@ -105,16 +109,13 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}${prefix}/dbspace/
- mkdir -p ${D}${prefix}/share/applications/
- 
  
 }
 
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     vconftool set -t string db/ail/ail_info "0" -f -s system::vconf_inhouse
     vconftool set -t string db/menuscreen/desktop "0" -f -s system::vconf_inhouse
     vconftool set -t string db/menu_widget/language "en_US.utf8" -f -s system::vconf_inhouse
@@ -124,35 +125,26 @@ pkg_postinst_${PN}() {
     chsmack -a User $D${prefix}/kdb/db/menuscreen/desktop
     chsmack -a User $D${prefix}/kdb/db/menu_widget
     chsmack -a User $D${prefix}/kdb/db/menu_widget/language
-    CHDBGID="6010"
-    update_DAC_for_db_file()
-    {
-            if [ ! -f $@ ]; then
-                    touch $@
-            fi
-            chown :$CHDBGID $@ 2>/dev/null
-            if [ $? -ne 0 ]; then
-                    echo "Failed to change the owner of $@"
-            fi
-            chmod 664 $@ 2>/dev/null
-            if [ $? -ne 0 ]; then
-                    echo "Failed to change the perms of $@"
-            fi
-    }
-    ail_initdb 2>/dev/null
     mkdir -p $D${prefix}/share/applications
     mkdir -p $D${prefix}/share/applications
+    mkdir -p $D${prefix}/apps
     mkdir -p $D${prefix}/dbspace
-    update_DAC_for_db_file $D${prefix}/dbspace/.app_info.db
-    update_DAC_for_db_file $D${prefix}/dbspace/.app_info.db-journal
-    chsmack -a 'User' $D${prefix}/dbspace/.app_info.db*
+    chsmack -a '*' $D${prefix}/dbspace
+    chsmack -a '*' $D${prefix}/apps
+    chsmack -a '*' $D${prefix}/share/applications
+    chsmack -a '*' $D${prefix}/share/applications
+    chmod g+w $D${prefix}/share/applications
+    chmod g+w $D${prefix}/share/applications
+    ail_initdb 2>/dev/null
+    chsmack -a '*' $D${prefix}/dbspace/.app_info.db*
+     
 
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     if [ $1 == 0 ]; then
         rm -f $D${prefix}/dbspace/.app_info.db*
     fi
@@ -164,8 +156,6 @@ PACKAGES += " ail "
 PACKAGES += " ail-dev "
 
 ail_files = ""
-ail_files += "${prefix}/share/applications"
-ail_files += "${prefix}/bin/ail_initdb"
 ail_files += "${prefix}/bin/ail_initdb"
 ail_files += "${prefix}/bin/ail_fota"
 ail_files += "${prefix}/bin/ail_desktop"
@@ -176,8 +166,6 @@ ail_files += "${prefix}/share/install-info/*"
 ail_files += "${prefix}/lib/libail.so.0"
 ail_files += "${prefix}/lib/libail.so.0.1.0"
 MANIFESTFILES_${PN} = "ail.manifest"
-DIRFILES_${PN} = ""
-DIRFILES_${PN} += "${prefix}/share/applications"
 
 ail-dev_files = ""
 ail-dev_files += "${prefix}/include/ail.h"

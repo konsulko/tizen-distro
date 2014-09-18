@@ -1,4 +1,4 @@
-DESCRIPTION = "Crosswalk is an app runtime based on Chromium"
+DESCRIPTION = "Chromium-based app runtime"
 HOMEPAGE = "https://github.com/otcshare/crosswalk"
 SECTION = "Web Framework/Web Run Time"
 LICENSE = "(BSD-3-Clause and LGPL-2.1+)"
@@ -35,6 +35,7 @@ DEPENDS += "elfutils"
 DEPENDS += "fontconfig"
 DEPENDS += "system-server"
 DEPENDS += "wayland"
+DEPENDS += "tizen-platform-wrapper"
 DEPENDS += "which"
 DEPENDS += "libxml2"
 DEPENDS += "libcap"
@@ -74,7 +75,7 @@ do_prep() {
  cp ${S}/packaging/crosswalk.manifest .
  cp ${S}/packaging/crosswalk.xml.in .
  cp ${S}/packaging/crosswalk.png .
- sed "s/@VERSION@/9.37.193.0/g" crosswalk.xml.in > crosswalk.xml
+ sed "s/@VERSION@/9.38.205.0/g" crosswalk.xml.in > crosswalk.xml
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.in > xwalk
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.service.in > xwalk.service
  
@@ -129,23 +130,13 @@ do_compile() {
     ln -s "${BUILDDIR_NAME}" src/out
  fi
  
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=0"
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=1"
  
  # Force gold binary from chroot ld.gold provided by binutils-gold
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1 -Dlinux_use_bundled_binutils=0 -Dlinux_use_bundled_gold=0 "
  
  # Linking fails in Tizen Common when fatal ld warnings are enabled. XWALK-1379.
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
- 
- # Temporarily disable Alsa support while snd_seq_* support is not enabled on
- # Tizen. See https://codereview.chromium.org/264973012 and
- # https://review.tizen.org/gerrit/#/c/24336/
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_alsa=0"
- 
- # Temporarily disable WebRTC support because its build currently hardcodes
- # dependencies on X11 and OpenSSL. We are still trying to get some
- # clarifications as to whether this is really necessary. See XWALK-2160.
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Denable_webrtc=0"
  
  # For building for arm in OBS, we need :
  # -> to unset sysroot value.
@@ -155,6 +146,7 @@ do_compile() {
  # Crosswalk build fails if the fpu selected in the gcc option is different from neon in case of arm7 compilation
  # So force it.
  
+ 
  # --no-parallel is added because chroot does not mount a /dev/shm, this will
  # cause python multiprocessing.SemLock error.
  export GYP_GENERATORS='ninja'
@@ -162,6 +154,7 @@ do_compile() {
  --no-parallel \
  ${GYP_EXTRA_FLAGS} \
  -Dchromeos=0 \
+ -Dclang=0 \
  -Dtizen=1 \
  -Dpython_ver=2.7 \
  -Duse_aura=1 \
@@ -176,7 +169,7 @@ do_compile() {
  -Dshared_process_mode=1 \
  -Denable_hidpi=1
  
- ninja -j16 -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
+ ninja -j16 -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper xwalk-backendlib
  
  
  
@@ -198,12 +191,16 @@ do_install() {
  install -p -D src/out/Release/xwalkctl ${D}${prefix}/bin/xwalkctl
  install -p -D src/out/Release/xwalk-launcher ${D}${prefix}/bin/xwalk-launcher
  # xwalk-pkg-helper needs to be set-user-ID-root so it can finish the installation process.
- install -m 06755 -p -D src/out/Release/xwalk-pkg-helper ${D}${prefix}/bin/xwalk-pkg-helper
+ install -m 0777 -p -D src/out/Release/xwalk-pkg-helper ${D}${prefix}/bin/xwalk-pkg-helper
+ install -p -D src/out/Release/lib/libxwalk-backendlib.so ${D}${prefix}/lib/xwalk/libxwalk-backendlib.so
+ install -p -D src/xwalk/application/tools/tizen/xwalk_backend_wrapper.sh ${D}${prefix}/lib/xwalk/xwalk_backend_wrapper.sh
  
  # Supporting libraries and resources.
  install -p -D src/out/Release/icudtl.dat ${D}${prefix}/lib/xwalk/icudtl.dat
  install -p -D src/out/Release/libffmpegsumo.so ${D}${prefix}/lib/xwalk/libffmpegsumo.so
  install -p -D src/out/Release/xwalk.pak ${D}${prefix}/lib/xwalk/xwalk.pak
+ mkdir -p ${D}${prefix}/share/xwalk
+ install -p -D src/xwalk/application/common/tizen/configuration/*.xsd ${D}${prefix}/share/xwalk/
  
  # PNaCl
  
@@ -219,6 +216,20 @@ pkg_postinst_${PN}() {
 
     mkdir -p %TZ_SYS_RO_ICONS/default/small
     mkdir -p %TZ_SYS_RO_PACKAGE
+    ln -sf $D${prefix}/lib/xwalk/libxwalk-backendlib.so /etc/package-manager/backendlib/libxpk.so
+    ln -sf $D${prefix}/lib/xwalk/libxwalk-backendlib.so /etc/package-manager/backendlib/libwgt.so
+    ln -sf $D${prefix}/lib/xwalk/xwalk_backend_wrapper.sh /etc/package-manager/backend/xpk
+    ln -sf $D${prefix}/lib/xwalk/xwalk_backend_wrapper.sh /etc/package-manager/backend/wgt
+
+}
+
+pkg_prerm_${PN}() {
+    #!/bin/sh -e
+
+    [ -L /etc/package-manager/backendlib/libxpk.so ] && rm /etc/package-manager/backendlib/libxpk.so
+    [ -L /etc/package-manager/backendlib/libwgt.so ] && rm /etc/package-manager/backendlib/libwgt.so
+    [ -L /etc/package-manager/backend/xpk ] && rm /etc/package-manager/backend/xpk
+    [ -L /etc/package-manager/backend/wgt ] && rm /etc/package-manager/backend/wgt
 
 }
 
@@ -233,9 +244,12 @@ crosswalk_files += "${prefix}/lib/xwalk/icudtl.dat"
 crosswalk_files += "${prefix}/lib/xwalk/libffmpegsumo.so"
 crosswalk_files += "${prefix}/lib/xwalk/xwalk"
 crosswalk_files += "${prefix}/lib/xwalk/xwalk.pak"
+crosswalk_files += "${prefix}/lib/xwalk/libxwalk-backendlib.so"
+crosswalk_files += "${prefix}/lib/xwalk/xwalk_backend_wrapper.sh"
 crosswalk_files += "${prefix}/share/packages/crosswalk.xml"
 crosswalk_files += "/usr/share/dbus-1/services/org.crosswalkproject.Runtime1.service"
 crosswalk_files += "/usr/lib/systemd/user/xwalk.service"
+crosswalk_files += "${prefix}/share/xwalk/*"
 MANIFESTFILES_${PN} = "crosswalk.manifest"
 
 FILES_${PN} = "${crosswalk_files}"

@@ -112,7 +112,7 @@ do_install() {
 pkg_postinst_libmessage-port() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
 
 }
 
@@ -133,7 +133,7 @@ pkg_postrm_${PN}() {
 pkg_postrm_libmessage-port() {
     #!/bin/sh -e
 
-    [ "x\$D" == "x" ] && ldconfig
+    [ "x$D" == "x" ] && ldconfig
     # daemon: message-port
 
 }
