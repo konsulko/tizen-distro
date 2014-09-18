@@ -1,0 +1,70 @@
+# Path to the CMake file to process.
+OECMAKE_SOURCEPATH ?= "${S}"
+
+DEPENDS_prepend = "cmake-native "
+B = "${WORKDIR}/build"
+
+# We need to unset CCACHE otherwise cmake gets too confused
+CCACHE = ""
+
+# We want the staging and installing functions from autotools
+inherit autotools
+
+# C/C++ Compiler (without cpu arch/tune arguments)
+OECMAKE_C_COMPILER ?= "`echo ${CC} | sed 's/^\([^ ]*\).*/\1/'`"
+OECMAKE_CXX_COMPILER ?= "`echo ${CXX} | sed 's/^\([^ ]*\).*/\1/'`"
+
+# Compiler flags
+OECMAKE_C_FLAGS ?= "${HOST_CC_ARCH} ${TOOLCHAIN_OPTIONS} ${CFLAGS}"
+OECMAKE_CXX_FLAGS ?= "${HOST_CC_ARCH} ${TOOLCHAIN_OPTIONS} ${CXXFLAGS} -fpermissive"
+OECMAKE_C_FLAGS_RELEASE ?= "${SELECTED_OPTIMIZATION} ${CFLAGS} -DNDEBUG"
+OECMAKE_CXX_FLAGS_RELEASE ?= "${SELECTED_OPTIMIZATION} ${CXXFLAGS} -DNDEBUG"
+OECMAKE_C_LINK_FLAGS ?= "${HOST_CC_ARCH} ${TOOLCHAIN_OPTIONS} ${CPPFLAGS} ${LDFLAGS}"
+OECMAKE_CXX_LINK_FLAGS ?= "${HOST_CC_ARCH} ${TOOLCHAIN_OPTIONS} ${CXXFLAGS} ${LDFLAGS}"
+
+OECMAKE_RPATH ?= ""
+OECMAKE_PERLNATIVE_DIR ??= ""
+OECMAKE_EXTRA_ROOT_PATH ?= ""
+
+tizen-cmake_do_generate_toolchain_file() {
+	cat > ${WORKDIR}/toolchain.cmake << EOF
+# CMake system name must be something like "Linux".
+# This is important for cross-compiling.
+set( CMAKE_SYSTEM_NAME `echo ${TARGET_OS} | sed -e 's/^./\u&/' -e 's/^\(Linux\).*/\1/'` )
+set( CMAKE_SYSTEM_PROCESSOR ${TARGET_ARCH} )
+set( CMAKE_C_COMPILER ${OECMAKE_C_COMPILER} )
+set( CMAKE_CXX_COMPILER ${OECMAKE_CXX_COMPILER} )
+set( CMAKE_C_FLAGS "${OECMAKE_C_FLAGS}" CACHE STRING "CFLAGS" )
+set( CMAKE_CXX_FLAGS "${OECMAKE_CXX_FLAGS}" CACHE STRING "CXXFLAGS" )
+set( CMAKE_C_FLAGS_RELEASE "${OECMAKE_C_FLAGS_RELEASE}" CACHE STRING "CFLAGS for release" )
+set( CMAKE_CXX_FLAGS_RELEASE "${OECMAKE_CXX_FLAGS_RELEASE}" CACHE STRING "CXXFLAGS for release" )
+set( CMAKE_C_LINK_FLAGS "${OECMAKE_C_LINK_FLAGS}" CACHE STRING "LDFLAGS" )
+set( CMAKE_CXX_LINK_FLAGS "${OECMAKE_CXX_LINK_FLAGS}" CACHE STRING "LDFLAGS" )
+
+# only search in the paths provided so cmake doesnt pick
+# up libraries and tools from the native build machine
+set( CMAKE_FIND_ROOT_PATH ${STAGING_DIR_HOST} ${STAGING_DIR_NATIVE} ${CROSS_DIR} ${OECMAKE_PERLNATIVE_DIR} ${OECMAKE_EXTRA_ROOT_PATH} ${EXTERNAL_TOOLCHAIN})
+set( CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY )
+set( CMAKE_FIND_ROOT_PATH_MODE_PROGRAM ONLY )
+set( CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY )
+set( CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY )
+
+# Use qt.conf settings
+set( ENV{QT_CONF_PATH} ${WORKDIR}/qt.conf )
+
+# We need to set the rpath to the correct directory as cmake does not provide any
+# directory as rpath by default
+set( CMAKE_INSTALL_RPATH ${OECMAKE_RPATH} )
+
+# Use native cmake modules
+set( CMAKE_MODULE_PATH ${STAGING_DATADIR}/cmake/Modules/ )
+
+# add for non /usr/lib libdir, e.g. /usr/lib64
+set( CMAKE_LIBRARY_PATH ${libdir} ${base_libdir})
+
+EOF
+}
+
+addtask generate_toolchain_file after do_patch before do_configure
+
+EXPORT_FUNCTIONS do_generate_toolchain_file
