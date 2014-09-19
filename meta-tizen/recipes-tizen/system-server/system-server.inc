@@ -132,6 +132,8 @@ inherit gettext
 DEPENDS += "libslp-sensor"
 DEPENDS += "heynoti"
 DEPENDS += "ecore"
+DEPENDS_append_class-native = " fdupes-native"
+DEPENDS_append_class-target = " fdupes-native"
 DEPENDS += "vconf"
 DEPENDS += "common"
 
@@ -139,22 +141,12 @@ do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
- 
- 
-   cmake \
-         -DCMAKE_VERBOSE_MAKEFILE=ON \
-         -DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
-         -DCMAKE_INSTALL_LIBDIR:PATH=${prefix}/lib \
-         -DINCLUDE_INSTALL_DIR:PATH=${prefix}/include \
-         -DLIB_INSTALL_DIR:PATH=${prefix}/lib \
-         -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
-         -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
-         -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON \
-         ${EXTRA_OECMAKE} . \
-     -DCMAKE_INSTALL_PREFIX=${prefix} \
-     -DX11_SUPPORT=Off \
-     #eol
+ cp ${S}/packaging/system-server.manifest .
+ cp ${S}/packaging/deviced.manifest .
+ cp ${S}/packaging/sysman.manifest .
+ cp ${S}/packaging/libslp-pm.manifest .
+ cp ${S}/packaging/haptic.manifest .
+ cp ${S}/packaging/devman.manifest .
  
  
 }
@@ -172,12 +164,6 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- cp ${S}/packaging/system-server.manifest .
- cp ${S}/packaging/deviced.manifest .
- cp ${S}/packaging/sysman.manifest .
- cp ${S}/packaging/libslp-pm.manifest .
- cp ${S}/packaging/haptic.manifest .
- cp ${S}/packaging/devman.manifest .
  
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
@@ -230,6 +216,28 @@ do_install() {
  mkdir -p ${D}//lib/systemd/system/graphical.target.wants 
  ln -s ../zbooting-done.service  ${D}//lib/systemd/system/graphical.target.wants/zbooting-done.service  
  install -m 0644 ${S}/packaging/zbooting-done.service ${D}/lib/systemd/system/zbooting-done.service
+ 
+ 
+ 
+  _target=""; 
+  _symlinks=0; 
+   
+  fdupes -q -n -r ${D} | 
+   while read _file; do 
+     if test -z "$_target" ; then 
+       _target="$_file"; 
+     else 
+       if test -z "$_file" ; then 
+ 	_target=""; 
+ 	continue ; 
+       fi ; 
+       if test "$_symlinks" = 1; then 
+         ln -sf "${_target#${D}}" "$_file"; 
+       else 
+         ln -f "$_target" "$_file"; 
+       fi ;
+     fi ; 
+  done 
  
  
  
@@ -294,7 +302,7 @@ pkg_postinst_${PN}() {
     if [ "$1" = "1" ]; then
         systemctl restart system-server.service
         systemctl restart regpmon.service
-    	systemctl restart zbooting-done.service
+        systemctl restart zbooting-done.service
     fi
     [ "x$D" == "x" ] && ldconfig
 
@@ -336,7 +344,7 @@ pkg_prerm_${PN}() {
     if [ "$1" = "0" ]; then
         systemctl stop system-server.service
         systemctl stop regpmon.service
-    	systemctl stop zbooting-done.service
+        systemctl stop zbooting-done.service
     fi
 
 }
