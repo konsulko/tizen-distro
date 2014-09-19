@@ -26,7 +26,7 @@ OECMAKE_RPATH ?= ""
 OECMAKE_PERLNATIVE_DIR ??= ""
 OECMAKE_EXTRA_ROOT_PATH ?= ""
 
-tizen-cmake_do_generate_toolchain_file() {
+tizen_cmake_do_generate_toolchain_file() {
 	cat > ${WORKDIR}/toolchain.cmake << EOF
 # CMake system name must be something like "Linux".
 # This is important for cross-compiling.

@@ -87,7 +87,7 @@ do_compile() {
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
- export LDFLAGS+="-Wl,--rpath=${prefix}/lib"
+ export LDFLAGS="${LDFLAGS} -Wl,--rpath=${prefix}/lib"
  
  
    cmake \
