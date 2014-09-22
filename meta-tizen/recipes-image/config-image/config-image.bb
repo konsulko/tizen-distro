@@ -71,7 +71,7 @@ pkg_postinst_${PN} () {
     rm -fr $D${localstatedir}/log
     
     #rm -fr $D/lib/systemd
-    #rm -fr $D/usr/lib/systemd
+    rm -fr $D/usr/lib/systemd/*
     
     #ln -s usr/lib  $D/lib
     #ln -s usr/sbin $D/sbin

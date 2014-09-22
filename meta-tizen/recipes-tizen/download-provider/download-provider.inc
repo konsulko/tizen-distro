@@ -63,8 +63,6 @@ do_prep() {
  #setup -q
  
  
- 
- 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -81,28 +79,36 @@ do_compile() {
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
- 	CFLAGS="${CFLAGS:-$CFLAGS} -fPIC -D_REENTRANT -fvisibility=hidden"; export CFLAGS 
- 	FFLAGS="${FFLAGS:-$CFLAGS} -fPIC -fvisibility=hidden"; export FFLAGS 
- 	LDFLAGS+=" -Wl,--as-needed -Wl,--hash-style=both"; export LDFLAGS 
- 	cmake \
- 		-DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
- 		-DBIN_INSTALL_DIR:PATH=${prefix}/bin \
- 		-DLIB_INSTALL_DIR:PATH=${prefix}/lib \
- 		-DINCLUDE_INSTALL_DIR:PATH=${prefix}/include \
- 		-DPKG_NAME=download-provider \
- 		-DPKG_VERSION=1.1.6 \
- 		-DPKG_RELEASE=0 \
- 		-DIMAGE_DIR:PATH=${prefix}/share/download-provider/images \
- 		-DLOCALE_DIR:PATH=${prefix}/share/download-provider/locales \
- 		-DSYSTEMD_DIR:PATH=/lib/systemd/system \
- 		-DDATABASE_SCHEMA_DIR=${prefix}/share/download-provider/sql \
- 		-DDATABASE_SCHEMA_FILE=${prefix}/share/download-provider/sql/download-provider-schema.sql \
- 		-DSUPPORT_WIFI_DIRECT:BOOL=OFF \
- 		-DSUPPORT_LOG_MESSAGE:BOOL=ON \
- 		-DSUPPORT_CHECK_IPC:BOOL=ON \
- 		-DCMAKE_SKIP_RPATH:BOOL=ON \
- 		-DBUILD_SHARED_LIBS:BOOL=ON .
- make -j16
+ CFLAGS="${CFLAGS:-$CFLAGS} -fPIC -D_REENTRANT -fvisibility=hidden"; export CFLAGS
+ FFLAGS="${FFLAGS:-$CFLAGS} -fPIC -fvisibility=hidden"; export FFLAGS
+ LDFLAGS="${LDFLAGS} -Wl,--as-needed -Wl,--hash-style=both"; export LDFLAGS
+ 
+ 
+   cmake \
+         -DCMAKE_VERBOSE_MAKEFILE=ON \
+         -DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
+         -DCMAKE_INSTALL_LIBDIR:PATH=${prefix}/lib \
+         -DINCLUDE_INSTALL_DIR:PATH=${prefix}/include \
+         -DLIB_INSTALL_DIR:PATH=${prefix}/lib \
+         -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
+         -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
+         -DCMAKE_SKIP_RPATH:BOOL=ON \
+         -DBUILD_SHARED_LIBS:BOOL=ON \
+         ${EXTRA_OECMAKE} . \
+          -DBIN_INSTALL_DIR:PATH=${prefix}/bin \
+          -DPKG_NAME=download-provider \
+          -DPKG_VERSION=1.1.6 \
+          -DPKG_RELEASE=0 \
+          -DIMAGE_DIR:PATH=${prefix}/share/download-provider/images \
+          -DLOCALE_DIR:PATH=${prefix}/share/locale \
+          -DSYSTEMD_DIR:PATH=/lib/systemd/system \
+          -DDATABASE_SCHEMA_DIR=${prefix}/share/download-provider/sql \
+          -DDATABASE_SCHEMA_FILE=${prefix}/share/download-provider/sql/download-provider-schema.sql \
+          -DSUPPORT_WIFI_DIRECT:BOOL=OFF \
+          -DSUPPORT_LOG_MESSAGE:BOOL=ON \
+          -DSUPPORT_CHECK_IPC:BOOL=ON
+ 
+ oe_runmake -j16
  
  
  
@@ -132,10 +138,13 @@ do_install() {
  ln -s ../download-provider.service ${D}/lib/systemd/system/graphical.target.wants/
  ln -s ../download-provider.socket ${D}/lib/systemd/system/sockets.target.wants/
  
+ #find_lang download-provider
+ 
+ 
   _target=""; 
   _symlinks=0; 
    
-  fdupes -q -n -r ${D}${prefix}/share/download-provider/locales | 
+  fdupes -q -n -r ${D}${prefix}/share/locale | 
    while read _file; do 
      if test -z "$_target" ; then 
        _target="$_file"; 
@@ -201,7 +210,6 @@ download-provider_files += "/lib/systemd/system/graphical.target.wants/download-
 download-provider_files += "/lib/systemd/system/download-provider.socket"
 download-provider_files += "/lib/systemd/system/sockets.target.wants/download-provider.socket"
 download-provider_files += "${prefix}/share/download-provider/sql/download-provider-schema.sql"
-download-provider_files += "${prefix}/share/download-provider/locales/*"
 MANIFESTFILES_${PN} = "download-provider.manifest"
 
 download-provider-dev_files = ""

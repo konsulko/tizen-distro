@@ -73,7 +73,7 @@ do_install() {
  
  make DESTDIR=${RPM_BUILD_ROOT} install
  rm -f ${D}${prefix}/lib/*.la
- 
+ #find_lang libhangul
  
  
 }
@@ -108,7 +108,6 @@ libhangul_files += "${prefix}/lib/lib*.so.*"
 libhangul_files += "${prefix}/share/libhangul/hanja/"
 libhangul_files += "${prefix}/share/libhangul/hanja/hanja.txt"
 libhangul_files += "${prefix}/bin/hangul"
-libhangul_files += "${prefix}/share/locale/ko/LC_MESSAGES/libhangul.mo"
 MANIFESTFILES_${PN} = "libhangul.manifest"
 DIRFILES_${PN} = ""
 DIRFILES_${PN} += "${prefix}/share/libhangul/hanja/"

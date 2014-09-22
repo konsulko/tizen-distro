@@ -131,7 +131,7 @@ DEPENDS += "boost"
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n automotive-message-broker-0.11.900
+ #setup -q -n automotive-message-broker-0.11.901
  
  
 }
@@ -168,7 +168,8 @@ do_compile() {
         -Dgpsnmea_plugin=ON \
         -Dcangen_plugin=ON \
         -Dcansim_plugin=ON \
-        -Denable_docs=ON
+        -Denable_docs=ON \
+        -Dusebluez5=ON
  
  
  oe_runmake -j16

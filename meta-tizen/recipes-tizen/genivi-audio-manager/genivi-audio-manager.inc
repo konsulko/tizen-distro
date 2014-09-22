@@ -37,6 +37,8 @@ DEPENDS_append_class-target = " cmake-native"
 inherit pythonnative
 DEPENDS += "dbus"
 DEPENDS += "zlib"
+DEPENDS += "common-api-runtime"
+DEPENDS += "common-api-dbus-runtime"
 DEPENDS += "murphy"
 DEPENDS_append_class-native = " bison-native"
 DEPENDS_append_class-target = " bison-native"
@@ -45,7 +47,7 @@ DEPENDS += "sqlite3"
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n genivi-audio-manager-3.2
+ #setup -q -n genivi-audio-manager-6.0
  
  
 }
@@ -77,7 +79,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
-         ${EXTRA_OECMAKE} -DUSE_BUILD_LIBS=OFF -DWITH_TESTS=OFF -DWITH_DBUS_WRAPPER=ON -DWITH_NSM=OFF -DWITH_DLT=OFF -DCMAKE_INSTALL_PREFIX=/usr ..
+         ${EXTRA_OECMAKE} -DUSE_BUILD_LIBS=OFF -DWITH_TESTS=OFF -DWITH_ENABLED_IPC=DBUS -DWITH_DBUS_WRAPPER=ON -DWITH_NSM=OFF -DWITH_DLT=OFF -DCMAKE_INSTALL_PREFIX=/usr ..
  #make VERBOSE=1
  oe_runmake -j16
  

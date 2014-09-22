@@ -175,7 +175,9 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
-         ${EXTRA_OECMAKE} . -DTZ_SYS_ETC=${sysconfdir}
+         ${EXTRA_OECMAKE} . \
+        -DTZ_SYS_ETC=${sysconfdir} \
+        -DSYSTEMD_DIR=/lib/systemd/system
  
  
  

@@ -56,7 +56,7 @@ do_compile() {
   
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   
@@ -83,6 +83,8 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
+ 
+ #find_lang libgsasl
  
  
  
@@ -111,9 +113,8 @@ libgsasl-dev_files += "${prefix}/lib/pkgconfig/libgsasl.pc"
 MANIFESTFILES_${PN}-dev = "libgsasl.manifest"
 
 libgsasl_files = ""
-libgsasl_files += "AUTHORS COPYING COPYING.LIB INSTALL NEWS README THANKS"
+libgsasl_files += "AUTHORS NEWS README THANKS"
 libgsasl_files += "${prefix}/lib/libgsasl.so.*"
-libgsasl_files += "${prefix}/share/locale/*/LC_MESSAGES/libgsasl.mo"
 MANIFESTFILES_${PN} = "libgsasl.manifest"
 
 FILES_${PN}-dev = "${libgsasl-dev_files}"

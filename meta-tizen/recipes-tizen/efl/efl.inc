@@ -351,6 +351,8 @@ DEPENDS += "zlib"
 DEPENDS += "pulseaudio"
 DEPENDS += "libexif"
 DEPENDS += "wayland"
+DEPENDS_append_class-native = " fdupes-native"
+DEPENDS_append_class-target = " fdupes-native"
 DEPENDS += "gstreamer1.0"
 
 do_prep() {
@@ -358,7 +360,6 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
  cp ${S}/packaging/efl.manifest .
- 
  
  
 }
@@ -376,14 +377,12 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  
-  CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
+  CFLAGS="${CFLAGS} -DMESA_EGL_NO_X11_HEADERS "
   
   
   autotools_do_configure
   
   oe_runmake -j16
-  
   
   
   
@@ -408,8 +407,30 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- make datadir=${D}${prefix}/share install-examples
+ oe_runmake datadir=${D}${prefix}/share install-examples
  rm -rf ${D}${prefix}/lib/ecore/system/upower
+ 
+ #find_lang efl
+ 
+  _target=""; 
+  _symlinks=0; 
+   
+  fdupes -q -n -r ${D} | 
+   while read _file; do 
+     if test -z "$_target" ; then 
+       _target="$_file"; 
+     else 
+       if test -z "$_file" ; then 
+ 	_target=""; 
+ 	continue ; 
+       fi ; 
+       if test "$_symlinks" = 1; then 
+         ln -sf "${_target#${D}}" "$_file"; 
+       else 
+         ln -f "$_target" "$_file"; 
+       fi ;
+     fi ; 
+  done 
  
  
  
@@ -758,7 +779,6 @@ evas-dev_files += "${prefix}/lib/cmake/Evas/*.cmake"
 MANIFESTFILES_evas-dev = "efl.manifest"
 
 efl-data_files = ""
-efl-data_files += "${prefix}/share/locale/*/*/*.mo"
 efl-data_files += "${prefix}/include/efl-1/Efl_Config.h"
 MANIFESTFILES_${PN}-data = "efl.manifest"
 
