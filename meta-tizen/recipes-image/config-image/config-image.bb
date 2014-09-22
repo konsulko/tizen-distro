@@ -62,8 +62,8 @@ pkg_postinst_${PN} () {
     #cp -fra $D/sbin $D/usr
     #cp -fra $D/bin  $D/usr
     
-    #cp -fra $D/lib/systemd/*  $D/usr/lib/systemd/
-    cp -fra $D/usr/lib/systemd  $D/lib
+    cp -fra $D/lib/systemd/*  $D/usr/lib/systemd/
+    #cp -fra $D/usr/lib/systemd  $D/lib
   
     #rm -fr $D/lib
     #rm -fr $D/sbin
