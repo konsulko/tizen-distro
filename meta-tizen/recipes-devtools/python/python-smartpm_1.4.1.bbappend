@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files"
+FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI_remove = "file://smart-dflags.patch"
 

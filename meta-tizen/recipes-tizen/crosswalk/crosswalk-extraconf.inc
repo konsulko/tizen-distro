@@ -1,6 +1,6 @@
 inherit gettext
 
-FILESEXTRAPATHS_prepend := "${THISDIR}/crosswalk"
+FILESEXTRAPATHS_prepend := "${THISDIR}/crosswalk:"
 
 SRC_URI += "\
             file://include.gypi \
