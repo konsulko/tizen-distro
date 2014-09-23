@@ -12,6 +12,8 @@ EXTRA_OECONF = " \
                 --enable-system-monitor \
                 "
 
+systemd_unitdir = "/usr/lib/systemd"
+                
 do_configure_append() {
     ./bootstrap
     autotools_do_configure
@@ -30,7 +32,7 @@ do_compile() {
 
 do_install_append() {
     # Remove unused directories and files
-    rm -rf ${D}/lib/systemd/user
+    rm -rf ${D}${systemd_unitdir}/user
 }
 
 FILES_${PN}-dev += "${prefix}/lib/libmurphy-plugin-system-monitor.so"

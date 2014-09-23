@@ -131,7 +131,7 @@ do_compile() {
   intltoolize --force --automake
   
   autotools_do_configure
-  oe_runmake -j16           systemunitdir=/lib/systemd/system           userunitdir=/lib/systemd/user
+  oe_runmake -j16           systemunitdir=${systemd_unitdir}/system           userunitdir=${systemd_unitdir}/user
   
   
   

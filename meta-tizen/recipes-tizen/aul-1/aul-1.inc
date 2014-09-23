@@ -123,15 +123,15 @@ do_install() {
  sqlite3 ${D}${prefix}/dbspace/.mida.db < ${D}${prefix}/share/aul/mida_db.sql
  rm -rf ${D}${prefix}/share/aul/mida_db.sql
  
- mkdir -p ${D}/lib/systemd/system/graphical.target.wants
- mkdir -p ${D}/lib/systemd/user/default.target.wants
- install -m 0644 ${S}/packaging/launchpad-preload@.service ${D}/lib/systemd/system/launchpad-preload@.service
- install -m 0644 ${S}/packaging/ac.service ${D}/lib/systemd/system/ac.service
- ln -s ../launchpad-preload@.service ${D}/lib/systemd/system/graphical.target.wants/launchpad-preload@5000.service
- ln -s ../ac.service ${D}/lib/systemd/system/graphical.target.wants/ac.service
+ mkdir -p ${D}${systemd_unitdir}/system/graphical.target.wants
+ mkdir -p ${D}${systemd_unitdir}/user/default.target.wants
+ install -m 0644 ${S}/packaging/launchpad-preload@.service ${D}${systemd_unitdir}/system/launchpad-preload@.service
+ install -m 0644 ${S}/packaging/ac.service ${D}${systemd_unitdir}/system/ac.service
+ ln -s ../launchpad-preload@.service ${D}${systemd_unitdir}/system/graphical.target.wants/launchpad-preload@5000.service
+ ln -s ../ac.service ${D}${systemd_unitdir}/system/graphical.target.wants/ac.service
  
- install -m 0644 ${S}/packaging/amd_session_agent.service ${D}/lib/systemd/user/amd_session_agent.service
- ln -s ../amd_session_agent.service ${D}/lib/systemd/user/default.target.wants/amd_session_agent.service
+ install -m 0644 ${S}/packaging/amd_session_agent.service ${D}${systemd_unitdir}/user/amd_session_agent.service
+ ln -s ../amd_session_agent.service ${D}${systemd_unitdir}/user/default.target.wants/amd_session_agent.service
  
  
 }
@@ -189,12 +189,12 @@ aul_files += "${prefix}/share/aul/miregex/*"
 aul_files += "${prefix}/share/aul/service/*"
 aul_files += "${prefix}/share/aul/preload_list.txt"
 aul_files += "${prefix}/share/aul/preexec_list.txt"
-aul_files += "/lib/systemd/system/graphical.target.wants/launchpad-preload@5000.service"
-aul_files += "/lib/systemd/system/graphical.target.wants/ac.service"
-aul_files += "/lib/systemd/system/launchpad-preload@.service"
-aul_files += "/lib/systemd/system/ac.service"
-aul_files += "/lib/systemd/user/amd_session_agent.service"
-aul_files += "/lib/systemd/user/default.target.wants/amd_session_agent.service"
+aul_files += "${systemd_unitdir}/system/graphical.target.wants/launchpad-preload@5000.service"
+aul_files += "${systemd_unitdir}/system/graphical.target.wants/ac.service"
+aul_files += "${systemd_unitdir}/system/launchpad-preload@.service"
+aul_files += "${systemd_unitdir}/system/ac.service"
+aul_files += "${systemd_unitdir}/user/amd_session_agent.service"
+aul_files += "${systemd_unitdir}/user/default.target.wants/amd_session_agent.service"
 aul_files += "${prefix}/bin/amd"
 aul_files += "${prefix}/bin/daemon-manager-release-agent"
 aul_files += "${prefix}/bin/daemon-manager-launch-agent"

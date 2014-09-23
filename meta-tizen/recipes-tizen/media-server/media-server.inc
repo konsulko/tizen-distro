@@ -103,9 +103,9 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}/lib/systemd/system/multi-user.target.wants
- install -m 644 ${S}/packaging/media-server.service ${D}/lib/systemd/system/media-server.service
- ln -s ../media-server.service ${D}/lib/systemd/system/multi-user.target.wants/media-server.service
+ mkdir -p ${D}${systemd_unitdir}/system/multi-user.target.wants
+ install -m 644 ${S}/packaging/media-server.service ${D}${systemd_unitdir}/system/media-server.service
+ ln -s ../media-server.service ${D}${systemd_unitdir}/system/multi-user.target.wants/media-server.service
  mkdir -p ${D}${prefix}/data/data-media/Camera
  mkdir -p ${D}${prefix}/data/data-media/Downloads
  mkdir -p ${D}${prefix}/data/data-media/Images
@@ -164,8 +164,8 @@ media-server_files = ""
 media-server_files += "${prefix}/bin/media-server"
 media-server_files += "${prefix}/bin/media-scanner"
 media-server_files += "${prefix}/bin/mediadb-update"
-media-server_files += "/lib/systemd/system/media-server.service"
-media-server_files += "/lib/systemd/system/multi-user.target.wants/media-server.service"
+media-server_files += "${systemd_unitdir}/system/media-server.service"
+media-server_files += "${systemd_unitdir}/system/multi-user.target.wants/media-server.service"
 media-server_files += "${prefix}/bin/media-data-sdk_create_db.sh"
 media-server_files += "${prefix}/data/data-media/*"
 media-server_files += "${prefix}/data/data-media/file-manager-service/.thumb/*"

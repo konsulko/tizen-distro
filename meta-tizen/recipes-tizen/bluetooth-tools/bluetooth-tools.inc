@@ -100,9 +100,9 @@ do_install() {
  ln -s ${sysconfdir}/rc.d/init.d/bluetooth-address ${D}${sysconfdir}/rc.d/rc3.d/S60bluetooth-address
  ln -s ${sysconfdir}/rc.d/init.d/bluetooth-address ${D}${sysconfdir}/rc.d/rc5.d/S60bluetooth-address
  
- mkdir -p ${D}/lib/systemd/system/multi-user.target.wants
- install -m 0644 ${S}/packaging/bluetooth-address.service ${D}/lib/systemd/system
- ln -s ../bluetooth-address.service ${D}/lib/systemd/system/multi-user.target.wants/bluetooth-address.service
+ mkdir -p ${D}${systemd_unitdir}/system/multi-user.target.wants
+ install -m 0644 ${S}/packaging/bluetooth-address.service ${D}${systemd_unitdir}/system
+ ln -s ../bluetooth-address.service ${D}${systemd_unitdir}/system/multi-user.target.wants/bluetooth-address.service
  
  mkdir -p ${D}${prefix}/etc/bluetooth/
  install -m 0755 scripts/bt-dev-start.sh ${D}${prefix}/etc/bluetooth/bt-dev-start.sh
@@ -131,8 +131,8 @@ bluetooth-tools_files += "${prefix}/etc/bluetooth/bt-edutm-on.sh"
 bluetooth-tools_files += "${prefix}/etc/bluetooth/bt-edutm-dev-up.sh"
 bluetooth-tools_files += "${prefix}/etc/bluetooth/bt-edutm-mode-on.sh"
 bluetooth-tools_files += "${prefix}/etc/bluetooth/bt-edutm-off.sh"
-bluetooth-tools_files += "/lib/systemd/system/multi-user.target.wants/bluetooth-address.service"
-bluetooth-tools_files += "/lib/systemd/system/bluetooth-address.service"
+bluetooth-tools_files += "${systemd_unitdir}/system/multi-user.target.wants/bluetooth-address.service"
+bluetooth-tools_files += "${systemd_unitdir}/system/bluetooth-address.service"
 MANIFESTFILES_${PN} = "bluetooth-tools.manifest"
 
 FILES_${PN}-no-firmware = "${bluetooth-tools-no-firmware_files}"

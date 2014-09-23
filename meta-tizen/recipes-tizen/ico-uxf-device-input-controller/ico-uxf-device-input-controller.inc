@@ -82,11 +82,11 @@ do_install() {
  
  # configurations
  mkdir -p ${D}/opt/etc/ico/device-input-controller
- mkdir -p ${D}/lib/systemd/user
+ mkdir -p ${D}${systemd_unitdir}/user
  install -m 0644 settings/drivingforcegt.conf ${D}/opt/etc/ico/device-input-controller
  install -m 0644 settings/g27racingwheel.conf ${D}/opt/etc/ico/device-input-controller
  install -m 0755 settings/set_daynight.sh ${D}/opt/etc/ico/device-input-controller
- install -m 644 settings/ico-device-input-controller.service ${D}/lib/systemd/user/ico-device-input-controller.service
+ install -m 644 settings/ico-device-input-controller.service ${D}${systemd_unitdir}/user/ico-device-input-controller.service
  
  
 }
@@ -99,7 +99,7 @@ ico-uxf-device-input-controller_files += "${prefix}/bin/ico_dic-gtforce"
 ico-uxf-device-input-controller_files += "/opt/etc/ico/device-input-controller/drivingforcegt.conf"
 ico-uxf-device-input-controller_files += "/opt/etc/ico/device-input-controller/g27racingwheel.conf"
 ico-uxf-device-input-controller_files += "/opt/etc/ico/device-input-controller/set_daynight.sh"
-ico-uxf-device-input-controller_files += "/lib/systemd/user/ico-device-input-controller.service"
+ico-uxf-device-input-controller_files += "${systemd_unitdir}/user/ico-device-input-controller.service"
 MANIFESTFILES_${PN} = "ico-uxf-device-input-controller.manifest"
 
 FILES_${PN} = "${ico-uxf-device-input-controller_files}"

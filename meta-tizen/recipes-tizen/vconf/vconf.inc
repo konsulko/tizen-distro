@@ -108,11 +108,11 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  mkdir -p ${D}${prefix}/kdb/db
  mkdir -p ${D}${prefix}/kdb/db/.backup
- mkdir -p ${D}/lib/systemd/system/basic.target.wants
+ mkdir -p ${D}${systemd_unitdir}/system/basic.target.wants
  mkdir -p ${D}${prefix}/lib/tmpfiles.d
- install -m0644 ${S}/packaging/vconf-setup.service ${D}/lib/systemd/system/
+ install -m0644 ${S}/packaging/vconf-setup.service ${D}${systemd_unitdir}/system/
  install -m0644 ${S}/packaging/vconf-setup.conf ${D}${prefix}/lib/tmpfiles.d/
- ln -sf ../vconf-setup.service ${D}/lib/systemd/system/basic.target.wants/
+ ln -sf ../vconf-setup.service ${D}${systemd_unitdir}/system/basic.target.wants/
  
  
 }
@@ -153,8 +153,8 @@ vconf_files += "${prefix}/kdb/kdb_first_boot"
 vconf_files += "${prefix}/lib/*.so.*"
 vconf_files += "%attr(777,root,users) ${prefix}/kdb/db"
 vconf_files += "%attr(777,root,root) ${prefix}/kdb/db/.backup"
-vconf_files += "/lib/systemd/system/basic.target.wants/vconf-setup.service"
-vconf_files += "/lib/systemd/system/vconf-setup.service"
+vconf_files += "${systemd_unitdir}/system/basic.target.wants/vconf-setup.service"
+vconf_files += "${systemd_unitdir}/system/vconf-setup.service"
 vconf_files += "${prefix}/lib/tmpfiles.d/vconf-setup.conf"
 MANIFESTFILES_${PN} = "vconf.manifest"
 DIRFILES_${PN} = ""

@@ -198,12 +198,12 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}/lib/systemd/system/network.target.wants
- cp packaging.in/ambd.service.systemd.tizen ${D}/lib/systemd/system/ambd.service
- ln -s ../ambd.service ${D}/lib/systemd/system/network.target.wants/ambd.service
+ mkdir -p ${D}${systemd_unitdir}/system/network.target.wants
+ cp packaging.in/ambd.service.systemd.tizen ${D}${systemd_unitdir}/system/ambd.service
+ ln -s ../ambd.service ${D}${systemd_unitdir}/system/network.target.wants/ambd.service
  
- mkdir -p ${D}//lib/systemd/system/multi-user.target.wants 
- ln -s ../ambd.service  ${D}//lib/systemd/system/multi-user.target.wants/ambd.service  
+ mkdir -p ${D}/${systemd_unitdir}/system/multi-user.target.wants 
+ ln -s ../ambd.service  ${D}/${systemd_unitdir}/system/multi-user.target.wants/ambd.service  
  
  cp packaging.in/config.tizen ${D}${sysconfdir}/ambd/
  
@@ -295,9 +295,9 @@ automotive-message-broker_files += "${sysconfdir}/ambd/config.tizen"
 automotive-message-broker_files += "${sysconfdir}/ambd/examples/*"
 automotive-message-broker_files += "${prefix}/bin/ambd"
 automotive-message-broker_files += "${prefix}/lib/libamb.so*"
-automotive-message-broker_files += "/lib/systemd/system/ambd.service"
-automotive-message-broker_files += "/lib/systemd/system/network.target.wants/ambd.service"
-automotive-message-broker_files += "/lib/systemd/system/multi-user.target.wants/ambd.service"
+automotive-message-broker_files += "${systemd_unitdir}/system/ambd.service"
+automotive-message-broker_files += "${systemd_unitdir}/system/network.target.wants/ambd.service"
+automotive-message-broker_files += "${systemd_unitdir}/system/multi-user.target.wants/ambd.service"
 automotive-message-broker_files += "${prefix}/bin/amb-get"
 automotive-message-broker_files += "${prefix}/bin/amb-get-history"
 automotive-message-broker_files += "${prefix}/bin/amb-set"

@@ -93,8 +93,8 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  
- mkdir -p ${D}//lib/systemd/system/../user/weston.target.wants 
- ln -s ../phoned.service  ${D}//lib/systemd/system/../user/weston.target.wants/phoned.service  
+ mkdir -p ${D}/${systemd_unitdir}/system/../user/weston.target.wants 
+ ln -s ../phoned.service  ${D}/${systemd_unitdir}/system/../user/weston.target.wants/phoned.service  
  
  
 }
@@ -106,8 +106,8 @@ phoned_files = ""
 phoned_files += "${prefix}/lib/pkgconfig/phoned.pc"
 phoned_files += "${prefix}/bin/phoned"
 phoned_files += "${prefix}/share/dbus-1/services/org.tizen.phone.service"
-phoned_files += "/lib/systemd/user/phoned.service"
-phoned_files += "/lib/systemd/user/weston.target.wants/phoned.service"
+phoned_files += "${systemd_unitdir}/user/phoned.service"
+phoned_files += "${systemd_unitdir}/user/weston.target.wants/phoned.service"
 
 FILES_${PN} = "${phoned_files}"
 

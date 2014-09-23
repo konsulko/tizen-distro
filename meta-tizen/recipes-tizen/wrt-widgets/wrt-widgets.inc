@@ -73,8 +73,8 @@ do_install() {
  cp install.conf ${D}/${prefix}/share/widget_demo/
  
  # install xwalk preinstall service in user session
- mkdir -p ${D}/lib/systemd/user
- install -m 644 xwalk_widgets_preinstall.service ${D}/lib/systemd/user/
+ mkdir -p ${D}${systemd_unitdir}/user
+ install -m 644 xwalk_widgets_preinstall.service ${D}${systemd_unitdir}/user/
  
  
 }
@@ -83,15 +83,15 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     # setup xwalk preinstall service (inside user session)
-    mkdir -p /lib/systemd/user/default.target.wants/
-    ln -sf ../xwalk_widgets_preinstall.service /lib/systemd/user/default.target.wants/
+    mkdir -p ${systemd_unitdir}/user/default.target.wants/
+    ln -sf ../xwalk_widgets_preinstall.service ${systemd_unitdir}/user/default.target.wants/
 
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    rm -f /lib/systemd/user/default.target.wants/xwalk_widgets_preinstall.service
+    rm -f ${systemd_unitdir}/user/default.target.wants/xwalk_widgets_preinstall.service
 
 }
 
@@ -102,7 +102,7 @@ wrt-widgets_files = ""
 wrt-widgets_files += "${prefix}/share/widget_demo/*"
 wrt-widgets_files += "${prefix}/bin/install_widgets.sh"
 wrt-widgets_files += "${prefix}/bin/prepare_widgets.sh"
-wrt-widgets_files += "/lib/systemd/user/xwalk_widgets_preinstall.service"
+wrt-widgets_files += "${systemd_unitdir}/user/xwalk_widgets_preinstall.service"
 MANIFESTFILES_${PN} = "wrt-widgets.manifest"
 
 FILES_${PN} = "${wrt-widgets_files}"

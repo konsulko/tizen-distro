@@ -109,9 +109,9 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- install -d ${D}/lib/systemd/system/multi-user.target.wants
- install -m0644 ${S}/packaging/alarm-server.service ${D}/lib/systemd/system
- ln -sf ../alarm-server.service ${D}/lib/systemd/system/multi-user.target.wants/alarm-server.service
+ install -d ${D}${systemd_unitdir}/system/multi-user.target.wants
+ install -m0644 ${S}/packaging/alarm-server.service ${D}${systemd_unitdir}/system
+ ln -sf ../alarm-server.service ${D}${systemd_unitdir}/system/multi-user.target.wants/alarm-server.service
  
  mkdir -p ${D}/${sysconfdir}/udev/rules.d
  install -m0644  ${S}/packaging/60-alarm-manager-rtc.rules ${D}${sysconfdir}/udev/rules.d/
@@ -178,8 +178,8 @@ MANIFESTFILES_libalarm = "alarm-manager.manifest"
 
 alarm-server_files = ""
 alarm-server_files += "${prefix}/bin/alarm-server"
-alarm-server_files += "/lib/systemd/system/multi-user.target.wants/alarm-server.service"
-alarm-server_files += "/lib/systemd/system/alarm-server.service"
+alarm-server_files += "${systemd_unitdir}/system/multi-user.target.wants/alarm-server.service"
+alarm-server_files += "${systemd_unitdir}/system/alarm-server.service"
 alarm-server_files += "${sysconfdir}/dbus-1/system.d/alarm-service.conf"
 alarm-server_files += "%config ${sysconfdir}/udev/rules.d/60-alarm-manager-rtc.rules"
 CONFFILES_alarm-server = ""

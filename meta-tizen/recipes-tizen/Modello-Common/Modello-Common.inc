@@ -1,7 +1,7 @@
-DESCRIPTION = "A proof of concept pure html5 UI"
+DESCRIPTION = "Pure html5 UI"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Applications/System"
-LICENSE = "Apache 2.0"
+SECTION = "Automotive/Modello"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -19,11 +19,15 @@ PROVIDES += "Modello_Common"
 RDEPENDS = ""
 
 DEPENDS = ""
+#DEPENDS of Modello_Common
+DEPENDS_append_class-native = " fdupes-native"
+DEPENDS_append_class-target = " fdupes-native"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n Modello_Common-0.0.2
+ cp ${S}/packaging/Modello_Common.manifest .
  
  
 }
@@ -41,6 +45,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
+ #empty
  
  
  
@@ -55,16 +60,30 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- rm -rf ${D}
+ mkdir -p ${D}${prefix}/share/Modello/Common/
+ cp -r css ${D}${prefix}/share/Modello/Common/
+ cp -r js ${D}${prefix}/share/Modello/Common/
  
-   oe_runmake \
-         DESTDIR=${D} \
-         INSTALL_ROOT=${D} \
-         BINDIR=${prefix}/bin \
-   install  
-   rm -f ${D}${infodir}/dir 
-   find ${D} -regex ".*\.la$" | xargs rm -f -- 
-   find ${D} -regex ".*\.a$" | xargs rm -f --
+ 
+  _target=""; 
+  _symlinks=0; 
+   
+  fdupes -q -n -r ${D}${prefix}/share | 
+   while read _file; do 
+     if test -z "$_target" ; then 
+       _target="$_file"; 
+     else 
+       if test -z "$_file" ; then 
+ 	_target=""; 
+ 	continue ; 
+       fi ; 
+       if test "$_symlinks" = 1; then 
+         ln -sf "${_target#${D}}" "$_file"; 
+       else 
+         ln -f "$_target" "$_file"; 
+       fi ;
+     fi ; 
+  done 
  
  
 }
@@ -73,7 +92,9 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " Modello_Common "
 
 Modello_Common_files = ""
-Modello_Common_files += "/opt/usr/apps/_common/*"
+Modello_Common_files += "${prefix}/share/Modello/Common/js"
+Modello_Common_files += "${prefix}/share/Modello/Common/css"
+MANIFESTFILES_Modello_Common = "Modello_Common.manifest"
 
 FILES_Modello_Common = "${Modello_Common_files}"
 

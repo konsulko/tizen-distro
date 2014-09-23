@@ -83,10 +83,10 @@ do_install() {
  
  # configurations
  mkdir -p ${D}${sysconfdir}/ico-vic-carsim/
- mkdir -p ${D}/lib/systemd/user
+ mkdir -p ${D}${systemd_unitdir}/user
  install -m 0644 G25.conf ${D}${sysconfdir}/ico-vic-carsim/
  install -m 0644 G27.conf ${D}${sysconfdir}/ico-vic-carsim/
- install -m 0644 ico-vic-carsim.service ${D}/lib/systemd/user/ico-vic-carsim.service
+ install -m 0644 ico-vic-carsim.service ${D}${systemd_unitdir}/user/ico-vic-carsim.service
  
  
 }
@@ -110,7 +110,7 @@ ico-vic-carsimulator_files = ""
 ico-vic-carsimulator_files += "${prefix}/bin/ico-vic-carsim"
 ico-vic-carsimulator_files += "${prefix}/bin/*"
 ico-vic-carsimulator_files += "${sysconfdir}/ico-vic-carsim/*"
-ico-vic-carsimulator_files += "/lib/systemd/user/ico-vic-carsim.service"
+ico-vic-carsimulator_files += "${systemd_unitdir}/user/ico-vic-carsim.service"
 CONFFILES_${PN} = ""
 CONFFILES_${PN} += "${sysconfdir}/ico-vic-carsim/*"
 MANIFESTFILES_${PN} = "ico-vic-carsimulator.manifest"

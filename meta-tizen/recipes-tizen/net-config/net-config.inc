@@ -102,10 +102,10 @@ do_install() {
  cp resources/etc/dbus-1/system.d/net-config.conf ${D}${sysconfdir}/dbus-1/system.d/net-config.conf
  
  # Systemd service file
- mkdir -p ${D}/lib/systemd/system
- cp resources/usr/lib/systemd/system/net-config.service ${D}/lib/systemd/system/net-config.service
- mkdir -p ${D}/lib/systemd/system/multi-user.target.wants/
- ln -s ../net-config.service ${D}/lib/systemd/system/multi-user.target.wants/net-config.service
+ mkdir -p ${D}${systemd_unitdir}/system
+ cp resources/usr/lib/systemd/system/net-config.service ${D}${systemd_unitdir}/system/net-config.service
+ mkdir -p ${D}${systemd_unitdir}/system/multi-user.target.wants/
+ ln -s ../net-config.service ${D}${systemd_unitdir}/system/multi-user.target.wants/net-config.service
  
  #License
  mkdir -p ${D}${prefix}/share/license
@@ -172,8 +172,8 @@ net-config_files = ""
 net-config_files += "${prefix}/sbin/*"
 net-config_files += "${prefix}/share/dbus-1/system-services/*"
 net-config_files += "${sysconfdir}/dbus-1/system.d/*"
-net-config_files += "/lib/systemd/system/net-config.service"
-net-config_files += "/lib/systemd/system/multi-user.target.wants/net-config.service"
+net-config_files += "${systemd_unitdir}/system/net-config.service"
+net-config_files += "${systemd_unitdir}/system/multi-user.target.wants/net-config.service"
 net-config_files += "${prefix}/share/license/net-config"
 MANIFESTFILES_${PN} = "net-config.manifest"
 

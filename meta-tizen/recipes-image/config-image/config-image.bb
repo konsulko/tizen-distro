@@ -6,6 +6,11 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM ??= "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 RDEPENDS_${PN} += "weston"
+RDEPENDS_${PN} += "media-server"
+RDEPENDS_${PN} += "wrt-widgets"
+RDEPENDS_${PN} += "avsystem"
+RDEPENDS_${PN} += "download-provider"
+RDEPENDS_${PN} += "automotive-message-broker"
 
 do_install() {
   mkdir -p ${D}${sysconfdir}
@@ -70,8 +75,8 @@ pkg_postinst_${PN} () {
     #rm -fr $D/bin
     rm -fr $D${localstatedir}/log
     
-    #rm -fr $D/lib/systemd
-    rm -fr $D/usr/lib/systemd/*
+    rm -fr $D/lib/systemd/*
+    #rm -fr $D/usr/lib/systemd/*
     
     #ln -s usr/lib  $D/lib
     #ln -s usr/sbin $D/sbin

@@ -103,7 +103,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . -DVERSION=0.1.1 \
           -DCMAKE_BUILD_TYPE=RELEASE \
           -DCMAKE_VERBOSE_MAKEFILE=ON \
-          -DSYSTEMD_DIR=/lib/systemd/system
+          -DSYSTEMD_DIR=${systemd_unitdir}/system
  
  oe_runmake -j16
  
@@ -136,18 +136,18 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}/lib/systemd/system/multi-user.target.wants
- mkdir -p ${D}/lib/systemd/system/sockets.target.wants
- ln -s ../security-server.service ${D}/lib/systemd/system/multi-user.target.wants/security-server.service
- ln -s ../security-server-data-share.socket ${D}/lib/systemd/system/sockets.target.wants/security-server-data-share.socket
- ln -s ../security-server-get-gid.socket    ${D}/lib/systemd/system/sockets.target.wants/security-server-get-gid.socket
- ln -s ../security-server-privilege-by-pid.socket ${D}/lib/systemd/system/sockets.target.wants/security-server-privilege-by-pid.socket
- ln -s ../security-server-cookie-get.socket ${D}/lib/systemd/system/sockets.target.wants/security-server-cookie-get.socket
- ln -s ../security-server-cookie-check.socket ${D}/lib/systemd/system/sockets.target.wants/security-server-cookie-check.socket
- ln -s ../security-server-app-privilege-by-name.socket ${D}/lib/systemd/system/sockets.target.wants/security-server-app-privilege-by-name.socket
- ln -s ../security-server-password-check.socket ${D}/lib/systemd/system/sockets.target.wants/security-server-password-check.socket
- ln -s ../security-server-password-set.socket ${D}/lib/systemd/system/sockets.target.wants/security-server-password-set.socket
- ln -s ../security-server-password-reset.socket ${D}/lib/systemd/system/sockets.target.wants/security-server-password-reset.socket
+ mkdir -p ${D}${systemd_unitdir}/system/multi-user.target.wants
+ mkdir -p ${D}${systemd_unitdir}/system/sockets.target.wants
+ ln -s ../security-server.service ${D}${systemd_unitdir}/system/multi-user.target.wants/security-server.service
+ ln -s ../security-server-data-share.socket ${D}${systemd_unitdir}/system/sockets.target.wants/security-server-data-share.socket
+ ln -s ../security-server-get-gid.socket    ${D}${systemd_unitdir}/system/sockets.target.wants/security-server-get-gid.socket
+ ln -s ../security-server-privilege-by-pid.socket ${D}${systemd_unitdir}/system/sockets.target.wants/security-server-privilege-by-pid.socket
+ ln -s ../security-server-cookie-get.socket ${D}${systemd_unitdir}/system/sockets.target.wants/security-server-cookie-get.socket
+ ln -s ../security-server-cookie-check.socket ${D}${systemd_unitdir}/system/sockets.target.wants/security-server-cookie-check.socket
+ ln -s ../security-server-app-privilege-by-name.socket ${D}${systemd_unitdir}/system/sockets.target.wants/security-server-app-privilege-by-name.socket
+ ln -s ../security-server-password-check.socket ${D}${systemd_unitdir}/system/sockets.target.wants/security-server-password-check.socket
+ ln -s ../security-server-password-set.socket ${D}${systemd_unitdir}/system/sockets.target.wants/security-server-password-set.socket
+ ln -s ../security-server-password-reset.socket ${D}${systemd_unitdir}/system/sockets.target.wants/security-server-password-reset.socket
  
  
 }
@@ -209,28 +209,28 @@ PACKAGES += " libsecurity-server-client-dev "
 security-server_files = ""
 security-server_files += "${prefix}/bin/security-server"
 security-server_files += "${prefix}/lib/libsecurity-server-commons.so.*"
-security-server_files += "/lib/systemd/system/multi-user.target.wants/security-server.service"
-security-server_files += "/lib/systemd/system/security-server.service"
-security-server_files += "/lib/systemd/system/security-server.target"
-security-server_files += "/lib/systemd/system/sockets.target.wants/security-server-data-share.socket"
-security-server_files += "/lib/systemd/system/security-server-data-share.socket"
-security-server_files += "/lib/systemd/system/sockets.target.wants/security-server-get-gid.socket"
-security-server_files += "/lib/systemd/system/security-server-get-gid.socket"
-security-server_files += "/lib/systemd/system/sockets.target.wants/security-server-privilege-by-pid.socket"
-security-server_files += "/lib/systemd/system/security-server-privilege-by-pid.socket"
-security-server_files += "/lib/systemd/system/sockets.target.wants/security-server-cookie-get.socket"
-security-server_files += "/lib/systemd/system/security-server-cookie-get.socket"
-security-server_files += "/lib/systemd/system/sockets.target.wants/security-server-cookie-check.socket"
-security-server_files += "/lib/systemd/system/security-server-cookie-check.socket"
-security-server_files += "/lib/systemd/system/sockets.target.wants/security-server-app-privilege-by-name.socket"
-security-server_files += "/lib/systemd/system/security-server-app-privilege-by-name.socket"
+security-server_files += "${systemd_unitdir}/system/multi-user.target.wants/security-server.service"
+security-server_files += "${systemd_unitdir}/system/security-server.service"
+security-server_files += "${systemd_unitdir}/system/security-server.target"
+security-server_files += "${systemd_unitdir}/system/sockets.target.wants/security-server-data-share.socket"
+security-server_files += "${systemd_unitdir}/system/security-server-data-share.socket"
+security-server_files += "${systemd_unitdir}/system/sockets.target.wants/security-server-get-gid.socket"
+security-server_files += "${systemd_unitdir}/system/security-server-get-gid.socket"
+security-server_files += "${systemd_unitdir}/system/sockets.target.wants/security-server-privilege-by-pid.socket"
+security-server_files += "${systemd_unitdir}/system/security-server-privilege-by-pid.socket"
+security-server_files += "${systemd_unitdir}/system/sockets.target.wants/security-server-cookie-get.socket"
+security-server_files += "${systemd_unitdir}/system/security-server-cookie-get.socket"
+security-server_files += "${systemd_unitdir}/system/sockets.target.wants/security-server-cookie-check.socket"
+security-server_files += "${systemd_unitdir}/system/security-server-cookie-check.socket"
+security-server_files += "${systemd_unitdir}/system/sockets.target.wants/security-server-app-privilege-by-name.socket"
+security-server_files += "${systemd_unitdir}/system/security-server-app-privilege-by-name.socket"
 security-server_files += "%attr(-,root,root) ${sysconfdir}/security/security-server-audit.conf"
-security-server_files += "/lib/systemd/system/sockets.target.wants/security-server-password-check.socket"
-security-server_files += "/lib/systemd/system/security-server-password-check.socket"
-security-server_files += "/lib/systemd/system/sockets.target.wants/security-server-password-set.socket"
-security-server_files += "/lib/systemd/system/security-server-password-set.socket"
-security-server_files += "/lib/systemd/system/sockets.target.wants/security-server-password-reset.socket"
-security-server_files += "/lib/systemd/system/security-server-password-reset.socket"
+security-server_files += "${systemd_unitdir}/system/sockets.target.wants/security-server-password-check.socket"
+security-server_files += "${systemd_unitdir}/system/security-server-password-check.socket"
+security-server_files += "${systemd_unitdir}/system/sockets.target.wants/security-server-password-set.socket"
+security-server_files += "${systemd_unitdir}/system/security-server-password-set.socket"
+security-server_files += "${systemd_unitdir}/system/sockets.target.wants/security-server-password-reset.socket"
+security-server_files += "${systemd_unitdir}/system/security-server-password-reset.socket"
 security-server_files += "${prefix}/share/license/security-server"
 CONFFILES_${PN} = ""
 CONFFILES_${PN} += "%attr(-,root,root) ${sysconfdir}/security/security-server-audit.conf"

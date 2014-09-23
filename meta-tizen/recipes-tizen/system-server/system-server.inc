@@ -177,7 +177,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . \
         -DTZ_SYS_ETC=${sysconfdir} \
-        -DSYSTEMD_DIR=/lib/systemd/system
+        -DSYSTEMD_DIR=${systemd_unitdir}/system
  
  
  
@@ -203,21 +203,21 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  
- mkdir -p ${D}//lib/systemd/system/multi-user.target.wants 
- ln -s ../system-server.service  ${D}//lib/systemd/system/multi-user.target.wants/system-server.service  
+ mkdir -p ${D}/${systemd_unitdir}/system/multi-user.target.wants 
+ ln -s ../system-server.service  ${D}/${systemd_unitdir}/system/multi-user.target.wants/system-server.service  
  
- mkdir -p ${D}//lib/systemd/system/sockets.target.wants 
- ln -s ../system-server.socket  ${D}//lib/systemd/system/sockets.target.wants/system-server.socket  
- 
- 
- mkdir -p ${D}//lib/systemd/system/graphical.target.wants 
- ln -s ../regpmon.service  ${D}//lib/systemd/system/graphical.target.wants/regpmon.service  
- install -m 0644 ${S}/packaging/regpmon.service ${D}/lib/systemd/system/regpmon.service
+ mkdir -p ${D}/${systemd_unitdir}/system/sockets.target.wants 
+ ln -s ../system-server.socket  ${D}/${systemd_unitdir}/system/sockets.target.wants/system-server.socket  
  
  
- mkdir -p ${D}//lib/systemd/system/graphical.target.wants 
- ln -s ../zbooting-done.service  ${D}//lib/systemd/system/graphical.target.wants/zbooting-done.service  
- install -m 0644 ${S}/packaging/zbooting-done.service ${D}/lib/systemd/system/zbooting-done.service
+ mkdir -p ${D}/${systemd_unitdir}/system/graphical.target.wants 
+ ln -s ../regpmon.service  ${D}/${systemd_unitdir}/system/graphical.target.wants/regpmon.service  
+ install -m 0644 ${S}/packaging/regpmon.service ${D}${systemd_unitdir}/system/regpmon.service
+ 
+ 
+ mkdir -p ${D}/${systemd_unitdir}/system/graphical.target.wants 
+ ln -s ../zbooting-done.service  ${D}/${systemd_unitdir}/system/graphical.target.wants/zbooting-done.service  
+ install -m 0644 ${S}/packaging/zbooting-done.service ${D}${systemd_unitdir}/system/zbooting-done.service
  
  
  
@@ -468,14 +468,14 @@ system-server_files += "${prefix}/bin/sys_pci_noti"
 system-server_files += "${prefix}/bin/mmc-smack-label"
 system-server_files += "${prefix}/bin/device-daemon"
 system-server_files += "${prefix}/bin/fsck_msdosfs"
-system-server_files += "/lib/systemd/system/multi-user.target.wants/system-server.service"
-system-server_files += "/lib/systemd/system/graphical.target.wants/regpmon.service"
-system-server_files += "/lib/systemd/system/sockets.target.wants/system-server.socket"
-system-server_files += "/lib/systemd/system/system-server.service"
-system-server_files += "/lib/systemd/system/system-server.socket"
-system-server_files += "/lib/systemd/system/regpmon.service"
-system-server_files += "/lib/systemd/system/graphical.target.wants/zbooting-done.service"
-system-server_files += "/lib/systemd/system/zbooting-done.service"
+system-server_files += "${systemd_unitdir}/system/multi-user.target.wants/system-server.service"
+system-server_files += "${systemd_unitdir}/system/graphical.target.wants/regpmon.service"
+system-server_files += "${systemd_unitdir}/system/sockets.target.wants/system-server.socket"
+system-server_files += "${systemd_unitdir}/system/system-server.service"
+system-server_files += "${systemd_unitdir}/system/system-server.socket"
+system-server_files += "${systemd_unitdir}/system/regpmon.service"
+system-server_files += "${systemd_unitdir}/system/graphical.target.wants/zbooting-done.service"
+system-server_files += "${systemd_unitdir}/system/zbooting-done.service"
 system-server_files += "${prefix}/share/system-server/sys_pci_noti/res/locale/*/LC_MESSAGES/*.mo"
 system-server_files += "${prefix}/share/license/fsck_msdosfs"
 CONFFILES_${PN} = ""

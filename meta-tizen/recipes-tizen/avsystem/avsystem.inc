@@ -97,9 +97,9 @@ do_install() {
  mkdir -m 755 -p ${D}/${sysconfdir}/rc.d/rc4.d/
  ln -s ../init.d/snd_init ${D}/${sysconfdir}/rc.d/rc4.d/S15snd_init
  
- mkdir -m 755 -p ${D}/lib/systemd/system/multi-user.target.wants
- install -m 0644 ${S}/packaging/avsystem.service ${D}/lib/systemd/system/avsystem.service
- ln -s ../avsystem.service ${D}/lib/systemd/system/multi-user.target.wants/avsystem.service
+ mkdir -m 755 -p ${D}${systemd_unitdir}/system/multi-user.target.wants
+ install -m 0644 ${S}/packaging/avsystem.service ${D}${systemd_unitdir}/system/avsystem.service
+ ln -s ../avsystem.service ${D}${systemd_unitdir}/system/multi-user.target.wants/avsystem.service
  
  
 }
@@ -154,8 +154,8 @@ avsystem_files += "${sysconfdir}/rc.d/init.d/snd_init"
 avsystem_files += "${sysconfdir}/rc.d/rc3.d/S15snd_init"
 avsystem_files += "${sysconfdir}/rc.d/rc4.d/S15snd_init"
 avsystem_files += "${prefix}/bin/*"
-avsystem_files += "/lib/systemd/system/avsystem.service"
-avsystem_files += "/lib/systemd/system/multi-user.target.wants/avsystem.service"
+avsystem_files += "${systemd_unitdir}/system/avsystem.service"
+avsystem_files += "${systemd_unitdir}/system/multi-user.target.wants/avsystem.service"
 MANIFESTFILES_${PN} = "avsystem.manifest"
 
 avsystem-dev_files = ""

@@ -35,12 +35,12 @@ cmake_do_install_append() {
     find ${D} -regex ".*\.la$" | xargs rm -f -- 
     find ${D} -regex ".*\.a$" | xargs rm -f --
  
-    mkdir -p ${D}/lib/systemd/system/network.target.wants
-    cp packaging.in/ambd.service.systemd.tizen ${D}/lib/systemd/system/ambd.service
-    ln -sf ../ambd.service ${D}/lib/systemd/system/network.target.wants/ambd.service
+    mkdir -p ${D}${systemd_unitdir}/system/network.target.wants
+    cp packaging.in/ambd.service.systemd.tizen ${D}${systemd_unitdir}/system/ambd.service
+    ln -sf ../ambd.service ${D}${systemd_unitdir}/system/network.target.wants/ambd.service
  
-    mkdir -p ${D}/lib/systemd/system/multi-user.target.wants 
-    ln -sf ../ambd.service  ${D}/lib/systemd/system/multi-user.target.wants/ambd.service  
+    mkdir -p ${D}${systemd_unitdir}/system/multi-user.target.wants 
+    ln -sf ../ambd.service  ${D}${systemd_unitdir}/system/multi-user.target.wants/ambd.service  
  
     cp packaging.in/config.tizen ${D}${sysconfdir}/ambd/
 }

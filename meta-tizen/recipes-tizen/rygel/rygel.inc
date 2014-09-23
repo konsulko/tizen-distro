@@ -111,10 +111,10 @@ do_install() {
  #find_lang rygel
  
  # Systemd service file
- install -D -m 644 examples/service/systemd/rygel.service.tizen ${D}/lib/systemd/system/rygel.service
+ install -D -m 644 examples/service/systemd/rygel.service.tizen ${D}${systemd_unitdir}/system/rygel.service
  # 
- mkdir -p ${D}//lib/systemd/system/network.target.wants 
- ln -s ../rygel.service  ${D}//lib/systemd/system/network.target.wants/rygel.service  
+ mkdir -p ${D}/${systemd_unitdir}/system/network.target.wants 
+ ln -s ../rygel.service  ${D}/${systemd_unitdir}/system/network.target.wants/rygel.service  
  rm -rf  $RPM_BUILD_ROOT${prefix}/share/applications/*.desktop
  
  
@@ -156,8 +156,8 @@ PACKAGES += " rygel-dev "
 
 rygel_files = ""
 rygel_files += "/etc/rygel.conf"
-rygel_files += "/lib/systemd/system/rygel.service"
-rygel_files += "/lib/systemd/system/network.target.wants/rygel.service"
+rygel_files += "${systemd_unitdir}/system/rygel.service"
+rygel_files += "${systemd_unitdir}/system/network.target.wants/rygel.service"
 rygel_files += "${prefix}/bin/rygel"
 rygel_files += "${prefix}/share/dbus-1/services/org.gnome.Rygel1.service"
 rygel_files += "${prefix}/share/icons/hicolor/128x128/apps/rygel.png"

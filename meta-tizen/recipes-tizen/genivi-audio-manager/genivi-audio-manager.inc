@@ -48,6 +48,7 @@ do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n genivi-audio-manager-6.0
+ cp ${S}/packaging/genivi-audio-manager.manifest .
  
  
 }
@@ -79,7 +80,14 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
-         ${EXTRA_OECMAKE} -DUSE_BUILD_LIBS=OFF -DWITH_TESTS=OFF -DWITH_ENABLED_IPC=DBUS -DWITH_DBUS_WRAPPER=ON -DWITH_NSM=OFF -DWITH_DLT=OFF -DCMAKE_INSTALL_PREFIX=/usr ..
+         ${EXTRA_OECMAKE} -DUSE_BUILD_LIBS=OFF \
+        -DWITH_TESTS=OFF \
+        -DWITH_ENABLED_IPC=DBUS \
+        -DWITH_DBUS_WRAPPER=ON \
+        -DWITH_NSM=OFF \
+        -DWITH_DLT=OFF \
+        -DCMAKE_INSTALL_PREFIX=${prefix} \
+        ..
  #make VERBOSE=1
  oe_runmake -j16
  
@@ -96,7 +104,7 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- rm -rf "$RPM_BUILD_ROOT"
+ rm -rf "${D}"
  cd build
  
    oe_runmake \
@@ -106,10 +114,12 @@ do_install() {
    install  
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
-   find ${D} -regex ".*\.a$" | xargs rm -f -- DESTDIR=$RPM_BUILD_ROOT
- mkdir $RPM_BUILD_ROOT${prefix}/include/genivi-audio-manager
- mv $RPM_BUILD_ROOT${prefix}/include/*.h $RPM_BUILD_ROOT${prefix}/include/command $RPM_BUILD_ROOT${prefix}/include/control $RPM_BUILD_ROOT${prefix}/include/routing $RPM_BUILD_ROOT${prefix}/include/shared $RPM_BUILD_ROOT${prefix}/include/genivi-audio-manager
- rm $RPM_BUILD_ROOT${prefix}/lib/audioManager/routing/libPluginRoutingInterfaceAsync.so*
+   find ${D} -regex ".*\.a$" | xargs rm -f --
+ mkdir -p ${D}${prefix}/include/genivi-audio-manager
+ for cpath in *.h command control routing shared; do
+     mv ${D}${prefix}/include/${cpath} ${D}${prefix}/include/genivi-audio-manager
+ done
+ rm ${D}${prefix}/lib/audioManager/routing/libPluginRoutingInterfaceAsync.so*
  
  
 }
@@ -120,6 +130,7 @@ PACKAGES += " genivi-audio-manager "
 
 genivi-audio-manager-dev_files = ""
 genivi-audio-manager-dev_files += "${prefix}/include/genivi-audio-manager/*"
+MANIFESTFILES_${PN}-dev = "genivi-audio-manager.manifest"
 
 genivi-audio-manager_files = ""
 genivi-audio-manager_files += "LICENCE README.html"
@@ -131,6 +142,7 @@ genivi-audio-manager_files += "${prefix}/lib/audioManager/control/libPluginContr
 genivi-audio-manager_files += "${prefix}/lib/audioManager/control/libPluginControlInterfaceDbus.so*"
 genivi-audio-manager_files += "${prefix}/lib/audioManager/control/libPluginControlInterfaceMurphy.so*"
 genivi-audio-manager_files += "${prefix}/share/audiomanager/*xml"
+MANIFESTFILES_${PN} = "genivi-audio-manager.manifest"
 
 FILES_${PN}-dev = "${genivi-audio-manager-dev_files}"
 FILES_${PN} = "${genivi-audio-manager_files}"

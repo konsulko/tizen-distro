@@ -137,10 +137,10 @@ do_install() {
  ln -s ${sysconfdir}/rc.d/init.d/bluetooth-frwk-service ${D}${sysconfdir}/rc.d/rc3.d/S80bluetooth-frwk-service
  ln -s ${sysconfdir}/rc.d/init.d/bluetooth-frwk-service ${D}${sysconfdir}/rc.d/rc5.d/S80bluetooth-frwk-service
  
- mkdir -p ${D}/lib/systemd/user
- mkdir -p ${D}/lib/systemd/user/tizen-middleware.target.wants
- install -m 0644 bt-service/bluetooth-frwk-service.service ${D}/lib/systemd/user
- ln -s ../bluetooth-frwk-service.service ${D}/lib/systemd/user/tizen-middleware.target.wants/bluetooth-frwk-service.service
+ mkdir -p ${D}${systemd_unitdir}/user
+ mkdir -p ${D}${systemd_unitdir}/user/tizen-middleware.target.wants
+ install -m 0644 bt-service/bluetooth-frwk-service.service ${D}${systemd_unitdir}/user
+ ln -s ../bluetooth-frwk-service.service ${D}${systemd_unitdir}/user/tizen-middleware.target.wants/bluetooth-frwk-service.service
  
  
  
@@ -192,8 +192,8 @@ bluetooth-frwk-service_files += "${sysconfdir}/rc.d/init.d/bluetooth-frwk-servic
 bluetooth-frwk-service_files += "${sysconfdir}/rc.d/rc3.d/S80bluetooth-frwk-service"
 bluetooth-frwk-service_files += "${sysconfdir}/rc.d/rc5.d/S80bluetooth-frwk-service"
 bluetooth-frwk-service_files += "${prefix}/bin/bt-service"
-bluetooth-frwk-service_files += "/lib/systemd/user/tizen-middleware.target.wants/bluetooth-frwk-service.service"
-bluetooth-frwk-service_files += "/lib/systemd/user/bluetooth-frwk-service.service"
+bluetooth-frwk-service_files += "${systemd_unitdir}/user/tizen-middleware.target.wants/bluetooth-frwk-service.service"
+bluetooth-frwk-service_files += "${systemd_unitdir}/user/bluetooth-frwk-service.service"
 bluetooth-frwk-service_files += "/opt/var/lib/bluetooth/auto-pair-blacklist"
 bluetooth-frwk-service_files += "${sysconfdir}/dbus-1/system.d/bluetooth-frwk-service.conf"
 MANIFESTFILES_${PN}-service = "bluetooth-frwk.manifest"

@@ -66,9 +66,9 @@ do_install() {
  mkdir -p ${D}
  
  
- install -d ${D}/lib/systemd/user/weston.target.wants
- install -m 644 weston.service ${D}/lib/systemd/user/weston.service
- ln -sf ../weston.service ${D}//lib/systemd/user/weston.target.wants/
+ install -d ${D}${systemd_unitdir}/user/weston.target.wants
+ install -m 644 weston.service ${D}${systemd_unitdir}/user/weston.service
+ ln -sf ../weston.service ${D}/${systemd_unitdir}/user/weston.target.wants/
  
  mkdir -p ${D}${sysconfdir}/profile.d/
  install -m 0644 weston.sh ${D}${sysconfdir}/profile.d/
@@ -90,8 +90,8 @@ CONFFILES_${PN}-config += "${sysconfdir}/xdg/weston/weston.ini"
 MANIFESTFILES_${PN}-config = "weston-ivi.manifest"
 
 weston-ivi_files = ""
-weston-ivi_files += "/lib/systemd/user/weston.service"
-weston-ivi_files += "/lib/systemd/user/weston.target.wants/weston.service"
+weston-ivi_files += "${systemd_unitdir}/user/weston.service"
+weston-ivi_files += "${systemd_unitdir}/user/weston.target.wants/weston.service"
 weston-ivi_files += "${sysconfdir}/profile.d/*"
 CONFFILES_${PN} = ""
 CONFFILES_${PN} += "${sysconfdir}/profile.d/*"

@@ -73,7 +73,7 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --with-systemdsystemunitdir=/lib/systemd/system"
+EXTRA_OECONF += " --with-systemdsystemunitdir=${systemd_unitdir}/system"
 
 do_install() {
  export RPM_BUILD_ROOT=${D}

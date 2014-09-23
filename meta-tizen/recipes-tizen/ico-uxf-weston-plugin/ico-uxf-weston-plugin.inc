@@ -92,10 +92,10 @@ do_install() {
  
  # configurations
  mkdir -p ${D}${sysconfdir}/xdg/weston > /dev/null 2>&1
- mkdir -p ${D}/lib/systemd/system/multi-user.target.wants > /dev/null 2>&1
+ mkdir -p ${D}${systemd_unitdir}/system/multi-user.target.wants > /dev/null 2>&1
  install -m 0644 settings/weston.ini ${D}${sysconfdir}/xdg/weston
- install -m 0644 settings/ico-pseudo-input-device.service ${D}/lib/systemd/system/ico-pseudo-input-device.service
- ln -s /lib/systemd/system/ico-pseudo-input-device.service ${D}/lib/systemd/system/multi-user.target.wants/ico-pseudo-input-device.service
+ install -m 0644 settings/ico-pseudo-input-device.service ${D}${systemd_unitdir}/system/ico-pseudo-input-device.service
+ ln -s ${systemd_unitdir}/system/ico-pseudo-input-device.service ${D}${systemd_unitdir}/system/multi-user.target.wants/ico-pseudo-input-device.service
  
  
 }
@@ -129,8 +129,8 @@ ico-uxf-weston-plugin_files += "${prefix}/lib/weston/*.so"
 ico-uxf-weston-plugin_files += "${prefix}/lib/libico-uxf-weston-plugin.so.*"
 ico-uxf-weston-plugin_files += "${prefix}/bin/ico_send_inputevent"
 ico-uxf-weston-plugin_files += "${prefix}/bin/ico_pseudo_input_device"
-ico-uxf-weston-plugin_files += "/lib/systemd/system/ico-pseudo-input-device.service"
-ico-uxf-weston-plugin_files += "/lib/systemd/system/multi-user.target.wants/ico-pseudo-input-device.service"
+ico-uxf-weston-plugin_files += "${systemd_unitdir}/system/ico-pseudo-input-device.service"
+ico-uxf-weston-plugin_files += "${systemd_unitdir}/system/multi-user.target.wants/ico-pseudo-input-device.service"
 ico-uxf-weston-plugin_files += "${sysconfdir}/xdg/weston/weston.ini"
 CONFFILES_${PN} = ""
 CONFFILES_${PN} += "${sysconfdir}/xdg/weston/weston.ini"
