@@ -1,3 +1,5 @@
+inherit pkgconfig
+
 PROVIDES += "python-dbus"
 RPROVIDES_${PN} += "python-dbus"
 
@@ -17,3 +19,4 @@ FILES_${PN} += "/usr/share"
 RDEPENDS_${PN}_remove = "libxml2-python"
 
 RDEPENDS_${PN} += "python-xml"
+
