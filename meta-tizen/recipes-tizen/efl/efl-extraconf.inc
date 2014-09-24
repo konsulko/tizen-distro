@@ -1,3 +1,5 @@
+inherit pkgconfig
+
 INSANE_SKIP_${PN} = "dev-so"
 
 EXTRA_OECONF += " \
@@ -38,6 +40,11 @@ DEPENDS_class-target = " zlib tiff ibus harfbuzz openssl curl fontconfig gstream
 DEPENDS_class-native = " zlib-native tiff-native openssl-native curl-native fontconfig-native freetype-native wayland-native glib-2.0-native lua-native libpng-native pixman-native  libcheck-native giflib-native gnutls-native  util-linux-native vconf-native  fribidi-native dbus-native "
 
 DEPENDS_append_class-target = " efl-native "
+
+do_configure_prepend() {
+    # Fix configure error: "error: required file './ABOUT-NLS' not found"
+    sed -i 's/AM_INIT_AUTOMAKE(\[1.6 dist-bzip2 -Wall color-tests\])/AM_INIT_AUTOMAKE(\[1.6 dist-bzip2 -Wall color-tests foreign\])/' configure.ac
+}
 
 # new efl doesn't have option to disable eeze build and we don't want to provide udev-native just to build eeze-native we don't need
 do_configure_prepend_class-native() {

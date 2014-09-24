@@ -1,3 +1,5 @@
+inherit pkgconfig
+
 DEPENDS_append_class-target += "libpinyin-native"
 
 EXTRA_OEMAKE_class-target += " utils_storage=${STAGING_BINDIR_NATIVE}"
@@ -13,3 +15,4 @@ do_compile() {
     autotools_do_configure
     oe_runmake -j16
 }
+

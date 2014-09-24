@@ -1,6 +1,10 @@
+inherit pkgconfig
+
 SRC_URI += "file://Fix_build.patch"
 
 do_configure_prepend() {
+    # Fix configure error: "error: required file './ABOUT-NLS' not found"
+    sed -i 's/AM_INIT_AUTOMAKE(\[1.6 dist-bzip2\])/AM_INIT_AUTOMAKE(\[1.6 dist-bzip2 foreign\])/' configure.ac
     # prefix returned eolian paths with STAGING_DIR_HOST also use $PKG_CONFIG instead of pkg-config directly
     sed -i "s^DEPS_EOLIAN_FLAGS=\`pkg-config --variable=eolian_flags eo evas edje ecore\`$^DEPS_EOLIAN_FLAGS=\`\$PKG_CONFIG --variable=eolian_flags eo evas edje ecore | sed 's#-I${prefix}#-I${STAGING_DIR_HOST}${prefix}#g'\`^g" ${S}/configure.ac
 }
