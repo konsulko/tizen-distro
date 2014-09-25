@@ -38,12 +38,10 @@ RDEPENDS_${PN}-dev += "expat"
 DEPENDS = ""
 #DEPENDS of libwbxml2
 DEPENDS += "expat"
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
+inherit tizen_cmake
 DEPENDS += "libxml2"
 DEPENDS += "zlib"
-DEPENDS_append_class-native = " pkgconfig-native"
-DEPENDS_append_class-target = " pkgconfig-native"
+inherit pkgconfig
 DEPENDS += "popt"
 
 do_prep() {
@@ -68,7 +66,9 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- mkdir build
+ BUILD_SRC=$(pwd)
+ 
+ mkdir -p build
  pushd build
  CFLAGS="$CFLAGS" \
  CXXFLAGS="$CFLAGS" \
@@ -83,11 +83,12 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
+         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} \
          -DCMAKE_BUILD_TYPE=None \
          -DENABLE_INSTALL_DOC:BOOL=OFF \
-          ${WORKDIR}/libwbxml-0.11.2
- make -j16 VERBOSE=1
+         ${BUILD_SRC}
+ oe_runmake -j16 VERBOSE=1
  popd
  
  

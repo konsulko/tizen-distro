@@ -1,5 +1,3 @@
-#inherit cmake
-
 B = "${S}"
 
 SRC_URI += "file://0001-PATCH-link-to-the-pthread-library.patch"

@@ -29,8 +29,7 @@ RDEPENDS_${PN} += "eglibc"
 
 DEPENDS = ""
 #DEPENDS of libnet-client
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
+inherit tizen_cmake
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "vconf"

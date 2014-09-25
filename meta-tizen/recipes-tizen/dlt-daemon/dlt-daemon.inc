@@ -48,10 +48,8 @@ DEPENDS = ""
 DEPENDS += "systemd"
 DEPENDS += "dbus"
 DEPENDS += "zlib"
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
-DEPENDS_append_class-native = " pkgconfig-native"
-DEPENDS_append_class-target = " pkgconfig-native"
+inherit tizen_cmake
+inherit pkgconfig
 
 do_prep() {
  cd ${S}
@@ -88,6 +86,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
+         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} -DWITH_SYSTEMD=ON -DWITH_SYSTEMD_JOURNAL=ON \
         -DWITH_MAN=OFF -DWITH_DLT_EXAMPLES=OFF ..
  make -j16

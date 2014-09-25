@@ -27,8 +27,7 @@ RDEPENDS_capi-network-${PN}-dev += "capi-network-connection"
 
 DEPENDS = ""
 #DEPENDS of capi-network-connection
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
+inherit tizen_cmake
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "common"
@@ -71,6 +70,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
+         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} . -DFULLVER=0.1.3_13 -DMAJORVER=${MAJORVER}
  
  make -j16

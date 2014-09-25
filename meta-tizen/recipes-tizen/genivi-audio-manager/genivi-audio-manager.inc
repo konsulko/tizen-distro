@@ -32,8 +32,7 @@ DEPENDS = ""
 DEPENDS += "flex"
 DEPENDS += "systemd"
 DEPENDS += "dlt-daemon"
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
+inherit tizen_cmake
 inherit pythonnative
 DEPENDS += "dbus"
 DEPENDS += "zlib"
@@ -80,6 +79,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
+         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} -DUSE_BUILD_LIBS=OFF \
         -DWITH_TESTS=OFF \
         -DWITH_ENABLED_IPC=DBUS \

@@ -24,8 +24,7 @@ DEPENDS = ""
 #DEPENDS of ibus-hangul
 DEPENDS_append_class-native = " intltool-native"
 DEPENDS_append_class-target = " intltool-native"
-DEPENDS_append_class-native = " pkgconfig-native"
-DEPENDS_append_class-target = " pkgconfig-native"
+inherit pkgconfig
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
 DEPENDS += "ibus"

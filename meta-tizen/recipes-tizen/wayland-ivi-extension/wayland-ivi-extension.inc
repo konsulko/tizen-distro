@@ -28,8 +28,7 @@ RDEPENDS_genivi-shell-dev += "wayland-ivi-extension"
 
 DEPENDS = ""
 #DEPENDS of genivi-shell
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
+inherit tizen_cmake
 DEPENDS += "libxkbcommon"
 DEPENDS += "cairo"
 DEPENDS += "weston-ivi-shell"
@@ -64,6 +63,7 @@ do_prep() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
+         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} .
  
  

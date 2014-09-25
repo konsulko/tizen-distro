@@ -20,8 +20,7 @@ RDEPENDS = ""
 DEPENDS = ""
 #DEPENDS of desktop-file-utils
 DEPENDS += "xz"
-DEPENDS_append_class-native = " pkgconfig-native"
-DEPENDS_append_class-target = " pkgconfig-native"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 
 do_prep() {

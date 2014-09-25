@@ -1,0 +1,1 @@
+INSANE_SKIP_xmlsec1-dev-static = "staticdev"

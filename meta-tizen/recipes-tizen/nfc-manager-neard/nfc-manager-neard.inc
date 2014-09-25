@@ -44,8 +44,7 @@ DEPENDS = ""
 DEPENDS += "security-server"
 DEPENDS += "libtapi-legacy"
 DEPENDS += "curl"
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
+inherit tizen_cmake
 DEPENDS += "slp-pkgmgr"
 DEPENDS += "app-svc"
 DEPENDS += "aul"
@@ -103,6 +102,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
+         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} . -DMAJORVER=${MAJORVER} -DFULLVER=0.1.6  \
  -DWAYLAND_SUPPORT=On \
  -DX11_SUPPORT=Off

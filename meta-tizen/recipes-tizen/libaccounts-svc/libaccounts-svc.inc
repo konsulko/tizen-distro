@@ -32,8 +32,7 @@ RDEPENDS_${PN}-dev += "libaccounts-svc"
 DEPENDS = ""
 #DEPENDS of libaccounts-svc
 DEPENDS += "pkgmgr-info"
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
+inherit tizen_cmake
 DEPENDS += "libxml2"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
@@ -78,6 +77,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
+         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} .
  
  make -j16

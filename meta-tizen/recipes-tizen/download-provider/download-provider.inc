@@ -34,8 +34,7 @@ RDEPENDS_${PN}-dev += "download-provider"
 DEPENDS = ""
 #DEPENDS of download-provider
 DEPENDS += "libwifi-direct"
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
+inherit tizen_cmake
 DEPENDS += "smack"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
@@ -94,6 +93,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
+         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} . \
           -DBIN_INSTALL_DIR:PATH=${prefix}/bin \
           -DPKG_NAME=download-provider \

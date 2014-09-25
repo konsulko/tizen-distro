@@ -30,8 +30,7 @@ DEPENDS = ""
 DEPENDS += "wayland"
 DEPENDS += "libdrm"
 DEPENDS += "libpthread-stubs"
-DEPENDS_append_class-native = " pkgconfig-native"
-DEPENDS_append_class-target = " pkgconfig-native"
+inherit pkgconfig
 DEPENDS += "common"
 
 do_prep() {

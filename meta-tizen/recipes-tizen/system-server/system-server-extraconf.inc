@@ -1,2 +1,0 @@
-
-inherit tizen_cmake

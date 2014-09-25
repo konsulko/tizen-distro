@@ -26,8 +26,7 @@ RDEPENDS_${PN}-dev += "libslp-memo"
 
 DEPENDS = ""
 #DEPENDS of libslp-memo
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
+inherit tizen_cmake
 DEPENDS += "tizen-platform-config"
 DEPENDS += "dlog"
 DEPENDS += "sqlite3"
@@ -69,9 +68,9 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
+         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} .
- 
- make -j16
+ oe_runmake -j16
  
  
  
@@ -129,6 +128,7 @@ PACKAGES += " libslp-memo-dev "
 
 libslp-memo_files = ""
 libslp-memo_files += "${prefix}/lib/*.so.*"
+MANIFESTFILES_${PN} = "libslp-memo.manifest"
 
 libslp-memo-dev_files = ""
 libslp-memo-dev_files += "${prefix}/lib/*.so"

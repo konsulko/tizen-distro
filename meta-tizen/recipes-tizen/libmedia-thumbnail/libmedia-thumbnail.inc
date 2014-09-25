@@ -44,8 +44,7 @@ RDEPENDS_${PN}-test += "libmedia-thumbnail"
 DEPENDS = ""
 #DEPENDS of libmedia-thumbnail
 DEPENDS += "libmm-fileinfo"
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
+inherit tizen_cmake
 DEPENDS += "drm-client"
 DEPENDS += "evas"
 DEPENDS += "tizen-platform-config"
@@ -92,6 +91,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
+         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} .
  make -j16
  

@@ -1,7 +1,3 @@
-inherit pkgconfig
-inherit tizen_cmake
-
-
 LDFLAGS += "-lpthread"
 
 do_configure_prepend() {

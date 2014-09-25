@@ -19,8 +19,7 @@ RDEPENDS = ""
 
 DEPENDS = ""
 #DEPENDS of phoned
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
+inherit tizen_cmake
 DEPENDS += "evolution-data-server"
 DEPENDS += "dbus"
 DEPENDS += "expat"
@@ -64,6 +63,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
+         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} . -DCMAKE_INSTALL_PREFIX=${prefix} -DENABLE_TIME_TRACER="OFF"
  
  make -j16 VERBOSE=1

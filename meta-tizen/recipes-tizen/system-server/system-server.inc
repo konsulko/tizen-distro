@@ -116,8 +116,7 @@ DEPENDS = ""
 #DEPENDS of system-server
 DEPENDS += "smack"
 DEPENDS += "edbus"
-DEPENDS_append_class-native = " cmake-native"
-DEPENDS_append_class-target = " cmake-native"
+inherit tizen_cmake
 DEPENDS += "attr"
 DEPENDS += "notification"
 DEPENDS += "tizen-platform-config"
@@ -175,6 +174,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
+         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} . \
         -DTZ_SYS_ETC=${sysconfdir} \
         -DSYSTEMD_DIR=${systemd_unitdir}/system
