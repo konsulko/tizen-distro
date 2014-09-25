@@ -1,0 +1,26 @@
+diff --git a/Makefile.am b/Makefile.am
+index 6fc4f33..7a2d393 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1,5 +1,5 @@
+ 
+-AM_CFLAGS = @THREADSAFE_FLAGS@ @DYNAMIC_EXTENSION_FLAGS@ -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_RTREE
++AM_CFLAGS = @THREADSAFE_FLAGS@ @DYNAMIC_EXTENSION_FLAGS@ -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_RTREE  -DSQLITE_ENABLE_COLUMN_METADATA -DSQLITE_ENABLE_MEMORY_MANAGEMENT -DSQLITE_DEFAULT_AUTOVACUUM=1 -DSQLITE_DEFAULT_PAGE_SIZE=4096 -DSQLITE_SLP_FEATURE
+ 
+ lib_LTLIBRARIES = libsqlite3.la
+ libsqlite3_la_SOURCES = sqlite3.c
+diff --git a/sqlite3.c b/sqlite3.c
+index 9228d24..0a7b585 100644
+--- a/sqlite3.c
++++ b/sqlite3.c
+@@ -44658,6 +44658,10 @@ act_like_temp_file:
+     pPager->journalMode = PAGER_JOURNALMODE_OFF;
+   }else if( memDb ){
+     pPager->journalMode = PAGER_JOURNALMODE_MEMORY;
++#ifdef SQLITE_SLP_FEATURE
++  }else {
++    pPager->journalMode = PAGER_JOURNALMODE_PERSIST;
++#endif
+   }
+   /* pPager->xBusyHandler = 0; */
+   /* pPager->pBusyHandlerArg = 0; */
