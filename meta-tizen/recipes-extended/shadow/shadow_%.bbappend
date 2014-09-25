@@ -1,6 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
-
 # Additional Policy files for PAM from pwdutils
 PAM_SRC_URI = "file://pam.d/chage \
                file://pam.d/chfn \
@@ -30,3 +29,4 @@ do_install_append() {
         ${D}${sysconfdir}/pam.d/userdel \
         ${D}${sysconfdir}/pam.d/usermod
 }
+
