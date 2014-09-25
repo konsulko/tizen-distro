@@ -116,6 +116,11 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     [ "x$D" == "x" ] && ldconfig
+    # Create tizenglobalapp user needed for global installation
+    $D${prefix}/sbin/useradd -d $D${prefix}/apps -m %TZ_SYS_GLOBALAPP_USER -r -c "system user for common applications" -g root
+    #mkdir -p $D${prefix}/apps/.config/xwalk-service/applications
+    #cd $D${prefix}/apps/
+    #ln -s .config/xwalk-service/applications/
     vconftool set -t string db/ail/ail_info "0" -f -s system::vconf_inhouse
     vconftool set -t string db/menuscreen/desktop "0" -f -s system::vconf_inhouse
     vconftool set -t string db/menu_widget/language "en_US.utf8" -f -s system::vconf_inhouse
@@ -135,6 +140,10 @@ pkg_postinst_${PN}() {
     chsmack -a '*' $D${prefix}/share/applications
     chmod g+w $D${prefix}/share/applications
     chmod g+w $D${prefix}/share/applications
+    chown %TZ_SYS_GLOBALAPP_USER:root $D${prefix}/share/applications
+    chown %TZ_SYS_GLOBALAPP_USER:root $D${prefix}/share/applications
+    chown %TZ_SYS_GLOBALAPP_USER:root $D${prefix}/apps
+    chown %TZ_SYS_GLOBALAPP_USER:root $D${prefix}/dbspace
     ail_initdb 2>/dev/null
     chsmack -a '*' $D${prefix}/dbspace/.app_info.db*
      

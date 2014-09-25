@@ -41,7 +41,6 @@ RDEPENDS_${PN}-audiosystem-demo += "tizen-extensions-crosswalk"
 #RDEPENDS of tizen-extensions-crosswalk (${PN})
 RDEPENDS_${PN} += "crosswalk"
 RDEPENDS_${PN} += "media-thumbnail-server"
-RDEPENDS_${PN} += "libgsignon-glib"
 
 #RDEPENDS of tizen-extensions-crosswalk-examples (${PN}-examples)
 RDEPENDS_${PN}-examples += "tizen-extensions-crosswalk"
@@ -54,6 +53,7 @@ DEPENDS = ""
 #DEPENDS of tizen-extensions-crosswalk
 DEPENDS += "libgsignon-glib"
 DEPENDS += "app-core"
+DEPENDS += "sync-agent"
 DEPENDS += "runtime-info"
 DEPENDS += "dbus-glib"
 DEPENDS += "slp-pkgmgr"
@@ -94,13 +94,10 @@ do_prep() {
  #setup -q
  
  cp ${S}/packaging/tizen-extensions-crosswalk.manifest .
- cp ${S}/packaging/tizen-extensions-crosswalk.in .
  cp ${S}/packaging/tizen-extensions-crosswalk.png .
  cp ${S}/packaging/tizen-extensions-crosswalk-bluetooth-demo .
  cp ${S}/packaging/tizen-extensions-crosswalk-examples .
  cp ${S}/packaging/tizen-extensions-crosswalk-system-info-demo .
- 
- sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" tizen-extensions-crosswalk.in > tizen-extensions-crosswalk
  
  
 }
@@ -143,7 +140,6 @@ do_install() {
  
  
  # Binary wrapper.
- install -m 755 -D tizen-extensions-crosswalk ${D}${prefix}/bin/tizen-extensions-crosswalk
  install -m 755 -D ${S}/packaging/tizen-extensions-crosswalk-bluetooth-demo ${D}${prefix}/bin/tizen-extensions-crosswalk-bluetooth-demo
  install -m 755 -D ${S}/packaging/tizen-extensions-crosswalk-examples ${D}${prefix}/bin/tizen-extensions-crosswalk-examples
  install -m 755 -D ${S}/packaging/tizen-extensions-crosswalk-system-info-demo ${D}${prefix}/bin/tizen-extensions-crosswalk-system-info-demo
@@ -237,7 +233,6 @@ tizen-extensions-crosswalk-audiosystem-demo_files += "${prefix}/share/tizen-exte
 tizen-extensions-crosswalk-audiosystem-demo_files += "${prefix}/share/tizen-extensions-crosswalk/demos/audiosystem/images/*"
 
 tizen-extensions-crosswalk_files = ""
-tizen-extensions-crosswalk_files += "${prefix}/bin/tizen-extensions-crosswalk"
 tizen-extensions-crosswalk_files += "${prefix}/lib/tizen-extensions-crosswalk/libtizen*.so"
 
 tizen-extensions-crosswalk-examples_files = ""

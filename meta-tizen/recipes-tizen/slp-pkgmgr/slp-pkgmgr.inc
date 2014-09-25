@@ -79,7 +79,7 @@ DEPENDS += "security-server"
 DEPENDS += "dlog"
 DEPENDS += "app-core"
 DEPENDS += "ail"
-DEPENDS += "libsmack"
+DEPENDS += "smack"
 DEPENDS += "bundle"
 DEPENDS += "ecore"
 DEPENDS += "tizen-platform-config"
@@ -179,11 +179,6 @@ pkg_postinst_${PN}() {
     # For pkgmgr-install:
     # Update mime database to support package mime types
     update-mime-database /usr/share/mime
-    # Create tizenglobalapp user needed for global installation
-    $D${prefix}/sbin/useradd -d $D${prefix}/apps -m %TZ_SYS_GLOBALAPP_USER -r -c "system user for common applications" -g root
-    #mkdir -p $D${prefix}/apps/.config/xwalk-service/applications
-    #cd $D${prefix}/apps/
-    #ln -s .config/xwalk-service/applications/
 
 }
 

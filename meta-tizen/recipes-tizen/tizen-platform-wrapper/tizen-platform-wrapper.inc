@@ -17,6 +17,7 @@ PROVIDES = ""
 
 RDEPENDS = ""
 #RDEPENDS of tizen-platform-wrapper (${PN})
+RDEPENDS_${PN} += "coreutils"
 RDEPENDS_${PN} += "gperf"
 
 

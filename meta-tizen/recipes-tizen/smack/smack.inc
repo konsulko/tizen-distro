@@ -29,7 +29,7 @@ PROVIDES += "smack-docs "
 
 RDEPENDS = ""
 #RDEPENDS of smack-dev (${PN}-dev)
-RDEPENDS_${PN}-dev += "libsmack"
+RDEPENDS_${PN}-dev += "smack"
 
 
 DEPENDS = ""

@@ -16,6 +16,9 @@ PROVIDES = ""
 
 
 RDEPENDS = ""
+#RDEPENDS of crosswalk (${PN})
+RDEPENDS_${PN} += "ca-certificates-tizen"
+
 
 DEPENDS = ""
 #DEPENDS of crosswalk
@@ -23,6 +26,7 @@ DEPENDS += "cairo"
 DEPENDS += "expat"
 DEPENDS += "udev"
 DEPENDS += "app-core"
+DEPENDS += "xmlsec1"
 DEPENDS += "libslp-sensor"
 DEPENDS += "libxslt"
 inherit perlnative
@@ -75,7 +79,7 @@ do_prep() {
  cp ${S}/packaging/crosswalk.manifest .
  cp ${S}/packaging/crosswalk.xml.in .
  cp ${S}/packaging/crosswalk.png .
- sed "s/@VERSION@/9.38.205.0/g" crosswalk.xml.in > crosswalk.xml
+ sed "s/@VERSION@/10.38.208.0/g" crosswalk.xml.in > crosswalk.xml
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.in > xwalk
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.service.in > xwalk.service
  
@@ -215,7 +219,7 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     mkdir -p %TZ_SYS_RO_ICONS/default/small
-    mkdir -p %TZ_SYS_RO_PACKAGE
+    mkdir -p $D${prefix}/share/packages
     ln -sf $D${prefix}/lib/xwalk/libxwalk-backendlib.so /etc/package-manager/backendlib/libxpk.so
     ln -sf $D${prefix}/lib/xwalk/libxwalk-backendlib.so /etc/package-manager/backendlib/libwgt.so
     ln -sf $D${prefix}/lib/xwalk/xwalk_backend_wrapper.sh /etc/package-manager/backend/xpk
