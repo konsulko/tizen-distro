@@ -46,6 +46,7 @@ DEPENDS += "flex"
 inherit gettext
 DEPENDS += "zlib"
 DEPENDS += "db"
+inherit pkgconfig
 DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
 DEPENDS += "smack"
@@ -114,7 +115,7 @@ do_install() {
  rm -f ${D}${sysconfdir}/environment
  
  for phase in auth acct passwd session ; do
- 	ln -sf pam_unix.so ${D}${prefix}/lib/security/pam_unix_${phase}.so
+     ln -sf pam_unix.so ${D}${prefix}/lib/security/pam_unix_${phase}.so
  done
  
  # Install default pam configuration files
@@ -132,10 +133,10 @@ pkg_postinst_${PN}() {
 
     [ "x$D" == "x" ] && ldconfig
     if [ ! -a /var/log/faillog ] ; then
-    	/usr/bin/install -m 600 /dev/null /var/log/faillog
+        /usr/bin/install -m 600 /dev/null /var/log/faillog
     fi
     if [ ! -a /var/log/tallylog ] ; then
-    	/usr/bin/install -m 600 /dev/null /var/log/tallylog
+        /usr/bin/install -m 600 /dev/null /var/log/tallylog
     fi
 
 }
