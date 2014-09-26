@@ -34,6 +34,7 @@ RDEPENDS_${PN}-tools += "libpinyin"
 DEPENDS = ""
 #DEPENDS of libpinyin
 DEPENDS += "db"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 
 do_prep() {

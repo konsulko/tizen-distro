@@ -33,8 +33,9 @@ RDEPENDS_${PN}-gnome += "user-session-units"
 
 DEPENDS = ""
 #DEPENDS of user-session-units
-DEPENDS += "systemd"
 DEPENDS += "dbus"
+DEPENDS += "systemd"
+inherit pkgconfig
 DEPENDS += "libpam"
 
 do_prep() {
