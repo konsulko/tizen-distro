@@ -29,8 +29,11 @@ DEPENDS = ""
 DEPENDS += "systemd"
 DEPENDS += "dlt-daemon"
 DEPENDS += "zlib"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "python-xml"
+DEPENDS_append_class-native = " fdupes-native"
+DEPENDS_append_class-target = " fdupes-native"
 DEPENDS += "gtk-doc"
 
 do_prep() {
@@ -85,6 +88,27 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
+ 
+ 
+  _target=""; 
+  _symlinks=0; 
+   
+  fdupes -q -n -r ${D} | 
+   while read _file; do 
+     if test -z "$_target" ; then 
+       _target="$_file"; 
+     else 
+       if test -z "$_file" ; then 
+ 	_target=""; 
+ 	continue ; 
+       fi ; 
+       if test "$_symlinks" = 1; then 
+         ln -sf "${_target#${D}}" "$_file"; 
+       else 
+         ln -f "$_target" "$_file"; 
+       fi ;
+     fi ; 
+  done 
  
  
 }

@@ -1,5 +1,3 @@
-inherit pkgconfig
-
 INSANE_SKIP_${PN} = "dev-so"
 
 EXTRA_OECONF += " \

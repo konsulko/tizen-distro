@@ -1,5 +1,3 @@
-inherit pkgconfig
-
 SRC_URI += "file://Fix_build.patch"
 
 do_configure_prepend() {

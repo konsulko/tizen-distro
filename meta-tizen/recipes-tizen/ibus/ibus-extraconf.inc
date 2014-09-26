@@ -1,5 +1,3 @@
-inherit pkgconfig
-
 SRC_URI += " file://Remove_vala_test.patch "
 
 DEPENDS_append_class-target = " vala-native "

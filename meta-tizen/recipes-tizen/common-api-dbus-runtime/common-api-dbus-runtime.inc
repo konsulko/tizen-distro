@@ -35,8 +35,9 @@ RDEPENDS_CommonAPI-DBus-dev += "libCommonAPI-DBus"
 DEPENDS = ""
 #DEPENDS of CommonAPI-DBus
 DEPENDS += "dbus"
-DEPENDS += "common-api-runtime"
 DEPENDS += "glib-2.0"
+inherit pkgconfig
+DEPENDS += "common-api-runtime"
 
 do_prep() {
  cd ${S}
@@ -62,7 +63,7 @@ do_compile() {
   autoreconf -i
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   

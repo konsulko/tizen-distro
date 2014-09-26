@@ -39,6 +39,7 @@ DEPENDS = ""
 #DEPENDS of dlog
 DEPENDS += "systemd"
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 
 do_prep() {
  cd ${S}

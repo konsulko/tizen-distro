@@ -1,7 +1,7 @@
 DESCRIPTION = "ALSA Scenario pkg"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Multimedia/Audio"
-LICENSE = "LGPLv2+"
+SECTION = "Multimedia/Audio FW"
+LICENSE = "LGPL-2.0+"
 
 SRC_URI = ""
 
@@ -24,16 +24,19 @@ RDEPENDS = ""
 #RDEPENDS of alsa-scenario-dev (alsa-scenario-dev)
 RDEPENDS_alsa-scenario-dev += "alsa-scenario"
 
+#RDEPENDS of alsa-scenario (alsa-scenario)
+RDEPENDS_alsa-scenario += "eglibc"
+
 
 DEPENDS = ""
 #DEPENDS of alsa-scenario
 DEPENDS += "alsa-lib"
+inherit pkgconfig
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
- cp ${S}/packaging/alsa-scenario.manifest .
  
  
  
@@ -52,11 +55,12 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  cp -f /usr/share/libtool/config/config.guess ${WORKDIR}/alsa-scenario-0.2.1/
-  cp -f /usr/share/libtool/config/config.sub ${WORKDIR}/alsa-scenario-0.2.1/
+  cp ${S}/packaging/alsa-scenario.manifest .
+  cp -f ${prefix}/share/libtool/config/config.guess ${WORKDIR}/alsa-scenario-0.2.1/
+  cp -f ${prefix}/share/libtool/config/config.sub ${WORKDIR}/alsa-scenario-0.2.1/
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   
@@ -72,6 +76,7 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
+ rm -rf ${D}
  
    oe_runmake \
          DESTDIR=${D} \
@@ -81,6 +86,7 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
+ 
  
  
 }
@@ -105,11 +111,9 @@ alsa-scenario-dev_files = ""
 alsa-scenario-dev_files += "${prefix}/include/alsa/*.h"
 alsa-scenario-dev_files += "${prefix}/lib/libascenario.so"
 alsa-scenario-dev_files += "${prefix}/lib/pkgconfig/libascenario.pc"
-MANIFESTFILES_alsa-scenario-dev = "alsa-scenario.manifest"
 
 alsa-scenario_files = ""
 alsa-scenario_files += "${prefix}/lib/libascenario-0.2.so.*"
-MANIFESTFILES_alsa-scenario = "alsa-scenario.manifest"
 
 FILES_alsa-scenario-dev = "${alsa-scenario-dev_files}"
 FILES_alsa-scenario = "${alsa-scenario_files}"

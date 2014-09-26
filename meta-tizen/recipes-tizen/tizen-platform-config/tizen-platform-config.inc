@@ -74,7 +74,7 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --enable-static"
+EXTRA_OECONF += " --disable-static"
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -93,7 +93,7 @@ do_install() {
    install  
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
-   
+   find ${D} -regex ".*\.a$" | xargs rm -f --
  
  
 }
@@ -122,7 +122,6 @@ libtzplatform-config-dev_files += "${prefix}/lib/*.so"
 libtzplatform-config-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 libtzplatform-config-dev_files += "${prefix}/include/*.h"
 libtzplatform-config-dev_files += "${sysconfdir}/rpm/macros.tizen-platform"
-libtzplatform-config-dev_files += "${prefix}/lib/*.a"
 CONFFILES_libtzplatform-config-dev = ""
 CONFFILES_libtzplatform-config-dev += "${sysconfdir}/rpm/macros.tizen-platform"
 MANIFESTFILES_libtzplatform-config-dev = "tizen-platform-config.manifest"

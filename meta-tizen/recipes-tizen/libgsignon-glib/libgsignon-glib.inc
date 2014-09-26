@@ -38,6 +38,7 @@ RDEPENDS_${PN} += "gsignond-plugin-sasl"
 DEPENDS = ""
 #DEPENDS of libgsignon-glib
 DEPENDS += "libcheck"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 
 do_prep() {

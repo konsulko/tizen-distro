@@ -21,13 +21,10 @@ PROVIDES += "dbus-python-dev"
 
 RDEPENDS = ""
 #RDEPENDS of dbus-python-dev (${PN}-dev)
-RDEPENDS_${PN}-dev += "dbus"
 RDEPENDS_${PN}-dev += "dbus-python"
 
 #RDEPENDS of dbus-python (${PN})
 RDEPENDS_${PN} += "python-xml"
-RDEPENDS_${PN} += "dbus"
-RDEPENDS_${PN} += "libxml2-python"
 
 
 DEPENDS = ""
@@ -36,6 +33,7 @@ inherit pythonnative
 DEPENDS += "dbus"
 DEPENDS_append_class-native = " fdupes-native"
 DEPENDS_append_class-target = " fdupes-native"
+inherit pkgconfig
 DEPENDS += "dbus-glib"
 
 do_prep() {
@@ -63,7 +61,8 @@ do_compile() {
   export CFLAGS="$CFLAGS -fstack-protector -fno-strict-aliasing -fPIC"
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
+  
   
   
   
@@ -121,6 +120,7 @@ do_install() {
        fi ;
      fi ; 
   done 
+ 
  
  
 }

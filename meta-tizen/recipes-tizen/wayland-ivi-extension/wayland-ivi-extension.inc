@@ -31,6 +31,7 @@ DEPENDS = ""
 inherit tizen_cmake
 DEPENDS += "libxkbcommon"
 DEPENDS += "cairo"
+inherit pkgconfig
 DEPENDS += "weston-ivi-shell"
 DEPENDS += "weston"
 DEPENDS += "wayland"
@@ -44,6 +45,23 @@ do_prep() {
  
  /usr/bin/wayland-scanner code < protocol/ivi-controller.xml \
      > protocol/ivi-controller-protocol.c
+ 
+ 
+}
+do_patch_append() {
+    bb.build.exec_func('do_prep', d)
+}
+
+do_configure() {
+}
+
+do_compile() {
+ cd ${S}
+ LANG=C
+ export LANG
+ unset DISPLAY
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+ 
  
  cat ivi-extension-protocol.pc.in \
      | sed s\#@libdir@\#${prefix}/lib\#g \
@@ -66,24 +84,7 @@ do_prep() {
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} .
  
- 
-}
-do_patch_append() {
-    bb.build.exec_func('do_prep', d)
-}
-
-do_configure() {
-}
-
-do_compile() {
- cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- 
- make -j16 V=1
+ oe_runmake -j16 V=1
  
  
  

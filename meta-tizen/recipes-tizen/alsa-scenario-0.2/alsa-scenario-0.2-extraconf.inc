@@ -1,5 +1,3 @@
-inherit pkgconfig
-
 do_compile() {
     cd ${S}
     LANG=C

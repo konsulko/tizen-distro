@@ -1,5 +1,3 @@
-inherit pkgconfig
-
 PROVIDES += "python-dbus"
 RPROVIDES_${PN} += "python-dbus"
 
