@@ -23,6 +23,7 @@ inherit tizen_cmake
 DEPENDS += "evolution-data-server"
 DEPENDS += "dbus"
 DEPENDS += "expat"
+DEPENDS += "aul"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
 DEPENDS += "json-glib"

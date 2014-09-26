@@ -46,23 +46,6 @@ do_prep() {
  /usr/bin/wayland-scanner code < protocol/ivi-controller.xml \
      > protocol/ivi-controller-protocol.c
  
- 
-}
-do_patch_append() {
-    bb.build.exec_func('do_prep', d)
-}
-
-do_configure() {
-}
-
-do_compile() {
- cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- 
  cat ivi-extension-protocol.pc.in \
      | sed s\#@libdir@\#${prefix}/lib\#g \
      | sed s\#@includedir@\#${prefix}/include/genivi-shell\#g \
@@ -83,6 +66,23 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} .
+ 
+ 
+}
+do_patch_append() {
+    bb.build.exec_func('do_prep', d)
+}
+
+do_configure() {
+}
+
+do_compile() {
+ cd ${S}
+ LANG=C
+ export LANG
+ unset DISPLAY
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+ 
  
  oe_runmake -j16 V=1
  

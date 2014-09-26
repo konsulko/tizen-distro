@@ -54,7 +54,24 @@ do_configure() {
 }
 
 do_compile() {
+ cd ${S}
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  CFLAGS="${CFLAGS} -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" $GSTREAMER_API" ; export CFLAGS
+  LDFLAGS="${LDFLAGS=} -Wl,--rpath=${prefix}/lib -lgstvideo-1.0 -Wl,--hash-style=both -Wl,--as-needed"; export LDFLAGS
+  
+  ./autogen.sh
+  
+  autotools_do_configure
+  oe_runmake -j16
+  
+  
+  
 }
+EXTRA_OECONF += " --disable-static"
 
 do_install() {
  export RPM_BUILD_ROOT=${D}

@@ -28,6 +28,7 @@ DEPENDS = ""
 #DEPENDS of libhangul
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
+inherit pkgconfig
 
 do_prep() {
  cd ${S}
@@ -51,7 +52,7 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  [ ! -x autogen.sh ] ||  rm -f configure 
+  [ ! -x autogen.sh ] ||  rm -f configure
   touch ChangeLog
   
   autotools_do_configure

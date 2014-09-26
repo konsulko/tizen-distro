@@ -47,8 +47,11 @@ RDEPENDS_${PN}-dev += "xmlsec1"
 
 DEPENDS = ""
 #DEPENDS of xmlsec1
-DEPENDS += "libxml2"
 DEPENDS += "openssl"
+DEPENDS += "libxml2"
+DEPENDS_append_class-native = " fdupes-native"
+DEPENDS_append_class-target = " fdupes-native"
+inherit pkgconfig
 DEPENDS += "libxslt"
 
 do_prep() {
@@ -78,7 +81,7 @@ do_compile() {
   
   autotools_do_configure
   
-  make -j16
+  oe_runmake -j16
   
   
   
@@ -105,7 +108,6 @@ do_install() {
    
  
  
- 
    rm -rf ${D}${infodir} 
    rm -rf ${D}${prefix}/share/doc/packages 
    rm -rf ${D}${prefix}/share/doc/xmlsec1 
@@ -116,6 +118,27 @@ do_install() {
    find ${D} -regex ".*/man/man./.*.[0-9]" | xargs rm -f -- 
    find ${D} -regex ".*/man/../man./.*.[0-9]" | xargs rm -f -- 
    find ${D} -regex ".*/man/man./.*.[0-9]pm" | xargs rm -f --
+ 
+ 
+  _target=""; 
+  _symlinks=0; 
+   
+  fdupes -q -n -r ${D} | 
+   while read _file; do 
+     if test -z "$_target" ; then 
+       _target="$_file"; 
+     else 
+       if test -z "$_file" ; then 
+ 	_target=""; 
+ 	continue ; 
+       fi ; 
+       if test "$_symlinks" = 1; then 
+         ln -sf "${_target#${D}}" "$_file"; 
+       else 
+         ln -f "$_target" "$_file"; 
+       fi ;
+     fi ; 
+  done 
  
  
 }

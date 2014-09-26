@@ -1,7 +1,7 @@
-DESCRIPTION = "A proof of concept pure html5 UI"
+DESCRIPTION = "Pure html5 UI"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Applications/System"
-LICENSE = "Apache 2.0"
+SECTION = "Automotive/Modello"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -23,12 +23,14 @@ RDEPENDS_Modello_Multimediaplayer += "Modello_Common"
 
 DEPENDS = ""
 #DEPENDS of Modello_Multimediaplayer
+DEPENDS += "tizen-platform-config"
 DEPENDS += "zip"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n Modello_Multimediaplayer-0.0.2
+ cp ${S}/packaging/Modello_Multimediaplayer.manifest .
  
  
 }
@@ -46,8 +48,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- 
- make wgtPkg
+ #empty
  
  
  
@@ -63,15 +64,10 @@ do_install() {
  mkdir -p ${D}
  
  rm -rf ${D}
- 
-   oe_runmake \
-         DESTDIR=${D} \
-         INSTALL_ROOT=${D} \
-         BINDIR=${prefix}/bin \
-   install  
-   rm -f ${D}${infodir}/dir 
-   find ${D} -regex ".*\.la$" | xargs rm -f -- 
-   find ${D} -regex ".*\.a$" | xargs rm -f --
+ mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
+ mkdir -p ${D}${prefix}/share/Modello/Common/icons
+ zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello_Multimediaplayer.wgt components config.xml css MultimediaPlayer_icon.png images index.html js
+ install -m 0644 MultimediaPlayer_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
 }
@@ -80,8 +76,8 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " Modello_Multimediaplayer "
 
 Modello_Multimediaplayer_files = ""
-Modello_Multimediaplayer_files += "/opt/usr/apps/.preinstallWidgets/Modello_Multimediaplayer.wgt"
-Modello_Multimediaplayer_files += "/opt/usr/apps/_common/icons/Multimedia_Player_icon.png"
+Modello_Multimediaplayer_files += "${prefix}/share/Modello/Common/icons/MultimediaPlayer_icon.png"
+MANIFESTFILES_Modello_Multimediaplayer = "Modello_Multimediaplayer.manifest"
 
 FILES_Modello_Multimediaplayer = "${Modello_Multimediaplayer_files}"
 
