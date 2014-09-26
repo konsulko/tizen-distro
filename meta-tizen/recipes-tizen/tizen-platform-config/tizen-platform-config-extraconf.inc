@@ -1,3 +1,5 @@
+INSANE_SKIP_libtzplatform-config-dev = "staticdev"
+
 DEPENDS_append_class-native = " tizen-platform-wrapper-native"
 DEPENDS_append_class-target = " tizen-platform-wrapper-native"
 
