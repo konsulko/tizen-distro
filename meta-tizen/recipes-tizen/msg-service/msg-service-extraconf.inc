@@ -1,0 +1,1 @@
+FILES_${PN} += "/opt/usr/data/msg-service"
