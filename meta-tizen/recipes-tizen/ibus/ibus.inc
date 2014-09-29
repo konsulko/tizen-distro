@@ -49,6 +49,7 @@ DEPENDS += "iso-codes"
 inherit pythonnative
 DEPENDS += "vala"
 DEPENDS += "libxkbcommon"
+inherit pkgconfig
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
 DEPENDS += "wayland"
@@ -56,6 +57,8 @@ DEPENDS_append_class-native = " libtool"
 DEPENDS_append_class-target = " libtool-cross"
 DEPENDS += "gtk-doc-stub"
 DEPENDS += "dbus-python"
+DEPENDS_append_class-native = " fdupes-native"
+DEPENDS_append_class-target = " fdupes-native"
 DEPENDS += "dbus-glib"
 
 do_prep() {
@@ -106,6 +109,27 @@ do_install() {
  rm -fr ${D}${prefix}/share/gtk-doc
  
  #find_lang ibus10
+ 
+ 
+  _target=""; 
+  _symlinks=0; 
+   
+  fdupes -q -n -r ${D} | 
+   while read _file; do 
+     if test -z "$_target" ; then 
+       _target="$_file"; 
+     else 
+       if test -z "$_file" ; then 
+ 	_target=""; 
+ 	continue ; 
+       fi ; 
+       if test "$_symlinks" = 1; then 
+         ln -sf "${_target#${D}}" "$_file"; 
+       else 
+         ln -f "$_target" "$_file"; 
+       fi ;
+     fi ; 
+  done 
  
  
 }
@@ -172,7 +196,7 @@ ibus-libs_files += "${prefix}/lib/girepository-1.0/IBus-1.0.typelib"
 MANIFESTFILES_${PN}-libs = "ibus.manifest"
 
 ibus_files = ""
-ibus_files += "AUTHORS COPYING README"
+ibus_files += "AUTHORS README"
 ibus_files += "${prefix}/lib/python2.7/site-packages/ibus"
 ibus_files += "${prefix}/lib/python2.7/site-packages/ibus/*"
 ibus_files += "${prefix}/share/ibus/"

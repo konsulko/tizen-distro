@@ -27,6 +27,7 @@ RDEPENDS_${PN}-dev += "libmm-common"
 DEPENDS = ""
 #DEPENDS of libmm-common
 DEPENDS += "libmm-log"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 
 do_prep() {

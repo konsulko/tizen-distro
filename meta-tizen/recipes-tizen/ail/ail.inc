@@ -115,9 +115,9 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    [ "x$D" == "x" ] && ldconfig
+    ldconfig
     # Create tizenglobalapp user needed for global installation
-    $D${prefix}/sbin/useradd -d $D${prefix}/apps -m %TZ_SYS_GLOBALAPP_USER -r -c "system user for common applications" -g root
+    useradd -d $D${prefix}/apps -m %TZ_SYS_GLOBALAPP_USER -r -c "system user for common applications" -g root
     #mkdir -p $D${prefix}/apps/.config/xwalk-service/applications
     #cd $D${prefix}/apps/
     #ln -s .config/xwalk-service/applications/

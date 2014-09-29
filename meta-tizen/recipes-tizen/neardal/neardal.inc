@@ -1,6 +1,6 @@
 DESCRIPTION = "Neard Abstraction Library (for Neard v0.7)"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Connectivity/NFC"
+SECTION = "Network & Connectivity/NFC"
 LICENSE = "LGPL-2.0"
 
 SRC_URI = ""
@@ -34,6 +34,7 @@ inherit gettext
 DEPENDS_append_class-native = " intltool-native"
 DEPENDS_append_class-target = " intltool-native"
 inherit pythonnative
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
@@ -66,11 +67,9 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  autoreconf --force --install
-  
   
   autotools_do_configure
-  make
+  oe_runmake
   
   
 }
@@ -96,7 +95,6 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- # executed after install
  
 }
 
@@ -122,7 +120,7 @@ neardal-dev_files += "${prefix}/lib/pkgconfig/neardal.pc"
 neardal-dev_files += "${prefix}/lib/libneardal.so"
 
 neardal_files = ""
-neardal_files += "README AUTHORS NEWS"
+neardal_files += "README AUTHORS"
 neardal_files += "${prefix}/lib/libneardal.so.0"
 neardal_files += "${prefix}/lib/libneardal.so.0.0.1"
 

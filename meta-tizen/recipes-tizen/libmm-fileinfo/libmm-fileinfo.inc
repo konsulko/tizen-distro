@@ -29,6 +29,7 @@ DEPENDS = ""
 DEPENDS += "libmm-log"
 DEPENDS += "libav"
 DEPENDS += "libmm-common"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 
 do_prep() {

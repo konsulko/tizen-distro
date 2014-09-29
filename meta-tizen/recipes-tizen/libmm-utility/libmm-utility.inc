@@ -38,8 +38,8 @@ DEPENDS = ""
 #DEPENDS of libmm-utility
 DEPENDS += "libmm-common"
 DEPENDS += "libjpeg-turbo"
-DEPENDS += "tizen-platform-config"
 DEPENDS += "libmm-log"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "libmm-ta"
 
@@ -65,7 +65,8 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  mkdir -p m4
+  ./autogen.sh
+  
   CFLAGS="$CFLAGS -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" -D_MM_PROJECT_FLOATER"   LDFLAGS+="-Wl,--rpath=${prefix}/lib -Wl,--hash-style=both -Wl,--as-needed"   
   autotools_do_configure
   oe_runmake -j16
@@ -97,8 +98,6 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}${prefix}/share/license
- cp LICENSE ${D}${prefix}/share/license/libmm-utility
  
  
 }
@@ -121,7 +120,6 @@ PACKAGES += " libmm-utility-dev "
 PACKAGES += " libmm-utility-tool "
 
 libmm-utility_files = ""
-libmm-utility_files += "${prefix}/share/license/libmm-utility"
 libmm-utility_files += "${prefix}/lib/*.so*"
 MANIFESTFILES_${PN} = "libmm-utility.manifest"
 

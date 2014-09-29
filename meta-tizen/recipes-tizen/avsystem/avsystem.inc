@@ -36,8 +36,9 @@ DEPENDS = ""
 #DEPENDS of avsystem
 DEPENDS += "alsa-lib"
 DEPENDS += "libmm-log"
-DEPENDS += "pulseaudio"
+inherit pkgconfig
 DEPENDS += "iniparser"
+DEPENDS += "pulseaudio"
 DEPENDS += "libexif"
 DEPENDS += "alsa-scenario-0.2"
 DEPENDS += "libmm-ta"
@@ -47,6 +48,7 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n avsystem-0.5.5
  cp ${S}/packaging/avsystem.manifest .
+ 
  
  
 }
@@ -66,7 +68,9 @@ do_compile() {
   
   
   autotools_do_configure
+  
   oe_runmake -j16
+  
   
   
   
@@ -92,14 +96,10 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -m 755 -p ${D}/${sysconfdir}/rc.d/rc3.d/
- ln -s ../init.d/snd_init ${D}/${sysconfdir}/rc.d/rc3.d/S15snd_init
- mkdir -m 755 -p ${D}/${sysconfdir}/rc.d/rc4.d/
- ln -s ../init.d/snd_init ${D}/${sysconfdir}/rc.d/rc4.d/S15snd_init
- 
  mkdir -m 755 -p ${D}${systemd_unitdir}/system/multi-user.target.wants
  install -m 0644 ${S}/packaging/avsystem.service ${D}${systemd_unitdir}/system/avsystem.service
- ln -s ../avsystem.service ${D}${systemd_unitdir}/system/multi-user.target.wants/avsystem.service
+ ln -sf ../avsystem.service ${D}${systemd_unitdir}/system/multi-user.target.wants/avsystem.service
+ 
  
  
 }
@@ -150,9 +150,6 @@ PACKAGES += " avsystem-dev "
 PACKAGES += " libavsysaudio "
 
 avsystem_files = ""
-avsystem_files += "${sysconfdir}/rc.d/init.d/snd_init"
-avsystem_files += "${sysconfdir}/rc.d/rc3.d/S15snd_init"
-avsystem_files += "${sysconfdir}/rc.d/rc4.d/S15snd_init"
 avsystem_files += "${prefix}/bin/*"
 avsystem_files += "${systemd_unitdir}/system/avsystem.service"
 avsystem_files += "${systemd_unitdir}/system/multi-user.target.wants/avsystem.service"

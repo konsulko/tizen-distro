@@ -30,6 +30,7 @@ RDEPENDS_${PN} += "vconf"
 
 DEPENDS = ""
 #DEPENDS of libslp-location
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "json-glib"
@@ -59,12 +60,10 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  
   ./autogen.sh
   
   autotools_do_configure
-  
-  make -j16
+  oe_runmake -j16
   
   
   

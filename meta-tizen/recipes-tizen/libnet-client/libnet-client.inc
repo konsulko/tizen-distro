@@ -1,7 +1,7 @@
-DESCRIPTION = "Network Client library (Shared library)"
+DESCRIPTION = "Network Client library"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Network"
-LICENSE = "Flora License"
+LICENSE = "Flora"
 
 SRC_URI = ""
 
@@ -30,6 +30,7 @@ RDEPENDS_${PN} += "eglibc"
 DEPENDS = ""
 #DEPENDS of libnet-client
 inherit tizen_cmake
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "vconf"
