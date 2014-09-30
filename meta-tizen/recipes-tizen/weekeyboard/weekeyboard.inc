@@ -25,8 +25,9 @@ RDEPENDS_${PN} += "ibus-libpinyin"
 DEPENDS = ""
 #DEPENDS of weekeyboard
 DEPENDS += "edje"
-DEPENDS += "evas"
 DEPENDS += "ibus"
+DEPENDS += "evas"
+inherit pkgconfig
 DEPENDS += "efreet"
 DEPENDS += "eina"
 DEPENDS += "eet"
@@ -58,7 +59,7 @@ do_compile() {
   
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   

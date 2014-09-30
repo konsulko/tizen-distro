@@ -1,7 +1,7 @@
-DESCRIPTION = "A Sensor library in TIZEN C API"
+DESCRIPTION = "Sensor framework client library"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "framework/system"
-LICENSE = "Apache 2.0"
+SECTION = "System/Sensor Framework"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -12,32 +12,30 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by capi-system-sensor-dev
-PROVIDES += "capi-system-sensor-dev"
+#PROVIDES by sensor
 
 
-#PROVIDES by capi-system-sensor
-PROVIDES += "capi-system-sensor"
+#PROVIDES by sensor-dev
+PROVIDES += "sensor-dev"
 
 
 RDEPENDS = ""
-#RDEPENDS of capi-system-sensor-dev (capi-system-${PN}-dev)
-RDEPENDS_capi-system-${PN}-dev += "capi-system-sensor"
+#RDEPENDS of sensor-dev (${PN}-dev)
+RDEPENDS_${PN}-dev += "sensor"
 
 
 DEPENDS = ""
-#DEPENDS of capi-system-sensor
+#DEPENDS of sensor
+DEPENDS += "libsf-common"
 inherit tizen_cmake
-DEPENDS += "libslp-sensor"
-DEPENDS += "dlog"
-DEPENDS += "common"
+DEPENDS += "vconf"
+DEPENDS += "glib-2.0"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q
- cp ${S}/packaging/capi-system-sensor.manifest .
- 
+ #setup -q -n sensor-0.5.27
+ cp ${S}/packaging/sensor.manifest ${S}/packaging/sensor-devel.manifest .
  
  
 }
@@ -55,7 +53,6 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- MAJORVER=`echo 0.1.17 | awk 'BEGIN {FS="."}{print $1}'`
  
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
@@ -68,7 +65,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
-         ${EXTRA_OECMAKE} . -DFULLVER=0.1.17 -DMAJORVER=${MAJORVER}
+         ${EXTRA_OECMAKE} .
  
  
  make -j16
@@ -86,7 +83,6 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- rm -rf ${D}
  
    oe_runmake \
          DESTDIR=${D} \
@@ -96,9 +92,6 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- 
- mkdir -p ${D}/usr/share/license
- cp LICENSE ${D}/usr/share/license/capi-system-sensor
  
  
 }
@@ -116,25 +109,24 @@ pkg_postrm_${PN}() {
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " capi-system-sensor-dev "
-PACKAGES += " capi-system-sensor "
+PACKAGES += " sensor "
+PACKAGES += " sensor-dev "
 
-capi-system-sensor-dev_files = ""
-capi-system-sensor-dev_files += "${prefix}/include/system/sensors.h"
-capi-system-sensor-dev_files += "${prefix}/lib/pkgconfig/*.pc"
-capi-system-sensor-dev_files += "${prefix}/lib/libcapi-system-sensor.so"
-capi-system-sensor-dev_files += "/usr/share/license/capi-system-sensor"
-MANIFESTFILES_capi-system-${PN}-dev = "capi-system-sensor.manifest"
+sensor_files = ""
+sensor_files += "${prefix}/lib/libsensor.so.*"
+MANIFESTFILES_${PN} = "sensor.manifest"
 
-capi-system-sensor_files = ""
-capi-system-sensor_files += "${prefix}/lib/libcapi-system-sensor.so.*"
-MANIFESTFILES_capi-system-${PN} = "capi-system-sensor.manifest"
+sensor-dev_files = ""
+sensor-dev_files += "${prefix}/include/sensor/*.h"
+sensor-dev_files += "${prefix}/lib/libsensor.so"
+sensor-dev_files += "${prefix}/lib/pkgconfig/sensor.pc"
+MANIFESTFILES_${PN}-dev = "sensor-devel.manifest"
 
-FILES_capi-system-${PN}-dev = "${capi-system-sensor-dev_files}"
-FILES_capi-system-${PN} = "${capi-system-sensor_files}"
+FILES_${PN} = "${sensor_files}"
+FILES_${PN}-dev = "${sensor-dev_files}"
 
-PKG_capi-system-sensor-dev= "capi-system-sensor-dev"
-PKG_capi-system-sensor= "capi-system-sensor"
+PKG_sensor= "sensor"
+PKG_sensor-dev= "sensor-dev"
 
 require sensor-extraconf.inc
 

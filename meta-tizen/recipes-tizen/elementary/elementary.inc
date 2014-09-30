@@ -39,6 +39,7 @@ DEPENDS += "ethumb"
 DEPENDS += "edbus"
 inherit pythonnative
 DEPENDS += "eet"
+inherit pkgconfig
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
 DEPENDS += "efreet"

@@ -39,10 +39,11 @@ RDEPENDS_${PN}-dev += "gsignond"
 
 DEPENDS = ""
 #DEPENDS of gsignond
+DEPENDS += "smack"
 DEPENDS += "dbus"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "ecryptfs-utils"
-DEPENDS += "smack"
 DEPENDS += "sqlite3"
 
 do_prep() {
@@ -99,7 +100,7 @@ do_install() {
  install -m 755 -d ${D}${systemd_unitdir}/user
  install -m 644 data/gsignond.service ${D}${systemd_unitdir}/user/
  install -m 755 -d ${D}${systemd_unitdir}/user/weston.target.wants
- ln -s ../gsignond.service ${D}${systemd_unitdir}/user/weston.target.wants/gsignond.service
+ ln -sf ../gsignond.service ${D}${systemd_unitdir}/user/weston.target.wants/gsignond.service
  
  
 }
@@ -127,7 +128,7 @@ gsignond-doc_files = ""
 gsignond-doc_files += "${prefix}/share/gtk-doc/html/gsignond/*"
 
 gsignond_files = ""
-gsignond_files += "AUTHORS COPYING.LIB INSTALL NEWS README"
+gsignond_files += "AUTHORS COPYING.LIB"
 gsignond_files += "${prefix}/bin/gsignond"
 gsignond_files += "${prefix}/lib/libgsignond-*.so.*"
 gsignond_files += "${prefix}/lib/gsignond/extensions/*.so*"

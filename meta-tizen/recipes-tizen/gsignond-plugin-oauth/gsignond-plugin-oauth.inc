@@ -1,4 +1,4 @@
-DESCRIPTION = "OAuth plugin for GLib based Single Sign-On"
+DESCRIPTION = "OAuth plugin for GLib"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Security/Accounts"
 LICENSE = "LGPL-2.1+"
@@ -29,11 +29,12 @@ RDEPENDS_${PN}-doc += "gsignond-plugin-oauth"
 
 DEPENDS = ""
 #DEPENDS of gsignond-plugin-oauth
-DEPENDS += "libsoup-2.4"
 DEPENDS += "gsignond"
+inherit pkgconfig
+DEPENDS += "glib-2.0"
+DEPENDS += "libsoup-2.4"
 DEPENDS += "json-glib"
 DEPENDS += "gnutls"
-DEPENDS += "glib-2.0"
 
 do_prep() {
  cd ${S}
@@ -60,13 +61,13 @@ do_compile() {
   
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   
   
 }
-EXTRA_OECONF += " "
+EXTRA_OECONF += ""
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -108,7 +109,6 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " gsignond-plugin-oauth "
 
 gsignond-plugin-oauth_files = ""
-gsignond-plugin-oauth_files += "AUTHORS COPYING.LIB INSTALL NEWS README"
 gsignond-plugin-oauth_files += "${prefix}/lib/gsignond/gplugins/liboauth*.so"
 MANIFESTFILES_${PN} = "gsignond-plugin-oauth.manifest"
 
