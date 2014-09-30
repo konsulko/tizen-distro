@@ -41,9 +41,9 @@ RDEPENDS_${PN}-efl += "eglibc"
 
 #RDEPENDS of app-core-common-dev (${PN}-common-dev)
 RDEPENDS_${PN}-common-dev += "elementary"
+RDEPENDS_${PN}-common-dev += "sensor"
 RDEPENDS_${PN}-common-dev += "app-core-common"
 RDEPENDS_${PN}-common-dev += "vconf"
-RDEPENDS_${PN}-common-dev += "libslp-sensor"
 RDEPENDS_${PN}-common-dev += "aul"
 
 #RDEPENDS of app-core-common (${PN}-common)
@@ -62,9 +62,9 @@ DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
-DEPENDS += "libslp-sensor"
 DEPENDS += "elementary"
 DEPENDS += "ecore"
+DEPENDS += "sensor"
 DEPENDS += "vconf"
 
 do_prep() {

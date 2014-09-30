@@ -26,11 +26,11 @@ RDEPENDS_${PN}-dev += "capi-media-wav-player"
 
 DEPENDS = ""
 #DEPENDS of capi-media-wav-player
+DEPENDS += "capi-media-sound-manager"
 DEPENDS += "libmm-sound"
 inherit tizen_cmake
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 DEPENDS += "dlog"
-DEPENDS += "sound-manager"
 
 do_prep() {
  cd ${S}

@@ -45,7 +45,7 @@ DEPENDS += "icu"
 DEPENDS += "sqlite3"
 DEPENDS += "vconf"
 DEPENDS += "libslp-db-util"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 
 do_prep() {
  cd ${S}

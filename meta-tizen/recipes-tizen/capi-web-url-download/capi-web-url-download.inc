@@ -29,7 +29,7 @@ DEPENDS = ""
 DEPENDS += "bundle"
 DEPENDS += "download-provider"
 inherit tizen_cmake
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 DEPENDS += "dlog"
 
 do_prep() {

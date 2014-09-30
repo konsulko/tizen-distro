@@ -22,7 +22,7 @@ PROVIDES += "libtbm-dev"
 RDEPENDS = ""
 #RDEPENDS of libtbm-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "libtbm"
-RDEPENDS_${PN}-dev += "common"
+RDEPENDS_${PN}-dev += "capi-base-common"
 
 
 DEPENDS = ""
@@ -31,7 +31,7 @@ DEPENDS += "wayland"
 DEPENDS += "libdrm"
 DEPENDS += "libpthread-stubs"
 inherit pkgconfig
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 
 do_prep() {
  cd ${S}

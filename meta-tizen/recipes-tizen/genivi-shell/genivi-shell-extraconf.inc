@@ -1,9 +1,7 @@
-RPROVIDES_genivi-shell += "wayland-ivi-extension"
-
 DEPENDS += "wayland-native"
 DEPENDS += "weston-ivi-shell"
 
-INSANE_SKIP_genivi-shell-dev = "staticdev"
+INSANE_SKIP_${PN}-dev = "staticdev"
 
 B="${S}"
 
@@ -12,12 +10,15 @@ do_prep() {
     chmod -Rf a+rX,u+w,g-w,o-w ${S}
     cp ${S}/packaging/genivi-shell.manifest .
 
-    ${STAGING_BINDIR_NATIVE}/wayland-scanner code < protocol/ivi-controller.xml > protocol/ivi-controller-protocol.c
-    sed -i "s@\${LIBS} \${WESTON_LIBDIR}/weston/ivi-shell.so@\${LIBS} ${PKG_CONFIG_SYSROOT_DIR}\${WESTON_LIBDIR}/weston/ivi-shell.so@g" ${S}/weston-ivi-shell/CMakeLists.txt 
 }
 
-PACKAGES += " genivi-shell-dbg "
+do_compile_prepend() {
+    cd ${S}
 
-FILES_genivi-shell-dbg = "${prefix}/lib/weston/.debug/ivi-controller.so"
+    ${STAGING_BINDIR_NATIVE}/wayland-scanner code < protocol/ivi-controller.xml > protocol/ivi-controller-protocol.c
+    sed -i "s@\${LIBS} \${WESTON_LIBDIR}/weston/ivi-shell.so@\${LIBS} ${PKG_CONFIG_SYSROOT_DIR}\${WESTON_LIBDIR}/weston/ivi-shell.so@g" ${S}/weston-ivi-shell/CMakeLists.txt 
 
-FILES_genivi-shell += "${prefix}/bin/IVISurfaceCreator"
+}
+
+FILES_${PN}-dbg = "${prefix}/lib/weston/.debug/ivi-controller.so"
+

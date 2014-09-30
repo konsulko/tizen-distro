@@ -21,7 +21,7 @@ PROVIDES += "capi-system-system-settings-dev"
 
 RDEPENDS = ""
 #RDEPENDS of capi-system-system-settings-dev (${PN}-dev)
-RDEPENDS_${PN}-dev += "common"
+RDEPENDS_${PN}-dev += "capi-base-common"
 RDEPENDS_${PN}-dev += "capi-system-system-settings"
 
 
@@ -32,7 +32,7 @@ DEPENDS += "fontconfig"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "dlog"
 DEPENDS += "app-core"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 DEPENDS += "libxml2"
 DEPENDS += "elementary"
 DEPENDS += "ecore"

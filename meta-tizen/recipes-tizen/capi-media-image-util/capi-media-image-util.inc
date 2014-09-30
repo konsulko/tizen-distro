@@ -25,7 +25,7 @@ RDEPENDS_${PN}-dev += "libmm-utility"
 RDEPENDS_${PN}-dev += "libmm-common"
 RDEPENDS_${PN}-dev += "dlog"
 RDEPENDS_${PN}-dev += "capi-media-image-util"
-RDEPENDS_${PN}-dev += "common"
+RDEPENDS_${PN}-dev += "capi-base-common"
 
 
 DEPENDS = ""
@@ -36,7 +36,7 @@ inherit gettext
 DEPENDS += "libmm-common"
 DEPENDS += "dlog"
 DEPENDS += "libmm-utility"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 
 do_prep() {
  cd ${S}

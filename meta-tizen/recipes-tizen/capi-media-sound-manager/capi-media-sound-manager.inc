@@ -30,7 +30,7 @@ DEPENDS += "libmm-sound"
 inherit tizen_cmake
 DEPENDS += "libmm-session"
 DEPENDS += "dlog"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 
 do_prep() {
  cd ${S}

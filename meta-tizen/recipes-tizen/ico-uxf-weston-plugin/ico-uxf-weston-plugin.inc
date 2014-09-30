@@ -25,18 +25,18 @@ RDEPENDS_${PN}-dev += "ico-uxf-weston-plugin"
 
 #RDEPENDS of ico-uxf-weston-plugin (${PN})
 RDEPENDS_${PN} += "weston"
-RDEPENDS_${PN} += "weekeyboard"
-RDEPENDS_${PN} += "wayland-ivi-extension"
+RDEPENDS_${PN} += "genivi-shell"
 RDEPENDS_${PN} += "weston-ivi-shell"
+RDEPENDS_${PN} += "weekeyboard"
 
 
 DEPENDS = ""
 #DEPENDS of ico-uxf-weston-plugin
+DEPENDS += "genivi-shell"
 DEPENDS += "evas"
 DEPENDS += "aul"
 DEPENDS += "weston-ivi-shell"
 DEPENDS += "weston"
-DEPENDS += "wayland-ivi-extension"
 DEPENDS += "ecore"
 DEPENDS += "mesa"
 DEPENDS += "pixman"

@@ -35,26 +35,26 @@ DEPENDS = ""
 #DEPENDS of download-provider
 DEPENDS += "libwifi-direct"
 inherit tizen_cmake
-DEPENDS += "smack"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
-DEPENDS += "notification"
+DEPENDS += "capi-appfw-app-manager"
+DEPENDS += "capi-network-connection"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "app-svc"
-DEPENDS += "connection"
+DEPENDS += "smack"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "libsoup-2.4"
-DEPENDS += "app-manager"
 DEPENDS += "systemd"
 DEPENDS += "bundle"
+DEPENDS += "notification"
 DEPENDS += "sqlite3"
 DEPENDS += "xdgmime"
 DEPENDS += "libprivilege-control"
 DEPENDS_append_class-native = " fdupes-native"
 DEPENDS_append_class-target = " fdupes-native"
 DEPENDS += "vconf"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 
 do_prep() {
  cd ${S}

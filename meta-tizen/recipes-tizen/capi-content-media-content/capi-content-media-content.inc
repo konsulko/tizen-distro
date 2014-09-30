@@ -31,7 +31,7 @@ inherit tizen_cmake
 DEPENDS += "tizen-platform-config"
 DEPENDS += "dlog"
 DEPENDS += "media-server"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 DEPENDS += "libmedia-service"
 
 do_prep() {

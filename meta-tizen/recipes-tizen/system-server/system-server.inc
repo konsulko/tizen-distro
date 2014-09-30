@@ -118,23 +118,23 @@ DEPENDS += "smack"
 DEPENDS += "edbus"
 inherit tizen_cmake
 DEPENDS += "attr"
+#Replace "DEPENDS" on gettext by "inherit gettext"
+inherit gettext
 DEPENDS += "notification"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "syspopup"
-DEPENDS += "libtapi-legacy"
-DEPENDS += "dlog"
 DEPENDS += "usbutils"
+DEPENDS += "libtapi"
 DEPENDS += "libdevice-node"
 DEPENDS += "systemd"
-#Replace "DEPENDS" on gettext by "inherit gettext"
-inherit gettext
-DEPENDS += "libslp-sensor"
+DEPENDS += "dlog"
 DEPENDS += "heynoti"
 DEPENDS += "ecore"
 DEPENDS_append_class-native = " fdupes-native"
 DEPENDS_append_class-target = " fdupes-native"
+DEPENDS += "sensor"
 DEPENDS += "vconf"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 
 do_prep() {
  cd ${S}

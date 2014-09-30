@@ -40,8 +40,8 @@ inherit pkgconfig
 DEPENDS += "iniparser"
 DEPENDS += "pulseaudio"
 DEPENDS += "libexif"
-DEPENDS += "alsa-scenario-0.2"
 DEPENDS += "libmm-ta"
+DEPENDS += "alsa-scenario"
 
 do_prep() {
  cd ${S}

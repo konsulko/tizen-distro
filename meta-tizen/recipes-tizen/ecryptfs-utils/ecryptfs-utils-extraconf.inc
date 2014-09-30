@@ -17,8 +17,6 @@ INSANE_SKIP_libecryptfs-python = "dev-so"
 PACKAGES += " libecryptfs-dbg "
 PACKAGES += " libecryptfs-python-dbg "
 
-ecryptfs-utils_files += "/lib/security/pam_ecryptfs.so"
-
 FILES_${PN}-dbg += "/lib/security/.debug/pam_ecryptfs.so"
 
 FILES_libecryptfs-dbg += "/usr/lib/ecryptfs/.debug/libecryptfs_key_mod_passphrase.so"

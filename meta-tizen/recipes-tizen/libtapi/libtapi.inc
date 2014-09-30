@@ -1,7 +1,7 @@
-DESCRIPTION = "A Sensor library in TIZEN C API"
+DESCRIPTION = "Telephony dbus client library"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "framework/system"
-LICENSE = "Apache 2.0"
+SECTION = "Telephony/Libraries"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -12,30 +12,34 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by capi-system-sensor-dev
-PROVIDES += "capi-system-sensor-dev"
+#PROVIDES by libtapi-dev
+PROVIDES += "libtapi-dev"
 
 
-#PROVIDES by capi-system-sensor
+#PROVIDES by libtapi
+# the PROVIDES rules is ignore "libslp-tapi  "
+PROVIDES += "libslp-tapi"
+RPROVIDES_libtapi += "libslp-tapi"
 
 
 RDEPENDS = ""
-#RDEPENDS of capi-system-sensor-dev (${PN}-dev)
-RDEPENDS_${PN}-dev += "capi-system-sensor"
+#RDEPENDS of libtapi-dev (${PN}-dev)
+RDEPENDS_${PN}-dev += "libtapi"
 
 
 DEPENDS = ""
-#DEPENDS of capi-system-sensor
-DEPENDS += "sensor"
+#DEPENDS of libtapi
+DEPENDS += "libtapi3"
 inherit tizen_cmake
-DEPENDS += "capi-base-common"
+DEPENDS += "security-server"
 DEPENDS += "dlog"
+DEPENDS += "glib-2.0"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
- cp ${S}/packaging/capi-system-sensor.manifest .
+ cp ${S}/packaging/libtapi.manifest .
  
  
  
@@ -54,7 +58,6 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- MAJORVER=`echo 0.1.17 | awk 'BEGIN {FS="."}{print $1}'`
  
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
@@ -67,8 +70,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
-         ${EXTRA_OECMAKE} . -DFULLVER=0.1.17 -DMAJORVER=${MAJORVER}
- 
+         ${EXTRA_OECMAKE} .
  
  make -j16
  
@@ -96,8 +98,7 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}/usr/share/license
- cp LICENSE ${D}/usr/share/license/capi-system-sensor
+ rm -rf ${D}/usr/include/telephony/tapi/.gitignore
  
  
 }
@@ -115,25 +116,25 @@ pkg_postrm_${PN}() {
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " capi-system-sensor-dev "
-PACKAGES += " capi-system-sensor "
+PACKAGES += " libtapi-dev "
+PACKAGES += " libtapi "
 
-capi-system-sensor-dev_files = ""
-capi-system-sensor-dev_files += "${prefix}/include/system/sensors.h"
-capi-system-sensor-dev_files += "${prefix}/lib/pkgconfig/*.pc"
-capi-system-sensor-dev_files += "${prefix}/lib/libcapi-system-sensor.so"
-capi-system-sensor-dev_files += "/usr/share/license/capi-system-sensor"
-MANIFESTFILES_${PN}-dev = "capi-system-sensor.manifest"
+libtapi-dev_files = ""
+libtapi-dev_files += "${prefix}/include/telephony-client/*.h"
+libtapi-dev_files += "${prefix}/lib/pkgconfig/*.pc"
+libtapi-dev_files += "${prefix}/lib/*.so"
+MANIFESTFILES_${PN}-dev = "libtapi.manifest"
 
-capi-system-sensor_files = ""
-capi-system-sensor_files += "${prefix}/lib/libcapi-system-sensor.so.*"
-MANIFESTFILES_${PN} = "capi-system-sensor.manifest"
+libtapi_files = ""
+libtapi_files += "${prefix}/lib/*.so.*"
+libtapi_files += "${prefix}/bin/tapitest-legacy"
+MANIFESTFILES_${PN} = "libtapi.manifest"
 
-FILES_${PN}-dev = "${capi-system-sensor-dev_files}"
-FILES_${PN} = "${capi-system-sensor_files}"
+FILES_${PN}-dev = "${libtapi-dev_files}"
+FILES_${PN} = "${libtapi_files}"
 
-PKG_capi-system-sensor-dev= "capi-system-sensor-dev"
-PKG_capi-system-sensor= "capi-system-sensor"
+PKG_libtapi-dev= "libtapi-dev"
+PKG_libtapi= "libtapi"
 
-require capi-system-sensor-extraconf.inc
+require libtapi-extraconf.inc
 

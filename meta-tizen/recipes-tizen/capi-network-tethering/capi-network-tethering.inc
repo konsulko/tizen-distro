@@ -29,7 +29,7 @@ DEPENDS = ""
 inherit tizen_cmake
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 DEPENDS += "vconf"
 DEPENDS += "dbus-glib"
 

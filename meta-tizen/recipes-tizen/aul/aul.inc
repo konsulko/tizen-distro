@@ -35,6 +35,7 @@ DEPENDS += "librua"
 inherit tizen_cmake
 DEPENDS += "attr"
 DEPENDS += "tizen-platform-config"
+DEPENDS += "privacy-manager-server"
 DEPENDS += "bundle"
 DEPENDS += "ail"
 DEPENDS += "smack"
@@ -45,7 +46,6 @@ DEPENDS += "libprivilege-control"
 DEPENDS += "app-checker"
 DEPENDS += "vconf"
 DEPENDS += "dbus-glib"
-DEPENDS += "privacy-manager"
 
 do_prep() {
  cd ${S}

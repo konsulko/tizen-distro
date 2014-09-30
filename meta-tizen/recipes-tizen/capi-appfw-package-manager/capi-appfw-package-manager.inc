@@ -27,14 +27,14 @@ RDEPENDS_${PN}-dev += "capi-appfw-package-manager"
 DEPENDS = ""
 #DEPENDS of capi-appfw-package-manager
 inherit tizen_cmake
-DEPENDS += "slp-pkgmgr"
+DEPENDS += "pkgmgr"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "pkgmgr-info"
 DEPENDS += "ail"
 DEPENDS += "dlog"
 DEPENDS += "vconf"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 
 do_prep() {
  cd ${S}

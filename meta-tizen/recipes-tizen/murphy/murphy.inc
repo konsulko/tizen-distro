@@ -105,6 +105,7 @@ RDEPENDS_${PN}-ecore-dev += "murphy"
 
 DEPENDS = ""
 #DEPENDS of murphy
+DEPENDS += "genivi-shell"
 DEPENDS += "ofono"
 DEPENDS += "json-c"
 DEPENDS += "libxml2"
@@ -125,7 +126,6 @@ DEPENDS += "mesa"
 DEPENDS += "dbus"
 DEPENDS += "pulseaudio"
 DEPENDS += "ail"
-DEPENDS += "wayland-ivi-extension"
 DEPENDS_append_class-native = " bison-native"
 DEPENDS_append_class-target = " bison-native"
 

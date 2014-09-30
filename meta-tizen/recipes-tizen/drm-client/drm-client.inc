@@ -27,7 +27,7 @@ RDEPENDS_${PN}-dev += "drm-client"
 DEPENDS = ""
 #DEPENDS of drm-client
 inherit tizen_cmake
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 

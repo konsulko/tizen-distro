@@ -1,6 +1,3 @@
-#PROVIDES by aul
-PROVIDES += "aul"
-
 do_prep_append() {
     sed -i 's!/usr/bin/mkdir -p!/bin/mkdir -p!g' ${S}/packaging/ac.service
     # preload_list.txt and preexec_list.txt are generated from .in files so they are located in the build directory instead of the source one

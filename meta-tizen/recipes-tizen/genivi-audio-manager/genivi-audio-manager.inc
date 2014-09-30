@@ -36,12 +36,12 @@ inherit tizen_cmake
 inherit pythonnative
 DEPENDS += "dbus"
 DEPENDS += "zlib"
-DEPENDS += "common-api-runtime"
-DEPENDS += "common-api-dbus-runtime"
-DEPENDS += "murphy"
+DEPENDS += "CommonAPI"
 DEPENDS_append_class-native = " bison-native"
 DEPENDS_append_class-target = " bison-native"
 DEPENDS += "sqlite3"
+DEPENDS += "CommonAPI-DBus"
+DEPENDS += "murphy"
 
 do_prep() {
  cd ${S}

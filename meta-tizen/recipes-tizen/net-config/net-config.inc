@@ -26,10 +26,10 @@ DEPENDS = ""
 DEPENDS += "libwifi-direct"
 inherit tizen_cmake
 DEPENDS += "syspopup"
-DEPENDS += "libtapi-legacy"
+DEPENDS += "systemd"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
-DEPENDS += "systemd"
+DEPENDS += "libtapi"
 DEPENDS += "vconf"
 DEPENDS += "dbus-glib"
 

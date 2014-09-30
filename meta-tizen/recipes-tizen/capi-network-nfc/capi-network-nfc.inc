@@ -33,7 +33,7 @@ inherit tizen_cmake
 DEPENDS += "vconf"
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 DEPENDS += "nfc-manager-neard"
 
 do_prep() {

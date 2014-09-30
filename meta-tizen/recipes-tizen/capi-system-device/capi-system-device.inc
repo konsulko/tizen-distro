@@ -28,7 +28,7 @@ DEPENDS = ""
 #DEPENDS of capi-system-device
 DEPENDS += "system-server"
 inherit tizen_cmake
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 DEPENDS += "dlog"
 DEPENDS += "vconf"
 

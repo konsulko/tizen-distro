@@ -33,7 +33,7 @@ inherit tizen_cmake
 DEPENDS += "evas"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "dlog"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 DEPENDS += "libslp-db-util"
 
 do_prep() {

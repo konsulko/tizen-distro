@@ -4,9 +4,3 @@ do_install_append() {
     #ln -sf tizen_common.png ${D}/${prefix}/share/backgrounds/tizen/current
     ln -sf golfe-morbihan.jpg ${D}/${prefix}/share/backgrounds/tizen/current
 }
-
-pkg_postinst_${PN}() {
-    #!/bin/sh -e
-
-    ln -fs tizen_common.png $D${prefix}/share/backgrounds/tizen/current
-}

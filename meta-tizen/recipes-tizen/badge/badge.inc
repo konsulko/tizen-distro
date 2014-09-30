@@ -38,9 +38,9 @@ DEPENDS += "dbus"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "dlog"
-DEPENDS += "vconf"
 DEPENDS += "sqlite3"
-DEPENDS += "com-core"
+DEPENDS += "libcom-core"
+DEPENDS += "vconf"
 DEPENDS += "dbus-glib"
 
 do_prep() {

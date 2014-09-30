@@ -30,7 +30,7 @@ inherit tizen_cmake
 DEPENDS += "dlog"
 DEPENDS += "libxml2"
 DEPENDS += "iniparser"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 DEPENDS += "ecore"
 DEPENDS += "vconf"
 

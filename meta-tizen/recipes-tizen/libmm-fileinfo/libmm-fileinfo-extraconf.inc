@@ -1,7 +1,5 @@
 SRC_URI += "file://Makefile.am.diff"
 
-LICENSE = "Apache License 2.0"
-
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
  cd ${S}

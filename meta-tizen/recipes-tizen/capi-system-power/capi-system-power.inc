@@ -30,7 +30,7 @@ inherit tizen_cmake
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "system-server"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 DEPENDS += "vconf"
 
 do_prep() {

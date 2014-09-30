@@ -23,7 +23,6 @@ RDEPENDS = ""
 
 DEPENDS = ""
 #DEPENDS of efl-theme-tizen-hd
-DEPENDS += "edje"
 DEPENDS += "efl"
 inherit perlnative
 

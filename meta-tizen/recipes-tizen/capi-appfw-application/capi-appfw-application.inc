@@ -38,7 +38,7 @@ DEPENDS += "ail"
 DEPENDS += "alarm-manager"
 DEPENDS += "dlog"
 DEPENDS += "elementary"
-DEPENDS += "common"
+DEPENDS += "capi-base-common"
 
 do_prep() {
  cd ${S}

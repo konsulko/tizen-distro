@@ -51,7 +51,7 @@ DEPENDS += "system-server"
 DEPENDS += "libslp-db-util"
 DEPENDS += "security-server"
 DEPENDS += "heynoti"
-DEPENDS += "libtapi-legacy"
+DEPENDS += "libtapi"
 DEPENDS += "vconf"
 DEPENDS += "dbus-glib"
 

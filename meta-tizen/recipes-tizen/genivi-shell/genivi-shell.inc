@@ -22,7 +22,7 @@ PROVIDES += "genivi-shell-dev"
 RDEPENDS = ""
 #RDEPENDS of genivi-shell-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "weston"
-RDEPENDS_${PN}-dev += "wayland-ivi-extension"
+RDEPENDS_${PN}-dev += "genivi-shell"
 
 
 DEPENDS = ""

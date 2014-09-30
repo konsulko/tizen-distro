@@ -33,10 +33,10 @@ RDEPENDS_${PN}-dev += "libCommonAPI-DBus"
 
 DEPENDS = ""
 #DEPENDS of CommonAPI-DBus
+DEPENDS += "CommonAPI"
 DEPENDS += "dbus"
-DEPENDS += "glib-2.0"
 inherit pkgconfig
-DEPENDS += "common-api-runtime"
+DEPENDS += "glib-2.0"
 
 do_prep() {
  cd ${S}
