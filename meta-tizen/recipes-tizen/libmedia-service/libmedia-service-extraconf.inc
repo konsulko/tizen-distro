@@ -1,5 +1,4 @@
 INSANE_SKIP_${PN} = "dev-so"
-LICENSE = "Apache-2.0"
 
 do_install() {
  echo export RPM_BUILD_ROOT=${D}

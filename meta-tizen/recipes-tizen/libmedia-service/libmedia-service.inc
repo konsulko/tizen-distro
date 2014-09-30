@@ -1,7 +1,7 @@
 DESCRIPTION = "Media information service library for multimedia applications"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
-LICENSE = "Apache License, Version 2.0"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -33,7 +33,6 @@ DEPENDS += "libmm-fileinfo"
 DEPENDS += "libmedia-thumbnail"
 inherit tizen_cmake
 DEPENDS += "drm-client"
-DEPENDS += "tizen-platform-config"
 DEPENDS += "libmm-common"
 DEPENDS += "aul"
 DEPENDS += "dlog"
@@ -48,7 +47,6 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q 
  cp ${S}/packaging/libmedia-service.manifest .
- 
  
  
 }
@@ -79,7 +77,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} . 
- make -j16
+ oe_runmake -j16
  
  
  
@@ -104,10 +102,6 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- 
- #License
- mkdir -p ${D}/${prefix}/share/license
- cp -rf ${WORKDIR}/libmedia-service-0.2.43/LICENSE ${D}/${prefix}/share/license/libmedia-service
  
  
 }
@@ -143,7 +137,6 @@ libmedia-service_files += "${prefix}/lib/libmedia-svc-hash.so.1.0.0"
 libmedia-service_files += "${prefix}/lib/libmedia-content-plugin.so"
 libmedia-service_files += "${prefix}/lib/libmedia-content-plugin.so.1"
 libmedia-service_files += "${prefix}/lib/libmedia-content-plugin.so.1.0.0"
-libmedia-service_files += "${prefix}/share/license/libmedia-service"
 MANIFESTFILES_${PN} = "libmedia-service.manifest"
 
 FILES_${PN}-dev = "${libmedia-service-dev_files}"
