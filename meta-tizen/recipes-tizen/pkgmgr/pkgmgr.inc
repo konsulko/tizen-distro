@@ -44,10 +44,6 @@ RDEPENDS = ""
 RDEPENDS_${PN}-client += "shared-mime-info"
 RDEPENDS_${PN}-client += "pkgmgr"
 
-#RDEPENDS of pkgmgr (${PN})
-RDEPENDS_${PN} += "libcap"
-RDEPENDS_${PN} += "shadow"
-
 #RDEPENDS of pkgmgr-server (${PN}-server)
 RDEPENDS_${PN}-server += "pkgmgr"
 
@@ -80,6 +76,8 @@ DEPENDS += "ail"
 DEPENDS += "smack"
 DEPENDS += "bundle"
 DEPENDS += "ecore"
+DEPENDS_append_class-native = " fdupes-native"
+DEPENDS_append_class-target = " fdupes-native"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "dbus-glib"
 
@@ -120,7 +118,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . \
      -DX11_SUPPORT=Off
  
- make -j16
+ oe_runmake -j16
  
  
  
@@ -150,11 +148,32 @@ do_install() {
  
  mkdir -p ${D}${sysconfdir}/package-manager/backend
  mkdir -p ${D}${sysconfdir}/package-manager/backendlib
- mkdir -p ${D}/etc/opt/upgrade
+ mkdir -p ${D}${sysconfdir}/opt/upgrade
  
  mkdir -p ${D}${sysconfdir}/package-manager/server
  
  #find_lang package-manager
+ 
+ 
+  _target=""; 
+  _symlinks=0; 
+   
+  fdupes -q -n -r ${D} | 
+   while read _file; do 
+     if test -z "$_target" ; then 
+       _target="$_file"; 
+     else 
+       if test -z "$_file" ; then 
+ 	_target=""; 
+ 	continue ; 
+       fi ; 
+       if test "$_symlinks" = 1; then 
+         ln -sf "${_target#${D}}" "$_file"; 
+       else 
+         ln -f "$_target" "$_file"; 
+       fi ;
+     fi ; 
+  done 
  
  
 }
@@ -177,7 +196,7 @@ pkg_postinst_${PN}() {
     [ "x$D" == "x" ] && ldconfig
     # For pkgmgr-install:
     # Update mime database to support package mime types
-    update-mime-database /usr/share/mime
+    update-mime-database $D${prefix}/share/mime
 
 }
 
