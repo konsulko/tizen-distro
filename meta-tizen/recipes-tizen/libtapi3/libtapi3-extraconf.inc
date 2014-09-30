@@ -1,1 +1,1 @@
-INSANE_SKIP_${PN}3 = "dev-so"
+INSANE_SKIP_${PN} = "dev-so"
