@@ -12,25 +12,24 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by Modello_SDL
-PROVIDES += "Modello_SDL"
+#PROVIDES by Modello-SDL
 
 
 RDEPENDS = ""
-#RDEPENDS of Modello_SDL (Modello_SDL)
-RDEPENDS_Modello_SDL += "Modello_Common"
+#RDEPENDS of Modello-SDL (${PN})
+RDEPENDS_${PN} += "Modello-Common"
 
 
 DEPENDS = ""
-#DEPENDS of Modello_SDL
+#DEPENDS of Modello-SDL
 DEPENDS += "tizen-platform-config"
 DEPENDS += "zip"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello_SDL-0.0.2
- cp ${S}/packaging/Modello_SDL.manifest .
+ #setup -q -n Modello-SDL-0.0.2
+ cp ${S}/packaging/Modello-SDL.manifest .
  
  
 }
@@ -66,22 +65,22 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello_SDL.wgt app audio config.xml css ffw SmartDeviceLink_icon.png images index.html js lib locale
+ zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-SDL.wgt app audio config.xml css ffw SmartDeviceLink_icon.png images index.html js lib locale
  install -m 0644 SmartDeviceLink_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " Modello_SDL "
+PACKAGES += " Modello-SDL "
 
-Modello_SDL_files = ""
-Modello_SDL_files += "${prefix}/share/Modello/Common/icons/SmartDeviceLink_icon.png"
-MANIFESTFILES_Modello_SDL = "Modello_SDL.manifest"
+Modello-SDL_files = ""
+Modello-SDL_files += "${prefix}/share/Modello/Common/icons/SmartDeviceLink_icon.png"
+MANIFESTFILES_${PN} = "Modello-SDL.manifest"
 
-FILES_Modello_SDL = "${Modello_SDL_files}"
+FILES_${PN} = "${Modello-SDL_files}"
 
-PKG_Modello_SDL= "Modello_SDL"
+PKG_Modello-SDL= "Modello-SDL"
 
 require Modello-SDL-extraconf.inc
 

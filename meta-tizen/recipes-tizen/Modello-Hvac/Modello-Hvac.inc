@@ -1,7 +1,7 @@
-DESCRIPTION = "A proof of concept pure html5 UI"
+DESCRIPTION = "Pure html5 UI"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Applications/System"
-LICENSE = "Apache 2.0"
+SECTION = "Automotive/Modello"
+LICENSE = "Apache-2.0"
 
 SRC_URI = ""
 
@@ -12,23 +12,24 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by Modello_Hvac
-PROVIDES += "Modello_Hvac"
+#PROVIDES by Modello-Hvac
 
 
 RDEPENDS = ""
-#RDEPENDS of Modello_Hvac (Modello_Hvac)
-RDEPENDS_Modello_Hvac += "Modello_Common"
+#RDEPENDS of Modello-Hvac (${PN})
+RDEPENDS_${PN} += "Modello-Common"
 
 
 DEPENDS = ""
-#DEPENDS of Modello_Hvac
+#DEPENDS of Modello-Hvac
+DEPENDS += "tizen-platform-config"
 DEPENDS += "zip"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello_Hvac-0.0.2
+ #setup -q -n Modello-Hvac-0.0.2
+ cp ${S}/packaging/Modello-Hvac.manifest .
  
  
 }
@@ -46,8 +47,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- 
- make wgtPkg
+ #empty
  
  
  
@@ -63,29 +63,23 @@ do_install() {
  mkdir -p ${D}
  
  rm -rf ${D}
- 
-   oe_runmake \
-         DESTDIR=${D} \
-         INSTALL_ROOT=${D} \
-         BINDIR=${prefix}/bin \
-   install  
-   rm -f ${D}${infodir}/dir 
-   find ${D} -regex ".*\.la$" | xargs rm -f -- 
-   find ${D} -regex ".*\.a$" | xargs rm -f --
+ mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
+ mkdir -p ${D}${prefix}/share/Modello/Common/icons
+ zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-Hvac.wgt config.xml css HVAC_icon.png index.html js
+ install -m 0644 HVAC_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " Modello_Hvac "
+PACKAGES += " Modello-Hvac "
 
-Modello_Hvac_files = ""
-Modello_Hvac_files += "/opt/usr/apps/.preinstallWidgets/Modello_Hvac.wgt"
-Modello_Hvac_files += "/opt/usr/apps/_common/icons/HVAC_icon.png"
+Modello-Hvac_files = ""
+Modello-Hvac_files += "${prefix}/share/Modello/Common/icons/HVAC_icon.png"
 
-FILES_Modello_Hvac = "${Modello_Hvac_files}"
+FILES_${PN} = "${Modello-Hvac_files}"
 
-PKG_Modello_Hvac= "Modello_Hvac"
+PKG_Modello-Hvac= "Modello-Hvac"
 
 require Modello-Hvac-extraconf.inc
 

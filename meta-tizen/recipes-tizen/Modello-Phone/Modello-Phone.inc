@@ -12,26 +12,25 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by Modello_Phone
-PROVIDES += "Modello_Phone"
+#PROVIDES by Modello-Phone
 
 
 RDEPENDS = ""
-#RDEPENDS of Modello_Phone (Modello_Phone)
-RDEPENDS_Modello_Phone += "phoned"
-RDEPENDS_Modello_Phone += "Modello_Common"
+#RDEPENDS of Modello-Phone (${PN})
+RDEPENDS_${PN} += "Modello-Common"
+RDEPENDS_${PN} += "phoned"
 
 
 DEPENDS = ""
-#DEPENDS of Modello_Phone
+#DEPENDS of Modello-Phone
 DEPENDS += "tizen-platform-config"
 DEPENDS += "zip"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello_Phone-0.0.2
- cp ${S}/packaging/Modello_Phone.manifest .
+ #setup -q -n Modello-Phone-0.0.2
+ cp ${S}/packaging/Modello-Phone.manifest .
  
  
 }
@@ -67,22 +66,22 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello_Phone.wgt config.xml css data Phone_icon.png index.html js templates
+ zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-Phone.wgt config.xml css data Phone_icon.png index.html js templates
  install -m 0644 Phone_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " Modello_Phone "
+PACKAGES += " Modello-Phone "
 
-Modello_Phone_files = ""
-Modello_Phone_files += "${prefix}/share/Modello/Common/icons/Phone_icon.png"
-MANIFESTFILES_Modello_Phone = "Modello_Phone.manifest"
+Modello-Phone_files = ""
+Modello-Phone_files += "${prefix}/share/Modello/Common/icons/Phone_icon.png"
+MANIFESTFILES_${PN} = "Modello-Phone.manifest"
 
-FILES_Modello_Phone = "${Modello_Phone_files}"
+FILES_${PN} = "${Modello-Phone_files}"
 
-PKG_Modello_Phone= "Modello_Phone"
+PKG_Modello-Phone= "Modello-Phone"
 
 require Modello-Phone-extraconf.inc
 

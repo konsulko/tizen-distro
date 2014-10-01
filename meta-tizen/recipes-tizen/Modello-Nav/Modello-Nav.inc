@@ -12,25 +12,24 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by Modello_Nav
-PROVIDES += "Modello_Nav"
+#PROVIDES by Modello-Nav
 
 
 RDEPENDS = ""
-#RDEPENDS of Modello_Nav (Modello_Nav)
-RDEPENDS_Modello_Nav += "Modello_Common"
+#RDEPENDS of Modello-Nav (${PN})
+RDEPENDS_${PN} += "Modello-Common"
 
 
 DEPENDS = ""
-#DEPENDS of Modello_Nav
+#DEPENDS of Modello-Nav
 DEPENDS += "tizen-platform-config"
 DEPENDS += "zip"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello_Nav-0.0.2
- cp ${S}/packaging/Modello_Nav.manifest .
+ #setup -q -n Modello-Nav-0.0.2
+ cp ${S}/packaging/Modello-Nav.manifest .
  
  
 }
@@ -66,22 +65,22 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello_Nav.wgt config.xml css Navigation_icon.png images index.html js templates
+ zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-Nav.wgt config.xml css Navigation_icon.png images index.html js templates
  install -m 0644 Navigation_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " Modello_Nav "
+PACKAGES += " Modello-Nav "
 
-Modello_Nav_files = ""
-Modello_Nav_files += "${prefix}/share/Modello/Common/icons/Navigation_icon.png"
-MANIFESTFILES_Modello_Nav = "Modello_Nav.manifest"
+Modello-Nav_files = ""
+Modello-Nav_files += "${prefix}/share/Modello/Common/icons/Navigation_icon.png"
+MANIFESTFILES_${PN} = "Modello-Nav.manifest"
 
-FILES_Modello_Nav = "${Modello_Nav_files}"
+FILES_${PN} = "${Modello-Nav_files}"
 
-PKG_Modello_Nav= "Modello_Nav"
+PKG_Modello-Nav= "Modello-Nav"
 
 require Modello-Nav-extraconf.inc
 

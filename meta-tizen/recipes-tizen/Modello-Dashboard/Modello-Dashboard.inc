@@ -12,25 +12,24 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by Modello_Dashboard
-PROVIDES += "Modello_Dashboard"
+#PROVIDES by Modello-Dashboard
 
 
 RDEPENDS = ""
-#RDEPENDS of Modello_Dashboard (Modello_Dashboard)
-RDEPENDS_Modello_Dashboard += "Modello_Common"
+#RDEPENDS of Modello-Dashboard (${PN})
+RDEPENDS_${PN} += "Modello-Common"
 
 
 DEPENDS = ""
-#DEPENDS of Modello_Dashboard
+#DEPENDS of Modello-Dashboard
 DEPENDS += "tizen-platform-config"
 DEPENDS += "zip"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello_Dashboard-0.0.2
- cp ${S}/packaging/Modello_Dashboard.manifest .
+ #setup -q -n Modello-Dashboard-0.0.2
+ cp ${S}/packaging/Modello-Dashboard.manifest .
  
  
 }
@@ -66,22 +65,22 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello_Dashboard.wgt components config.xml css Dashboard_icon.png index.html js
+ zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-Dashboard.wgt components config.xml css Dashboard_icon.png index.html js
  install -m 0644 Dashboard_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " Modello_Dashboard "
+PACKAGES += " Modello-Dashboard "
 
-Modello_Dashboard_files = ""
-Modello_Dashboard_files += "${prefix}/share/Modello/Common/icons/Dashboard_icon.png"
-MANIFESTFILES_Modello_Dashboard = "Modello_Dashboard.manifest"
+Modello-Dashboard_files = ""
+Modello-Dashboard_files += "${prefix}/share/Modello/Common/icons/Dashboard_icon.png"
+MANIFESTFILES_${PN} = "Modello-Dashboard.manifest"
 
-FILES_Modello_Dashboard = "${Modello_Dashboard_files}"
+FILES_${PN} = "${Modello-Dashboard_files}"
 
-PKG_Modello_Dashboard= "Modello_Dashboard"
+PKG_Modello-Dashboard= "Modello-Dashboard"
 
 require Modello-Dashboard-extraconf.inc
 

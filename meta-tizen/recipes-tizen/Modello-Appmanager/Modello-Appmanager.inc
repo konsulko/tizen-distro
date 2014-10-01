@@ -12,25 +12,24 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by Modello_Appmanager
-PROVIDES += "Modello_Appmanager"
+#PROVIDES by Modello-Appmanager
 
 
 RDEPENDS = ""
-#RDEPENDS of Modello_Appmanager (Modello_Appmanager)
-RDEPENDS_Modello_Appmanager += "Modello_Common"
+#RDEPENDS of Modello-Appmanager (${PN})
+RDEPENDS_${PN} += "Modello-Common"
 
 
 DEPENDS = ""
-#DEPENDS of Modello_Appmanager
+#DEPENDS of Modello-Appmanager
 DEPENDS += "tizen-platform-config"
 DEPENDS += "zip"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello_Appmanager-0.0.2
- cp ${S}/packaging/Modello_Appmanager.manifest .
+ #setup -q -n Modello-Appmanager-0.0.2
+ cp ${S}/packaging/Modello-Appmanager.manifest .
  
  
 }
@@ -66,22 +65,22 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello_Appmanager.wgt config.xml css AppManager_icon.png index.html js templates
+ zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-Appmanager.wgt config.xml css AppManager_icon.png index.html js templates
  install -m 0644 AppManager_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " Modello_Appmanager "
+PACKAGES += " Modello-Appmanager "
 
-Modello_Appmanager_files = ""
-Modello_Appmanager_files += "${prefix}/share/Modello/Common/icons/AppManager_icon.png"
-MANIFESTFILES_Modello_Appmanager = "Modello_Appmanager.manifest"
+Modello-Appmanager_files = ""
+Modello-Appmanager_files += "${prefix}/share/Modello/Common/icons/AppManager_icon.png"
+MANIFESTFILES_${PN} = "Modello-Appmanager.manifest"
 
-FILES_Modello_Appmanager = "${Modello_Appmanager_files}"
+FILES_${PN} = "${Modello-Appmanager_files}"
 
-PKG_Modello_Appmanager= "Modello_Appmanager"
+PKG_Modello-Appmanager= "Modello-Appmanager"
 
 require Modello-Appmanager-extraconf.inc
 

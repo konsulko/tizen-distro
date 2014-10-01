@@ -12,23 +12,23 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by Modello_Homescreen
-PROVIDES += "Modello_Homescreen"
+#PROVIDES by Modello-Homescreen
 
 
 RDEPENDS = ""
-#RDEPENDS of Modello_Homescreen (Modello_Homescreen)
-RDEPENDS_Modello_Homescreen += "Modello_Common"
+#RDEPENDS of Modello-Homescreen (${PN})
+RDEPENDS_${PN} += "Modello-Common"
 
 
 DEPENDS = ""
-#DEPENDS of Modello_Homescreen
+#DEPENDS of Modello-Homescreen
 DEPENDS += "zip"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello_Homescreen-0.0.2
+ #setup -q -n Modello-Homescreen-0.0.2
+ cp ${S}/packaging/Modello-Homescreen.manifest .
  
  
 }
@@ -46,8 +46,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- 
- make wgtPkg
+ oe_runmake wgtPkg
  
  
  
@@ -82,19 +81,19 @@ do_install() {
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " Modello_Homescreen "
+PACKAGES += " Modello-Homescreen "
 
-Modello_Homescreen_files = ""
-Modello_Homescreen_files += "/opt/usr/apps/.preinstallWidgets/Modello_Homescreen.wgt"
-Modello_Homescreen_files += "/opt/usr/apps/_common/icons/Homescreen_icon.png"
-Modello_Homescreen_files += "${systemd_unitdir}/user/Modello_Homescreen.service"
-Modello_Homescreen_files += "${systemd_unitdir}/user/Modello_Homescreen-launchpad-ready.path"
-Modello_Homescreen_files += "${prefix}/bin/modello_launcher.sh"
-Modello_Homescreen_files += "${systemd_unitdir}/user/weston.target.wants"
+Modello-Homescreen_files = ""
+Modello-Homescreen_files += "/opt/usr/apps/.preinstallWidgets/Modello-Homescreen.wgt"
+Modello-Homescreen_files += "/opt/usr/apps/_common/icons/Homescreen_icon.png"
+Modello-Homescreen_files += "${systemd_unitdir}/user/Modello_Homescreen.service"
+Modello-Homescreen_files += "${systemd_unitdir}/user/Modello_Homescreen-launchpad-ready.path"
+Modello-Homescreen_files += "${prefix}/bin/modello_launcher.sh"
+Modello-Homescreen_files += "${systemd_unitdir}/user/weston.target.wants"
 
-FILES_Modello_Homescreen = "${Modello_Homescreen_files}"
+FILES_${PN} = "${Modello-Homescreen_files}"
 
-PKG_Modello_Homescreen= "Modello_Homescreen"
+PKG_Modello-Homescreen= "Modello-Homescreen"
 
 require Modello-Homescreen-extraconf.inc
 

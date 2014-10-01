@@ -1,6 +1,6 @@
 DESCRIPTION = "Installer for Modello"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Base/Configuration"
+SECTION = "Automotive/Modello"
 LICENSE = "Apache-2.0"
 
 SRC_URI = ""
@@ -12,28 +12,34 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by Modello_Installer
-PROVIDES += "Modello_Installer"
+#PROVIDES by Modello-Installer-xwalk
+PROVIDES += "Modello-Installer-xwalk"
 
 
-#PROVIDES by Modello_Installer-xwalk
-PROVIDES += "Modello_Installer-xwalk"
+#PROVIDES by Modello-Installer-wrt
+PROVIDES += "Modello-Installer-wrt"
+
+
+#PROVIDES by Modello-Installer
 
 
 RDEPENDS = ""
-#RDEPENDS of Modello_Installer-xwalk (Modello_Installer-xwalk)
-RDEPENDS_Modello_Installer-xwalk += "Modello_AMBSimulator"
-RDEPENDS_Modello_Installer-xwalk += "Modello_Common"
-RDEPENDS_Modello_Installer-xwalk += "Modello_Appmanager"
-RDEPENDS_Modello_Installer-xwalk += "tizen-platform-config"
-RDEPENDS_Modello_Installer-xwalk += "Modello_Dashboard"
-RDEPENDS_Modello_Installer-xwalk += "Modello_Multimediaplayer"
-RDEPENDS_Modello_Installer-xwalk += "Modello_SDL"
-RDEPENDS_Modello_Installer-xwalk += "Modello_Phone"
-RDEPENDS_Modello_Installer-xwalk += "Modello_Homescreen"
-RDEPENDS_Modello_Installer-xwalk += "Modello_Nav"
-RDEPENDS_Modello_Installer-xwalk += "crosswalk"
-RDEPENDS_Modello_Installer-xwalk += "Modello_Hvac"
+#RDEPENDS of Modello-Installer-xwalk (${PN}-xwalk)
+RDEPENDS_${PN}-xwalk += "Modello-SDL"
+RDEPENDS_${PN}-xwalk += "Modello-Dashboard"
+RDEPENDS_${PN}-xwalk += "Modello-Homescreen"
+RDEPENDS_${PN}-xwalk += "tizen-platform-config"
+RDEPENDS_${PN}-xwalk += "Modello-Nav"
+RDEPENDS_${PN}-xwalk += "Modello-Appmanager"
+RDEPENDS_${PN}-xwalk += "Modello-Phone"
+RDEPENDS_${PN}-xwalk += "Modello-Common"
+RDEPENDS_${PN}-xwalk += "Modello-AMBSimulator"
+RDEPENDS_${PN}-xwalk += "crosswalk"
+RDEPENDS_${PN}-xwalk += "Modello-Hvac"
+RDEPENDS_${PN}-xwalk += "Modello-Multimediaplayer"
+
+#RDEPENDS of Modello-Installer-wrt (${PN}-wrt)
+RDEPENDS_${PN}-wrt += "wrt-installer"
 
 
 DEPENDS = ""
@@ -41,7 +47,8 @@ DEPENDS = ""
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello_Installer-0.0.2
+ #setup -q -n Modello-Installer-0.0.2
+ cp ${S}/packaging/Modello-Installer.manifest .
  
  
 }
@@ -91,6 +98,25 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     source ${sysconfdir}/tizen-platform.conf
+    for list in $(find $TZ_SYS_APP_PREINSTALL -name "Modello*")
+    do
+    #wrt-installer requires you be root to install files
+            wrt-installer -i $list
+    done
+    for list2 in $(ls -d /opt/usr/apps/*/)
+    do
+            mkdir -p "$list2/css"
+            mkdir -p "$list2/js"
+            cp -r $D${prefix}/share/Modello/Common/js/services "$list2/res/wgt/js/"
+            cp -r $D${prefix}/share/Modello/Common/css/* "$list2/res/wgt/css/"
+    done
+
+}
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    source ${sysconfdir}/tizen-platform.conf
     export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/5000/dbus/user_bus_socket"
     for list in $(find $TZ_SYS_APP_PREINSTALL -name "Modello*")
     do
@@ -102,9 +128,9 @@ pkg_postinst_${PN}() {
     do
             su app -c "mkdir -p '$list2/css'"
             su app -c "mkdir -p '$list2/js'"
-            su app -c "cp -r /opt/usr/apps/_common/js/services '$list2/js/'"
-            su app -c "cp -r /opt/usr/apps/_common/css/* '$list2/css/'"
-            su app -c "cp -r /opt/usr/apps/_common/icons '$list2/'"
+            su app -c "cp -r $D${prefix}/share/Modello/Common/js/services '$list2/js/'"
+            su app -c "cp -r $D${prefix}/share/Modello/Common/css/* '$list2/css/'"
+            su app -c "cp -r $D${prefix}/share/Modello/Common/icons '$list2/'"
     done
 
 }
@@ -113,6 +139,7 @@ pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     source ${sysconfdir}/tizen-platform.conf
+    export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/5000/dbus/user_bus_socket"
     for list3 in $(su app -c "xwalkctl" | grep Modello | cut -c 1-32)
     do
             echo "Uninstalling $list3"
@@ -122,13 +149,20 @@ pkg_postrm_${PN}() {
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " Modello_Installer-xwalk "
+PACKAGES += " Modello-Installer-xwalk "
+PACKAGES += " Modello-Installer-wrt "
 
-Modello_Installer-xwalk_files = ""
+Modello-Installer-xwalk_files = ""
+MANIFESTFILES_${PN}-xwalk = "Modello-Installer.manifest"
 
-FILES_Modello_Installer-xwalk = "${Modello_Installer-xwalk_files}"
+Modello-Installer-wrt_files = ""
+MANIFESTFILES_${PN}-wrt = "Modello-Installer.manifest"
 
-PKG_Modello_Installer-xwalk= "Modello_Installer-xwalk"
+FILES_${PN}-xwalk = "${Modello-Installer-xwalk_files}"
+FILES_${PN}-wrt = "${Modello-Installer-wrt_files}"
+
+PKG_Modello-Installer-xwalk= "Modello-Installer-xwalk"
+PKG_Modello-Installer-wrt= "Modello-Installer-wrt"
 
 require Modello-Installer-extraconf.inc
 

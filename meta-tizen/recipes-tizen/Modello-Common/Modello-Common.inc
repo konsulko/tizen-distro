@@ -12,22 +12,21 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by Modello_Common
-PROVIDES += "Modello_Common"
+#PROVIDES by Modello-Common
 
 
 RDEPENDS = ""
 
 DEPENDS = ""
-#DEPENDS of Modello_Common
+#DEPENDS of Modello-Common
 DEPENDS_append_class-native = " fdupes-native"
 DEPENDS_append_class-target = " fdupes-native"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello_Common-0.0.2
- cp ${S}/packaging/Modello_Common.manifest .
+ #setup -q -n Modello-Common-0.0.2
+ cp ${S}/packaging/Modello-Common.manifest .
  
  
 }
@@ -89,16 +88,16 @@ do_install() {
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " Modello_Common "
+PACKAGES += " Modello-Common "
 
-Modello_Common_files = ""
-Modello_Common_files += "${prefix}/share/Modello/Common/js"
-Modello_Common_files += "${prefix}/share/Modello/Common/css"
-MANIFESTFILES_Modello_Common = "Modello_Common.manifest"
+Modello-Common_files = ""
+Modello-Common_files += "${prefix}/share/Modello/Common/js"
+Modello-Common_files += "${prefix}/share/Modello/Common/css"
+MANIFESTFILES_${PN} = "Modello-Common.manifest"
 
-FILES_Modello_Common = "${Modello_Common_files}"
+FILES_${PN} = "${Modello-Common_files}"
 
-PKG_Modello_Common= "Modello_Common"
+PKG_Modello-Common= "Modello-Common"
 
 require Modello-Common-extraconf.inc
 

@@ -12,25 +12,24 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by Modello_AMBSimulator
-PROVIDES += "Modello_AMBSimulator"
+#PROVIDES by Modello-AMBSimulator
 
 
 RDEPENDS = ""
-#RDEPENDS of Modello_AMBSimulator (Modello_AMBSimulator)
-RDEPENDS_Modello_AMBSimulator += "Modello_Common"
+#RDEPENDS of Modello-AMBSimulator (${PN})
+RDEPENDS_${PN} += "Modello-Common"
 
 
 DEPENDS = ""
-#DEPENDS of Modello_AMBSimulator
+#DEPENDS of Modello-AMBSimulator
 DEPENDS += "tizen-platform-config"
 DEPENDS += "zip"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello_AMBSimulator-0.0.2
- cp ${S}/packaging/Modello_AMBSimulator.manifest .
+ #setup -q -n Modello-AMBSimulator-0.0.2
+ cp ${S}/packaging/Modello-AMBSimulator.manifest .
  
  
 }
@@ -66,22 +65,22 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello_AMBSimulator.wgt config.xml manifest.json css AMBSimulator_icon.png  index.html  js templates
+ zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-AMBSimulator.wgt config.xml manifest.json css AMBSimulator_icon.png  index.html  js templates
  install -m 0644 AMBSimulator_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " Modello_AMBSimulator "
+PACKAGES += " Modello-AMBSimulator "
 
-Modello_AMBSimulator_files = ""
-Modello_AMBSimulator_files += "${prefix}/share/Modello/Common/icons/AMBSimulator_icon.png"
-MANIFESTFILES_Modello_AMBSimulator = "Modello_AMBSimulator.manifest"
+Modello-AMBSimulator_files = ""
+Modello-AMBSimulator_files += "${prefix}/share/Modello/Common/icons/AMBSimulator_icon.png"
+MANIFESTFILES_${PN} = "Modello-AMBSimulator.manifest"
 
-FILES_Modello_AMBSimulator = "${Modello_AMBSimulator_files}"
+FILES_${PN} = "${Modello-AMBSimulator_files}"
 
-PKG_Modello_AMBSimulator= "Modello_AMBSimulator"
+PKG_Modello-AMBSimulator= "Modello-AMBSimulator"
 
 require Modello-AMBSimulator-extraconf.inc
 

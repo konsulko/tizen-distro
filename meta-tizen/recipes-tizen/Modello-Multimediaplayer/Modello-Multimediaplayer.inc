@@ -12,25 +12,24 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by Modello_Multimediaplayer
-PROVIDES += "Modello_Multimediaplayer"
+#PROVIDES by Modello-Multimediaplayer
 
 
 RDEPENDS = ""
-#RDEPENDS of Modello_Multimediaplayer (Modello_Multimediaplayer)
-RDEPENDS_Modello_Multimediaplayer += "Modello_Common"
+#RDEPENDS of Modello-Multimediaplayer (${PN})
+RDEPENDS_${PN} += "Modello-Common"
 
 
 DEPENDS = ""
-#DEPENDS of Modello_Multimediaplayer
+#DEPENDS of Modello-Multimediaplayer
 DEPENDS += "tizen-platform-config"
 DEPENDS += "zip"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello_Multimediaplayer-0.0.2
- cp ${S}/packaging/Modello_Multimediaplayer.manifest .
+ #setup -q -n Modello-Multimediaplayer-0.0.2
+ cp ${S}/packaging/Modello-Multimediaplayer.manifest .
  
  
 }
@@ -66,22 +65,22 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello_Multimediaplayer.wgt components config.xml css MultimediaPlayer_icon.png images index.html js
+ zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-Multimediaplayer.wgt components config.xml css MultimediaPlayer_icon.png images index.html js
  install -m 0644 MultimediaPlayer_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " Modello_Multimediaplayer "
+PACKAGES += " Modello-Multimediaplayer "
 
-Modello_Multimediaplayer_files = ""
-Modello_Multimediaplayer_files += "${prefix}/share/Modello/Common/icons/MultimediaPlayer_icon.png"
-MANIFESTFILES_Modello_Multimediaplayer = "Modello_Multimediaplayer.manifest"
+Modello-Multimediaplayer_files = ""
+Modello-Multimediaplayer_files += "${prefix}/share/Modello/Common/icons/MultimediaPlayer_icon.png"
+MANIFESTFILES_${PN} = "Modello-Multimediaplayer.manifest"
 
-FILES_Modello_Multimediaplayer = "${Modello_Multimediaplayer_files}"
+FILES_${PN} = "${Modello-Multimediaplayer_files}"
 
-PKG_Modello_Multimediaplayer= "Modello_Multimediaplayer"
+PKG_Modello-Multimediaplayer= "Modello-Multimediaplayer"
 
 require Modello-Multimediaplayer-extraconf.inc
 
