@@ -1,4 +1,14 @@
-inherit autotools gtk-doc pkgconfig gettext
+inherit autotools 
+inherit gtk-doc 
+inherit pkgconfig 
+inherit gettext
+
+export HOST_SYS
+export BUILD_SYS
+export STAGING_LIBDIR
+export STAGING_INCDIR
+
+DEPENDS += "gobject-introspection"
 
 # -ldb needs this on some platforms
 LDFLAGS += "-lpthread"

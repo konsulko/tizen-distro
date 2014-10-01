@@ -31,3 +31,5 @@ do_install() {
  
  
 }
+
+FILES_${PN}-dbg += "/usr/lib/gobject-introspection/giscanner/.debug"
