@@ -169,26 +169,7 @@ do_install() {
  mkdir -p ${D}/${prefix}/share/help
  #find_lang evolution-data-server-3.12
  mv evolution-data-server-3.12.lang evolution-data-server.lang
- 
-  _target=""; 
-  _symlinks=0; 
-   
-  fdupes -q -n -r ${D} | 
-   while read _file; do 
-     if test -z "$_target" ; then 
-       _target="$_file"; 
-     else 
-       if test -z "$_file" ; then 
- 	_target=""; 
- 	continue ; 
-       fi ; 
-       if test "$_symlinks" = 1; then 
-         ln -sf "${_target#${D}}" "$_file"; 
-       else 
-         ln -f "$_target" "$_file"; 
-       fi ;
-     fi ; 
-  done 
+ #fdupes ${D}
  
  #lang_package
  

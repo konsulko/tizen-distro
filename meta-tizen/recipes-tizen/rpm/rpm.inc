@@ -228,26 +228,7 @@ do_install() {
  rm -f ${D}${prefix}/lib/*.la
  rm -f ${D}${prefix}/lib/rpm-plugins/*.la
  
- 
-  _target=""; 
-  _symlinks=0; 
-   
-  fdupes -q -n -r ${D}${prefix}/lib/rpm/platform | 
-   while read _file; do 
-     if test -z "$_target" ; then 
-       _target="$_file"; 
-     else 
-       if test -z "$_file" ; then 
- 	_target=""; 
- 	continue ; 
-       fi ; 
-       if test "$_symlinks" = 1; then 
-         ln -sf "${_target#${D}}" "$_file"; 
-       else 
-         ln -f "$_target" "$_file"; 
-       fi ;
-     fi ; 
-  done 
+ #fdupes ${D}${prefix}/lib/rpm/platform
  
  sh ${D}${prefix}/lib/rpm/find-lang.sh ${D} rpm
  

@@ -119,26 +119,7 @@ do_install() {
    find ${D} -regex ".*/man/../man./.*.[0-9]" | xargs rm -f -- 
    find ${D} -regex ".*/man/man./.*.[0-9]pm" | xargs rm -f --
  
- 
-  _target=""; 
-  _symlinks=0; 
-   
-  fdupes -q -n -r ${D} | 
-   while read _file; do 
-     if test -z "$_target" ; then 
-       _target="$_file"; 
-     else 
-       if test -z "$_file" ; then 
- 	_target=""; 
- 	continue ; 
-       fi ; 
-       if test "$_symlinks" = 1; then 
-         ln -sf "${_target#${D}}" "$_file"; 
-       else 
-         ln -f "$_target" "$_file"; 
-       fi ;
-     fi ; 
-  done 
+ #fdupes ${D}
  
  
 }

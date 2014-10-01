@@ -63,26 +63,7 @@ do_install() {
  cp -r css ${D}${prefix}/share/Modello/Common/
  cp -r js ${D}${prefix}/share/Modello/Common/
  
- 
-  _target=""; 
-  _symlinks=0; 
-   
-  fdupes -q -n -r ${D}${prefix}/share | 
-   while read _file; do 
-     if test -z "$_target" ; then 
-       _target="$_file"; 
-     else 
-       if test -z "$_file" ; then 
- 	_target=""; 
- 	continue ; 
-       fi ; 
-       if test "$_symlinks" = 1; then 
-         ln -sf "${_target#${D}}" "$_file"; 
-       else 
-         ln -f "$_target" "$_file"; 
-       fi ;
-     fi ; 
-  done 
+ #fdupes ${D}${prefix}/share
  
  
 }
