@@ -13,6 +13,6 @@ do_install_append() {
     ln -sf ../modello-installer-postinst.service ${D}${systemd_unitdir}/system/multi-user.target.wants/modello-installer-postinst.service
 }
 
-FILES_Modello_Installer-xwalk += "${prefix}/share/modello-installer/modello-installer-postinst.sh"
-FILES_Modello_Installer-xwalk += "${systemd_unitdir}/system/modello-installer-postinst.service"
-FILES_Modello_Installer-xwalk += "${systemd_unitdir}/system/multi-user.target.wants/modello-installer-postinst.service"
+FILES_Modello-Installer-xwalk += "${prefix}/share/modello-installer/modello-installer-postinst.sh"
+FILES_Modello-Installer-xwalk += "${systemd_unitdir}/system/modello-installer-postinst.service"
+FILES_Modello-Installer-xwalk += "${systemd_unitdir}/system/multi-user.target.wants/modello-installer-postinst.service"
