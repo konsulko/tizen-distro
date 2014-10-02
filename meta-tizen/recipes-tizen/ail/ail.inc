@@ -134,16 +134,22 @@ pkg_postinst_${PN}() {
     mkdir -p $D${prefix}/share/applications
     mkdir -p $D${prefix}/apps
     mkdir -p $D${prefix}/dbspace
+    mkdir -p $D${prefix}/share/icons/default/small
     chsmack -a '*' $D${prefix}/dbspace
     chsmack -a '*' $D${prefix}/apps
     chsmack -a '*' $D${prefix}/share/applications
     chsmack -a '*' $D${prefix}/share/applications
+    chsmack -a '*' $D${prefix}/share/icons
+    chsmack -a '*' $D${prefix}/share/icons/default
+    chsmack -a '*' $D${prefix}/share/icons/default/small/
     chmod g+w $D${prefix}/share/applications
     chmod g+w $D${prefix}/share/applications
     chown tizenglobalapp:root $D${prefix}/share/applications
     chown tizenglobalapp:root $D${prefix}/share/applications
     chown tizenglobalapp:root $D${prefix}/apps
     chown tizenglobalapp:root $D${prefix}/dbspace
+    chown tizenglobalapp:root $D${prefix}/dbspace
+    chown tizenglobalapp:root -R $D${prefix}/share/icons
     ail_initdb 2>/dev/null
     chsmack -a '*' $D${prefix}/dbspace/.app_info.db*
      
