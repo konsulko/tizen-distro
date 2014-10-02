@@ -1,6 +1,6 @@
 DESCRIPTION = "Weston Plugins for IVI"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Graphics & UI Framework/Automotive UI"
+SECTION = "Automotive/ICO Homescreen"
 LICENSE = "MIT"
 
 SRC_URI = ""
@@ -36,6 +36,7 @@ DEPENDS += "genivi-shell"
 DEPENDS += "evas"
 DEPENDS += "aul"
 DEPENDS += "weston-ivi-shell"
+inherit pkgconfig
 DEPENDS += "weston"
 DEPENDS += "ecore"
 DEPENDS += "mesa"

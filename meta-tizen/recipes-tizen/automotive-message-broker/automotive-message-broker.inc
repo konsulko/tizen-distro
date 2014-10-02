@@ -101,7 +101,7 @@ RDEPENDS_${PN} += "eglibc"
 RDEPENDS_${PN} += "default-ac-domains"
 
 #RDEPENDS of automotive-message-broker-plugins-database (${PN}-plugins-database)
-RDEPENDS_${PN}-plugins-database += "sqlite"
+RDEPENDS_${PN}-plugins-database += "sqlite3"
 RDEPENDS_${PN}-plugins-database += "automotive-message-broker"
 
 #RDEPENDS of automotive-message-broker-plugins-obd2 (${PN}-plugins-obd2)

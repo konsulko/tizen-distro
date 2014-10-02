@@ -79,7 +79,7 @@ do_prep() {
  cp ${S}/packaging/crosswalk.manifest .
  cp ${S}/packaging/crosswalk.xml.in .
  cp ${S}/packaging/crosswalk.png .
- sed "s/@VERSION@/10.38.208.0/g" crosswalk.xml.in > crosswalk.xml
+ sed "s/@VERSION@/10.38.210.0/g" crosswalk.xml.in > crosswalk.xml
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.in > xwalk
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.service.in > xwalk.service
  
@@ -195,7 +195,7 @@ do_install() {
  install -p -D src/out/Release/xwalkctl ${D}${prefix}/bin/xwalkctl
  install -p -D src/out/Release/xwalk-launcher ${D}${prefix}/bin/xwalk-launcher
  # xwalk-pkg-helper needs to be set-user-ID-root so it can finish the installation process.
- install -m 0777 -p -D src/out/Release/xwalk-pkg-helper ${D}${prefix}/bin/xwalk-pkg-helper
+ install -m 0755 -p -D src/out/Release/xwalk-pkg-helper ${D}${prefix}/bin/xwalk-pkg-helper
  install -p -D src/out/Release/lib/libxwalk-backendlib.so ${D}${prefix}/lib/xwalk/libxwalk-backendlib.so
  install -p -D src/xwalk/application/tools/tizen/xwalk_backend_wrapper.sh ${D}${prefix}/lib/xwalk/xwalk_backend_wrapper.sh
  

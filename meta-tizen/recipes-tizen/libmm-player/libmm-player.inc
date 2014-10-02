@@ -30,12 +30,13 @@ DEPENDS += "libmm-sound"
 DEPENDS += "gstreamer1.0-plugins-base"
 DEPENDS += "audio-session-manager"
 DEPENDS += "libmm-common"
+inherit pkgconfig
 DEPENDS += "iniparser"
-DEPENDS += "gstreamer1.0"
+DEPENDS += "libmm-session"
 DEPENDS += "libmm-utility"
 DEPENDS += "vconf"
 DEPENDS += "libmm-ta"
-DEPENDS += "libmm-session"
+DEPENDS += "gstreamer1.0"
 DEPENDS += "icu"
 
 do_prep() {
@@ -66,7 +67,7 @@ do_compile() {
   ./autogen.sh
   
   autotools_do_configure
-  oe_runmake -j16
+  oe_runmake -j1
   
   
   

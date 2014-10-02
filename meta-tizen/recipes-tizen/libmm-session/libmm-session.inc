@@ -28,6 +28,7 @@ DEPENDS = ""
 #DEPENDS of libmm-session
 DEPENDS += "audio-session-manager"
 DEPENDS += "libmm-common"
+inherit pkgconfig
 
 do_prep() {
  cd ${S}

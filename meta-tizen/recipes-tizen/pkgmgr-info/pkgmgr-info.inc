@@ -128,6 +128,8 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     [ "x$D" == "x" ] && ldconfig
+    chsmack -a '*' $D${prefix}/share/packages
+
 }
 
 pkg_postrm_${PN}() {
@@ -144,9 +146,9 @@ pkg_postrm_pkgmgr-info-parser() {
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " pkgmgr-info-parser "
+PACKAGES += " pkgmgr-info "
 PACKAGES += " pkgmgr-info-parser-dev "
 PACKAGES += " pkgmgr-info-dev "
-PACKAGES += " pkgmgr-info "
 
 pkgmgr-info-parser_files = ""
 pkgmgr-info-parser_files += "${prefix}/lib/libpkgmgr_parser.so.*"
@@ -167,6 +169,11 @@ CONFFILES_${PN}-parser += "${sysconfdir}/package-manager/parserlib/category/cate
 CONFFILES_${PN}-parser += "${sysconfdir}/package-manager/parserlib/tag_parser_list.txt"
 MANIFESTFILES_${PN}-parser = "pkgmgr-info.manifest"
 
+pkgmgr-info_files = ""
+pkgmgr-info_files += "${prefix}/lib/libpkgmgr-info.so.*"
+pkgmgr-info_files += "%dir ${prefix}/share/packages"
+MANIFESTFILES_${PN} = "pkgmgr-info.manifest"
+
 pkgmgr-info-parser-dev_files = ""
 pkgmgr-info-parser-dev_files += "${prefix}/include/pkgmgr/pkgmgr_parser.h"
 pkgmgr-info-parser-dev_files += "${prefix}/include/pkgmgr/pkgmgr_parser_db.h"
@@ -180,22 +187,15 @@ pkgmgr-info-dev_files += "${prefix}/lib/pkgconfig/pkgmgr-info.pc"
 pkgmgr-info-dev_files += "${prefix}/lib/libpkgmgr-info.so"
 MANIFESTFILES_${PN}-dev = "pkgmgr-info.manifest"
 
-pkgmgr-info_files = ""
-pkgmgr-info_files += "${prefix}/lib/libpkgmgr-info.so.*"
-pkgmgr-info_files += "${prefix}/share/packages"
-MANIFESTFILES_${PN} = "pkgmgr-info.manifest"
-DIRFILES_${PN} = ""
-DIRFILES_${PN} += "${prefix}/share/packages"
-
 FILES_${PN}-parser = "${pkgmgr-info-parser_files}"
+FILES_${PN} = "${pkgmgr-info_files}"
 FILES_${PN}-parser-dev = "${pkgmgr-info-parser-dev_files}"
 FILES_${PN}-dev = "${pkgmgr-info-dev_files}"
-FILES_${PN} = "${pkgmgr-info_files}"
 
 PKG_pkgmgr-info-parser= "pkgmgr-info-parser"
+PKG_pkgmgr-info= "pkgmgr-info"
 PKG_pkgmgr-info-parser-dev= "pkgmgr-info-parser-dev"
 PKG_pkgmgr-info-dev= "pkgmgr-info-dev"
-PKG_pkgmgr-info= "pkgmgr-info"
 
 require pkgmgr-info-extraconf.inc
 

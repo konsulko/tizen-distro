@@ -1,1 +1,0 @@
-export LD_AS_NEEDED = "1"

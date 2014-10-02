@@ -166,6 +166,7 @@ PACKAGES += " ail-dev "
 
 ail_files = ""
 ail_files += "${prefix}/bin/ail_initdb"
+ail_files += "${prefix}/bin/ail_initdb_user"
 ail_files += "${prefix}/bin/ail_fota"
 ail_files += "${prefix}/bin/ail_desktop"
 ail_files += "${prefix}/bin/ail_filter"

@@ -21,11 +21,11 @@ PROVIDES += "download-provider-dev"
 
 RDEPENDS = ""
 #RDEPENDS of download-provider (${PN})
-RDEPENDS_${PN} += "net-config"
+RDEPENDS_${PN} += "sqlite3"
 RDEPENDS_${PN} += "connman"
 RDEPENDS_${PN} += "eglibc"
 RDEPENDS_${PN} += "vconf"
-RDEPENDS_${PN} += "sqlite"
+RDEPENDS_${PN} += "net-config"
 
 #RDEPENDS of download-provider-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "download-provider"
