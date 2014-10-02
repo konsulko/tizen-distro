@@ -63,9 +63,9 @@ do_install() {
  mkdir -p ${D}
  
  rm -rf ${D}
- mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
+ mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-Appmanager.wgt config.xml css AppManager_icon.png index.html js templates
+ zip -r ${D}/opt/usr/apps/.preinstallWidgets/Modello-Appmanager.wgt config.xml css AppManager_icon.png index.html js templates
  install -m 0644 AppManager_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
@@ -75,6 +75,7 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " Modello-Appmanager "
 
 Modello-Appmanager_files = ""
+Modello-Appmanager_files += "/opt/usr/apps/.preinstallWidgets/Modello-Appmanager.wgt"
 Modello-Appmanager_files += "${prefix}/share/Modello/Common/icons/AppManager_icon.png"
 MANIFESTFILES_${PN} = "Modello-Appmanager.manifest"
 

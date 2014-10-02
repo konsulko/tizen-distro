@@ -63,9 +63,9 @@ do_install() {
  mkdir -p ${D}
  
  rm -rf ${D}
- mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
+ mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-Nav.wgt config.xml css Navigation_icon.png images index.html js templates
+ zip -r ${D}/opt/usr/apps/.preinstallWidgets/Modello-Nav.wgt config.xml css Navigation_icon.png images index.html js templates
  install -m 0644 Navigation_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
@@ -75,6 +75,7 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " Modello-Nav "
 
 Modello-Nav_files = ""
+Modello-Nav_files += "/opt/usr/apps/.preinstallWidgets/Modello-Nav.wgt"
 Modello-Nav_files += "${prefix}/share/Modello/Common/icons/Navigation_icon.png"
 MANIFESTFILES_${PN} = "Modello-Nav.manifest"
 

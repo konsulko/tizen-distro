@@ -210,7 +210,7 @@ do_install() {
  
  # Register xwalk to the package manager.
  install -p -D crosswalk.xml ${D}${prefix}/share/packages/crosswalk.xml
- install -p -D crosswalk.png ${D}%TZ_SYS_RW_ICONS/default/small/crosswalk.png
+ install -p -D crosswalk.png ${D}${prefix}/share/icons/default/small/crosswalk.png
  
  
 }
@@ -218,7 +218,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    mkdir -p %TZ_SYS_RO_ICONS/default/small
+    mkdir -p $D${prefix}/share/icons/default/small
     mkdir -p $D${prefix}/share/packages
     ln -sf $D${prefix}/lib/xwalk/libxwalk-backendlib.so /etc/package-manager/backendlib/libxpk.so
     ln -sf $D${prefix}/lib/xwalk/libxwalk-backendlib.so /etc/package-manager/backendlib/libwgt.so
@@ -251,6 +251,7 @@ crosswalk_files += "${prefix}/lib/xwalk/xwalk.pak"
 crosswalk_files += "${prefix}/lib/xwalk/libxwalk-backendlib.so"
 crosswalk_files += "${prefix}/lib/xwalk/xwalk_backend_wrapper.sh"
 crosswalk_files += "${prefix}/share/packages/crosswalk.xml"
+crosswalk_files += "${prefix}/share/icons/default/small/crosswalk.png"
 crosswalk_files += "/usr/share/dbus-1/services/org.crosswalkproject.Runtime1.service"
 crosswalk_files += "/usr/lib/systemd/user/xwalk.service"
 crosswalk_files += "${prefix}/share/xwalk/*"

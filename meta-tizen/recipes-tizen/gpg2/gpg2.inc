@@ -38,6 +38,7 @@ DEPENDS += "libassuan"
 DEPENDS += "adns"
 DEPENDS += "pth"
 DEPENDS += "zlib"
+inherit pkgconfig
 DEPENDS += "libgpg-error"
 DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
@@ -72,7 +73,6 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  autoreconf -fi
   # build PIEs (position independent executables) for address space randomisation:
   PIE="-fpie"
   export CFLAGS="$CFLAGS ${PIE}"
@@ -80,10 +80,10 @@ do_compile() {
   
   autotools_do_configure
   
-  make -j16
+  oe_runmake -j16
   
   exit 0
-  make check
+  oe_runmake check
   ${D}${prefix}/bin/gpgsplit -v -p pubsplit-                    --uncompress <tests/openpgp/pubring.gpg
   ${D}${prefix}/bin/gpgsplit -v -p secsplit- --secret-to-public --uncompress <tests/openpgp/secring.gpg
   
@@ -129,7 +129,6 @@ do_install() {
  
  
  
- 
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
@@ -144,11 +143,8 @@ gpg2_files += "${prefix}/lib/[^d]*"
 gpg2_files += "${prefix}/sbin/addgnupghome"
 gpg2_files += "${prefix}/sbin/applygnupgdefaults"
 gpg2_files += "${prefix}/share/gnupg"
-gpg2_files += "${sysconfdir}/gnupg"
 gpg2_files += "${sysconfdir}/gnupg/gpgconf.conf"
 MANIFESTFILES_${PN} = "gpg2.manifest"
-DIRFILES_${PN} = ""
-DIRFILES_${PN} += "${sysconfdir}/gnupg"
 
 FILES_${PN} = "${gpg2_files}"
 

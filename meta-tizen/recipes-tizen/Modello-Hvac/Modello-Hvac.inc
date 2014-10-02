@@ -63,9 +63,9 @@ do_install() {
  mkdir -p ${D}
  
  rm -rf ${D}
- mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
+ mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-Hvac.wgt config.xml css HVAC_icon.png index.html js
+ zip -r ${D}/opt/usr/apps/.preinstallWidgets/Modello-Hvac.wgt config.xml css HVAC_icon.png index.html js
  install -m 0644 HVAC_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
@@ -75,6 +75,7 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " Modello-Hvac "
 
 Modello-Hvac_files = ""
+Modello-Hvac_files += "/opt/usr/apps/.preinstallWidgets/Modello-Hvac.wgt"
 Modello-Hvac_files += "${prefix}/share/Modello/Common/icons/HVAC_icon.png"
 
 FILES_${PN} = "${Modello-Hvac_files}"

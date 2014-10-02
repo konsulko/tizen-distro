@@ -1,4 +1,4 @@
-DESCRIPTION = "File manager service server."
+DESCRIPTION = "File manager service server"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Multimedia/Service"
 LICENSE = "Apache-2.0"
@@ -42,11 +42,13 @@ DEPENDS += "notification"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "dlog"
-DEPENDS += "glib-2.0"
+inherit pkgconfig
 DEPENDS += "system-server"
+DEPENDS += "smack"
 DEPENDS += "libslp-db-util"
 DEPENDS += "sqlite3"
 DEPENDS += "heynoti"
+DEPENDS += "glib-2.0"
 DEPENDS += "vconf"
 DEPENDS += "dbus-glib"
 
@@ -111,14 +113,14 @@ do_install() {
  mkdir -p ${D}${prefix}/data/data-media/Images
  mkdir -p ${D}${prefix}/data/data-media/Sounds/Voice\ recorder
  mkdir -p ${D}${prefix}/data/data-media/Videos
- mkdir -p ${D}${prefix}/data/data-media/file-manager-service/.thumb/mmc
- mkdir -p ${D}${prefix}/data/data-media/file-manager-service/.thumb/phone
+ mkdir -p ${D}${prefix}/data/file-manager-service/.thumb/mmc
+ mkdir -p ${D}${prefix}/data/file-manager-service/.thumb/phone
  install -m 0775 ./data-media/Images/* ${D}${prefix}/data/data-media/Images/
- install -m 0775 ./data-media/dbspace/file-manager-service/.thumb/thumb_default.png ${D}${prefix}/data/data-media/file-manager-service/.thumb/
- install -D -m 0775 ./data-media/dbspace/file-manager-service/.thumb/mmc/* ${D}${prefix}/data/data-media/file-manager-service/.thumb/mmc/
- install -m 0775 ./data-media/dbspace/file-manager-service/.thumb/phone/PHONE_THUMB_HERE ${D}${prefix}/data/data-media/file-manager-service/.thumb/phone/
- install -m 0775 ./data-media/dbspace/file-manager-service/.thumb/phone/.jpg* ${D}${prefix}/data/data-media/file-manager-service/.thumb/phone/
- install -D -m 0775 ./data-media/dbspace/file-manager-service/* ${D}${prefix}/data/data-media/file-manager-service/
+ install -m 0775 ./data-media/dbspace/file-manager-service/.thumb/thumb_default.png ${D}${prefix}/data/file-manager-service/.thumb/
+ install -D -m 0775 ./data-media/dbspace/file-manager-service/.thumb/mmc/* ${D}${prefix}/data/file-manager-service/.thumb/mmc/
+ install -m 0775 ./data-media/dbspace/file-manager-service/.thumb/phone/PHONE_THUMB_HERE ${D}${prefix}/data/file-manager-service/.thumb/phone/
+ install -m 0775 ./data-media/dbspace/file-manager-service/.thumb/phone/.jpg* ${D}${prefix}/data/file-manager-service/.thumb/phone/
+ install -D -m 0775 ./data-media/dbspace/file-manager-service/* ${D}${prefix}/data/file-manager-service/
  install -m 0775 ${S}/packaging/media-data-sdk_create_db.sh ${D}${prefix}/bin/media-data-sdk_create_db.sh
  
  
@@ -140,6 +142,7 @@ pkg_postinst_${PN}() {
     vconftool set -t int file/private/mediaserver/scan_directory "1" -f
     chgrp users $D${prefix}/bin/media-data-sdk_create_db.sh
     chgrp -R users $D${prefix}/data/data-media
+    chgrp -R users $D${prefix}/data/file-manager-service
 
 }
 
@@ -168,7 +171,8 @@ media-server_files += "${systemd_unitdir}/system/media-server.service"
 media-server_files += "${systemd_unitdir}/system/multi-user.target.wants/media-server.service"
 media-server_files += "${prefix}/bin/media-data-sdk_create_db.sh"
 media-server_files += "${prefix}/data/data-media/*"
-media-server_files += "${prefix}/data/data-media/file-manager-service/.thumb/*"
+media-server_files += "${prefix}/data/file-manager-service/.thumb/*"
+media-server_files += "${prefix}/data/file-manager-service/plugin-config"
 MANIFESTFILES_${PN} = "media-server.manifest"
 
 libmedia-utils_files = ""

@@ -1,6 +1,6 @@
 DESCRIPTION = "Multimedia Framework LOG Lib"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Multimedia/Multimedia Framework"
+SECTION = "Multimedia/Media Service"
 LICENSE = "Apache-2.0"
 
 SRC_URI = ""
@@ -23,6 +23,7 @@ RDEPENDS = ""
 
 DEPENDS = ""
 #DEPENDS of libmm-log
+inherit pkgconfig
 DEPENDS += "dlog"
 
 do_prep() {
@@ -30,7 +31,6 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n libmm-log-0.1.5
  cp ${S}/packaging/libmm-log.manifest .
- 
  
  
 }
@@ -52,7 +52,7 @@ do_compile() {
   ./autogen.sh
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   

@@ -117,7 +117,7 @@ pkg_postinst_${PN}() {
 
     ldconfig
     # Create tizenglobalapp user needed for global installation
-    useradd -d $D${prefix}/apps -m %TZ_SYS_GLOBALAPP_USER -r -c "system user for common applications" -g root
+    useradd -d $D${prefix}/apps -m tizenglobalapp -r -c "system user for common applications" -g root
     #mkdir -p $D${prefix}/apps/.config/xwalk-service/applications
     #cd $D${prefix}/apps/
     #ln -s .config/xwalk-service/applications/
@@ -140,10 +140,10 @@ pkg_postinst_${PN}() {
     chsmack -a '*' $D${prefix}/share/applications
     chmod g+w $D${prefix}/share/applications
     chmod g+w $D${prefix}/share/applications
-    chown %TZ_SYS_GLOBALAPP_USER:root $D${prefix}/share/applications
-    chown %TZ_SYS_GLOBALAPP_USER:root $D${prefix}/share/applications
-    chown %TZ_SYS_GLOBALAPP_USER:root $D${prefix}/apps
-    chown %TZ_SYS_GLOBALAPP_USER:root $D${prefix}/dbspace
+    chown tizenglobalapp:root $D${prefix}/share/applications
+    chown tizenglobalapp:root $D${prefix}/share/applications
+    chown tizenglobalapp:root $D${prefix}/apps
+    chown tizenglobalapp:root $D${prefix}/dbspace
     ail_initdb 2>/dev/null
     chsmack -a '*' $D${prefix}/dbspace/.app_info.db*
      

@@ -169,8 +169,6 @@ do_install() {
  mkdir -p  ${D}${sysconfdir}/rc.d/rc5.d
  ln -s ${sysconfdir}/rc.d/init.d/msg-server  ${D}${sysconfdir}/rc.d/rc5.d/S70msg-server
  
- mkdir -p ${D}/opt/usr/data/msg-service
- 
  rm ${D}/etc/config/sysinfo-message.emul.xml
  
  

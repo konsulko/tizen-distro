@@ -63,9 +63,9 @@ do_install() {
  mkdir -p ${D}
  
  rm -rf ${D}
- mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
+ mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-Multimediaplayer.wgt components config.xml css MultimediaPlayer_icon.png images index.html js
+ zip -r ${D}/opt/usr/apps/.preinstallWidgets/Modello-Multimediaplayer.wgt components config.xml css MultimediaPlayer_icon.png images index.html js
  install -m 0644 MultimediaPlayer_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
@@ -75,6 +75,7 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " Modello-Multimediaplayer "
 
 Modello-Multimediaplayer_files = ""
+Modello-Multimediaplayer_files += "/opt/usr/apps/.preinstallWidgets/Modello-Multimediaplayer.wgt"
 Modello-Multimediaplayer_files += "${prefix}/share/Modello/Common/icons/MultimediaPlayer_icon.png"
 MANIFESTFILES_${PN} = "Modello-Multimediaplayer.manifest"
 

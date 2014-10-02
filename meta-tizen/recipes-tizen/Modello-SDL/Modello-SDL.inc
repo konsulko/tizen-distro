@@ -63,9 +63,9 @@ do_install() {
  mkdir -p ${D}
  
  rm -rf ${D}
- mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
+ mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-SDL.wgt app audio config.xml css ffw SmartDeviceLink_icon.png images index.html js lib locale
+ zip -r ${D}/opt/usr/apps/.preinstallWidgets/Modello-SDL.wgt app audio config.xml css ffw SmartDeviceLink_icon.png images index.html js lib locale
  install -m 0644 SmartDeviceLink_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
@@ -75,6 +75,7 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " Modello-SDL "
 
 Modello-SDL_files = ""
+Modello-SDL_files += "/opt/usr/apps/.preinstallWidgets/Modello-SDL.wgt"
 Modello-SDL_files += "${prefix}/share/Modello/Common/icons/SmartDeviceLink_icon.png"
 MANIFESTFILES_${PN} = "Modello-SDL.manifest"
 

@@ -44,16 +44,17 @@ DEPENDS += "dlog"
 DEPENDS += "dbus"
 DEPENDS += "app-svc"
 DEPENDS += "tizen-platform-config"
-DEPENDS += "aul"
+inherit pkgconfig
 DEPENDS += "bundle"
-DEPENDS += "glib-2.0"
+DEPENDS += "aul"
 DEPENDS += "system-server"
-DEPENDS += "libslp-db-util"
+DEPENDS += "dbus-glib"
 DEPENDS += "security-server"
 DEPENDS += "heynoti"
+DEPENDS += "glib-2.0"
 DEPENDS += "libtapi"
 DEPENDS += "vconf"
-DEPENDS += "dbus-glib"
+DEPENDS += "libslp-db-util"
 
 do_prep() {
  cd ${S}

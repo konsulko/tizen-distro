@@ -63,9 +63,9 @@ do_install() {
  mkdir -p ${D}
  
  rm -rf ${D}
- mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
+ mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-AMBSimulator.wgt config.xml manifest.json css AMBSimulator_icon.png  index.html  js templates
+ zip -r ${D}/opt/usr/apps/.preinstallWidgets/Modello-AMBSimulator.wgt config.xml manifest.json css AMBSimulator_icon.png  index.html  js templates
  install -m 0644 AMBSimulator_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
@@ -75,6 +75,7 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " Modello-AMBSimulator "
 
 Modello-AMBSimulator_files = ""
+Modello-AMBSimulator_files += "/opt/usr/apps/.preinstallWidgets/Modello-AMBSimulator.wgt"
 Modello-AMBSimulator_files += "${prefix}/share/Modello/Common/icons/AMBSimulator_icon.png"
 MANIFESTFILES_${PN} = "Modello-AMBSimulator.manifest"
 

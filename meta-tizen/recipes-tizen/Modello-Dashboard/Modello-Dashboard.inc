@@ -63,9 +63,9 @@ do_install() {
  mkdir -p ${D}
  
  rm -rf ${D}
- mkdir -p ${D}%{TZ_SYS_APP_PREINSTALL}
+ mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
  mkdir -p ${D}${prefix}/share/Modello/Common/icons
- zip -r ${D}%{TZ_SYS_APP_PREINSTALL}/Modello-Dashboard.wgt components config.xml css Dashboard_icon.png index.html js
+ zip -r ${D}/opt/usr/apps/.preinstallWidgets/Modello-Dashboard.wgt components config.xml css Dashboard_icon.png index.html js
  install -m 0644 Dashboard_icon.png ${D}${prefix}/share/Modello/Common/icons
  
  
@@ -75,6 +75,7 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " Modello-Dashboard "
 
 Modello-Dashboard_files = ""
+Modello-Dashboard_files += "/opt/usr/apps/.preinstallWidgets/Modello-Dashboard.wgt"
 Modello-Dashboard_files += "${prefix}/share/Modello/Common/icons/Dashboard_icon.png"
 MANIFESTFILES_${PN} = "Modello-Dashboard.manifest"
 
