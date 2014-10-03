@@ -18,14 +18,12 @@ done
 for list2 in $(ls -d $TZ_SYS_HOME/${MODELLO_INSTALL_USER}/.config/xwalk-service/applications/*/)
 do      
         echo list2 $
-        su ${MODELLO_INSTALL_USER} -c "mkdir -p '$list2/css'"
-        su ${MODELLO_INSTALL_USER} -c "mkdir -p '$list2/js'"
-        su ${MODELLO_INSTALL_USER} -c "cp -fr ${MODELLO_COMMON_DIR}/js/services '$list2/js/'"
-        su ${MODELLO_INSTALL_USER} -c "cp -fr ${MODELLO_COMMON_DIR}/css/* '$list2/css/'"
-        su ${MODELLO_INSTALL_USER} -c "cp -fr ${MODELLO_COMMON_DIR}/icons '$list2/'"
+        su - ${MODELLO_INSTALL_USER} -c "mkdir -p '$list2/css'"
+        su - ${MODELLO_INSTALL_USER} -c "mkdir -p '$list2/js'"
+        su - ${MODELLO_INSTALL_USER} -c "cp -fr ${MODELLO_COMMON_DIR}/js/services '$list2/js/'"
+        su - ${MODELLO_INSTALL_USER} -c "cp -fr ${MODELLO_COMMON_DIR}/css/* '$list2/css/'"
+        su - ${MODELLO_INSTALL_USER} -c "cp -fr ${MODELLO_COMMON_DIR}/icons '$list2/'"
         
         
 done
-
-find $TZ_SYS_HOME/${MODELLO_INSTALL_USER}/.config/xwalk-service/applications/ -exec chsmack -a "User" {} \;
 
