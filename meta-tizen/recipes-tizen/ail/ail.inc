@@ -65,7 +65,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- CFLAGS+=" -fpic"
+ CFLAGS="$CFLAGS -fpic"
  
  
  
@@ -81,8 +81,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} .  -DTZ_SYS_RW_DESKTOP_APP=${prefix}/share/applications \
-           -DBUILD_PKGTYPE=rpm \
- 		  -DSMACK=Off
+           -DBUILD_PKGTYPE=rpm
  
  oe_runmake -j16
  
@@ -118,8 +117,8 @@ pkg_postinst_${PN}() {
     ldconfig
     # Create tizenglobalapp user needed for global installation
     useradd -d $D${prefix}/apps -m tizenglobalapp -r -c "system user for common applications" -g root
-    #mkdir -p $D${prefix}/apps/.config/xwalk-service/applications
-    #cd $D${prefix}/apps/
+    #mkdir -p %TZ_SYS_RW_APP/.config/xwalk-service/applications
+    #cd %TZ_SYS_RW_APP/
     #ln -s .config/xwalk-service/applications/
     vconftool set -t string db/ail/ail_info "0" -f -s system::vconf_inhouse
     vconftool set -t string db/menuscreen/desktop "0" -f -s system::vconf_inhouse
