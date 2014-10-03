@@ -6,7 +6,7 @@ Before=Modello_Homescreen.service
 Type=oneshot
 SmackExecLabel=User
 ExecStart=/usr/share/modello-installer/modello-installer-postinst.sh
-ExecStartPost=/bin/rm -f /lib/systemd/system/multi-user.target.wants/modello-installer-postinst.service
+ExecStartPost=/bin/rm -f /usr/lib/systemd/system/multi-user.target.wants/modello-installer-postinst.service
 
 [Install]
 WantedBy=multi-user.target
