@@ -118,6 +118,8 @@ pkg_postinst_libmessage-port() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
+    getent group messageport >/dev/null || $D${prefix}/sbin/groupadd -r -o messageport
+    getent passwd messageport >/dev/null || $D${prefix}/sbin/useradd -r -g messageport -s /bin/false -d /run/messageport -c "Message Port daemon" messageport
     /bin/systemctl enable messageportd.service
 
 }

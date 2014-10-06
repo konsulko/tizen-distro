@@ -4,3 +4,4 @@ SRC_URI += " file://0003-Remove-obsolete-function-gcry_md_start_debug.patch "
 
 gpg2_files += "/usr/lib/*"
 
+EXTRA_OECONF += " --disable-doc "
