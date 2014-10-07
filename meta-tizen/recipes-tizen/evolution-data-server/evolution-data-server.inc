@@ -141,12 +141,14 @@ do_compile() {
    
   autotools_do_configure
   
-  make -j16 V=1
+  oe_runmake -j16 V=1
+  
+  
   
   
   
 }
-EXTRA_OECONF += " --libexecdir=${prefix}/libexec/evolution-data-server --disable-maintainer-mode --enable-ipv6= --enable-smime= --enable-nntp= --disable-static --disable-uoa --enable-goa=no --enable-weather=no --enable-gtk=no --enable-google=no --enable-vala-bindings --enable-introspection --disable-examples # end of configure line"
+EXTRA_OECONF += " --libexecdir=${prefix}/libexec/evolution-data-server --disable-maintainer-mode --enable-ipv6= --enable-smime= --enable-nntp= --disable-static --disable-uoa --enable-goa=no --enable-weather=no --enable-gtk=no --enable-google=no --enable-vala-bindings --enable-introspection --disable-examples "
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -167,8 +169,8 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  mkdir -p ${D}/${prefix}/share/help
- #find_lang evolution-data-server-3.12
- mv evolution-data-server-3.12.lang evolution-data-server.lang
+ #find_lang evolution-data-server-3.11
+ mv evolution-data-server-3.11.lang evolution-data-server.lang
  #fdupes ${D}
  
  #lang_package
@@ -306,6 +308,7 @@ typelib-EBook_files += "${prefix}/lib/girepository-1.0/EBook-1.2.typelib"
 
 evolution-data-server_files = ""
 evolution-data-server_files += "${prefix}/share/GConf/gsettings/evolution-data-server.convert"
+evolution-data-server_files += "${prefix}/share/GConf/gsettings/libedataserver.convert"
 evolution-data-server_files += "${prefix}/share/glib-2.0/schemas/org.gnome.Evolution.DefaultSources.gschema.xml"
 evolution-data-server_files += "${prefix}/share/glib-2.0/schemas/org.gnome.evolution.eds-shell.gschema.xml"
 evolution-data-server_files += "${prefix}/share/glib-2.0/schemas/org.gnome.evolution.shell.network-config.gschema.xml"
@@ -320,16 +323,16 @@ typelib-EDataServer_files = ""
 typelib-EDataServer_files += "${prefix}/lib/girepository-1.0/EDataServer-1.2.typelib"
 
 libecal_files = ""
-libecal_files += "${prefix}/lib/libecal-1.2.so.16*"
+libecal_files += "${prefix}/lib/libecal-1.2.so.15*"
 
 libcamel_files = ""
-libcamel_files += "${prefix}/lib/libcamel-1.2.so.49*"
+libcamel_files += "${prefix}/lib/libcamel-1.2.so.43*"
 
 libedataserver_files = ""
-libedataserver_files += "${prefix}/lib/libedataserver-1.2.so.18*"
+libedataserver_files += "${prefix}/lib/libedataserver-1.2.so.17*"
 
 libedata-cal_files = ""
-libedata-cal_files += "${prefix}/lib/libedata-cal-1.2.so.23*"
+libedata-cal_files += "${prefix}/lib/libedata-cal-1.2.so.20*"
 
 libebook-contacts_files = ""
 libebook-contacts_files += "${prefix}/lib/libebook-contacts-1.2.so.0*"
@@ -341,10 +344,10 @@ libebook_files = ""
 libebook_files += "${prefix}/lib/libebook-1.2.so.14*"
 
 libedata-book_files = ""
-libedata-book_files += "${prefix}/lib/libedata-book-1.2.so.20*"
+libedata-book_files += "${prefix}/lib/libedata-book-1.2.so.17*"
 
 libebackend_files = ""
-libebackend_files += "${prefix}/lib/libebackend-1.2.so.7*"
+libebackend_files += "${prefix}/lib/libebackend-1.2.so.6*"
 
 evolution-data-server-dev_files = ""
 evolution-data-server-dev_files += "${prefix}/include/evolution-data-server/"

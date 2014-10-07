@@ -8,7 +8,8 @@ export BUILD_SYS
 export STAGING_LIBDIR
 export STAGING_INCDIR
 
-DEPENDS += "gobject-introspection"
+#DEPENDS += "gobject-introspection"
+#gtk-doc-stub?
 
 # -ldb needs this on some platforms
 LDFLAGS += "-lpthread"

@@ -38,6 +38,8 @@ do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n libwebsockets-1.2
+ cp ${S}/packaging/libwebsockets.manifest .
+ 
  
  
 }
@@ -119,11 +121,13 @@ libwebsockets_files = ""
 libwebsockets_files += "${prefix}/bin/libwebsockets*"
 libwebsockets_files += "${prefix}/lib/libwebsockets*.so.*"
 libwebsockets_files += "${prefix}/share/libwebsockets-test-server/*"
+MANIFESTFILES_${PN} = "libwebsockets.manifest"
 
 libwebsockets-dev_files = ""
 libwebsockets-dev_files += "${prefix}/include/libwebsockets.h"
 libwebsockets-dev_files += "${prefix}/lib/libwebsockets.so"
 libwebsockets-dev_files += "${prefix}/lib/pkgconfig/*"
+MANIFESTFILES_${PN}-dev = "libwebsockets.manifest"
 
 FILES_${PN} = "${libwebsockets_files}"
 FILES_${PN}-dev = "${libwebsockets-dev_files}"
