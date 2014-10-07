@@ -1,6 +1,9 @@
-#EXTRA_OECONF = " --with-pic --disable-vapigen"
+EXTRA_OECONF = " --with-pic --disable-vapigen"
+
 SRC_URI += " file://0001-git-version-gen-don-t-append-dirty-if-we-re-not-in-g.patch"
 SRC_URI += " file://Fix-time-stamp.patch"
+
+RDEPENDS_${PN}_remove_class-native = "update-alternatives-native"
 
 do_install_append() {
  rm -r ${D}${prefix}/share/devhelp
