@@ -19,4 +19,3 @@ RDEPENDS_packagegroup-tizen-ivi-ico = " \
                                         ico-vic-carsimulator \
                                         ico-uxf-homescreen-sample-apps \
                                         "
-

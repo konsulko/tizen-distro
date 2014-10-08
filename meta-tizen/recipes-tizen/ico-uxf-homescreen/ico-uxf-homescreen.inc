@@ -38,18 +38,18 @@ RDEPENDS_${PN}-system-controller-dev += "capi-base-common-dev"
 RDEPENDS_${PN}-system-controller-dev += "ecore"
 
 #RDEPENDS of ico-uxf-homescreen-system-controller (${PN}-system-controller)
+RDEPENDS_${PN}-system-controller += "genivi-shell"
 RDEPENDS_${PN}-system-controller += "ico-uxf-utilities"
 RDEPENDS_${PN}-system-controller += "ico-uxf-homescreen"
 RDEPENDS_${PN}-system-controller += "weston-ivi-shell"
 RDEPENDS_${PN}-system-controller += "weston"
-RDEPENDS_${PN}-system-controller += "wayland-ivi-extension"
 RDEPENDS_${PN}-system-controller += "ico-uxf-weston-plugin"
 
 #RDEPENDS of ico-uxf-homescreen (${PN})
+RDEPENDS_${PN} += "genivi-shell"
 RDEPENDS_${PN} += "ico-uxf-utilities"
 RDEPENDS_${PN} += "weston-ivi-shell"
 RDEPENDS_${PN} += "weston"
-RDEPENDS_${PN} += "wayland-ivi-extension"
 RDEPENDS_${PN} += "system-controller"
 RDEPENDS_${PN} += "ico-uxf-weston-plugin"
 
@@ -57,15 +57,16 @@ RDEPENDS_${PN} += "ico-uxf-weston-plugin"
 DEPENDS = ""
 #DEPENDS of ico-uxf-homescreen
 DEPENDS += "edje"
+DEPENDS += "genivi-shell"
+DEPENDS += "pkgmgr"
+DEPENDS += "capi-appfw-application"
 DEPENDS += "eina"
 DEPENDS += "json-glib"
-DEPENDS += "slp-pkgmgr"
-DEPENDS += "wayland"
 DEPENDS += "notification"
 DEPENDS += "app-svc"
 DEPENDS += "aul"
 DEPENDS += "glib-2.0"
-DEPENDS += "application"
+DEPENDS += "wayland"
 DEPENDS += "boost"
 DEPENDS += "ico-uxf-weston-plugin"
 DEPENDS += "ico-uxf-utilities"
@@ -79,7 +80,6 @@ DEPENDS += "ecore"
 DEPENDS += "mesa"
 DEPENDS += "dbus"
 DEPENDS += "ail"
-DEPENDS += "wayland-ivi-extension"
 
 do_prep() {
  cd ${S}
@@ -161,21 +161,8 @@ pkg_postinst_${PN}() {
 
     [ "x$D" == "x" ] && ldconfig
     # Update the app database.
-    $D${prefix}/bin/pkginfo --imd $D${prefix}/share/packages/org.tizen.ico.homescreen.xml
-    $D${prefix}/bin/pkginfo --imd $D${prefix}/share/packages/org.tizen.ico.statusbar.xml
-    $D${prefix}/bin/pkginfo --imd $D${prefix}/share/packages/org.tizen.ico.system-controller.xml
-    $D${prefix}/bin/pkginfo --imd $D${prefix}/share/packages/org.tizen.ico.onscreen.xml
-
-}
-
-pkg_prerm_${PN}() {
-    #!/bin/sh -e
-
-    # Update the app database.
-    $D${prefix}/bin/pkginfo --rmd $D${prefix}/share/packages/org.tizen.ico.homescreen.xml
-    $D${prefix}/bin/pkginfo --rmd $D${prefix}/share/packages/org.tizen.ico.statusbar.xml
-    $D${prefix}/bin/pkginfo --rmd $D${prefix}/share/packages/org.tizen.ico.system-controller.xml
-    $D${prefix}/bin/pkginfo --rmd $D${prefix}/share/packages/org.tizen.ico.onscreen.xml
+    $D${prefix}/bin/pkg_initdb
+    $D${prefix}/bin/ail_initdb
 
 }
 
@@ -187,6 +174,8 @@ pkg_postrm_${PN}() {
     rm -f $D${prefix}/share/applications/org.tizen.ico.statusbar.desktop
     rm -f $D${prefix}/share/applications/org.tizen.ico.onscreen.desktop
     rm -f $D${prefix}/share/applications/org.tizen.ico.system-controller.desktop
+    $D${prefix}/bin/pkg_initdb
+    $D${prefix}/bin/ail_initdb
 
 }
 
