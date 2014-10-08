@@ -3,6 +3,10 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 SRC_URI += "file://defconfig"
 SRC_URI += "file://0001-Smack-Cgroup-filesystem-access.patch"
 SRC_URI += "file://0002-SMACK-Fix-handling-value-NULL-in-post-setxattr.patch"
+# TMP fix for error: "implicit declaration of function 'sk_run_filter'"
+SRC_URI += "file://0001-net-ptp-use-sk_unattached_filter_create-for-BPF.patch"
+SRC_URI += "file://0001-net-ptp-do-not-reimplement-PTP-BPF-classifier.patch"
+SRC_URI += "file://0001-net-ptp-move-PTP-classifier-in-its-own-file.patch"
 
 # Setting the KCONFIG_MODE variable prevents it to being set to
 # "--allnoconfig" which disable all kernel options.
