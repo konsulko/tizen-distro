@@ -12,15 +12,7 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
-#PROVIDES by typelib-EBook
-PROVIDES += "typelib-EBook"
-
-
 #PROVIDES by evolution-data-server
-
-
-#PROVIDES by typelib-EDataServer
-PROVIDES += "typelib-EDataServer"
 
 
 #PROVIDES by libedataserver
@@ -41,10 +33,6 @@ PROVIDES += "libedata-cal"
 
 #PROVIDES by libebook-contacts
 PROVIDES += "libebook-contacts"
-
-
-#PROVIDES by typelib-EBookContacts
-PROVIDES += "typelib-EBookContacts"
 
 
 #PROVIDES by libedata-book
@@ -75,9 +63,7 @@ RDEPENDS_${PN} += "glib-2.0"
 RDEPENDS_${PN}-doc += "evolution-data-server"
 
 #RDEPENDS of evolution-data-server-dev (${PN}-dev)
-RDEPENDS_${PN}-dev += "typelib-EBook"
 RDEPENDS_${PN}-dev += "evolution-data-server"
-RDEPENDS_${PN}-dev += "typelib-EDataServer"
 RDEPENDS_${PN}-dev += "libedataserver"
 RDEPENDS_${PN}-dev += "libecal"
 RDEPENDS_${PN}-dev += "libcamel"
@@ -99,7 +85,6 @@ DEPENDS += "eglibc-locale"
 DEPENDS += "db"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
-DEPENDS += "gtk-doc-stub"
 DEPENDS += "libical"
 DEPENDS += "libsoup-2.4"
 inherit pythonnative
@@ -116,6 +101,7 @@ do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
+ cp ${S}/packaging/evolution-data-server.manifest .
  
  
 }
@@ -145,10 +131,8 @@ do_compile() {
   
   
   
-  
-  
 }
-EXTRA_OECONF += " --libexecdir=${prefix}/libexec/evolution-data-server --disable-maintainer-mode --enable-ipv6= --enable-smime= --enable-nntp= --disable-static --disable-uoa --enable-goa=no --enable-weather=no --enable-gtk=no --enable-google=no --enable-vala-bindings --enable-introspection --disable-examples "
+EXTRA_OECONF += " --libexecdir=${prefix}/libexec/evolution-data-server --disable-maintainer-mode --enable-ipv6= --enable-smime= --enable-nntp= --disable-static --disable-uoa --enable-goa=no --enable-weather=no --enable-gtk=no --enable-google=no --disable-vala-bindings --disable-introspection --disable-examples"
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -169,8 +153,8 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  mkdir -p ${D}/${prefix}/share/help
- #find_lang evolution-data-server-3.11
- mv evolution-data-server-3.11.lang evolution-data-server.lang
+ find ${D} -name evolution-data-server-3.11.mo -execdir mv {} evolution-data-server.mo \;
+ #find_lang evolution-data-server
  #fdupes ${D}
  
  #lang_package
@@ -190,6 +174,12 @@ pkg_postinst_libecal() {
     [ "x$D" == "x" ] && ldconfig
 }
 
+pkg_postinst_libedata-cal() {
+    #!/bin/sh -e
+
+    [ "x$D" == "x" ] && ldconfig
+}
+
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
@@ -198,12 +188,6 @@ pkg_postinst_${PN}() {
 }
 
 pkg_postinst_libebackend() {
-    #!/bin/sh -e
-
-    [ "x$D" == "x" ] && ldconfig
-}
-
-pkg_postinst_libedata-cal() {
     #!/bin/sh -e
 
     [ "x$D" == "x" ] && ldconfig
@@ -251,17 +235,17 @@ pkg_postrm_libedata-book() {
     [ "x$D" == "x" ] && ldconfig
 }
 
+pkg_postrm_libebackend() {
+    #!/bin/sh -e
+
+    [ "x$D" == "x" ] && ldconfig
+}
+
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     %glib2_gsettings_schema_postun
 
-}
-
-pkg_postrm_libebackend() {
-    #!/bin/sh -e
-
-    [ "x$D" == "x" ] && ldconfig
 }
 
 pkg_postrm_libedataserver() {
@@ -289,22 +273,16 @@ pkg_postrm_libebook-contacts() {
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
-PACKAGES += " typelib-EBook "
 PACKAGES += " evolution-data-server "
-PACKAGES += " typelib-EDataServer "
+PACKAGES += " libedataserver "
 PACKAGES += " libecal "
 PACKAGES += " libcamel "
-PACKAGES += " libedataserver "
 PACKAGES += " libedata-cal "
 PACKAGES += " libebook-contacts "
-PACKAGES += " typelib-EBookContacts "
 PACKAGES += " libebook "
 PACKAGES += " libedata-book "
 PACKAGES += " libebackend "
 PACKAGES += " evolution-data-server-dev "
-
-typelib-EBook_files = ""
-typelib-EBook_files += "${prefix}/lib/girepository-1.0/EBook-1.2.typelib"
 
 evolution-data-server_files = ""
 evolution-data-server_files += "${prefix}/share/GConf/gsettings/evolution-data-server.convert"
@@ -318,73 +296,63 @@ evolution-data-server_files += "${prefix}/share/pixmaps/evolution-data-server/"
 evolution-data-server_files += "${prefix}/share/dbus-1/services/org.gnome.evolution.dataserver.*.service"
 evolution-data-server_files += "${prefix}/lib/evolution-data-server/"
 evolution-data-server_files += "${prefix}/libexec/evolution-data-server/"
-
-typelib-EDataServer_files = ""
-typelib-EDataServer_files += "${prefix}/lib/girepository-1.0/EDataServer-1.2.typelib"
-
-libecal_files = ""
-libecal_files += "${prefix}/lib/libecal-1.2.so.15*"
-
-libcamel_files = ""
-libcamel_files += "${prefix}/lib/libcamel-1.2.so.43*"
+MANIFESTFILES_${PN} = "evolution-data-server.manifest"
 
 libedataserver_files = ""
 libedataserver_files += "${prefix}/lib/libedataserver-1.2.so.17*"
+MANIFESTFILES_libedataserver = "evolution-data-server.manifest"
+
+libecal_files = ""
+libecal_files += "${prefix}/lib/libecal-1.2.so.15*"
+MANIFESTFILES_libecal = "evolution-data-server.manifest"
+
+libcamel_files = ""
+libcamel_files += "${prefix}/lib/libcamel-1.2.so.43*"
+MANIFESTFILES_libcamel = "evolution-data-server.manifest"
 
 libedata-cal_files = ""
 libedata-cal_files += "${prefix}/lib/libedata-cal-1.2.so.20*"
+MANIFESTFILES_libedata-cal = "evolution-data-server.manifest"
 
 libebook-contacts_files = ""
 libebook-contacts_files += "${prefix}/lib/libebook-contacts-1.2.so.0*"
-
-typelib-EBookContacts_files = ""
-typelib-EBookContacts_files += "${prefix}/lib/girepository-1.0/EBookContacts-1.2.typelib"
+MANIFESTFILES_libebook-contacts = "evolution-data-server.manifest"
 
 libebook_files = ""
 libebook_files += "${prefix}/lib/libebook-1.2.so.14*"
+MANIFESTFILES_libebook = "evolution-data-server.manifest"
 
 libedata-book_files = ""
 libedata-book_files += "${prefix}/lib/libedata-book-1.2.so.17*"
+MANIFESTFILES_libedata-book = "evolution-data-server.manifest"
 
 libebackend_files = ""
 libebackend_files += "${prefix}/lib/libebackend-1.2.so.6*"
+MANIFESTFILES_libebackend = "evolution-data-server.manifest"
 
 evolution-data-server-dev_files = ""
 evolution-data-server-dev_files += "${prefix}/include/evolution-data-server/"
 evolution-data-server-dev_files += "${prefix}/lib/*.so"
 evolution-data-server-dev_files += "${prefix}/lib/pkgconfig/*.pc"
-evolution-data-server-dev_files += "${prefix}/share/gir-1.0/*.gir"
-evolution-data-server-dev_files += "${prefix}/share/vala"
-evolution-data-server-dev_files += "${prefix}/share/vala/vapi"
-evolution-data-server-dev_files += "${prefix}/share/vala/vapi/*.deps"
-evolution-data-server-dev_files += "${prefix}/share/vala/vapi/*.vapi"
-DIRFILES_${PN}-dev = ""
-DIRFILES_${PN}-dev += "${prefix}/share/vala"
-DIRFILES_${PN}-dev += "${prefix}/share/vala/vapi"
+MANIFESTFILES_${PN}-dev = "evolution-data-server.manifest"
 
-FILES_typelib-EBook = "${typelib-EBook_files}"
 FILES_${PN} = "${evolution-data-server_files}"
-FILES_typelib-EDataServer = "${typelib-EDataServer_files}"
+FILES_libedataserver = "${libedataserver_files}"
 FILES_libecal = "${libecal_files}"
 FILES_libcamel = "${libcamel_files}"
-FILES_libedataserver = "${libedataserver_files}"
 FILES_libedata-cal = "${libedata-cal_files}"
 FILES_libebook-contacts = "${libebook-contacts_files}"
-FILES_typelib-EBookContacts = "${typelib-EBookContacts_files}"
 FILES_libebook = "${libebook_files}"
 FILES_libedata-book = "${libedata-book_files}"
 FILES_libebackend = "${libebackend_files}"
 FILES_${PN}-dev = "${evolution-data-server-dev_files}"
 
-PKG_typelib-EBook= "typelib-EBook"
 PKG_evolution-data-server= "evolution-data-server"
-PKG_typelib-EDataServer= "typelib-EDataServer"
+PKG_libedataserver= "libedataserver"
 PKG_libecal= "libecal"
 PKG_libcamel= "libcamel"
-PKG_libedataserver= "libedataserver"
 PKG_libedata-cal= "libedata-cal"
 PKG_libebook-contacts= "libebook-contacts"
-PKG_typelib-EBookContacts= "typelib-EBookContacts"
 PKG_libebook= "libebook"
 PKG_libedata-book= "libedata-book"
 PKG_libebackend= "libebackend"

@@ -9,7 +9,6 @@ PACKAGES = "\
             "
 
 # Modello modules
-# To add: "Modello-Phone"
 RDEPENDS_packagegroup-tizen-ivi-modello = " \
                                             Modello-Installer-xwalk \ 
                                             Modello-AMBSimulator \
@@ -21,4 +20,5 @@ RDEPENDS_packagegroup-tizen-ivi-modello = " \
                                             Modello-Multimediaplayer \
                                             Modello-Nav \
                                             Modello-SDL \
+                                            Modello-Phone \
                                             "
