@@ -1,0 +1,24 @@
+From 2a0fadb980128da9597553fe965d8842786dc2d6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
+Date: Mon, 6 Oct 2014 10:15:16 +0200
+Subject: [PATCH] meta-tizen: No getArchScore() for RPM 4
+
+---
+ smart/backends/rpm/base.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/smart/backends/rpm/base.py b/smart/backends/rpm/base.py
+index d720617..446ce7f 100644
+--- a/smart/backends/rpm/base.py
++++ b/smart/backends/rpm/base.py
+@@ -338,6 +338,7 @@ class RPMObsoletes(Depends):
+ 
+ _SCOREMAP = {}
+ def getArchScore(arch, _sm=_SCOREMAP):
++    return 1
+     try:
+         rpm.platformscore(arch)
+         if arch not in _sm:
+-- 
+1.8.1.4
+

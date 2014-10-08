@@ -1,0 +1,24 @@
+From 67ca8748924daf512888e4738c7e205d24b83b2b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
+Date: Mon, 6 Oct 2014 10:24:16 +0200
+Subject: [PATCH] meta-tizen: Ignore arch for RPM 4
+
+---
+ smart/backends/rpm/pm.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/smart/backends/rpm/pm.py b/smart/backends/rpm/pm.py
+index 1482601..2df05ba 100644
+--- a/smart/backends/rpm/pm.py
++++ b/smart/backends/rpm/pm.py
+@@ -216,6 +216,7 @@ class RPMPackageManager(PackageManager):
+         if sysconf.get("rpm-order"):
+             ts.order()
+         probfilter = rpm.RPMPROB_FILTER_OLDPACKAGE
++	probfilter |= rpm.RPMPROB_FILTER_IGNOREARCH
+         try:
+             # Test for RPM5 function
+             rpm.platformscore("")
+-- 
+1.8.1.4
+
