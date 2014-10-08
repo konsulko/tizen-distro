@@ -1,7 +1,7 @@
-DESCRIPTION = "Automotive Message Broker is a vehicle network abstraction system."
+DESCRIPTION = "Automotive Message Broker is a vehicle network abstraction system"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "System Environment/Daemons"
-LICENSE = "LGPL v2.1"
+SECTION = "Automotive/Other"
+LICENSE = "LGPL-2.1"
 
 SRC_URI = ""
 
@@ -17,7 +17,6 @@ PROVIDES = ""
 
 RDEPENDS = ""
 #RDEPENDS of ico-vic-amb-plugin (${PN})
-RDEPENDS_${PN} += "libjson"
 RDEPENDS_${PN} += "ico-uxf-utilities"
 RDEPENDS_${PN} += "eglibc"
 
@@ -36,6 +35,7 @@ do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n ico-vic-amb-plugin-0.9.5
+ cp ${S}/packaging/ico-vic-amb-plugin.manifest .
  
  
 }
@@ -66,8 +66,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE}
- 
- make -j16
+ oe_runmake -j16
  
  
  
@@ -93,9 +92,9 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  mkdir -p ${D}/${sysconfdir}/ambd
- mkdir -p ${D}/usr/bin
  cp src/AMBformat.conf ${D}/${sysconfdir}/ambd/
- cp tool/ico_set_vehicleinfo ${D}/usr/bin/ico_set_vehicleinfo
+ mkdir -p ${D}${prefix}/bin
+ cp tool/ico_set_vehicleinfo ${D}${prefix}/bin/ico_set_vehicleinfo
  
  
 }
@@ -118,8 +117,10 @@ PACKAGES += " ico-vic-amb-plugin "
 ico-vic-amb-plugin_files = ""
 ico-vic-amb-plugin_files += "${prefix}/lib/automotive-message-broker/*.so"
 ico-vic-amb-plugin_files += "${sysconfdir}/ambd/AMBformat.conf"
-ico-vic-amb-plugin_files += "/usr/share/doc/automotive-message-broker/ico-vic-amb-plugin/README"
-ico-vic-amb-plugin_files += "/usr/bin/ico_set_vehicleinfo"
+ico-vic-amb-plugin_files += "${prefix}/share/doc/automotive-message-broker/ico-vic-amb-plugin/README"
+ico-vic-amb-plugin_files += "${prefix}/bin/ico_set_vehicleinfo"
+CONFFILES_${PN} = ""
+CONFFILES_${PN} += "${sysconfdir}/ambd/AMBformat.conf"
 MANIFESTFILES_${PN} = "ico-vic-amb-plugin.manifest"
 
 FILES_${PN} = "${ico-vic-amb-plugin_files}"
