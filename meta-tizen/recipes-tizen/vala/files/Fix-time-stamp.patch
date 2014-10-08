@@ -24,6 +24,19 @@ index 33e0c1a..904408f 100644
  	$(VALA_V)$(VALAC) $(COVERAGE_VALAFLAGS) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg gobject-2.0 --vapidir $(srcdir)/../gee --pkg gee --vapidir $(srcdir)/../ccode --pkg ccode --vapidir $(srcdir)/../vala --pkg vala -H valacodegen.h --library codegen $^
  	@touch $@
  
+diff --git a/compiler/Makefile.am b/compiler/Makefile.am
+index d6e7f81..d826240 100644
+--- a/compiler/Makefile.am
++++ b/compiler/Makefile.am
+@@ -10,7 +10,7 @@ AM_CPPFLAGS = \
+ 	-DPACKAGE_DATADIR=\"$(pkgdatadir)\" \
+ 	$(NULL)
+ 
+-BUILT_SOURCES = valac.vala.stamp
++BUILT_SOURCES = 
+ 
+ bin_PROGRAMS = \
+ 	valac \
 diff --git a/gee/Makefile.am b/gee/Makefile.am
 index f9ac2fc..b959d98 100644
 --- a/gee/Makefile.am

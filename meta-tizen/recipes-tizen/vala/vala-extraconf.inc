@@ -5,6 +5,8 @@ SRC_URI += " file://Fix-time-stamp.patch"
 
 RDEPENDS_${PN}_remove_class-native = "update-alternatives-native"
 
+DEPENDS_append_class-target = " vala-native"
+
 do_install_append() {
  rm -r ${D}${prefix}/share/devhelp
 }
