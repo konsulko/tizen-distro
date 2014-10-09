@@ -79,7 +79,7 @@ do_prep() {
  cp ${S}/packaging/crosswalk.manifest .
  cp ${S}/packaging/crosswalk.xml.in .
  cp ${S}/packaging/crosswalk.png .
- sed "s/@VERSION@/10.38.210.0/g" crosswalk.xml.in > crosswalk.xml
+ sed "s/@VERSION@/10.38.217.0/g" crosswalk.xml.in > crosswalk.xml
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.in > xwalk
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.service.in > xwalk.service
  
@@ -109,6 +109,13 @@ do_compile() {
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
+ # Stop unconditionally passing -Wall to the compiler. Chromium has its own
+ # mechanisms for deciding which parts of the code need -Wall and which need it
+ # to be left out (since several pieces are built with -Werror). At least in
+ # M39, this is preventing the "rtc_base" target from being built because it
+ # does not expect -Wall to be passed to the compiler (see webrtc issue 3307).
+ export CXXFLAGS=`echo $CXXFLAGS | sed s,-Wall,,g`
+ 
  # For ffmpeg on ia32. The original CFLAGS set by the gyp and config files in
  # src/third_party/ffmpeg already pass -O2 -fomit-frame-pointer, but Tizen's
  # CFLAGS end up appending -fno-omit-frame-pointer. See http://crbug.com/37246
@@ -134,7 +141,7 @@ do_compile() {
     ln -s "${BUILDDIR_NAME}" src/out
  fi
  
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=1"
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_xdg_shell=1"
  
  # Force gold binary from chroot ld.gold provided by binutils-gold
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1 -Dlinux_use_bundled_binutils=0 -Dlinux_use_bundled_gold=0 "
@@ -173,7 +180,7 @@ do_compile() {
  -Dshared_process_mode=1 \
  -Denable_hidpi=1
  
- ninja -j16 -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper xwalk-backendlib
+ ninja -j16 -C src/out/Release xwalk xwalk_launcher xwalk_application_tools
  
  
  
@@ -194,8 +201,6 @@ do_install() {
  install -p -D src/out/Release/xwalk ${D}${prefix}/lib/xwalk/xwalk
  install -p -D src/out/Release/xwalkctl ${D}${prefix}/bin/xwalkctl
  install -p -D src/out/Release/xwalk-launcher ${D}${prefix}/bin/xwalk-launcher
- # xwalk-pkg-helper needs to be set-user-ID-root so it can finish the installation process.
- install -m 0755 -p -D src/out/Release/xwalk-pkg-helper ${D}${prefix}/bin/xwalk-pkg-helper
  install -p -D src/out/Release/lib/libxwalk-backendlib.so ${D}${prefix}/lib/xwalk/libxwalk-backendlib.so
  install -p -D src/xwalk/application/tools/tizen/xwalk_backend_wrapper.sh ${D}${prefix}/lib/xwalk/xwalk_backend_wrapper.sh
  
@@ -243,7 +248,6 @@ PACKAGES += " crosswalk "
 crosswalk_files = ""
 crosswalk_files += "${prefix}/bin/xwalkctl"
 crosswalk_files += "${prefix}/bin/xwalk-launcher"
-crosswalk_files += "${prefix}/bin/xwalk-pkg-helper"
 crosswalk_files += "${prefix}/lib/xwalk/icudtl.dat"
 crosswalk_files += "${prefix}/lib/xwalk/libffmpegsumo.so"
 crosswalk_files += "${prefix}/lib/xwalk/xwalk"

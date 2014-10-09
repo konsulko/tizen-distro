@@ -78,7 +78,7 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- /bin/mkdir -p ${D}${sysconfdir}/modprobe.d
+ mkdir -p ${D}${sysconfdir}/modprobe.d
  mv ${D}${prefix}/lib/modprobe.d/dist-blacklist.conf \
     ${D}${sysconfdir}/modprobe.d/blacklist.conf
  rm -rf ${D}${prefix}/lib

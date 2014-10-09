@@ -52,8 +52,8 @@ do_compile() {
  
  cp ${S}/packaging/python-setuptools.manifest .
  find -name '*.txt' | xargs chmod -x
- find -name '*.py' | xargs sed -i '1s|^#!python|#!/usr/bin/python|'
- CFLAGS="$RPM_OPT_FLAGS" /usr/bin/python setup.py build
+ find -name '*.py' | xargs sed -i '1s|^#!python|#!python|'
+ CFLAGS="$RPM_OPT_FLAGS" python setup.py build
  
  
  
@@ -68,7 +68,7 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- /usr/bin/python setup.py install -O1 --skip-build \
+ python setup.py install -O1 --skip-build \
      --root $RPM_BUILD_ROOT \
      --prefix ${prefix} \
      --single-version-externally-managed

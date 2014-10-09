@@ -20,5 +20,7 @@ do_compile_prepend() {
 
 }
 
-FILES_${PN}-dbg = "${prefix}/lib/weston/.debug/ivi-controller.so"
-
+FILES_${PN}-dbg = "${prefix}/lib/weston/.debug"
+FILES_${PN}-dbg = "${prefix}/bin/.debug"
+FILES_${PN}-dbg = "${prefix}/src/debug"
+FILES_${PN}-dbg = "${prefix}/lib/.debug"
