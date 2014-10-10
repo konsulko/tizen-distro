@@ -120,9 +120,9 @@ pkg_postinst_${PN}() {
     export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/5000/dbus/user_bus_socket"
     for list in $(find $TZ_SYS_APP_PREINSTALL -name "Modello*")
     do
-    #XWalk requires you not be root to install files
-            echo "Installing $list"
-            su app -c "xwalkctl -i $list"
+    	#XWalk requires you not be root to install files
+    	echo "Installing $list"
+    	su app -c "pkgcmd -q -i -t wgt -p $list"
     done
     for list2 in $(ls -d $TZ_SYS_HOME/app/.config/xwalk-service/applications/*/)
     do
@@ -140,10 +140,10 @@ pkg_postrm_${PN}() {
 
     source ${sysconfdir}/tizen-platform.conf
     export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/5000/dbus/user_bus_socket"
-    for list3 in $(su app -c "xwalkctl" | grep Modello | cut -c 1-32)
+    for list3 in $(su app -c "xwalkctl" | grep Modello | cut -c 1-10)
     do
-            echo "Uninstalling $list3"
-            su app -c "xwalkctl -u $list3"
+    	echo "Uninstalling $list3"
+    	su app -c "pkgcmd -q -u -n $list3"
     done
 
 }

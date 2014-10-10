@@ -1,7 +1,7 @@
 DESCRIPTION = "EFL Wrapper for DBus"
 HOMEPAGE = "http://www.enlightenment.org/"
-SECTION = "Graphics/EFL"
-LICENSE = "BSD 2-clause"
+SECTION = "Graphics & UI Framework/EFL"
+LICENSE = "BSD-2-Clause"
 
 SRC_URI = ""
 
@@ -29,6 +29,7 @@ DEPENDS = ""
 DEPENDS += "evas"
 DEPENDS += "ecore"
 DEPENDS += "dbus"
+inherit pkgconfig
 DEPENDS += "eina"
 
 do_prep() {
@@ -55,7 +56,7 @@ do_compile() {
   
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   
@@ -82,9 +83,6 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  
- 
- 
- 
 }
 
 pkg_postinst_${PN}() {
@@ -108,14 +106,14 @@ edbus-dev_files += "${prefix}/include/e_dbus-1/*.h"
 edbus-dev_files += "${prefix}/lib/*.so"
 edbus-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 edbus-dev_files += "${prefix}/include/e_dbus-1/connman0_7x/E_Connman.h"
-edbus-dev_files += "/usr/bin/e-notify-send"
+edbus-dev_files += "${prefix}/bin/e-notify-send"
 MANIFESTFILES_${PN}-dev = "edbus.manifest"
 
 edbus_files = ""
 edbus_files += "${prefix}/bin/e_dbus_*"
-edbus_files += "/usr/bin/e-notify-send"
+edbus_files += "${prefix}/bin/e-notify-send"
 edbus_files += "${prefix}/lib/libe*.so.*"
-edbus_files += "/usr/share/e_dbus/logo.png"
+edbus_files += "${prefix}/share/e_dbus/logo.png"
 MANIFESTFILES_${PN} = "edbus.manifest"
 
 FILES_${PN}-dev = "${edbus-dev_files}"

@@ -7,6 +7,7 @@ LICENSE = "MIT"
 DESCRIPTION = "A Tizen IVI image based on Tizen common ."
 
 WESTONSTARTUP = "weston-ivi"
+WESTONINI = "weston-ivi-config"
 IMAGECONFIG = "config-tizen-ivi"
 
 CORE_IMAGE_EXTRA_INSTALL += "automotive-message-broker"
@@ -19,7 +20,7 @@ CORE_IMAGE_EXTRA_INSTALL += "libwebsockets"
 CORE_IMAGE_EXTRA_INSTALL += "murphy"
 CORE_IMAGE_EXTRA_INSTALL += "node-startup-controller"
 CORE_IMAGE_EXTRA_INSTALL += "pulseaudio-module-murphy-ivi"
-CORE_IMAGE_EXTRA_INSTALL += "weston-ivi-config"
+CORE_IMAGE_EXTRA_INSTALL += "${WESTONINI}"
 
 # TMP Remove rygel
 # BTY-36

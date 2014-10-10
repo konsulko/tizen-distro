@@ -101,8 +101,8 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${RPM_BUILD_ROOT}/lib/systemd/system
- cp messageportd.service $RPM_BUILD_ROOT/lib/systemd/system
+ mkdir -p ${D}${systemd_unitdir}/system
+ cp messageportd.service ${D}${systemd_unitdir}/system
  
  
  
@@ -111,30 +111,30 @@ do_install() {
 pkg_postinst_libmessage-port() {
     #!/bin/sh -e
 
-    [ "x$D" == "x" ] && ldconfig
+    ldconfig
 
 }
 
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    getent group messageport >/dev/null || $D${prefix}/sbin/groupadd -r -o messageport
-    getent passwd messageport >/dev/null || $D${prefix}/sbin/useradd -r -g messageport -s /bin/false -d /run/messageport -c "Message Port daemon" messageport
-    /bin/systemctl enable messageportd.service
+    getent group messageport >/dev/null || groupadd -r -o messageport
+    getent passwd messageport >/dev/null || useradd -r -g messageport -s /bin/false -d /run/messageport -c "Message Port daemon" messageport
+    systemctl enable messageportd.service
 
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    /bin/systemctl disable messageportd.service
+    systemctl disable messageportd.service
 
 }
 
 pkg_postrm_libmessage-port() {
     #!/bin/sh -e
 
-    [ "x$D" == "x" ] && ldconfig
+    ldconfig
     # daemon: message-port
 
 }
@@ -146,7 +146,7 @@ PACKAGES += " message-port-tests "
 PACKAGES += " message-port "
 
 libmessage-port_files = ""
-libmessage-port_files += "AUTHORS COPYING.LIB README"
+libmessage-port_files += "AUTHORS COPYING.LIB"
 libmessage-port_files += "${prefix}/lib/libmessage-port.so*"
 MANIFESTFILES_lib${PN} = "message-port.manifest"
 
@@ -162,7 +162,7 @@ MANIFESTFILES_${PN}-tests = "message-port.manifest"
 
 message-port_files = ""
 message-port_files += "${prefix}/bin/messageportd"
-message-port_files += "/lib/systemd/system/messageportd.service"
+message-port_files += "${systemd_unitdir}/system/messageportd.service"
 
 FILES_lib${PN} = "${libmessage-port_files}"
 FILES_lib${PN}-dev = "${libmessage-port-dev_files}"

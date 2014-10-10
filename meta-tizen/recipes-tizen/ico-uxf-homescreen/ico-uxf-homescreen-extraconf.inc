@@ -1,7 +1,8 @@
 do_prep() {
-
-    cd ${S}
-    chmod -Rf a+rX,u+w,g-w,o-w ${S}
+ cd ${S}
+ chmod -Rf a+rX,u+w,g-w,o-w ${S}
+ #setup -q -n ico-uxf-homescreen-0.9.22
+ cp ${S}/packaging/ico-uxf-homescreen.manifest .
 }
 
 do_compile_prepend()  {

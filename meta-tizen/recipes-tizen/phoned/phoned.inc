@@ -23,7 +23,6 @@ inherit tizen_cmake
 DEPENDS += "evolution-data-server"
 DEPENDS += "dbus"
 DEPENDS += "expat"
-DEPENDS += "aul"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
 DEPENDS += "json-glib"
@@ -32,6 +31,7 @@ do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
+ cp ${S}/packaging/phoned.manifest .
  
  
 }
@@ -49,9 +49,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- 
- 
- export LDFLAGS+="-Wl,--rpath="${prefix}/lib/wrt-plugins" -Wl,--as-needed"
+ export LDFLAGS="${LDFLAGS} -Wl,--rpath="${prefix}/lib/wrt-plugins" -Wl,--as-needed"
  
  
    cmake \
@@ -65,9 +63,12 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
-         ${EXTRA_OECMAKE} . -DCMAKE_INSTALL_PREFIX=${prefix} -DENABLE_TIME_TRACER="OFF"
+         ${EXTRA_OECMAKE} . \
+        -DCMAKE_INSTALL_PREFIX=${prefix} \
+        -DENABLE_TIME_TRACER="OFF" \
+        -DSYSTEMD_SERVICE_PREFIX="${systemd_unitdir}/user"
  
- make -j16 VERBOSE=1
+ oe_runmake -j16 VERBOSE=1
  
  
  
@@ -109,6 +110,7 @@ phoned_files += "${prefix}/bin/phoned"
 phoned_files += "${prefix}/share/dbus-1/services/org.tizen.phone.service"
 phoned_files += "${systemd_unitdir}/user/phoned.service"
 phoned_files += "${systemd_unitdir}/user/weston.target.wants/phoned.service"
+MANIFESTFILES_${PN} = "phoned.manifest"
 
 FILES_${PN} = "${phoned_files}"
 

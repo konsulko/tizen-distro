@@ -56,7 +56,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- MAJORVER=`echo 0.2.58 | awk 'BEGIN {FS="."}{print $1}'`
+ MAJORVER=`echo 0.2.59 | awk 'BEGIN {FS="."}{print $1}'`
  
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
@@ -69,7 +69,7 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
-         ${EXTRA_OECMAKE} . -DFULLVER=0.2.58 -DMAJORVER=${MAJORVER}
+         ${EXTRA_OECMAKE} . -DFULLVER=0.2.59 -DMAJORVER=${MAJORVER}
  oe_runmake -j16
  
  

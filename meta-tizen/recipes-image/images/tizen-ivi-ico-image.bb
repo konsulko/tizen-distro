@@ -6,6 +6,7 @@ LICENSE = "MIT"
 
 DESCRIPTION = "A Tizen IVI image based on Tizen ivi with ico ."
 
+WESTONINI = "ico-uxf-weston-plugin"
 
 # Modello packages
 CORE_IMAGE_EXTRA_INSTALL += "packagegroup-tizen-ivi-ico"

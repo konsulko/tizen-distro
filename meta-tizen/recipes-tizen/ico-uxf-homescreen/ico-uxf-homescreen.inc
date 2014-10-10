@@ -80,11 +80,14 @@ DEPENDS += "ecore"
 DEPENDS += "mesa"
 DEPENDS += "dbus"
 DEPENDS += "ail"
+DEPENDS_append_class-native = " fdupes-native"
+DEPENDS_append_class-target = " fdupes-native"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n ico-uxf-homescreen-0.9.22
+ cp ${S}/packaging/ico-uxf-homescreen.manifest .
  
  mkdir -p weston
  cp -av ${prefix}/share/genivi-shell/protocol/*.xml weston/
@@ -153,6 +156,8 @@ do_install() {
  cp tool/notification/ico_send_notification ${D}${prefix}/bin
  cp tool/notification/ico_send_notification2 ${D}${prefix}/bin
  
+ #fdupes ${D}
+ 
  
 }
 
@@ -161,8 +166,8 @@ pkg_postinst_${PN}() {
 
     [ "x$D" == "x" ] && ldconfig
     # Update the app database.
-    $D${prefix}/bin/pkg_initdb
-    $D${prefix}/bin/ail_initdb
+    pkg_initdb
+    ail_initdb
 
 }
 
@@ -174,8 +179,8 @@ pkg_postrm_${PN}() {
     rm -f $D${prefix}/share/applications/org.tizen.ico.statusbar.desktop
     rm -f $D${prefix}/share/applications/org.tizen.ico.onscreen.desktop
     rm -f $D${prefix}/share/applications/org.tizen.ico.system-controller.desktop
-    $D${prefix}/bin/pkg_initdb
-    $D${prefix}/bin/ail_initdb
+    pkg_initdb
+    ail_initdb
 
 }
 
@@ -208,11 +213,11 @@ ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-m
 MANIFESTFILES_${PN}-system-controller-dev = "ico-uxf-homescreen.manifest"
 
 ico-uxf-homescreen-system-controller_files = ""
-ico-uxf-homescreen-system-controller_files += "/usr/share/packages/org.tizen.ico.system-controller.xml"
-ico-uxf-homescreen-system-controller_files += "/usr/lib/systemd/user/ico-uxf-wait-launchpad-ready.path"
-ico-uxf-homescreen-system-controller_files += "/usr/lib/systemd/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path"
-ico-uxf-homescreen-system-controller_files += "/usr/lib/systemd/user/ico-system-controller.service"
-ico-uxf-homescreen-system-controller_files += "/usr/apps/org.tizen.ico.system-controller/bin"
+ico-uxf-homescreen-system-controller_files += "${prefix}/share/packages/org.tizen.ico.system-controller.xml"
+ico-uxf-homescreen-system-controller_files += "${systemd_unitdir}/user/ico-uxf-wait-launchpad-ready.path"
+ico-uxf-homescreen-system-controller_files += "${systemd_unitdir}/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path"
+ico-uxf-homescreen-system-controller_files += "${systemd_unitdir}/user/ico-system-controller.service"
+ico-uxf-homescreen-system-controller_files += "${prefix}/apps/org.tizen.ico.system-controller/bin"
 ico-uxf-homescreen-system-controller_files += "/home/app/ico/defaultApps.info"
 ico-uxf-homescreen-system-controller_files += "/home/app/ico"
 MANIFESTFILES_${PN}-system-controller = "ico-uxf-homescreen.manifest"
@@ -235,7 +240,7 @@ ico-uxf-homescreen_files += "${prefix}/bin/ico_send_notification2"
 ico-uxf-homescreen_files += "${prefix}/share/icons/default/small/org.tizen.ico.homescreen.png"
 ico-uxf-homescreen_files += "${prefix}/share/icons/default/small/org.tizen.ico.statusbar.png"
 ico-uxf-homescreen_files += "${prefix}/share/icons/default/small/org.tizen.ico.onscreen.png"
-ico-uxf-homescreen_files += "/usr/apps/org.tizen.ico.system-controller/res/config"
+ico-uxf-homescreen_files += "${prefix}/apps/org.tizen.ico.system-controller/res/config"
 MANIFESTFILES_${PN} = "ico-uxf-homescreen.manifest"
 
 FILES_${PN}-system-controller-dev = "${ico-uxf-homescreen-system-controller-dev_files}"

@@ -1,7 +1,7 @@
 DESCRIPTION = "ALSA Scenario pkg"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Multimedia/Audio"
-LICENSE = "LGPLv2+"
+SECTION = "Multimedia/Audio FW"
+LICENSE = "LGPL-2.0+"
 
 SRC_URI = ""
 
@@ -23,10 +23,14 @@ RDEPENDS = ""
 #RDEPENDS of alsa-scenario-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "alsa-scenario"
 
+#RDEPENDS of alsa-scenario (${PN})
+RDEPENDS_${PN} += "eglibc"
+
 
 DEPENDS = ""
 #DEPENDS of alsa-scenario
 DEPENDS += "alsa-lib"
+inherit pkgconfig
 
 do_prep() {
  cd ${S}
@@ -51,11 +55,11 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  cp -f /usr/share/libtool/config/config.guess ${WORKDIR}/alsa-scenario-0.2.1/
-  cp -f /usr/share/libtool/config/config.sub ${WORKDIR}/alsa-scenario-0.2.1/
+  cp -f ${prefix}/share/libtool/config/config.guess ${WORKDIR}/alsa-scenario-0.2.1/
+  cp -f ${prefix}/share/libtool/config/config.sub ${WORKDIR}/alsa-scenario-0.2.1/
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   
@@ -71,6 +75,7 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
+ rm -rf ${D}
  
    oe_runmake \
          DESTDIR=${D} \
@@ -80,6 +85,7 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
+ 
  
  
 }

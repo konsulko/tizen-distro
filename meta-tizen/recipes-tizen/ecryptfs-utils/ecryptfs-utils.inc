@@ -1,4 +1,4 @@
-DESCRIPTION = "ECryptfs utilities"
+DESCRIPTION = "Userspace Utilities for ecryptfs"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
 LICENSE = "GPL-2.0+"
@@ -49,6 +49,7 @@ DEPENDS_append_class-target = " intltool-native"
 inherit pythonnative
 DEPENDS_append_class-native = " fdupes-native"
 DEPENDS_append_class-target = " fdupes-native"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "nss"
 DEPENDS += "libpam"
@@ -128,18 +129,14 @@ pkg_postrm_libecryptfs() {
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " libecryptfs "
-PACKAGES += " libecryptfs-python "
 PACKAGES += " ecryptfs-utils "
+PACKAGES += " libecryptfs-python "
 PACKAGES += " libecryptfs-dev "
 
 libecryptfs_files = ""
 libecryptfs_files += "${prefix}/lib/libecryptfs.so.*"
 libecryptfs_files += "${prefix}/lib/ecryptfs/*"
 MANIFESTFILES_libecryptfs = "ecryptfs-utils.manifest"
-
-libecryptfs-python_files = ""
-libecryptfs-python_files += "/usr/lib/python2.7/site-packages/ecryptfs-utils/*"
-libecryptfs-python_files += "/usr/lib64/python2.7/site-packages/ecryptfs-utils/*"
 
 ecryptfs-utils_files = ""
 ecryptfs-utils_files += "AUTHORS NEWS"
@@ -154,19 +151,24 @@ ecryptfs-utils_files += "${prefix}/share/doc/ecryptfs-utils/*"
 ecryptfs-utils_files += "${prefix}/share/ecryptfs-utils/*"
 MANIFESTFILES_${PN} = "ecryptfs-utils.manifest"
 
+libecryptfs-python_files = ""
+libecryptfs-python_files += "/usr/lib/python2.7/site-packages/ecryptfs-utils/*"
+MANIFESTFILES_libecryptfs-python = "ecryptfs-utils.manifest"
+
 libecryptfs-dev_files = ""
 libecryptfs-dev_files += "${prefix}/include/ecryptfs.h"
 libecryptfs-dev_files += "${prefix}/lib/libecryptfs.so"
 libecryptfs-dev_files += "${prefix}/lib/pkgconfig/libecryptfs.pc"
+MANIFESTFILES_libecryptfs-dev = "ecryptfs-utils.manifest"
 
 FILES_libecryptfs = "${libecryptfs_files}"
-FILES_libecryptfs-python = "${libecryptfs-python_files}"
 FILES_${PN} = "${ecryptfs-utils_files}"
+FILES_libecryptfs-python = "${libecryptfs-python_files}"
 FILES_libecryptfs-dev = "${libecryptfs-dev_files}"
 
 PKG_libecryptfs= "libecryptfs"
-PKG_libecryptfs-python= "libecryptfs-python"
 PKG_ecryptfs-utils= "ecryptfs-utils"
+PKG_libecryptfs-python= "libecryptfs-python"
 PKG_libecryptfs-dev= "libecryptfs-dev"
 
 require ecryptfs-utils-extraconf.inc

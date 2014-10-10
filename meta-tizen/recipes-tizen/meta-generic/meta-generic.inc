@@ -12,6 +12,10 @@ inherit autotools-brokensep
 BBCLASSEXTEND = ""
 PROVIDES = ""
 
+#PROVIDES by meta-generic-adaptation
+PROVIDES += "meta-generic-adaptation"
+
+
 #PROVIDES by meta-generic
 
 
@@ -71,15 +75,21 @@ do_install() {
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
+PACKAGES += " meta-generic-adaptation "
 PACKAGES += " meta-generic "
+
+meta-generic-adaptation_files = ""
+meta-generic-adaptation_files += "${sysconfdir}/profile.d/generic-adaptation.sh"
 
 meta-generic_files = ""
 meta-generic_files += "${prefix}/share/package-groups/generic/*.yaml"
 meta-generic_files += "${prefix}/share/image-configurations/generic/scripts"
 MANIFESTFILES_${PN} = "meta-generic.manifest"
 
+FILES_${PN}-adaptation = "${meta-generic-adaptation_files}"
 FILES_${PN} = "${meta-generic_files}"
 
+PKG_meta-generic-adaptation= "meta-generic-adaptation"
 PKG_meta-generic= "meta-generic"
 
 require meta-generic-extraconf.inc

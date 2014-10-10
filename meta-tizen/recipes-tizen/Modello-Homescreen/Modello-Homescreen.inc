@@ -22,6 +22,7 @@ RDEPENDS_${PN} += "Modello-Common"
 
 DEPENDS = ""
 #DEPENDS of Modello-Homescreen
+DEPENDS += "tizen-platform-config"
 DEPENDS += "zip"
 
 do_prep() {
@@ -46,7 +47,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- oe_runmake wgtPkg
+ #empty
  
  
  
@@ -61,15 +62,11 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
-     
-   oe_runmake \
-         DESTDIR=${D} \
-         INSTALL_ROOT=${D} \
-         BINDIR=${prefix}/bin \
-   install  
-   rm -f ${D}${infodir}/dir 
-   find ${D} -regex ".*\.la$" | xargs rm -f -- 
-   find ${D} -regex ".*\.a$" | xargs rm -f --
+     mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
+     mkdir -p ${D}${prefix}/share/Modello/Common/icons
+     zip -r ${D}/opt/usr/apps/.preinstallWidgets/Modello-Homescreen.wgt config.xml manifest.json css Homescreen_icon.png index.html js
+     install -m 0644 Homescreen_icon.png ${D}${prefix}/share/Modello/Common/icons
+ 
      mkdir -p ${D}${prefix}/bin
      mkdir -p ${D}${systemd_unitdir}/user/weston.target.wants/
      install -m 755 systemd/modello_launcher.sh ${D}${prefix}/bin
@@ -85,7 +82,7 @@ PACKAGES += " Modello-Homescreen "
 
 Modello-Homescreen_files = ""
 Modello-Homescreen_files += "/opt/usr/apps/.preinstallWidgets/Modello-Homescreen.wgt"
-Modello-Homescreen_files += "/opt/usr/apps/_common/icons/Homescreen_icon.png"
+Modello-Homescreen_files += "${prefix}/share/Modello/Common/icons/Homescreen_icon.png"
 Modello-Homescreen_files += "${systemd_unitdir}/user/Modello_Homescreen.service"
 Modello-Homescreen_files += "${systemd_unitdir}/user/Modello_Homescreen-launchpad-ready.path"
 Modello-Homescreen_files += "${prefix}/bin/modello_launcher.sh"

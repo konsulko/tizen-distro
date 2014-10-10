@@ -39,9 +39,10 @@ DEPENDS = ""
 #DEPENDS of audio-session-manager
 DEPENDS += "avsystem"
 DEPENDS += "libmm-common"
-DEPENDS += "security-server"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "system-server"
+DEPENDS += "security-server"
 DEPENDS += "vconf"
 
 do_prep() {

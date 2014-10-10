@@ -26,6 +26,7 @@ DEPENDS = ""
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
 DEPENDS += "pulseaudio"
+inherit pkgconfig
 DEPENDS += "ofono"
 DEPENDS += "capi-system-power"
 DEPENDS += "evas"
@@ -66,7 +67,7 @@ do_compile() {
    
   autotools_do_configure
   
-  make -j16
+  oe_runmake -j16
   
   
   
