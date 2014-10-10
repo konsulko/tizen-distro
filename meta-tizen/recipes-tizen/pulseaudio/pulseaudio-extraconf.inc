@@ -1,5 +1,7 @@
 inherit gettext pkgconfig
 
+RPROVIDES_libpulse += "libpulsecommon"
+
 EXTRA_OECONF = "--disable-orc \
                 --prefix=${prefix} \
                 --disable-static \
