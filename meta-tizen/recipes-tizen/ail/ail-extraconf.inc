@@ -10,5 +10,6 @@ DEPENDS_class-target += "xdgmime"
 DEPENDS_class-target += "vconf"
 
 
-FILES_${PN} += "/usr/dbspace"
-FILES_${PN} += "/usr/share/applications"
+FILES_${PN} += "${prefix}/dbspace"
+FILES_${PN} += "${prefix}/share/applications"
+FILES_${PN} += "${prefix}/bin/ail_initdb_user"
