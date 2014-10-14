@@ -27,6 +27,7 @@ RDEPENDS_${PN}-dev += "capi-system-power"
 DEPENDS = ""
 #DEPENDS of capi-system-power
 inherit tizen_cmake
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "system-server"

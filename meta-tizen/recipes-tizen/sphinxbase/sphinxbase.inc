@@ -41,6 +41,7 @@ inherit pythonnative
 DEPENDS += "python-setuptools"
 DEPENDS_append_class-native = " bison-native"
 DEPENDS_append_class-target = " bison-native"
+inherit pkgconfig
 
 do_prep() {
  cd ${S}

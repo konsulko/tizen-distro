@@ -33,11 +33,12 @@ DEPENDS += "tizen-platform-config"
 DEPENDS += "app-svc"
 DEPENDS += "aul"
 DEPENDS += "bundle"
-DEPENDS += "app-core"
+inherit pkgconfig
 DEPENDS += "ail"
 DEPENDS += "alarm-manager"
 DEPENDS += "dlog"
 DEPENDS += "elementary"
+DEPENDS += "app-core"
 DEPENDS += "capi-base-common"
 
 do_prep() {

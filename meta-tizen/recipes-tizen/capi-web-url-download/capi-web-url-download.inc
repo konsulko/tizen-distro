@@ -26,11 +26,12 @@ RDEPENDS_${PN}-dev += "capi-web-url-download"
 
 DEPENDS = ""
 #DEPENDS of capi-web-url-download
+inherit tizen_cmake
+inherit pkgconfig
 DEPENDS += "bundle"
 DEPENDS += "download-provider"
-inherit tizen_cmake
-DEPENDS += "capi-base-common"
 DEPENDS += "dlog"
+DEPENDS += "capi-base-common"
 
 do_prep() {
  cd ${S}

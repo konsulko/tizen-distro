@@ -38,6 +38,7 @@ DEPENDS += "contacts-service"
 DEPENDS += "bundle"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "app-svc"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "alarm-manager"

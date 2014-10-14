@@ -71,6 +71,7 @@ DEPENDS += "p11-kit"
 DEPENDS += "gnome-common"
 DEPENDS += "dbus"
 DEPENDS += "libtasn1"
+inherit pkgconfig
 DEPENDS += "gpg2"
 DEPENDS += "glib-2.0"
 DEPENDS += "update-desktop-files"

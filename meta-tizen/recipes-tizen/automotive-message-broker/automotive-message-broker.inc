@@ -119,6 +119,7 @@ DEPENDS += "opencv"
 DEPENDS += "json-c"
 DEPENDS += "dbus"
 DEPENDS += "murphy"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "sqlite3"
 DEPENDS_append_class-native = " libtool"

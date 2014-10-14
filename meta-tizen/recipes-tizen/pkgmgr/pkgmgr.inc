@@ -69,17 +69,18 @@ DEPENDS += "unzip"
 inherit tizen_cmake
 DEPENDS += "iniparser"
 DEPENDS += "dbus"
-DEPENDS += "security-server"
+inherit pkgconfig
 DEPENDS += "dlog"
-DEPENDS += "app-core"
+DEPENDS += "security-server"
 DEPENDS += "ail"
 DEPENDS += "smack"
 DEPENDS += "bundle"
 DEPENDS += "ecore"
-DEPENDS_append_class-native = " fdupes-native"
-DEPENDS_append_class-target = " fdupes-native"
+DEPENDS += "app-core"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "dbus-glib"
+DEPENDS_append_class-native = " fdupes-native"
+DEPENDS_append_class-target = " fdupes-native"
 
 do_prep() {
  cd ${S}

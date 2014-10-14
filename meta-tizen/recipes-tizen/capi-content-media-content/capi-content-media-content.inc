@@ -29,6 +29,7 @@ DEPENDS = ""
 DEPENDS += "libmedia-thumbnail"
 inherit tizen_cmake
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "media-server"
 DEPENDS += "capi-base-common"

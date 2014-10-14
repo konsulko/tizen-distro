@@ -26,10 +26,11 @@ RDEPENDS_${PN}-dev += "drm-client"
 
 DEPENDS = ""
 #DEPENDS of drm-client
-inherit tizen_cmake
-DEPENDS += "capi-base-common"
-DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
+inherit tizen_cmake
+inherit pkgconfig
+DEPENDS += "dlog"
+DEPENDS += "capi-base-common"
 
 do_prep() {
  cd ${S}

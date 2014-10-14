@@ -43,6 +43,7 @@ DEPENDS = ""
 #DEPENDS of nfc-manager-neard
 DEPENDS += "pkgmgr"
 DEPENDS += "security-server"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "curl"
 inherit tizen_cmake

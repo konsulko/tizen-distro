@@ -24,6 +24,7 @@ RDEPENDS_${PN} += "phoned"
 DEPENDS = ""
 #DEPENDS of Modello-Phone
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 DEPENDS += "zip"
 
 do_prep() {

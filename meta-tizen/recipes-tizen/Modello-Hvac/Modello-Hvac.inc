@@ -23,6 +23,7 @@ RDEPENDS_${PN} += "Modello-Common"
 DEPENDS = ""
 #DEPENDS of Modello-Hvac
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 DEPENDS += "zip"
 
 do_prep() {

@@ -36,8 +36,9 @@ DEPENDS = ""
 inherit tizen_cmake
 DEPENDS += "dbus"
 DEPENDS += "tizen-platform-config"
-DEPENDS += "aul"
+inherit pkgconfig
 DEPENDS += "dlog"
+DEPENDS += "aul"
 DEPENDS += "sqlite3"
 DEPENDS += "libcom-core"
 DEPENDS += "vconf"

@@ -24,11 +24,12 @@ RDEPENDS_${PN} += "ico-uxf-weston-plugin"
 
 DEPENDS = ""
 #DEPENDS of ico-uxf-device-input-controller
+DEPENDS += "ico-uxf-utilities"
+inherit pkgconfig
+DEPENDS += "glib-2.0"
 DEPENDS += "wayland"
 DEPENDS += "mesa"
 DEPENDS += "ico-uxf-weston-plugin"
-DEPENDS += "ico-uxf-utilities"
-DEPENDS += "glib-2.0"
 
 do_prep() {
  cd ${S}

@@ -36,6 +36,7 @@ DEPENDS = ""
 DEPENDS += "sqlite3"
 DEPENDS += "tizen-platform-config"
 inherit tizen_cmake
+inherit pkgconfig
 DEPENDS += "libslp-db-util"
 
 do_prep() {

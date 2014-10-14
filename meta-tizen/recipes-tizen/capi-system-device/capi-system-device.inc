@@ -26,10 +26,11 @@ RDEPENDS_${PN}-dev += "capi-system-device"
 
 DEPENDS = ""
 #DEPENDS of capi-system-device
-DEPENDS += "system-server"
 inherit tizen_cmake
-DEPENDS += "capi-base-common"
+inherit pkgconfig
 DEPENDS += "dlog"
+DEPENDS += "system-server"
+DEPENDS += "capi-base-common"
 DEPENDS += "vconf"
 
 do_prep() {

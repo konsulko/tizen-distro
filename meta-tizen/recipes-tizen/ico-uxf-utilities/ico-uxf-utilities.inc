@@ -33,6 +33,7 @@ DEPENDS = ""
 #DEPENDS of ico-uxf-utilities
 DEPENDS += "libwebsockets"
 DEPENDS += "edbus"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 

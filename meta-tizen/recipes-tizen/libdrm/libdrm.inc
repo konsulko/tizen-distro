@@ -45,6 +45,7 @@ DEPENDS = ""
 #DEPENDS of libdrm
 DEPENDS += "libpciaccess"
 DEPENDS += "libpthread-stubs"
+inherit pkgconfig
 
 do_prep() {
  cd ${S}

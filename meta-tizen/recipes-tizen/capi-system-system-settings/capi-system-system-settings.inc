@@ -30,6 +30,7 @@ DEPENDS = ""
 inherit tizen_cmake
 DEPENDS += "fontconfig"
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "app-core"
 DEPENDS += "capi-base-common"

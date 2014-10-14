@@ -36,6 +36,7 @@ DEPENDS = ""
 #DEPENDS of ail
 inherit tizen_cmake
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "smack"
 DEPENDS += "sqlite3"

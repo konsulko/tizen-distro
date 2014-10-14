@@ -26,6 +26,7 @@ DEPENDS = ""
 DEPENDS += "ico-uxf-utilities"
 inherit tizen_cmake
 DEPENDS += "json-c"
+inherit pkgconfig
 DEPENDS += "app-core"
 DEPENDS += "automotive-message-broker"
 DEPENDS += "elementary"

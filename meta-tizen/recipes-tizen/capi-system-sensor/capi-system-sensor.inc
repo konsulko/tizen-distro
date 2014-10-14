@@ -28,8 +28,9 @@ DEPENDS = ""
 #DEPENDS of capi-system-sensor
 DEPENDS += "sensor"
 inherit tizen_cmake
-DEPENDS += "capi-base-common"
+inherit pkgconfig
 DEPENDS += "dlog"
+DEPENDS += "capi-base-common"
 
 do_prep() {
  cd ${S}

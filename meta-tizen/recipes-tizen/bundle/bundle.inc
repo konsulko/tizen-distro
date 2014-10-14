@@ -27,6 +27,7 @@ RDEPENDS_${PN}-dev += "bundle"
 DEPENDS = ""
 #DEPENDS of bundle
 inherit tizen_cmake
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 

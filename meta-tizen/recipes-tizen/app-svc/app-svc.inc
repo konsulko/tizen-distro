@@ -34,15 +34,16 @@ DEPENDS += "libsoup-2.4"
 inherit tizen_cmake
 DEPENDS += "iniparser"
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
+DEPENDS += "dlog"
 DEPENDS += "aul"
-DEPENDS += "bundle"
-DEPENDS += "glib-2.0"
 DEPENDS += "xdgmime"
 DEPENDS += "ail"
-DEPENDS += "dlog"
+DEPENDS += "bundle"
 DEPENDS += "sqlite3"
 DEPENDS += "ecore"
 DEPENDS += "libprivilege-control"
+DEPENDS += "glib-2.0"
 DEPENDS += "dbus-glib"
 
 do_prep() {

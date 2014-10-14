@@ -29,8 +29,9 @@ DEPENDS = ""
 inherit tizen_cmake
 DEPENDS += "pkgmgr"
 DEPENDS += "tizen-platform-config"
-DEPENDS += "aul"
+inherit pkgconfig
 DEPENDS += "pkgmgr-info"
+DEPENDS += "aul"
 DEPENDS += "ail"
 DEPENDS += "dlog"
 DEPENDS += "vconf"

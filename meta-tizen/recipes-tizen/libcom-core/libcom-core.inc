@@ -31,6 +31,7 @@ inherit gettext
 inherit tizen_cmake
 DEPENDS += "systemd"
 DEPENDS += "dlog"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 
 do_prep() {

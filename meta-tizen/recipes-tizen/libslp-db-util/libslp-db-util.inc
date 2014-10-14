@@ -26,11 +26,12 @@ RDEPENDS_${PN}-dev += "libslp-db-util"
 
 DEPENDS = ""
 #DEPENDS of libslp-db-util
-DEPENDS += "sqlite3"
 inherit tizen_cmake
-DEPENDS += "icu"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
+DEPENDS += "sqlite3"
+DEPENDS += "icu"
 
 do_prep() {
  cd ${S}

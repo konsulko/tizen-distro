@@ -26,11 +26,12 @@ RDEPENDS_${PN}-dev += "heynoti"
 
 DEPENDS = ""
 #DEPENDS of heynoti
-DEPENDS += "ecore"
-DEPENDS += "tizen-platform-config"
 inherit tizen_cmake
+DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
+DEPENDS += "ecore"
 
 do_prep() {
  cd ${S}

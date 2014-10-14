@@ -34,6 +34,7 @@ inherit tizen_cmake
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
 DEPENDS += "libmm-common"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "libmm-utility"
 DEPENDS += "capi-base-common"

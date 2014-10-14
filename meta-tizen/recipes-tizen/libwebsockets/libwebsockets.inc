@@ -33,6 +33,7 @@ DEPENDS += "systemd"
 DEPENDS += "zlib"
 inherit tizen_cmake
 DEPENDS += "openssl"
+inherit pkgconfig
 
 do_prep() {
  cd ${S}

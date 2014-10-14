@@ -35,6 +35,7 @@ DEPENDS = ""
 #DEPENDS of sync-agent
 DEPENDS += "libslp-location"
 DEPENDS += "libxml2"
+DEPENDS += "aul"
 DEPENDS += "contacts-service"
 DEPENDS += "libgcrypt"
 DEPENDS += "capi-base-common"
@@ -43,7 +44,7 @@ DEPENDS += "dbus-glib"
 DEPENDS += "libsoup-2.4"
 inherit tizen_cmake
 DEPENDS += "app-svc"
-DEPENDS += "aul"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "system-server"

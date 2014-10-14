@@ -16,6 +16,10 @@ PROVIDES = ""
 PROVIDES += "murphy-dev"
 
 
+#PROVIDES by murphy-core
+PROVIDES += "murphy-core"
+
+
 #PROVIDES by murphy-ecore
 PROVIDES += "murphy-ecore"
 
@@ -51,6 +55,17 @@ PROVIDES += "murphy-tests"
 PROVIDES += "murphy-gam"
 
 
+#PROVIDES by murphy-system-controller
+PROVIDES += "murphy-system-controller"
+# the PROVIDES rules is ignore "system-controller  "
+PROVIDES += "system-controller"
+RPROVIDES_murphy-system-controller += "system-controller"
+
+
+#PROVIDES by murphy-plugins-base
+PROVIDES += "murphy-plugins-base"
+
+
 #PROVIDES by murphy-glib
 PROVIDES += "murphy-glib"
 
@@ -65,16 +80,17 @@ PROVIDES += "murphy-ecore-dev"
 
 RDEPENDS = ""
 #RDEPENDS of murphy-dev (${PN}-dev)
+RDEPENDS_${PN}-dev += "murphy-core"
 RDEPENDS_${PN}-dev += "json-c"
-RDEPENDS_${PN}-dev += "murphy"
 
 #RDEPENDS of murphy-ecore (${PN}-ecore)
-RDEPENDS_${PN}-ecore += "murphy"
+RDEPENDS_${PN}-ecore += "murphy-core"
 
 #RDEPENDS of murphy-pulse (${PN}-pulse)
-RDEPENDS_${PN}-pulse += "murphy"
+RDEPENDS_${PN}-pulse += "murphy-core"
 
 #RDEPENDS of murphy (${PN})
+RDEPENDS_${PN} += "murphy-core"
 RDEPENDS_${PN} += "libcap"
 RDEPENDS_${PN} += "/bin/systemctl"
 
@@ -82,25 +98,33 @@ RDEPENDS_${PN} += "/bin/systemctl"
 RDEPENDS_${PN}-gam-dev += "murphy-gam"
 
 #RDEPENDS of murphy-pulse-dev (${PN}-pulse-dev)
+RDEPENDS_${PN}-pulse-dev += "murphy-core"
 RDEPENDS_${PN}-pulse-dev += "murphy-pulse"
-RDEPENDS_${PN}-pulse-dev += "murphy"
 
 #RDEPENDS of murphy-tests (${PN}-tests)
+RDEPENDS_${PN}-tests += "murphy-core"
 RDEPENDS_${PN}-tests += "murphy"
 
 #RDEPENDS of murphy-gam (${PN}-gam)
 RDEPENDS_${PN}-gam += "murphy"
 
+#RDEPENDS of murphy-system-controller (${PN}-system-controller)
+#RDEPENDS_${PN}-system-controller += "ico-uxf-homescreen"
+
+#RDEPENDS of murphy-plugins-base (${PN}-plugins-base)
+RDEPENDS_${PN}-plugins-base += "murphy-core"
+RDEPENDS_${PN}-plugins-base += "murphy"
+
 #RDEPENDS of murphy-glib (${PN}-glib)
-RDEPENDS_${PN}-glib += "murphy"
+RDEPENDS_${PN}-glib += "murphy-core"
 
 #RDEPENDS of murphy-glib-dev (${PN}-glib-dev)
-RDEPENDS_${PN}-glib-dev += "murphy"
+RDEPENDS_${PN}-glib-dev += "murphy-core"
 RDEPENDS_${PN}-glib-dev += "murphy-glib"
 
 #RDEPENDS of murphy-ecore-dev (${PN}-ecore-dev)
+RDEPENDS_${PN}-ecore-dev += "murphy-core"
 RDEPENDS_${PN}-ecore-dev += "murphy-ecore"
-RDEPENDS_${PN}-ecore-dev += "murphy"
 
 
 DEPENDS = ""
@@ -110,8 +134,9 @@ DEPENDS += "ofono"
 DEPENDS += "json-c"
 DEPENDS += "libxml2"
 DEPENDS += "audio-session-manager"
-DEPENDS += "systemd"
 DEPENDS += "aul"
+DEPENDS += "systemd"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "lua"
 DEPENDS += "libcap"
@@ -134,9 +159,7 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
  cp ${S}/packaging/murphy.manifest .
- 
- echo "_with_icosyscon:   \"0\""
- echo "_enable_icosyscon: \"0\""
+ echo "Build with icosyscon"
  
  
 }
@@ -177,7 +200,7 @@ do_compile() {
   
   CONFIG_OPTIONS="$CONFIG_OPTIONS --enable-smack"
   
-  CONFIG_OPTIONS="$CONFIG_OPTIONS --disable-system-controller"
+  CONFIG_OPTIONS="$CONFIG_OPTIONS --enable-system-controller"
   
   CONFIG_OPTIONS="$CONFIG_OPTIONS --enable-system-monitor"
   
@@ -255,8 +278,11 @@ do_install() {
  
  # Copy the systemd files in place.
  mkdir -p ${D}${systemd_unitdir}/system
- mkdir -p ${D}${systemd_unitdir}/user
  cp packaging.in/murphyd.service ${D}${systemd_unitdir}/system
+ mkdir -p ${D}${systemd_unitdir}/user
+ cp packaging.in/ico-homescreen.service ${D}${systemd_unitdir}/user
+ cp packaging.in/murphy-wait-for-launchpad-ready.path \
+     ${D}${systemd_unitdir}/user
  
  mkdir -p ${D}${sysconfdir}/dbus-1/system.d
  sed "s/@TZ_SYS_USER_GROUP@/users/g" \
@@ -309,10 +335,49 @@ pkg_postinst_${PN}() {
 
 }
 
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    ldconfig
+
+}
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    # prevent system controller from starting
+    rm -f ${systemd_unitdir}/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path
+    # instead launch just ico-homescreen
+    rm -f ${systemd_unitdir}/user/weston.target.wants/murphy-wait-for-launchpad-ready.path
+    ln -s ${systemd_unitdir}/user/murphy-wait-for-launchpad-ready.path \
+        ${systemd_unitdir}/user/weston.target.wants/murphy-wait-for-launchpad-ready.path
+
+}
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    ldconfig
+
+}
+
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     ldconfig
+
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    if [ "$1" = "0" ]; then
+    rm -f ${systemd_unitdir}/user/weston.target.wants/murphy-wait-for-launchpad-ready.path
+    if [ -f ${systemd_unitdir}/user/ico-uxf-wait-launchpad-ready.path ]; then
+        ln -sf ${systemd_unitdir}/user/ico-uxf-wait-launchpad-ready.path \
+            ${systemd_unitdir}/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path
+    fi
+    fi
 
 }
 
@@ -347,19 +412,50 @@ pkg_postrm_${PN}() {
 
 }
 
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    ldconfig
+
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    ldconfig
+
+}
+
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
+PACKAGES += " murphy-core "
 PACKAGES += " murphy-dev "
 PACKAGES += " murphy-ecore "
+PACKAGES += " murphy-gam-dev "
 PACKAGES += " murphy-pulse "
 PACKAGES += " murphy "
 PACKAGES += " murphy-ivi-resource-manager "
-PACKAGES += " murphy-glib-dev "
 PACKAGES += " murphy-ecore-dev "
 PACKAGES += " murphy-pulse-dev "
 PACKAGES += " murphy-tests "
 PACKAGES += " murphy-gam "
+PACKAGES += " murphy-system-controller "
 PACKAGES += " murphy-glib "
-PACKAGES += " murphy-gam-dev "
+PACKAGES += " murphy-glib-dev "
+PACKAGES += " murphy-plugins-base "
+
+murphy-core_files = ""
+murphy-core_files += "${prefix}/lib/libmurphy-common.so.*"
+murphy-core_files += "${prefix}/lib/libmurphy-core.so.*"
+murphy-core_files += "${prefix}/lib/libmurphy-resolver.so.*"
+murphy-core_files += "${prefix}/lib/libmurphy-resource.so.*"
+murphy-core_files += "${prefix}/lib/libmurphy-resource-backend.so.*"
+murphy-core_files += "${prefix}/lib/libmurphy-lua-utils.so.*"
+murphy-core_files += "${prefix}/lib/libmurphy-lua-decision.so.*"
+murphy-core_files += "${prefix}/lib/libmurphy-domain-controller.so.*"
+murphy-core_files += "${prefix}/lib/murphy/*.so.*"
+murphy-core_files += "${prefix}/lib/libbreedline*.so.*"
+murphy-core_files += "${prefix}/lib/libmurphy-libdbus.so.*"
+murphy-core_files += "${prefix}/lib/libmurphy-dbus-libdbus.so.*"
 
 murphy-dev_files = ""
 murphy-dev_files += "${prefix}/include/murphy-db"
@@ -392,16 +488,21 @@ murphy-ecore_files = ""
 murphy-ecore_files += "${prefix}/lib/libmurphy-ecore.so.*"
 MANIFESTFILES_${PN}-ecore = "murphy.manifest"
 
+murphy-gam-dev_files = ""
+murphy-gam-dev_files += "${prefix}/bin/decision-test"
+murphy-gam-dev_files += "${prefix}/bin/pattern-generator"
+murphy-gam-dev_files += "${prefix}/lib/libmurphy-decision-tree.so"
+
 murphy-pulse_files = ""
 murphy-pulse_files += "${prefix}/lib/libmurphy-pulse.so.*"
 MANIFESTFILES_${PN}-pulse = "murphy.manifest"
 
 murphy-doc_files = ""
-murphy-doc_files += "${prefix}/share/doc/packages/../murphy/AUTHORS"
-murphy-doc_files += "${prefix}/share/doc/packages/../murphy/CODING-STYLE"
-murphy-doc_files += "${prefix}/share/doc/packages/../murphy/ChangeLog"
-murphy-doc_files += "${prefix}/share/doc/packages/../murphy/NEWS"
-murphy-doc_files += "${prefix}/share/doc/packages/../murphy/README"
+murphy-doc_files += "${prefix}/share/doc/murphy/AUTHORS"
+murphy-doc_files += "${prefix}/share/doc/murphy/CODING-STYLE"
+murphy-doc_files += "${prefix}/share/doc/murphy/ChangeLog"
+murphy-doc_files += "${prefix}/share/doc/murphy/NEWS"
+murphy-doc_files += "${prefix}/share/doc/murphy/README"
 
 murphy_files = ""
 murphy_files += "${prefix}/bin/murphyd"
@@ -412,21 +513,6 @@ murphy_files += "${prefix}/sbin/asm-bridge"
 murphy_files += "${sysconfdir}/dbus-1/system.d"
 murphy_files += "${sysconfdir}/dbus-1/system.d/org.Murphy.conf"
 murphy_files += "${prefix}/share/murphy"
-murphy_files += "${prefix}/lib/libmurphy-common.so.*"
-murphy_files += "${prefix}/lib/libmurphy-core.so.*"
-murphy_files += "${prefix}/lib/libmurphy-resolver.so.*"
-murphy_files += "${prefix}/lib/libmurphy-resource.so.*"
-murphy_files += "${prefix}/lib/libmurphy-resource-backend.so.*"
-murphy_files += "${prefix}/lib/libmurphy-lua-utils.so.*"
-murphy_files += "${prefix}/lib/libmurphy-lua-decision.so.*"
-murphy_files += "${prefix}/lib/libmurphy-domain-controller.so.*"
-murphy_files += "${prefix}/lib/murphy/*.so.*"
-murphy_files += "${prefix}/lib/libbreedline*.so.*"
-murphy_files += "${prefix}/lib/libmurphy-libdbus.so.*"
-murphy_files += "${prefix}/lib/libmurphy-dbus-libdbus.so.*"
-murphy_files += "${prefix}/lib/murphy/plugins/plugin-domain-control.so"
-murphy_files += "${prefix}/lib/murphy/plugins/plugin-resource-asm.so"
-murphy_files += "${prefix}/lib/murphy/plugins/plugin-resource-native.so"
 CONFFILES_${PN} = ""
 CONFFILES_${PN} += "${sysconfdir}/murphy"
 CONFFILES_${PN} += "${sysconfdir}/dbus-1/system.d/org.Murphy.conf"
@@ -435,11 +521,6 @@ MANIFESTFILES_${PN} = "murphy.manifest"
 murphy-ivi-resource-manager_files = ""
 murphy-ivi-resource-manager_files += "${prefix}/lib/murphy/plugins/plugin-ivi-resource-manager.so"
 MANIFESTFILES_${PN}-ivi-resource-manager = "murphy.manifest"
-
-murphy-glib-dev_files = ""
-murphy-glib-dev_files += "${prefix}/include/murphy/common/glib-glue.h"
-murphy-glib-dev_files += "${prefix}/lib/libmurphy-glib.so"
-murphy-glib-dev_files += "${prefix}/lib/pkgconfig/murphy-glib.pc"
 
 murphy-ecore-dev_files = ""
 murphy-ecore-dev_files += "${prefix}/include/murphy/common/ecore-glue.h"
@@ -464,42 +545,59 @@ murphy-gam_files += "${prefix}/lib/libmurphy-decision-tree.so.*"
 murphy-gam_files += "${prefix}/lib/libmurphy-decision-tree.so.0.0.0"
 murphy-gam_files += "${prefix}/lib/murphy/plugins/plugin-gam-resource-manager.so"
 
+murphy-system-controller_files = ""
+murphy-system-controller_files += "${prefix}/lib/murphy/plugins/plugin-system-controller.so"
+murphy-system-controller_files += "${systemd_unitdir}/user/ico-homescreen.service"
+murphy-system-controller_files += "${systemd_unitdir}/user/murphy-wait-for-launchpad-ready.path"
+MANIFESTFILES_${PN}-system-controller = "murphy.manifest"
+
 murphy-glib_files = ""
 murphy-glib_files += "${prefix}/lib/libmurphy-glib.so.*"
 MANIFESTFILES_${PN}-glib = "murphy.manifest"
 
-murphy-gam-dev_files = ""
-murphy-gam-dev_files += "${prefix}/bin/decision-test"
-murphy-gam-dev_files += "${prefix}/bin/pattern-generator"
-murphy-gam-dev_files += "${prefix}/lib/libmurphy-decision-tree.so"
+murphy-glib-dev_files = ""
+murphy-glib-dev_files += "${prefix}/include/murphy/common/glib-glue.h"
+murphy-glib-dev_files += "${prefix}/lib/libmurphy-glib.so"
+murphy-glib-dev_files += "${prefix}/lib/pkgconfig/murphy-glib.pc"
 
+murphy-plugins-base_files = ""
+murphy-plugins-base_files += "${prefix}/lib/murphy/plugins/plugin-domain-control.so"
+murphy-plugins-base_files += "${prefix}/lib/murphy/plugins/plugin-resource-asm.so"
+murphy-plugins-base_files += "${prefix}/lib/murphy/plugins/plugin-resource-native.so"
+
+FILES_${PN}-core = "${murphy-core_files}"
 FILES_${PN}-dev = "${murphy-dev_files}"
 FILES_${PN}-ecore = "${murphy-ecore_files}"
+FILES_${PN}-gam-dev = "${murphy-gam-dev_files}"
 FILES_${PN}-pulse = "${murphy-pulse_files}"
 FILES_${PN}-doc = "${murphy-doc_files}"
 FILES_${PN} = "${murphy_files}"
 FILES_${PN}-ivi-resource-manager = "${murphy-ivi-resource-manager_files}"
-FILES_${PN}-glib-dev = "${murphy-glib-dev_files}"
 FILES_${PN}-ecore-dev = "${murphy-ecore-dev_files}"
 FILES_${PN}-pulse-dev = "${murphy-pulse-dev_files}"
 FILES_${PN}-tests = "${murphy-tests_files}"
 FILES_${PN}-gam = "${murphy-gam_files}"
+FILES_${PN}-system-controller = "${murphy-system-controller_files}"
 FILES_${PN}-glib = "${murphy-glib_files}"
-FILES_${PN}-gam-dev = "${murphy-gam-dev_files}"
+FILES_${PN}-glib-dev = "${murphy-glib-dev_files}"
+FILES_${PN}-plugins-base = "${murphy-plugins-base_files}"
 
+PKG_murphy-core= "murphy-core"
 PKG_murphy-dev= "murphy-dev"
 PKG_murphy-ecore= "murphy-ecore"
+PKG_murphy-gam-dev= "murphy-gam-dev"
 PKG_murphy-pulse= "murphy-pulse"
 PKG_murphy-doc= "murphy-doc"
 PKG_murphy= "murphy"
 PKG_murphy-ivi-resource-manager= "murphy-ivi-resource-manager"
-PKG_murphy-glib-dev= "murphy-glib-dev"
 PKG_murphy-ecore-dev= "murphy-ecore-dev"
 PKG_murphy-pulse-dev= "murphy-pulse-dev"
 PKG_murphy-tests= "murphy-tests"
 PKG_murphy-gam= "murphy-gam"
+PKG_murphy-system-controller= "murphy-system-controller"
 PKG_murphy-glib= "murphy-glib"
-PKG_murphy-gam-dev= "murphy-gam-dev"
+PKG_murphy-glib-dev= "murphy-glib-dev"
+PKG_murphy-plugins-base= "murphy-plugins-base"
 
 require murphy-extraconf.inc
 

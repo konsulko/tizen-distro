@@ -36,6 +36,7 @@ inherit tizen_cmake
 DEPENDS += "libxml2"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "capi-appfw-application"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "aul"

@@ -87,6 +87,7 @@ DEPENDS += "bzip2"
 DEPENDS += "lua"
 DEPENDS += "elfutils"
 DEPENDS += "patch"
+inherit pkgconfig
 inherit pythonnative
 DEPENDS += "libcap"
 DEPENDS += "ncurses"

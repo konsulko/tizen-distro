@@ -35,6 +35,7 @@ DEPENDS += "gupnp-dlna"
 DEPENDS += "gnome-common"
 DEPENDS += "gstreamer1.0-plugins-base"
 DEPENDS += "vala"
+inherit pkgconfig
 DEPENDS += "gupnp"
 DEPENDS += "libsoup-2.4"
 DEPENDS_append_class-native = " intltool-native"

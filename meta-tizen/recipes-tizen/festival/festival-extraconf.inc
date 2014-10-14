@@ -1,6 +1,6 @@
 do_prep_prepend() {
  pushd ${S}/../
- ln -s ${S} festival-2.1
+ ln -sf ${S} festival-2.1
  popd 
 }
 
@@ -32,9 +32,9 @@ do_compile() {
                 --datadir=${prefix}/share/festival \
             --sysconfdir=${sysconfdir}
 
- make CC="i586-poky-linux-gcc -fPIC $RPM_OPT_FLAGS" CXX="i586-poky-linux-g++ $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
+ make CC="i586-oe-linux-gcc -fPIC $RPM_OPT_FLAGS" CXX="i586-oe-linux-g++ $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
  cd ../festival-2.1
- make CC="i586-poky-linux-gcc -fPIC $RPM_OPT_FLAGS" CXX="i586-poky-linux-g++ $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
+ make CC="i586-oe-linux-gcc -fPIC $RPM_OPT_FLAGS" CXX="i586-oe-linux-g++ $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
  make doc
 
 }

@@ -26,12 +26,13 @@ RDEPENDS_${PN}-dev += "libwifi-direct"
 
 DEPENDS = ""
 #DEPENDS of libwifi-direct
+inherit tizen_cmake
+inherit pkgconfig
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
-inherit tizen_cmake
 DEPENDS += "dlog"
-DEPENDS += "dbus-glib"
 DEPENDS += "vconf"
+DEPENDS += "dbus-glib"
 
 do_prep() {
  cd ${S}

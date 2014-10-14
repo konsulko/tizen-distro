@@ -36,10 +36,11 @@ DEPENDS += "drm-client"
 DEPENDS += "libmm-common"
 DEPENDS += "aul"
 DEPENDS += "dlog"
-DEPENDS += "glib-2.0"
+inherit pkgconfig
 DEPENDS += "libexif"
 DEPENDS += "media-server"
 DEPENDS += "sqlite3"
+DEPENDS += "glib-2.0"
 DEPENDS += "libslp-db-util"
 
 do_prep() {

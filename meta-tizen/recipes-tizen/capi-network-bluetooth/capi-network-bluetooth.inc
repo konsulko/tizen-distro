@@ -27,6 +27,7 @@ RDEPENDS_${PN}-dev += "capi-network-bluetooth"
 DEPENDS = ""
 #DEPENDS of capi-network-bluetooth
 inherit tizen_cmake
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "capi-base-common"

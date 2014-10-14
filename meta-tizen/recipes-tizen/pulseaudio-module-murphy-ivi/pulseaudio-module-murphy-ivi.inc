@@ -1,7 +1,7 @@
 DESCRIPTION = "Pulseaudio module for enforcing policy decisions in the audio domain"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "System Environment/Daemons"
-LICENSE = "LGPLv2.1"
+SECTION = "Multimedia/Audio FW"
+LICENSE = "LGPL-2.1"
 
 SRC_URI = ""
 
@@ -23,9 +23,10 @@ RDEPENDS_${PN} += "aul"
 
 DEPENDS = ""
 #DEPENDS of pulseaudio-module-murphy-ivi
+DEPENDS += "pulseaudio"
 DEPENDS += "dbus"
 DEPENDS += "murphy"
-DEPENDS += "pulseaudio"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "lua"
 DEPENDS += "aul"
@@ -59,7 +60,7 @@ do_compile() {
   unset LD_AS_NEEDED
   
   autotools_do_configure
-  make
+  oe_runmake
   
   
   
@@ -88,7 +89,6 @@ do_install() {
  rm -f ${prefix}/lib/pulse-*/modules/module-*.la
  
  
- 
 }
 
 pkg_postinst_${PN}() {
@@ -110,6 +110,8 @@ pulseaudio-module-murphy-ivi_files = ""
 pulseaudio-module-murphy-ivi_files += "${prefix}/lib/pulse-*/modules/module-*.so"
 pulseaudio-module-murphy-ivi_files += "${sysconfdir}/dbus-1/system.d/pulseaudio-murphy-ivi.conf"
 pulseaudio-module-murphy-ivi_files += "${sysconfdir}/pulse/murphy-ivi.lua"
+CONFFILES_${PN} = ""
+CONFFILES_${PN} += "${sysconfdir}/dbus-1/system.d/pulseaudio-murphy-ivi.conf"
 
 FILES_${PN} = "${pulseaudio-module-murphy-ivi_files}"
 

@@ -1,7 +1,7 @@
 do_install_append() {
     # Tmp fix:
     # Remove modules combine-sink and augment-properties from
-    #pulseaudio-module-murphy-ivi since they conflict with modules with
+    # pulseaudio-module-murphy-ivi since they conflict with modules with
     # the same name provided by pulseaudio. Modules provided by
     # pulseaudio-module-murphy-ivi are based on the ones provided by
     # pulseaudio but incorpoate muprhy/IVI specific changes. The muprhy

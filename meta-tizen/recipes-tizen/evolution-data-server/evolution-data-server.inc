@@ -81,11 +81,11 @@ DEPENDS_append_class-target = " intltool-native"
 DEPENDS += "gnome-common"
 DEPENDS += "gperf"
 DEPENDS += "nss"
-DEPENDS += "eglibc-locale"
+DEPENDS += "vala"
 DEPENDS += "db"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
-DEPENDS += "libical"
+inherit pkgconfig
 DEPENDS += "libsoup-2.4"
 inherit pythonnative
 DEPENDS += "gcr"
@@ -94,7 +94,7 @@ DEPENDS += "icu"
 DEPENDS += "sqlite3"
 DEPENDS_append_class-native = " fdupes-native"
 DEPENDS_append_class-target = " fdupes-native"
-DEPENDS += "vala"
+DEPENDS += "libical"
 DEPENDS += "gtk-doc"
 
 do_prep() {

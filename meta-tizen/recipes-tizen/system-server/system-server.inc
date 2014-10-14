@@ -123,8 +123,9 @@ inherit gettext
 DEPENDS += "notification"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "syspopup"
-DEPENDS += "usbutils"
+inherit pkgconfig
 DEPENDS += "libtapi"
+DEPENDS += "usbutils"
 DEPENDS += "libdevice-node"
 DEPENDS += "systemd"
 DEPENDS += "dlog"

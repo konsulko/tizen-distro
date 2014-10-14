@@ -45,6 +45,7 @@ inherit gettext
 DEPENDS_append_class-native = " intltool-native"
 DEPENDS_append_class-target = " intltool-native"
 DEPENDS += "vala"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "docbook-xsl-stylesheets"
 DEPENDS += "gtk-doc-stub"

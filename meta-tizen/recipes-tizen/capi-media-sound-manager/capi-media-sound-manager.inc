@@ -28,9 +28,10 @@ DEPENDS = ""
 #DEPENDS of capi-media-sound-manager
 DEPENDS += "libmm-sound"
 inherit tizen_cmake
-DEPENDS += "libmm-session"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "capi-base-common"
+DEPENDS += "libmm-session"
 
 do_prep() {
  cd ${S}

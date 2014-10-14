@@ -45,6 +45,7 @@ inherit tizen_cmake
 DEPENDS += "libxml2"
 DEPENDS += "dbus"
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "smack"
 DEPENDS += "dbus-glib"

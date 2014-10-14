@@ -39,9 +39,10 @@ RDEPENDS_${PN}-dev += "glib-2.0"
 
 DEPENDS = ""
 #DEPENDS of vconf
+inherit tizen_cmake
 DEPENDS += "vconf-internal-keys"
 DEPENDS += "tizen-platform-config"
-inherit tizen_cmake
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 

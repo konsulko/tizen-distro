@@ -32,6 +32,7 @@ DEPENDS = ""
 inherit tizen_cmake
 DEPENDS += "evas"
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "capi-base-common"
 DEPENDS += "libslp-db-util"

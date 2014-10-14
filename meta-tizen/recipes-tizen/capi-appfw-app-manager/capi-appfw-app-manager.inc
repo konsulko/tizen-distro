@@ -30,9 +30,10 @@ inherit tizen_cmake
 DEPENDS += "pkgmgr"
 DEPENDS += "aul"
 DEPENDS += "dlog"
-DEPENDS += "glib-2.0"
+inherit pkgconfig
 DEPENDS += "ail"
 DEPENDS += "pkgmgr-info"
+DEPENDS += "glib-2.0"
 DEPENDS += "vconf"
 DEPENDS += "capi-base-common"
 

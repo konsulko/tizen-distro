@@ -41,6 +41,7 @@ RDEPENDS_${PN}-server += "app-checker"
 DEPENDS = ""
 #DEPENDS of app-checker
 inherit tizen_cmake
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 

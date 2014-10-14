@@ -35,6 +35,7 @@ DEPENDS = ""
 #DEPENDS of libprivilege-control
 inherit tizen_cmake
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "libiri"
 DEPENDS += "smack"

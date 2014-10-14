@@ -27,9 +27,10 @@ RDEPENDS_${PN}-dev += "sensor"
 DEPENDS = ""
 #DEPENDS of sensor
 DEPENDS += "libsf-common"
+DEPENDS += "glib-2.0"
 inherit tizen_cmake
 DEPENDS += "vconf"
-DEPENDS += "glib-2.0"
+inherit pkgconfig
 
 do_prep() {
  cd ${S}

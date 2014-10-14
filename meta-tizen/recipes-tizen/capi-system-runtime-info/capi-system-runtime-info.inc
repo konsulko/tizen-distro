@@ -27,10 +27,11 @@ RDEPENDS_${PN}-dev += "capi-system-runtime-info"
 
 DEPENDS = ""
 #DEPENDS of capi-system-runtime-info
-inherit tizen_cmake
-DEPENDS += "vconf"
-DEPENDS += "dlog"
 DEPENDS += "capi-base-common"
+inherit tizen_cmake
+inherit pkgconfig
+DEPENDS += "dlog"
+DEPENDS += "vconf"
 
 do_prep() {
  cd ${S}

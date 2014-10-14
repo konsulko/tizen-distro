@@ -29,11 +29,12 @@ RDEPENDS_${PN}-dev += "status"
 
 DEPENDS = ""
 #DEPENDS of status
-DEPENDS += "dbus"
 inherit tizen_cmake
-DEPENDS += "vconf"
-DEPENDS += "dlog"
+DEPENDS += "dbus"
 DEPENDS += "aul"
+DEPENDS += "dlog"
+inherit pkgconfig
+DEPENDS += "vconf"
 
 do_prep() {
  cd ${S}

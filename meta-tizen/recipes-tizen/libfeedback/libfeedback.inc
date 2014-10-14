@@ -51,6 +51,7 @@ DEPENDS += "libmm-sound"
 inherit tizen_cmake
 DEPENDS += "libxml2"
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "system-server"

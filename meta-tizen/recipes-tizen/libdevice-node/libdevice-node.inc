@@ -27,8 +27,9 @@ RDEPENDS_${PN}-dev += "libdevice-node"
 DEPENDS = ""
 #DEPENDS of libdevice-node
 inherit tizen_cmake
-DEPENDS += "vconf"
+inherit pkgconfig
 DEPENDS += "dlog"
+DEPENDS += "vconf"
 
 do_prep() {
  cd ${S}

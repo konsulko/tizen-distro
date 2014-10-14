@@ -58,6 +58,7 @@ DEPENDS += "attr"
 DEPENDS += "zip"
 DEPENDS += "openssl"
 DEPENDS += "dlog"
+inherit pkgconfig
 DEPENDS += "smack"
 DEPENDS += "libcap"
 DEPENDS += "libprivilege-control"

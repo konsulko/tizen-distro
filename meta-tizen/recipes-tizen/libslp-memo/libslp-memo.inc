@@ -28,6 +28,7 @@ DEPENDS = ""
 #DEPENDS of libslp-memo
 inherit tizen_cmake
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "sqlite3"
 DEPENDS += "heynoti"

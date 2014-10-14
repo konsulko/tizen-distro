@@ -31,6 +31,7 @@ DEPENDS = ""
 #DEPENDS of capi-network-nfc
 inherit tizen_cmake
 DEPENDS += "vconf"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "capi-base-common"

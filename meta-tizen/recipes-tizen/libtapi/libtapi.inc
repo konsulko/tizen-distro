@@ -33,6 +33,7 @@ DEPENDS += "libtapi3"
 inherit tizen_cmake
 DEPENDS += "security-server"
 DEPENDS += "dlog"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 
 do_prep() {

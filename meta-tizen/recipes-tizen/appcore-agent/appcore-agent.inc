@@ -27,11 +27,12 @@ RDEPENDS_${PN}-dev += "appcore-agent"
 DEPENDS = ""
 #DEPENDS of appcore-agent
 inherit tizen_cmake
-DEPENDS += "capi-appfw-application"
-DEPENDS += "aul"
+inherit pkgconfig
 DEPENDS += "dlog"
-DEPENDS += "glib-2.0"
+DEPENDS += "capi-appfw-application"
 DEPENDS += "system-server"
+DEPENDS += "aul"
+DEPENDS += "glib-2.0"
 DEPENDS += "vconf"
 
 do_prep() {

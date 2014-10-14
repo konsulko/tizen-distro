@@ -36,6 +36,7 @@ inherit tizen_cmake
 inherit pythonnative
 DEPENDS += "dbus"
 DEPENDS += "zlib"
+inherit pkgconfig
 DEPENDS += "CommonAPI"
 DEPENDS_append_class-native = " bison-native"
 DEPENDS_append_class-target = " bison-native"

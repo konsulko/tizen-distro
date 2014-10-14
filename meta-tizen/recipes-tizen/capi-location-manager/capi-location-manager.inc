@@ -26,8 +26,9 @@ RDEPENDS_${PN}-dev += "capi-location-manager"
 
 DEPENDS = ""
 #DEPENDS of capi-location-manager
-inherit tizen_cmake
 DEPENDS += "capi-base-common"
+inherit tizen_cmake
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "libslp-location"
 

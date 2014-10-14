@@ -28,9 +28,10 @@ DEPENDS = ""
 #DEPENDS of pims-ipc
 DEPENDS += "systemd"
 inherit tizen_cmake
-DEPENDS += "zeromq"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
+DEPENDS += "zeromq"
 
 do_prep() {
  cd ${S}

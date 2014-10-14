@@ -61,9 +61,10 @@ inherit tizen_cmake
 DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "dlog"
-DEPENDS += "glib-2.0"
+inherit pkgconfig
 DEPENDS += "elementary"
 DEPENDS += "ecore"
+DEPENDS += "glib-2.0"
 DEPENDS += "sensor"
 DEPENDS += "vconf"
 

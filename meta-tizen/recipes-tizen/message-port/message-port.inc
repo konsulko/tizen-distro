@@ -42,9 +42,10 @@ RDEPENDS_${PN}-tests += "libmessage-port"
 DEPENDS = ""
 #DEPENDS of libmessage-port
 #DEPENDS of message-port
-DEPENDS += "dlog"
-DEPENDS += "aul"
 DEPENDS += "pkgmgr-info"
+DEPENDS += "aul"
+inherit pkgconfig
+DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
 DEPENDS += "bundle"
 

@@ -29,6 +29,7 @@ DEPENDS = ""
 inherit tizen_cmake
 DEPENDS += "attr"
 DEPENDS += "dlog"
+inherit pkgconfig
 
 do_prep() {
  cd ${S}

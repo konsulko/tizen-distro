@@ -27,12 +27,13 @@ RDEPENDS_${PN}-dev += "capi-system-info"
 DEPENDS = ""
 #DEPENDS of capi-system-info
 inherit tizen_cmake
-DEPENDS += "dlog"
 DEPENDS += "libxml2"
+inherit pkgconfig
 DEPENDS += "iniparser"
-DEPENDS += "capi-base-common"
+DEPENDS += "dlog"
 DEPENDS += "ecore"
 DEPENDS += "vconf"
+DEPENDS += "capi-base-common"
 
 do_prep() {
  cd ${S}

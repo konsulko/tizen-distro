@@ -62,15 +62,16 @@ DEPENDS += "pkgmgr-info"
 inherit gettext
 inherit tizen_cmake
 DEPENDS += "capi-system-info"
+DEPENDS += "dbus-glib"
 DEPENDS += "libxml2"
 DEPENDS += "dbus"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
-DEPENDS += "libslp-db-util"
 DEPENDS += "capi-base-common"
 DEPENDS += "sqlite3"
 DEPENDS += "tizen-platform-config"
-DEPENDS += "dbus-glib"
+DEPENDS += "libslp-db-util"
 
 do_prep() {
  cd ${S}

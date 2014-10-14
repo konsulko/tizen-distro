@@ -52,6 +52,7 @@ DEPENDS = ""
 DEPENDS += "flex"
 inherit pythonnative
 DEPENDS += "cairo"
+inherit pkgconfig
 DEPENDS += "python-xml"
 DEPENDS_append_class-native = " libtool"
 DEPENDS_append_class-target = " libtool-cross"

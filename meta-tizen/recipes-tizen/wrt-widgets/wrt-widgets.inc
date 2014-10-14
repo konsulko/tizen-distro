@@ -24,6 +24,7 @@ RDEPENDS_${PN} += "desktop-skin"
 DEPENDS = ""
 #DEPENDS of wrt-widgets
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 
 do_prep() {
  cd ${S}

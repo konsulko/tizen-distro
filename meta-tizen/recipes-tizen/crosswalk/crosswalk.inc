@@ -35,6 +35,7 @@ DEPENDS += "bzip2"
 DEPENDS += "nss"
 DEPENDS += "alsa-lib"
 DEPENDS += "elfutils"
+inherit pkgconfig
 DEPENDS += "fontconfig"
 DEPENDS += "system-server"
 DEPENDS += "wayland"
@@ -235,7 +236,7 @@ pkg_postinst_${PN}() {
 pkg_prerm_${PN}() {
     #!/bin/sh -e
 
-    if [ $1 -eq 0 ] ; then
+    if [ $1 -eq 1 ] ; then
     # don't remove if we are upgrade the rpm package
     [ -L /etc/package-manager/backendlib/libxpk.so ] && rm /etc/package-manager/backendlib/libxpk.so
     [ -L /etc/package-manager/backendlib/libwgt.so ] && rm /etc/package-manager/backendlib/libwgt.so

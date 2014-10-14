@@ -28,9 +28,10 @@ DEPENDS = ""
 #DEPENDS of libtapi3
 inherit tizen_cmake
 inherit pythonnative
-DEPENDS += "security-server"
+inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
+DEPENDS += "security-server"
 DEPENDS += "python-xml"
 
 do_prep() {

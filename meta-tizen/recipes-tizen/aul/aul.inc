@@ -36,6 +36,7 @@ inherit tizen_cmake
 DEPENDS += "attr"
 DEPENDS += "tizen-platform-config"
 DEPENDS += "privacy-manager-server"
+inherit pkgconfig
 DEPENDS += "bundle"
 DEPENDS += "ail"
 DEPENDS += "smack"

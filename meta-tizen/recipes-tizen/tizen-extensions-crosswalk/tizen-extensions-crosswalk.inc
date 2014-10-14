@@ -62,6 +62,7 @@ DEPENDS += "sync-agent"
 DEPENDS += "dbus-glib"
 DEPENDS += "pkgmgr-info"
 DEPENDS += "notification"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "system-server"
 DEPENDS += "wayland"

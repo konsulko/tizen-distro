@@ -48,8 +48,9 @@ inherit tizen_cmake
 DEPENDS += "drm-client"
 DEPENDS += "evas"
 DEPENDS += "tizen-platform-config"
-DEPENDS += "aul"
+inherit pkgconfig
 DEPENDS += "dlog"
+DEPENDS += "aul"
 DEPENDS += "libexif"
 DEPENDS += "libmm-utility"
 DEPENDS += "media-server"

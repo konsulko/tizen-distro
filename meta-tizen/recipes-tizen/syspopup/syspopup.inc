@@ -44,11 +44,12 @@ DEPENDS = ""
 inherit tizen_cmake
 DEPENDS += "evas"
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
+DEPENDS += "bundle"
 DEPENDS += "aul"
 DEPENDS += "dlog"
-DEPENDS += "app-core"
-DEPENDS += "bundle"
 DEPENDS += "sqlite3"
+DEPENDS += "app-core"
 DEPENDS += "dbus-glib"
 
 do_prep() {

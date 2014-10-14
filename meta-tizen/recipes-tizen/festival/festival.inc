@@ -27,6 +27,7 @@ RDEPENDS_${PN}-dev += "festival"
 DEPENDS = ""
 #DEPENDS of festival
 DEPENDS += "ncurses"
+inherit pkgconfig
 
 do_prep() {
  cd ${S}

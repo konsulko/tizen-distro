@@ -1,3 +1,5 @@
+inherit pkgconfig
+
 EXTRA_OECONF = " --with-pic --disable-vapigen"
 
 SRC_URI += " file://0001-git-version-gen-don-t-append-dirty-if-we-re-not-in-g.patch"
