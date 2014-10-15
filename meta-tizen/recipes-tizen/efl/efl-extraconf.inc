@@ -1,5 +1,28 @@
 INSANE_SKIP_${PN} = "dev-so"
 
+DEPENDS += "efl-native"
+
+# Build efl native with the fewest dependency possible
+DEPENDS_class-native = ""
+DEPENDS_class-native += "zlib-native"
+DEPENDS_class-native += "tiff-native"
+DEPENDS_class-native += "openssl-native"
+DEPENDS_class-native += "curl-native"
+DEPENDS_class-native += "fontconfig-native"
+DEPENDS_class-native += "freetype-native"
+DEPENDS_class-native += "wayland-native"
+DEPENDS_class-native += "glib-2.0-native"
+DEPENDS_class-native += "lua-native"
+DEPENDS_class-native += "libpng-native"
+DEPENDS_class-native += "pixman-native"
+DEPENDS_class-native += "libcheck-native"
+DEPENDS_class-native += "giflib-native"
+DEPENDS_class-native += "gnutls-native"
+DEPENDS_class-native += "util-linux-native"
+DEPENDS_class-native += "vconf-native"
+DEPENDS_class-native += "fribidi-native"
+DEPENDS_class-native += "dbus-native"
+
 EXTRA_OECONF += " \
     --with-edje-cc=${STAGING_BINDIR_NATIVE}/edje_cc \
     --with-eolian-gen=${STAGING_BINDIR_NATIVE}/eolian_gen \
@@ -9,6 +32,7 @@ EXTRA_OECONF += " \
     --enable-always-build-examples=no \
 "
 
+# Disable as much options as possible for efl-native
 EXTRA_OECONF_class-native = " \
     --disable-fontconfig \
     --disable-audio \
@@ -33,19 +57,13 @@ EXTRA_OECONF_class-native = " \
     --enable-lua-old \
 "
 
-
-DEPENDS_class-target = " zlib tiff ibus harfbuzz openssl curl fontconfig gstreamer1.0-plugins-base systemd freetype wayland dlog glib-2.0 lua libtbm libbullet libpng sensor pixman libsndfile1 libcheck giflib udev gnutls mesa util-linux vconf libxkbcommon fribidi libjpeg-turbo dbus gstreamer1.0 pulseaudio libexif"
-DEPENDS_class-native = " zlib-native tiff-native openssl-native curl-native fontconfig-native freetype-native wayland-native glib-2.0-native lua-native libpng-native pixman-native  libcheck-native giflib-native gnutls-native  util-linux-native vconf-native  fribidi-native dbus-native "
-
-DEPENDS_append_class-target = " efl-native "
-
 do_configure_prepend() {
     # Fix configure error: "error: required file './ABOUT-NLS' not found"
     sed -i 's/AM_INIT_AUTOMAKE(\[1.6 dist-bzip2 -Wall color-tests\])/AM_INIT_AUTOMAKE(\[1.6 dist-bzip2 -Wall color-tests foreign\])/' configure.ac
 }
 
-# new efl doesn't have option to disable eeze build and we don't want to provide udev-native just to build eeze-native we don't need
 do_configure_prepend_class-native() {
+    # efl doesn't have option to disable eeze build and we don't want to provide udev-native just to build eeze-native since don't need it
     sed -i 's/EFL_LIB_START_OPTIONAL(\[Eeze\], \[test "${have_linux}" = "yes"\])/EFL_LIB_START_OPTIONAL([Eeze], [test "${no-we-really-dont-want-native-eeze}" = "yes"])/g' ${S}/configure.ac
 }
 
@@ -56,47 +74,52 @@ do_install_prepend () {
 }
 
 do_install_class-native() {
- echo export RPM_BUILD_ROOT=${D}
- cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- rm -rf ${D}
- mkdir -p ${D}
- 
- 
-   make \
-         DESTDIR=${D} \
-         INSTALL_ROOT=${D} \
-         BINDIR=${prefix}/bin \
-   install  
-   rm -f ${D}${infodir}/dir 
-   find ${D} -regex ".*\.la$" | xargs rm -f -- 
-   find ${D} -regex ".*\.a$" | xargs rm -f --
-   rm -rf ${D}${prefix}/lib/ecore/system/upower
+    echo export RPM_BUILD_ROOT=${D}
+    cd ${S}
+    LANG=C
+    export LANG
+    unset DISPLAY
+    rm -rf ${D}
+    mkdir -p ${D}
 
+    # "oe_runmake" fails so we use "make" instead
+    make \
+        DESTDIR=${D} \
+        INSTALL_ROOT=${D} \
+        BINDIR=${prefix}/bin \
+    install
+
+    rm -f ${D}${infodir}/dir 
+    find ${D} -regex ".*\.la$" | xargs rm -f -- 
+    find ${D} -regex ".*\.a$" | xargs rm -f --
+
+    # We don't build the examples so don't install them
+    # oe_runmake datadir=${D}${prefix}/share install-examples
+    rm -rf ${D}${prefix}/lib/ecore/system/upower
 }
-do_install() {
- echo export RPM_BUILD_ROOT=${D}
- cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- rm -rf ${D}
- mkdir -p ${D}
- 
- 
-   oe_runmake \
-         DESTDIR=${D} \
-         INSTALL_ROOT=${D} \
-         BINDIR=${prefix}/bin \
-   install  
-   rm -f ${D}${infodir}/dir 
-   find ${D} -regex ".*\.la$" | xargs rm -f -- 
-   find ${D} -regex ".*\.a$" | xargs rm -f --
 
- rm -rf ${D}${prefix}/lib/ecore/system/upower
-  
+do_install() {
+    echo export RPM_BUILD_ROOT=${D}
+    cd ${S}
+    LANG=C
+    export LANG
+    unset DISPLAY
+    rm -rf ${D}
+    mkdir -p ${D}
+
+    oe_runmake \
+        DESTDIR=${D} \
+        INSTALL_ROOT=${D} \
+        BINDIR=${prefix}/bin \
+    install
+
+    rm -f ${D}${infodir}/dir 
+    find ${D} -regex ".*\.la$" | xargs rm -f -- 
+    find ${D} -regex ".*\.a$" | xargs rm -f --
+
+    # We don't build the examples so don't install them
+    # oe_runmake datadir=${D}${prefix}/share install-examples
+    rm -rf ${D}${prefix}/lib/ecore/system/upower
 }
 
 pkg_postinst_ecore() {
