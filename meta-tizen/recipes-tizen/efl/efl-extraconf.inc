@@ -99,6 +99,20 @@ do_install() {
   
 }
 
+pkg_postinst_ecore() {
+    #!/bin/sh -e
+
+    [ "x$D" == "x" ] && ldconfig
+    f="$D/etc/profile.d/ecore.sh"
+    grep --silent EFL_WAYLAND_USE_XDG_SHELL "$f" \
+        || printf "\nEFL_WAYLAND_USE_XDG_SHELL='defined'\nexport EFL_WAYLAND_USE_XDG_SHELL\n" >> "$f"
+    grep --silent ECORE_EVAS_ENGINE "$f" \
+        || printf "\nECORE_EVAS_ENGINE=wayland_shm\n[ ! -d /dev/dri ] || ECORE_EVAS_ENGINE=wayland_egl\nexport ECORE_EVAS_ENGINE" >> "$f"
+    grep --silent ECORE_IMF_MODULE "$f" \
+        || printf "\nECORE_IMF_MODULE=wayland\nexport ECORE_IMF_MODULE\n" >> "$f"
+
+}
+
 FILES_${PN}-dbg += "${prefix}/lib/eeze/modules/sensor/tizen/v-1.9/.debug"
 FILES_${PN}-dbg += "${prefix}/lib/eeze/modules/sensor/udev/v-1.9/.debug"
 FILES_${PN}-dbg += "${prefix}/lib/ecore_evas/engines/extn/v-1.9/.debug"

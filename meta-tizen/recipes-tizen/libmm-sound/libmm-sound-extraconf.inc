@@ -57,3 +57,20 @@ FILES_${PN} = "${libmm-sound_files}"
 
 PKG_libmm-sound-dev= "libmm-sound-dev"
 PKG_libmm-sound= "libmm-sound"
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    [ "x$D" == "x" ] && ldconfig
+    vconftool set -t int memory/Sound/ASMReady 0 -g 29 -f -i
+    vconftool set -t int file/private/sound/volume/system 5 -g 29 -f
+    vconftool set -t int file/private/sound/volume/notification 7 -g 29 -f
+    vconftool set -t int file/private/sound/volume/alarm 7 -g 29 -f
+    vconftool set -t int file/private/sound/volume/ringtone 13 -g 29 -f
+    vconftool set -t int file/private/sound/volume/media 7 -g 29 -f
+    vconftool set -t int file/private/sound/volume/call 7 -g 29 -f
+    vconftool set -t int file/private/sound/volume/voip 7 -g 29 -f
+    vconftool set -t int file/private/sound/volume/fixed 0 -g 29 -f
+    vconftool set -t int file/private/sound/volume/java 11 -g 29 -f
+
+}
