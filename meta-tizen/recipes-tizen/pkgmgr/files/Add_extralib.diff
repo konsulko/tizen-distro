@@ -1,0 +1,28 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e0a9211..96a28f1 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-# 
++#
+ # Copyright (c) 2008 ~ 2010 Samsung Electronics Co., Ltd.
+ # All rights reserved
+ #
+@@ -37,7 +37,7 @@ FOREACH(flag ${pkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+ ENDFOREACH(flag)
+ 
+-pkg_check_modules(libpkgs REQUIRED dbus-glib-1 dlog ail pkgmgr-parser pkgmgr-info iniparser libtzplatform-config)
++pkg_check_modules(libpkgs REQUIRED dbus-glib-1 dlog ail pkgmgr-parser pkgmgr-info iniparser libtzplatform-config xdgmime)
+ 
+ FOREACH(flag ${libpkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+@@ -76,7 +76,7 @@ ADD_LIBRARY(${PKGMGR_CLIENT} SHARED ${libpkgmgr-client_SOURCES})
+ SET_TARGET_PROPERTIES(${PKGMGR_CLIENT} PROPERTIES SOVERSION ${VERSION_MAJOR})
+ SET_TARGET_PROPERTIES(${PKGMGR_CLIENT} PROPERTIES VERSION ${VERSION})
+ SET_TARGET_PROPERTIES(${PKGMGR_CLIENT} PROPERTIES COMPILE_FLAGS "${libpkgmgr-client_CFLAGS}")
+-TARGET_LINK_LIBRARIES(${PKGMGR_CLIENT} pkgmgr_installer_client pkgmgr_installer_status_broadcast_server pkgmgr-info ${libpkgs_LDFLAGS})
++TARGET_LINK_LIBRARIES(${PKGMGR_CLIENT} pkgmgr_installer_client pkgmgr_installer_status_broadcast_server pkgmgr-info ${libpkgs_LDFLAGS} -ldl)
+ ###################################################################################################
+ 
+ ###################################################################################################
