@@ -1,0 +1,136 @@
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 1bb5feb..cf169e2 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1,9 +1,7 @@
+ PKG_CHECK_MODULES(SECURITY_SERVER_DEP
+-    dlog
+     openssl
+     libsmack
+     libprivilege-control
+-    libsystemd-daemon
+     REQUIRED
+     )
+ 
+
+diff --git a/src/server/CMakeLists.txt b/src/server/CMakeLists.txt
+index 0fad220..d4aa492 100644
+--- a/src/server/CMakeLists.txt
++++ b/src/server/CMakeLists.txt
+@@ -1,5 +1,4 @@
+ PKG_CHECK_MODULES(COMMON_DEP
+-    dlog
+     REQUIRED
+     )
+ 
+@@ -10,7 +9,6 @@ SET(COMMON_SOURCES
+     ${COMMON_PATH}/common/message-buffer.cpp
+     ${COMMON_PATH}/common/smack-check.cpp
+     ${COMMON_PATH}/dpl/log/src/abstract_log_provider.cpp
+-    ${COMMON_PATH}/dpl/log/src/dlog_log_provider.cpp
+     ${COMMON_PATH}/dpl/log/src/log.cpp
+     ${COMMON_PATH}/dpl/log/src/old_style_log_provider.cpp
+     ${COMMON_PATH}/dpl/log/src/audit-smack-log.cpp
+diff --git a/src/server/dpl/log/src/log.cpp b/src/server/dpl/log/src/log.cpp
+index ef67fb2..4db0665 100644
+--- a/src/server/dpl/log/src/log.cpp
++++ b/src/server/dpl/log/src/log.cpp
+@@ -24,7 +24,6 @@
+ 
+ #include <dpl/log/log.h>
+ #include <dpl/singleton_impl.h>
+-#include <dpl/log/dlog_log_provider.h>
+ #include <dpl/log/old_style_log_provider.h>
+ #include <dpl/log/audit-smack-log.h>
+ 
+@@ -118,12 +117,7 @@ LogSystem::LogSystem() :
+                                             oldStyleWarningLogs,
+                                             oldStyleErrorLogs,
+                                             oldStylePedanticLogs));
+-    } else {
+-        // DLOG
+-        AddProvider(new DLOGLogProvider());
+     }
+-#else // BUILD_TYPE_DEBUG
+-    AddProvider(new DLOGLogProvider());
+ #endif // BUILD_TYPE_DEBUG
+ }
+ 
+diff --git a/src/server/dpl/log/src/old_style_log_provider.cpp b/src/server/dpl/log/src/old_style_log_provider.cpp
+index 4c10749..497d955 100644
+--- a/src/server/dpl/log/src/old_style_log_provider.cpp
++++ b/src/server/dpl/log/src/old_style_log_provider.cpp
+@@ -27,7 +27,6 @@
+ #include <sstream>
+ #include <sys/time.h>
+ #include <unistd.h>
+-#include <dlog.h>
+ 
+ namespace SecurityServer {
+ namespace Log {
+diff --git a/src/server/main/socket-manager.cpp b/src/server/main/socket-manager.cpp
+index 69b278e..cc3f2f2 100644
+--- a/src/server/main/socket-manager.cpp
++++ b/src/server/main/socket-manager.cpp
+@@ -38,7 +38,7 @@
+ #include <errno.h>
+ #include <time.h>
+ 
+-#include <systemd/sd-daemon.h>
++//#include <systemd/sd-daemon.h>
+ 
+ #include <dpl/log/log.h>
+ #include <dpl/assert.h>
+@@ -339,8 +339,6 @@ void SocketManager::MainLoop() {
+     // uncomment it after removing old security-server code
+     // sd_listen_fds(1);
+ 
+-    // Daemon is ready to work.
+-    sd_notify(0, "READY=1");
+ 
+     m_working = true;
+     while(m_working) {
+@@ -451,34 +449,6 @@ void SocketManager::MainLoopStop()
+     NotifyMe();
+ }
+ 
+-int SocketManager::GetSocketFromSystemD(
+-    const GenericSocketService::ServiceDescription &desc)
+-{
+-    int fd;
+-
+-    // TODO optimalization - do it once in object constructor
+-    //                       and remember all information path->sockfd
+-    int n = sd_listen_fds(0);
+-
+-    LogInfo("sd_listen_fds returns: " << n);
+-
+-    if (n < 0) {
+-        LogError("Error in sd_listend_fds");
+-        ThrowMsg(Exception::InitFailed, "Error in sd_listend_fds");
+-    }
+-
+-    for(fd = SD_LISTEN_FDS_START; fd < SD_LISTEN_FDS_START+n; ++fd) {
+-        if (0 < sd_is_socket_unix(fd, SOCK_STREAM, 1,
+-                                  desc.serviceHandlerPath.c_str(), 0))
+-        {
+-            LogInfo("Useable socket " << desc.serviceHandlerPath <<
+-                " was passed by SystemD under descriptor " << fd);
+-            return fd;
+-        }
+-    }
+-    LogInfo("No useable sockets were passed by systemd.");
+-    return -1;
+-}
+ 
+ int SocketManager::CreateDomainSocketHelp(
+     const GenericSocketService::ServiceDescription &desc)
+@@ -552,7 +522,7 @@ void SocketManager::CreateDomainSocket(
+     GenericSocketService *service,
+     const GenericSocketService::ServiceDescription &desc)
+ {
+-    int sockfd = GetSocketFromSystemD(desc);
++    int sockfd = -1;
+     if (-1 == sockfd)
+         sockfd = CreateDomainSocketHelp(desc);
+ 

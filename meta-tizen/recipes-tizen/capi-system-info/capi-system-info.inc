@@ -94,7 +94,7 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/etc
+ mkdir -p ${D}${sysconfdir}
  cp -f script/make_info_file.sh ${D}${sysconfdir}/make_info_file.sh
  
  

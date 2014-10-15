@@ -1,0 +1,393 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c99e444..2753a59 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -19,11 +19,11 @@ MESSAGE("Build type: ${CMAKE_BUILD_TYPE}")
+ 
+ # Set required packages
+ INCLUDE(FindPkgConfig)
+-SET(AUL-1_PKG_CHECK_MODULES dlog libprivilege-control app-checker rua glib-2.0 vconf pkgmgr-info privacy-manager-client)
++SET(AUL-1_PKG_CHECK_MODULES  libprivilege-control app-checker rua glib-2.0 vconf pkgmgr-info privacy-manager-client)
+ pkg_check_modules(pkgs REQUIRED  ${AUL-1_PKG_CHECK_MODULES} )
+ 
+-pkg_check_modules(libpkgs REQUIRED dlog bundle dbus-glib-1 ail xdgmime app-checker libtzplatform-config)
+-PKG_CHECK_MODULES(PKGS REQUIRED glib-2.0 gio-2.0 dlog bundle)
++pkg_check_modules(libpkgs REQUIRED  bundle dbus-glib-1 ail xdgmime app-checker libtzplatform-config)
++PKG_CHECK_MODULES(PKGS REQUIRED glib-2.0 gio-2.0  bundle)
+ 
+ FIND_LIBRARY(LIB_DL dl)
+ 
+diff --git a/am_daemon/amd_appinfo.c b/am_daemon/amd_appinfo.c
+index 0e1b862..990d784 100755
+--- a/am_daemon/amd_appinfo.c
++++ b/am_daemon/amd_appinfo.c
+@@ -197,7 +197,7 @@ static int __app_info_insert_handler (const pkgmgrinfo_appinfo_h handle, void *d
+ 	r = pkgmgrinfo_appinfo_get_pkgid(handle, &pkgid);
+ 	c->val[_AI_PKGID] = strdup(pkgid);
+ 
+-	SECURE_LOGD("%s : %s : %s", c->val[_AI_FILE], c->val[_AI_COMP], c->val[_AI_TYPE]);
++	//SECURE_LOGD("%s : %s : %s", c->val[_AI_FILE], c->val[_AI_COMP], c->val[_AI_TYPE]);
+ 
+ 	g_hash_table_insert(cf->tbl, c->val[_AI_FILE], c);
+ 
+@@ -259,7 +259,7 @@ static void __vconf_cb(keynode_t *key, void *data)
+ 		return;
+ 	}
+ 
+-	SECURE_LOGD("noti_string : %s",noti_string);
++	//SECURE_LOGD("noti_string : %s",noti_string);
+ 	type_string = strtok_r(noti_string, ":", &saveptr);
+ 	appid = strtok_r(NULL, ":", &saveptr);
+ 	uid_string = strtok_r(NULL, ":", &saveptr);
+@@ -278,7 +278,7 @@ static void __vconf_cb(keynode_t *key, void *data)
+ 			_E("pkgmgrinfo_appinfo_get_appinfo fail");
+ 		}
+ 
+-		SECURE_LOGD("appid : %s /handle : %x", appid, handle);
++		//SECURE_LOGD("appid : %s /handle : %x", appid, handle);
+ 
+ 		__app_info_insert_handler(handle, data);
+ 
+@@ -304,7 +304,7 @@ int app_func(pkgmgrinfo_appinfo_h handle, void *user_data)
+ 
+ 	pkgmgrinfo_appinfo_get_appid(handle, &appid);
+ 	r = g_hash_table_remove(cf->tbl, appid);
+-	SECURE_LOGD("upgrading... (%s)", appid);
++	//SECURE_LOGD("upgrading... (%s)", appid);
+ 
+ 	return 0;
+ }
+@@ -316,7 +316,7 @@ static int __cb(int req_id, const char *pkg_type,
+ 	int ret = 0;
+ 	pkgmgrinfo_pkginfo_h handle;
+ 
+-	SECURE_LOGD("appid(%s), key(%s), value(%s)", pkgid, key, val);
++	//SECURE_LOGD("appid(%s), key(%s), value(%s)", pkgid, key, val);
+ 
+ 	if((strncmp(key,"start", 5) == 0) && (strncmp(val, "update", 6) == 0) ) {
+ 		ret = pkgmgrinfo_pkginfo_get_pkginfo(pkgid, &handle);
+@@ -533,7 +533,7 @@ const struct appinfo *appinfo_find(uid_t caller_uid, const char *appid)
+ 	r = pkgmgrinfo_appinfo_get_pkgid(handle, &pkgid);
+ 	res->val[_AI_PKGID] = strdup(pkgid);
+ 
+-	SECURE_LOGD("%s : %s : %s", res->val[_AI_FILE], res->val[_AI_COMP], res->val[_AI_TYPE]);
++	//SECURE_LOGD("%s : %s : %s", res->val[_AI_FILE], res->val[_AI_COMP], res->val[_AI_TYPE]);
+ 
+ 	return res;
+ }
+@@ -563,7 +563,7 @@ const char *appinfo_get_filename(const struct appinfo *c)
+ {
+ 	if (!c) {
+ 		errno = EINVAL;
+-		SECURE_LOGE("appinfo get filename: %s", strerror(errno));
++		//SECURE_LOGE("appinfo get filename: %s", strerror(errno));
+ 		return NULL;
+ 	}
+ 
+diff --git a/am_daemon/amd_launch.c b/am_daemon/amd_launch.c
+index 685699a..4993870 100755
+--- a/am_daemon/amd_launch.c
++++ b/am_daemon/amd_launch.c
+@@ -713,7 +713,7 @@ int _start_app(char* appid, bundle* kb, int cmd, int caller_pid, uid_t caller_ui
+ 			if (_status_get_app_info_status(pid) == STATUS_DYING) {
+ 				pid = -ETERMINATING;
+ 			} else if (caller_pid == pid) {
+-				SECURE_LOGD("caller process & callee process is same.[%s:%d]", appid, pid);
++				//SECURE_LOGD("caller process & callee process is same.[%s:%d]", appid, pid);
+ 				pid = -ELOCALLAUNCH_ID;
+ 			} else {
+ 				if ((ret = __nofork_processing(cmd, pid, kb, fd)) < 0) {
+diff --git a/am_daemon/amd_request.c b/am_daemon/amd_request.c
+index 349cfd3..c1923bb 100755
+--- a/am_daemon/amd_request.c
++++ b/am_daemon/amd_request.c
+@@ -188,7 +188,7 @@ static gboolean __add_history_handler(gpointer user_data)
+ 		rec.arg = (char *)pkt_uid->pkt->data;
+ 	}
+ 
+-	SECURE_LOGD("add rua history %s %s", rec.pkg_name, rec.app_path);
++	//SECURE_LOGD("add rua history %s %s", rec.pkg_name, rec.app_path);
+ 
+ 	ret = rua_add_history(&rec);
+ 	if (ret == -1)
+@@ -219,14 +219,14 @@ static int __release_srv(uid_t caller_uid, const char *filename)
+ 
+ 	ai = (struct appinfo *)appinfo_find(caller_uid, filename);
+ 	if (!ai) {
+-		SECURE_LOGE("release service: '%s' not found", filename);
++		//SECURE_LOGE("release service: '%s' not found", filename);
+ 		return -1;
+ 	}
+ 
+ 	r = appinfo_get_boolean(ai, AIT_RESTART);
+ 	if (r == 1) {
+ 		/* Auto restart */
+-		SECURE_LOGD("Auto restart set: '%s'", filename);
++		//SECURE_LOGD("Auto restart set: '%s'", filename);
+ 		return _start_srv(ai, NULL);
+ 	}
+ 
+@@ -349,7 +349,7 @@ static gboolean __request_handler(gpointer data)
+ 			appid = malloc(MAX_PACKAGE_STR_SIZE);
+ 			strncpy(appid, (const char*)pkt->data, MAX_PACKAGE_STR_SIZE-1);
+ 			ret = _status_app_is_running(appid, cr.uid);
+-			SECURE_LOGD("APP_IS_RUNNING : %s : %d",appid, ret);
++			//SECURE_LOGD("APP_IS_RUNNING : %s : %d",appid, ret);
+ 			__send_result_to_client(clifd, ret);
+ 			free(appid);
+ 			break;
+diff --git a/am_daemon/amd_status.c b/am_daemon/amd_status.c
+index 12f595e..525134f 100755
+--- a/am_daemon/amd_status.c
++++ b/am_daemon/amd_status.c
+@@ -70,7 +70,7 @@ int _status_add_app_info_list(char *appid, char *app_path, int pid, int pad_pid,
+ 	{
+ 		info_t = (app_status_info_t *)iter->data;
+ 
+-		SECURE_LOGD(" [%d] : %s, %d, %d", info_t->user, info_t->appid, info_t->pid, info_t->status);
++		//SECURE_LOGD(" [%d] : %s, %d, %d", info_t->user, info_t->appid, info_t->pid, info_t->status);
+ 	}
+ 
+ 	return 0;
+@@ -94,7 +94,7 @@ int _status_update_app_info_list(int pid, int status, uid_t uid)
+ 	{
+ 		info_t = (app_status_info_t *)iter->data;
+ 
+-		//SECURE_LOGD("%s, %d, %d", info_t->appid, info_t->pid, info_t->status);
++		////SECURE_LOGD("%s, %d, %d", info_t->appid, info_t->pid, info_t->status);
+ 	}
+ 
+ 	return 0;
+@@ -119,7 +119,7 @@ int _status_remove_app_info_list(int pid, uid_t uid)
+ 	{
+ 		info_t = (app_status_info_t *)iter->data;
+ 
+-		//SECURE_LOGD("%s, %d, %d", info_t->appid, info_t->pid, info_t->status);
++		////SECURE_LOGD("%s, %d, %d", info_t->appid, info_t->pid, info_t->status);
+ 	}
+ 
+ 	return 0;
+@@ -336,7 +336,7 @@ int _status_get_appid_bypid(int fd, int pid)
+ 	pkt->cmd = APP_GET_APPID_BYPID_ERROR;
+ 
+ 	if (__get_pkgname_bypid(pid, (char *)pkt->data, MAX_PACKAGE_STR_SIZE) == 0) {
+-		SECURE_LOGD("appid for %d is %s", pid, pkt->data);
++		//SECURE_LOGD("appid for %d is %s", pid, pkt->data);
+ 		pkt->cmd = APP_GET_APPID_BYPID_OK;
+ 		goto out;
+ 	}
+diff --git a/include/simple_util.h b/include/simple_util.h
+index e0dc4c7..edb1600 100755
+--- a/include/simple_util.h
++++ b/include/simple_util.h
+@@ -25,7 +25,7 @@
+ 
+ #include <unistd.h>
+ #include <ctype.h>
+-#include <dlog.h>
++//#include <dlog.h>
+ #include <tzplatform_config.h>
+ 
+ #define GLOBAL_USER tzplatform_getuid(TZ_SYS_GLOBALAPP_USER)
+@@ -52,9 +52,9 @@
+ #define MAX_LOCAL_BUFSZ 128
+ #define MAX_PID_STR_BUFSZ 20
+ 
+-#define _E(fmt, arg...) LOGE(fmt, ##arg)
+-#define _D(fmt, arg...) LOGD(fmt, ##arg)
+-#define _W(fmt, arg...) LOGW(fmt, ##arg)
++#define _E(fmt, arg...) //LOGE(fmt, ##arg)
++#define _D(fmt, arg...) //LOGD(fmt, ##arg)
++#define _W(fmt, arg...) //LOGW(fmt, ##arg)
+ 
+ #define retvm_if(expr, val, fmt, arg...) do { \
+ 	if (expr) { \
+diff --git a/src/launch.c b/src/launch.c
+index 1e7a925..bc69a16 100755
+--- a/src/launch.c
++++ b/src/launch.c
+@@ -319,7 +319,7 @@ int app_request_to_launchpad(int cmd, const char *pkgname, bundle *kb)
+ 	int must_free = 0;
+ 	int ret = 0;
+ 
+-	SECURE_LOGD("launch request : %s", pkgname);
++	//SECURE_LOGD("launch request : %s", pkgname);
+ 	if (kb == NULL) {
+ 		kb = bundle_create();
+ 		must_free = 1;
+diff --git a/src/mida.c b/src/mida.c
+index 9bb37fc..61dc852 100755
+--- a/src/mida.c
++++ b/src/mida.c
+@@ -334,7 +334,7 @@ int mida_add_app(const char *mime_type, const char *pkg_name)
+ 	cnt = __count_with_field(MIDA_TBL_NAME, MIDA_F_MIMETYPE, mime_type, 0);
+ 
+ 	if (cnt == 0) {
+-		SECURE_LOGD("Inserting (%s, %s)", pkg_name, mime_type);
++		//SECURE_LOGD("Inserting (%s, %s)", pkg_name, mime_type);
+ 		/* insert */
+ 		_sqlbuf = sqlite3_mprintf(
+ 			    "INSERT INTO %s (%s,%s) values (\"%s\", \"%s\");",
+@@ -344,7 +344,7 @@ int mida_add_app(const char *mime_type, const char *pkg_name)
+ 		rc = _exec(mida_db, _sqlbuf);
+ 		sqlite3_free(_sqlbuf);
+ 	} else {
+-		SECURE_LOGD("Setting %s for %s", pkg_name, mime_type);
++		//SECURE_LOGD("Setting %s for %s", pkg_name, mime_type);
+ 		/* update */
+ 		_sqlbuf = sqlite3_mprintf(
+ 				    "UPDATE %s SET %s = '%s' where %s = '%s';",
+@@ -443,7 +443,7 @@ int svc_add_app(const char *svc_name, const char *pkg_name)
+ 
+ 	if (cnt == 0) {
+ 		/* insert */
+-		SECURE_LOGD("Inserting (%s, %s)", pkg_name, svc_name);
++		//SECURE_LOGD("Inserting (%s, %s)", pkg_name, svc_name);
+ 		_sqlbuf = sqlite3_mprintf(
+ 		     "INSERT INTO %s (%s,%s) values (\"%s\", \"%s\");",
+ 		     SVC_TBL_NAME, SVC_F_PKGNAME, SVC_F_SVCNAME, pkg_name,
+@@ -453,7 +453,7 @@ int svc_add_app(const char *svc_name, const char *pkg_name)
+ 		sqlite3_free(_sqlbuf);
+ 	} else {
+ 		/* update */
+-		SECURE_LOGD("Setting %s for %s", pkg_name, svc_name);
++		//SECURE_LOGD("Setting %s for %s", pkg_name, svc_name);
+ 		_sqlbuf = sqlite3_mprintf(
+ 				    "UPDATE %s SET %s = '%s' where %s = '%s';",
+ 				    SVC_TBL_NAME, SVC_F_PKGNAME, pkg_name,
+@@ -509,7 +509,7 @@ int is_supported_svc(const char *svc_name)
+ 	if (cnt > 0)
+ 		rc = 1;
+ 	else
+-		SECURE_LOGD("%s is not supported.", svc_name);
++		//SECURE_LOGD("%s is not supported.", svc_name);
+ 
+ 	__fini();
+ 	return rc;
+diff --git a/src/mime.c b/src/mime.c
+index 0649e16..6ef272b 100755
+--- a/src/mime.c
++++ b/src/mime.c
+@@ -70,7 +70,7 @@ SLPAPI int aul_get_mime_from_content(const char *content, char *mimetype,
+ 		if (__match_content_with_regex(content,
+ 			&(miregex_tbl->regex_preg))) {
+ 			founded = miregex_tbl->mimetype;
+-			SECURE_LOGD("content %s => mimetype %s\n", content, founded);
++			//SECURE_LOGD("content %s => mimetype %s\n", content, founded);
+ 			break;
+ 		}
+ 		miregex_tbl = miregex_tbl->next;
+@@ -360,9 +360,9 @@ static int __launch_with_defapp(const char *mime_type, const char *mime_content)
+ 	if (_aul_get_defapp_from_mime
+ 	    (mime_type, unaliased_mime_type, defapp,
+ 	     sizeof(unaliased_mime_type), sizeof(defapp)) < 0) {
+-		SECURE_LOGD("mimetype : %s, unaliased mimetype : %s, mime_content : %s,"
+-			" no default app", mime_type, 
+-				unaliased_mime_type, mime_content);
++		//SECURE_LOGD("mimetype : %s, unaliased mimetype : %s, mime_content : %s,"
++		//	" no default app", mime_type, 
++		//		unaliased_mime_type, mime_content);
+ 		bundle_add(kb, AUL_K_UNALIASED_MIME_TYPE, unaliased_mime_type);
+ 		ret = aul_launch_app(MIME_APP_SELECTOR, kb);
+ 		/* TODO: When launching MIME APP SELECTOR, what should 
+@@ -379,22 +379,22 @@ static int __launch_with_defapp(const char *mime_type, const char *mime_content)
+ 
+ 		if (ail_ret == AIL_ERROR_OK) {
+ 			ail_destroy_appinfo(handle);
+-			SECURE_LOGD("mimetype : %s, unaliased mimetype : %s, "
+-				"mime_content : %s, defapp : %s", mime_type, 
+-					unaliased_mime_type, 
+-						mime_content, defapp);
++			//SECURE_LOGD("mimetype : %s, unaliased mimetype : %s, "
++			//	"mime_content : %s, defapp : %s", mime_type, 
++			//		unaliased_mime_type, 
++			//			mime_content, defapp);
+ 			bundle_add(kb, AUL_K_UNALIASED_MIME_TYPE,
+ 				   unaliased_mime_type);
+ 			ret = aul_launch_app(defapp, kb);
+ 		} else if (ail_ret == AIL_ERROR_NO_DATA) {
+-			SECURE_LOGD("defapp %s for mimetype : %s, mime_content : %s "
+-				"does NOT exist", defapp, 
+-					mime_type, mime_content);
++			//SECURE_LOGD("defapp %s for mimetype : %s, mime_content : %s "
++			//	"does NOT exist", defapp, 
++			//		mime_type, mime_content);
+ 			mida_delete_with_pkgname(defapp);
+ 			ail_destroy_appinfo(handle);
+ 			goto retry;
+ 		} else {
+-			SECURE_LOGE("ail_get_appinfo with %s failed", defapp);
++			//SECURE_LOGE("ail_get_appinfo with %s failed", defapp);
+ 			if (kb) {
+ 				bundle_free(kb);
+ 				kb = NULL;
+diff --git a/src/pkginfo.c b/src/pkginfo.c
+index 975c01e..7cb4771 100755
+--- a/src/pkginfo.c
++++ b/src/pkginfo.c
+@@ -123,7 +123,7 @@ SLPAPI int aul_app_get_appid_bypid(int pid, char *appid, int len)
+ 
+ 	if(pid == getpid() || getuid()==0 || geteuid()==0) {
+ 		if (__get_pkgname_bypid(pid, appid, len) == 0) {
+-			SECURE_LOGD("appid for %d is %s", pid, appid);
++			//SECURE_LOGD("appid for %d is %s", pid, appid);
+ 			return AUL_R_OK;
+ 		}
+ 		/* support app launched by shell script*/diff --git a/am_session_agent/agent.c b/am_session_agent/agent.c
+index 1d1efd0..1968f49 100644
+--- a/am_session_agent/agent.c
++++ b/am_session_agent/agent.c
+@@ -216,13 +216,13 @@ _static_ void __real_launch(const char *app_path, bundle * kb)
+ 	for (i = 0; i < app_argc; i++) {
+ 		if( (i%2) == 1)
+ 			continue;
+-		SECURE_LOGD("input argument %d : %s##", i, app_argv[i]);
++		//SECURE_LOGD("input argument %d : %s##", i, app_argv[i]);
+ 	}
+ 
+ 	PERF("setup argument done");
+ 
+ 	/* Temporary log: launch time checking */
+-	LOG(LOG_DEBUG, "LAUNCH", "[%s:Platform:agent:done]", app_path);
++	//LOG(LOG_DEBUG, "LAUNCH", "[%s:Platform:agent:done]", app_path);
+ #ifdef PRELOAD_ACTIVATE
+ 	__preload_exec(app_argc, app_argv);
+ #endif
+@@ -347,7 +347,7 @@ _static_ void __modify_bundle(bundle * kb, int caller_pid,
+ 			char value[256];
+ 
+ 			ptr += flag;
+-			SECURE_LOGD("parsing app_path: EXEC - %s\n", exe);
++			//SECURE_LOGD("parsing app_path: EXEC - %s\n", exe);
+ 
+ 			do {
+ 				flag = __parser(ptr, key, sizeof(key));
+@@ -604,7 +604,7 @@ _static_ void __agent_main_loop(int main_fd)
+ 	PERF("packet processing start");
+ 
+ 	pkg_name = bundle_get_val(kb, AUL_K_PKG_NAME);
+-	SECURE_LOGD("pkg name : %s\n", pkg_name);
++	//SECURE_LOGD("pkg name : %s\n", pkg_name);
+ 
+ 	/* get caller uid and check if not coming from someone else than AMD */
+ 	uid = __get_caller_uid(kb);
+@@ -660,8 +660,8 @@ _static_ void __agent_main_loop(int main_fd)
+ 
+ 			if (__prepare_exec(pkg_name, app_path,
+ 					   menu_info, kb) < 0) {
+-				SECURE_LOGE("preparing work fail to launch - "
+-				   "can not launch %s\n", pkg_name);
++				//SECURE_LOGE("preparing work fail to launch - "
++				//   "can not launch %s\n", pkg_name);
+ 				exit(-1);
+ 			}
+ 
+@@ -672,7 +672,7 @@ _static_ void __agent_main_loop(int main_fd)
+ 
+ 			exit(-1);
+ 		}
+-		SECURE_LOGD("==> real launch pid : %d %s\n", pid, app_path);
++		//SECURE_LOGD("==> real launch pid : %d %s\n", pid, app_path);
+ 		is_real_launch = 1;
+ 	}
+  end:

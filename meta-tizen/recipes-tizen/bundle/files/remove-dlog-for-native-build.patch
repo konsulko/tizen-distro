@@ -1,0 +1,36 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 539e9fe..2d8453b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -3,7 +3,7 @@ PROJECT(bundle C)
+ 
+ ### Required packages
+ INCLUDE(FindPkgConfig)
+-pkg_check_modules(pkgs REQUIRED glib-2.0 dlog)
++pkg_check_modules(pkgs REQUIRED glib-2.0 )
+ FOREACH(flag ${pkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+ ENDFOREACH(flag)diff --git a/include/bundle_log.h b/include/bundle_log.h
+index 192c283..4b6d3a7 100755
+--- a/include/bundle_log.h
++++ b/include/bundle_log.h
+@@ -21,7 +21,7 @@
+  */
+ 
+ 
+-#include <dlog/dlog.h>
++
+ #ifdef LOG_TAG
+ #undef LOG_TAG
+ #endif
+@@ -36,7 +36,7 @@
+ #define BUNDLE_ASSERT_PRINT(FMT, ARG...) do { printf("%5d", getpid()); printf
+ 	("%s() : "FMT"\n", __FUNCTION__, ##ARG); } while (false)
+ #else
+-#define BUNDLE_LOG_PRINT(FMT, ARG...) SLOGD(FMT, ##ARG);
+-#define BUNDLE_EXCEPTION_PRINT(FMT, ARG...) SLOGW(FMT, ##ARG);
+-#define BUNDLE_ASSERT_PRINT(FMT, ARG...) SLOGE(FMT, ##ARG);
++#define BUNDLE_LOG_PRINT(FMT, ARG...) //SLOGD(FMT, ##ARG);
++#define BUNDLE_EXCEPTION_PRINT(FMT, ARG...) //SLOGW(FMT, ##ARG);
++#define BUNDLE_ASSERT_PRINT(FMT, ARG...) //SLOGE(FMT, ##ARG);
+ #endif

@@ -1,0 +1,326 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index fd053b7..2403d3d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -26,17 +26,14 @@ SET(APPCORE_COMMON "appcore-common")
+ SET(SRCS_common src/appcore.c src/appcore-i18n.c src/appcore-measure.c src/appcore-rotation.c)
+ 
+ IF (with_wayland)
+-       ADD_DEFINITIONS("-DWAYLAND")
+ ENDIF (with_wayland)
+ IF (with_x11)
+-       ADD_DEFINITIONS("-DX11")
+-       SET(SRCS_common ${SRCS_common} src/appcore-X.c)
+ ENDIF (with_wayland)
+ 
+ SET(HEADERS_common appcore-common.h)
+ 
+ INCLUDE(FindPkgConfig)
+-SET(APPCORE_PKG_CHECK_MODULES "vconf sensor aul dlog libtzplatform-config ecore")
++SET(APPCORE_PKG_CHECK_MODULES "vconf sensor aul libtzplatform-config ecore")
+ IF (with_x11)
+        SET(APPCORE_PKG_CHECK_MODULES "${APPCORE_PKG_CHECK_MODULES} x11 ecore-x")
+ ENDIF (with_x11)
+@@ -75,7 +72,7 @@ SET(SRCS_efl src/appcore-efl.c)
+ SET(HEADERS_efl appcore-efl.h)
+ 
+ INCLUDE(FindPkgConfig)
+-SET(APPCORE_PKG_CHECK_MODULES2 "elementary dlog ecore gobject-2.0 glib-2.0 aul")
++SET(APPCORE_PKG_CHECK_MODULES2 "elementary  ecore gobject-2.0 glib-2.0 aul")
+ IF (with_x11)
+         SET(APPCORE_PKG_CHECK_MODULES2 "${APPCORE_PKG_CHECK_MODULES2} ecore-x")
+ ENDIF (with_x11)
+diff --git a/include/appcore-internal.h b/include/appcore-internal.h
+index 038e2dc..8d8bcab 100755
+--- a/include/appcore-internal.h
++++ b/include/appcore-internal.h
+@@ -27,7 +27,7 @@
+ #define LOG_TAG "APP_CORE"
+ 
+ #include <stdio.h>
+-#include <dlog.h>
++
+ #include "appcore-common.h"
+ 
+ 
+diff --git a/src/appcore-efl.c b/src/appcore-efl.c
+index 9ef5f96..9b61ee0 100644
+--- a/src/appcore-efl.c
++++ b/src/appcore-efl.c
+@@ -369,13 +369,13 @@ static void __do_app(enum app_event event, void *data, bundle * b)
+ 	switch (event) {
+ 	case AE_RESET:
+ 		_DBG("[APP %d] RESET", _pid);
+-		LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:reset:start]",
+-		    ui->name);
++		//LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:reset:start]",
++		//    ui->name);
+ 		if (ui->ops->reset)
+ 			r = ui->ops->reset(b, ui->ops->data);
+ 		ui->state = AS_RUNNING;
+-		LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:reset:done]",
+-		    ui->name);
++		//LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:reset:done]",
++		//    ui->name);
+ 		break;
+ 	case AE_PAUSE:
+ 		if (ui->state == AS_RUNNING) {
+@@ -392,8 +392,8 @@ static void __do_app(enum app_event event, void *data, bundle * b)
+ 		_inform_backgrd();
+ 		break;
+ 	case AE_RESUME:
+-		LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:resume:start]",
+-		    ui->name);
++		//LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:resume:start]",
++		//    ui->name);
+ 		if (ui->state == AS_PAUSED || tmp_val == 1) {
+ 			_DBG("[APP %d] RESUME", _pid);
+ 			if (ui->ops->resume)
+@@ -403,10 +403,10 @@ static void __do_app(enum app_event event, void *data, bundle * b)
+ 		}
+ 		/*TODO : rotation start*/
+ 		//r = appcore_resume_rotation_cb();
+-		LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:resume:done]",
+-		    ui->name);
+-		LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:Launching:done]",
+-		    ui->name);
++		//LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:resume:done]",
++		//    ui->name);
++		//LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:Launching:done]",
++		//    ui->name);
+ 		_inform_foregrd();
+ 
+ 		break;
+@@ -609,131 +609,17 @@ Ecore_X_Atom atom_parent;
+ 
+ static Eina_Bool __show_cb(void *data, int type, void *event)
+ {
+-#ifdef WAYLAND
+-	Ecore_Wl_Event_Window_Activate *ev;
+-
+-	ev = event;
+-
+-	if (ev->parent_win != 0)
+-	{
+-		// This is child window. Skip!!!
+-		return ECORE_CALLBACK_PASS_ON;
+-	}
+-
+-	_DBG("[EVENT_TEST][EVENT] GET SHOW EVENT!!!. WIN:%x\n", ev->win);
+-
+-	if (!__exist_win((unsigned int)ev->win))
+-		__add_win((unsigned int)ev->win);
+-	else
+-		__update_win((unsigned int)ev->win, FALSE);
+-
+-    __visibility_cb(data, type, event);
+-#else
+-	Ecore_X_Event_Window_Show *ev;
+-	int ret;
+-	Ecore_X_Window parent;
+-
+-	ev = event;
+-
+-	ret = ecore_x_window_prop_window_get(ev->win, atom_parent, &parent, 1);
+-	if (ret != 1)
+-	{
+-		// This is child window. Skip!!!
+-		return ECORE_CALLBACK_PASS_ON;
+-	}
+-
+-	_DBG("[EVENT_TEST][EVENT] GET SHOW EVENT!!!. WIN:%x\n", ev->win);
+-
+-	if (!__exist_win((unsigned int)ev->win)) {
+-		/* WM_ROTATE */
+-		if ((priv.wm_rot_supported) && (1 == priv.rot_started)) {
+-			__set_wm_rotation_support(ev->win, 1);
+-		}
+-		__add_win((unsigned int)ev->win);
+-	}
+-	else
+-		__update_win((unsigned int)ev->win, FALSE);
+-#endif
+-
+ 	return ECORE_CALLBACK_RENEW;
+ }
+ 
+ static Eina_Bool __hide_cb(void *data, int type, void *event)
+ {
+-#ifdef WAYLAND
+-	Ecore_Wl_Event_Window_Deactivate *ev;
+-	int bvisibility = 0;
+-
+-	ev = event;
+-
+-	_DBG("[EVENT_TEST][EVENT] GET HIDE EVENT!!!. WIN:%x\n", ev->win);
+-
+-	if (__exist_win((unsigned int)ev->win)) {
+-		__delete_win((unsigned int)ev->win);
+-
+-		bvisibility = __check_visible();
+-		if (!bvisibility && b_active == 1) {
+-			_DBG(" Go to Pasue state \n");
+-			b_active = 0;
+-			__do_app(AE_PAUSE, data, NULL);
+-		}
+-	}
+-#else
+-	Ecore_X_Event_Window_Hide *ev;
+-	int bvisibility = 0;
+-
+-	ev = event;
+-
+-	_DBG("[EVENT_TEST][EVENT] GET HIDE EVENT!!!. WIN:%x\n", ev->win);
+-
+-	if (__exist_win((unsigned int)ev->win)) {
+-		__delete_win((unsigned int)ev->win);
+-		
+-		bvisibility = __check_visible();
+-		if (!bvisibility && b_active == 1) {
+-			_DBG(" Go to Pasue state \n");
+-			b_active = 0;
+-			__do_app(AE_PAUSE, data, NULL);
+-		}
+-	}
+-#endif
+-
+ 	return ECORE_CALLBACK_RENEW;
+ }
+ 
+ static Eina_Bool __visibility_cb(void *data, int type, void *event)
+ {
+-#ifdef WAYLAND
+-	Ecore_Wl_Event_Window_Activate *ev;
+-	int bvisibility = 0;
+-
+-	ev = event;
+-
+-	__update_win((unsigned int)ev->win, ev->fobscured);
+-#else
+-	Ecore_X_Event_Window_Visibility_Change *ev;
+-	int bvisibility = 0;
+-
+-	ev = event;
+-
+-	__update_win((unsigned int)ev->win, ev->fully_obscured);
+-#endif
+-	bvisibility = __check_visible();
+-
+-	if (bvisibility && b_active == 0) {
+-		_DBG(" Go to Resume state\n");
+-		b_active = 1;
+-		__do_app(AE_RESUME, data, NULL);
+-
+-	} else if (!bvisibility && b_active == 1) {
+-		_DBG(" Go to Pasue state \n");
+-		b_active = 0;
+-		__do_app(AE_PAUSE, data, NULL);
+-	} else
+-		_DBG(" No change state \n");
+-
+ 	return ECORE_CALLBACK_RENEW;
+-
+ }
+ 
+ #ifdef X11
+@@ -776,35 +662,7 @@ static Eina_Bool __cmsg_cb(void *data, int type, void *event)
+ static void __add_climsg_cb(struct ui_priv *ui)
+ {
+ 	_ret_if(ui == NULL);
+-#ifdef WAYLAND
+-	ui->hshow =
+-	    ecore_event_handler_add(ECORE_WL_EVENT_WINDOW_ACTIVATE, __show_cb, ui);
+-	ui->hhide =
+-	    ecore_event_handler_add(ECORE_WL_EVENT_WINDOW_DEACTIVATE, __hide_cb, ui);
+-#else
+-	atom_parent = ecore_x_atom_get("_E_PARENT_BORDER_WINDOW");
+-	if (!atom_parent)
+-	{
+-		// Do Error Handling
+-	}
+-
+-	ui->hshow =
+-	    ecore_event_handler_add(ECORE_X_EVENT_WINDOW_SHOW, __show_cb, ui);
+-	ui->hhide =
+-	    ecore_event_handler_add(ECORE_X_EVENT_WINDOW_HIDE, __hide_cb, ui);
+-	ui->hvchange =
+-	    ecore_event_handler_add(ECORE_X_EVENT_WINDOW_VISIBILITY_CHANGE,
+-				    __visibility_cb, ui);
+ 
+-	/* Add client message callback for WM_ROTATE */
+-	if(!__check_wm_rotation_support())
+-	{
+-		ui->hcmsg =
+-			ecore_event_handler_add(ECORE_X_EVENT_CLIENT_MESSAGE, __cmsg_cb, ui);
+-		ui->wm_rot_supported = 1;
+-		appcore_set_wm_rotation(&wm_rotate);
+-	}
+-#endif
+ }
+ 
+ static int __before_loop(struct ui_priv *ui, int *argc, char ***argv)
+@@ -848,7 +706,7 @@ static int __before_loop(struct ui_priv *ui, int *argc, char ***argv)
+ 	r = appcore_init(ui->name, &efl_ops, *argc, *argv);
+ 	_retv_if(r == -1, -1);
+ 
+-	LOG(LOG_DEBUG, "LAUNCH", "[%s:Platform:appcore_init:done]", ui->name);
++	//LOG(LOG_DEBUG, "LAUNCH", "[%s:Platform:appcore_init:done]", ui->name);
+ 	if (ui->ops && ui->ops->create) {
+ 		r = ui->ops->create(ui->ops->data);
+ 		if (r == -1) {
+@@ -857,8 +715,8 @@ static int __before_loop(struct ui_priv *ui, int *argc, char ***argv)
+ 			errno = ECANCELED;
+ 			return -1;
+ 		}
+-		LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:create:done]",
+-		    ui->name);
++		//LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:create:done]",
++		//    ui->name);
+ 	}
+ 	ui->state = AS_CREATED;
+ 
+@@ -1014,7 +872,7 @@ EXPORT_API int appcore_efl_main(const char *name, int *argc, char ***argv,
+ {
+ 	int r;
+ 
+-	LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:main:done]", name);
++	//LOG(LOG_DEBUG, "LAUNCH", "[%s:Application:main:done]", name);
+ 
+ 	r = __set_data(&priv, name, ops);
+ 	_retv_if(r == -1, -1);
+diff --git a/appcore-common-wayland.pc.in b/appcore-common-wayland.pc.in
+index 1b9e47d..82df9b0 100644
+--- a/appcore-common-wayland.pc.in
++++ b/appcore-common-wayland.pc.in
+@@ -8,6 +8,6 @@ includedir=@INCLUDEDIR@
+ Name: app-core-common
+ Description: SAMSUNG Linux platform application library
+ Version: @VERSION@
+-Requires: sensor vconf aul dlog
++Requires: sensor vconf aul
+ Libs: -L${libdir} -lappcore-common
+ Cflags: -I${includedir} -I${includedir}/appcore
+diff --git a/appcore-common-x.pc.in b/appcore-common-x.pc.in
+index f9b1519..b51804b 100644
+--- a/appcore-common-x.pc.in
++++ b/appcore-common-x.pc.in
+@@ -8,6 +8,6 @@ includedir=@INCLUDEDIR@
+ Name: app-core-common
+ Description: SAMSUNG Linux platform application library
+ Version: @VERSION@
+-Requires: sensor vconf aul dlog x11
++Requires: sensor vconf aul x11
+ Libs: -L${libdir} -lappcore-common
+ Cflags: -I${includedir} -I${includedir}/appcore
+diff --git a/appcore-efl.pc.in b/appcore-efl.pc.in
+index 741428e..d6c2526 100644
+--- a/appcore-efl.pc.in
++++ b/appcore-efl.pc.in
+@@ -8,6 +8,6 @@ includedir=@INCLUDEDIR@
+ Name: app-core-efl
+ Description: SAMSUNG Linux platform efl application library
+ Version: @VERSION@
+-Requires: elementary appcore-common dlog
++Requires: elementary appcore-common
+ Libs: -L${libdir} -lappcore-efl
+ Cflags: -I${includedir} -I${includedir}/appcore

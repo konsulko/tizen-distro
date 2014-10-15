@@ -1,0 +1,25 @@
+diff --git a/include/common.h b/include/common.h
+index 07894d9..f7243fe 100644
+--- a/include/common.h
++++ b/include/common.h
+@@ -23,6 +23,7 @@
+ #define COMMON_H_
+ 
+ #include <stdio.h>
++#include <string.h>
+ #include <fts.h>
+ #include <stdbool.h>
+ #include <sys/smack.h>
+diff --git a/src/privilege-control.c b/src/privilege-control.c
+index 39cf437..4815262 100644
+--- a/src/privilege-control.c
++++ b/src/privilege-control.c
+@@ -38,6 +38,8 @@
+ #include <sys/smack.h>
+ #include <linux/capability.h>
+ #include <linux/xattr.h>
++#include <attr/xattr.h>
++#include <stdarg.h>
+ #include <sys/capability.h>
+ #include <sys/mman.h>
+ #include <stdbool.h>

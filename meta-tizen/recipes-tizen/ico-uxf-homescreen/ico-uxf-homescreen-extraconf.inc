@@ -22,6 +22,11 @@ do_compile_prepend()  {
  sed -i "s@-I/usr/include/ico-util@-I${PKG_CONFIG_SYSROOT_DIR}/usr/include/ico-util@g" ${S}/configure.ac
 }
 
+DEPENDS += "pkgmgr-native"
+DEPENDS += "ail-native"
+
+RDEPENDS_${PN} += "pkgmgr"
+RDEPENDS_${PN} += "ail"
 
 FILES_${PN} += "${datadir}/icons/default/small/org.tizen.ico.onscreen.png"
 FILES_${PN} += "${datadir}/icons/default/small/org.tizen.ico.homescreen.png"

@@ -1,0 +1,50 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5da7d7d..ba2216e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -13,7 +13,7 @@ set(PROJECT_RELEASE_VERSION "1")
+ set(CMAKE_VERBOSE_MAKEFILE OFF)
+ 
+ include(FindPkgConfig)
+-pkg_check_modules(rpkgs REQUIRED dlog)
++pkg_check_modules(rpkgs REQUIRED )
+ add_definitions(${rpkgs_CFLAGS})
+ 
+ add_definitions(-DPREFIX="${CMAKE_INSTALL_PREFIX}")
+diff --git a/src/common.cpp b/src/common.cpp
+index a047203..6a4ead9 100755
+--- a/src/common.cpp
++++ b/src/common.cpp
+@@ -30,7 +30,6 @@
+ #include <unistd.h>
+ #include <string.h>
+ #include <common.h>
+-#include <dlog.h>
+ #include <stdarg.h>
+ 
+ #ifndef EXTAPI
+@@ -80,24 +79,6 @@ EXTAPI void sf_log(int type , int priority , const char *tag , const char *fmt ,
+ 			
+ 			vsyslog(syslog_prio, fmt, ap);
+ 			break;
+-
+-		case SF_LOG_DLOG:
+-			if (tag) {
+-				switch (priority) {
+-					case SF_LOG_ERR:
+-						SLOG_VA(LOG_ERROR, tag ? tag : "NULL" , fmt ? fmt : "NULL" , ap);
+-						break;
+-
+-					case SF_LOG_DBG:
+-						SLOG_VA(LOG_DEBUG, tag ? tag : "NULL", fmt ? fmt : "NULL" , ap);
+-						break;
+-
+-					case SF_LOG_INFO:
+-						SLOG_VA(LOG_INFO, tag ? tag : "NULL" , fmt ? fmt : "NULL" , ap);
+-						break;
+-				}
+-			}
+-			break;
+ 	}
+ 
+ 	va_end(ap);

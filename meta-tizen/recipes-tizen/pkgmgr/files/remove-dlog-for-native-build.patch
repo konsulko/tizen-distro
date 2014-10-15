@@ -1,0 +1,213 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 96a28f1..471bb77 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -18,6 +18,8 @@ SET(LIBDIR ${LIB_INSTALL_DIR})
+ SET(INCLUDEDIR "\${prefix}/include")
+ 
+ 
++ADD_DEFINITIONS("-DNDEBUG")
++
+ set(CMAKE_SKIP_BUILD_RPATH true)
+ 
+ #Verbose
+@@ -28,16 +28,16 @@ INCLUDE(FindPkgConfig)
+ OPTION(X11_SUPPORT "Enable X support" ON)
+ IF(X11_SUPPORT)
+     ADD_DEFINITIONS("-DHAVE_X11")
+-    pkg_check_modules(pkgs REQUIRED security-server dlog elementary evas ecore appcore-efl ecore-x ail ecore-file pkgmgr-parser pkgmgr-info iniparser libtzplatform-config)
++    pkg_check_modules(pkgs REQUIRED security-server  elementary evas ecore appcore-efl ecore-x ail ecore-file pkgmgr-parser pkgmgr-info iniparser libtzplatform-config)
+ ELSE()
+-    pkg_check_modules(pkgs REQUIRED security-server dlog elementary evas ecore appcore-efl ecore-wayland ail ecore-file pkgmgr-parser pkgmgr-info iniparser libtzplatform-config)
++    pkg_check_modules(pkgs REQUIRED security-server  elementary evas ecore appcore-efl ail ecore-file pkgmgr-parser pkgmgr-info iniparser libtzplatform-config)
+ ENDIF(X11_SUPPORT)
+ 
+ FOREACH(flag ${pkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+ ENDFOREACH(flag)
+ 
+-pkg_check_modules(libpkgs REQUIRED dbus-glib-1 dlog ail pkgmgr-parser pkgmgr-info iniparser libtzplatform-config xdgmime)
++pkg_check_modules(libpkgs REQUIRED dbus-glib-1  ail pkgmgr-parser pkgmgr-info iniparser libtzplatform-config xdgmime)
+ 
+ FOREACH(flag ${libpkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+diff --git a/client/include/pkgmgr-debug.h b/client/include/pkgmgr-debug.h
+index 7ec0523..7599fd1 100644
+--- a/client/include/pkgmgr-debug.h
++++ b/client/include/pkgmgr-debug.h
+@@ -22,10 +22,14 @@
+ #ifndef __PKGMGR_DEBUG_H__
+ #define __PKGMGR_DEBUG_H__
+ 
+-#include <dlog.h>
+-
+-#define _LOGE(fmt, arg...) LOGE(fmt, ##arg)
+-#define _LOGD(fmt, arg...) LOGD(fmt, ##arg)
++//#include <dlog.h>
++#define NATIVEFAKELOG(fmt, ...) \
++       do\
++       {\
++               printf("\n [%s: %s(): %d] " fmt"\n",  rindex(__FILE__, '/')+1, __FUNCTION__, __LINE__, ##__VA_ARGS__);\
++       } while (0)
++#define _LOGE(fmt, arg...) NATIVEFAKELOG(fmt, ##arg)
++#define _LOGD(fmt, arg...) NATIVEFAKELOG(fmt, ##arg)
+ 
+ 
+ #define COLOR_RED              "\033[0;31m"
+@@ -35,25 +35,21 @@
+ #define PKGMGR_DEBUG(fmt, ...)\
+ 	do\
+ 	{\
+-		LOGD("[%s(): %d]" fmt, __FUNCTION__, __LINE__,##__VA_ARGS__);\
+ 	} while (0)
+ 
+ #define PKGMGR_DEBUG_ERR(fmt, ...)\
+ 	do\
+ 	{\
+-		LOGE(COLOR_RED"[%s(): %d]" fmt COLOR_END, __FUNCTION__, __LINE__,##__VA_ARGS__);\
+ 	}while (0)
+ 
+ #define PKGMGR_BEGIN() \
+ 	do\
+     {\
+-		LOGD(COLOR_BLUE"[%s(): %d] BEGIN >>>>"COLOR_END, __FUNCTION__ ,__LINE__);\
+     } while( 0 )
+ 
+ #define PKGMGR_END() \
+ 	do\
+     {\
+-		LOGD(COLOR_BLUE"[%s(): %d] END <<<<"COLOR_END, __FUNCTION__,__LINE__ );\
+     } \
+     while( 0 )
+ 
+diff --git a/comm/CMakeLists.txt b/comm/CMakeLists.txt
+index 7378df5..fd5a714 100755
+--- a/comm/CMakeLists.txt
++++ b/comm/CMakeLists.txt
+@@ -25,7 +25,7 @@ message(STATUS "version/major : ${VERSION} / ${VERSION_MAJOR}")
+ ### Get required CFLAGS, LDFLAGS from pkg-config
+ 
+ include(FindPkgConfig)
+-pkg_check_modules(comm_pkgs REQUIRED dbus-1 dbus-glib-1 dlog pkgmgr-info)
++pkg_check_modules(comm_pkgs REQUIRED dbus-1 dbus-glib-1 pkgmgr-info)
+ 
+ foreach(flag ${comm_pkgs_CFLAGS})
+ 	set(comm_pkgs_CFLAGS_str "${comm_pkgs_CFLAGS_str} ${flag}")
+diff --git a/comm/comm_config.h b/comm/comm_config.h
+index 6fa50a9..7570b93 100755
+--- a/comm/comm_config.h
++++ b/comm/comm_config.h
+@@ -36,7 +36,7 @@
+ #endif
+ 
+ /* Debug message macro */
+-#define USE_DLOG 1		/* Use dlog! */
++//#define USE_DLOG 1		/* Use dlog! */
+ 
+ #ifndef NDEBUG
+ #ifdef USE_DLOG
+@@ -54,14 +54,14 @@
+ #include <sys/types.h>
+ #include <unistd.h>
+ #define dbg(fmtstr, args...) \
+-	do {
++	do {\
+ 		fprintf(stdout, "[%d:comm]%s:%d:%s(): " \
+ 		fmtstr "\n", getpid(),\
+ 		basename(__FILE__), __LINE__, __func__, ##args);\
+ 	} while (0)
+ 
+ #define ERR(fmtstr, args...) \
+-	do {
++	do {\
+ 		fprintf(stderr, "[%d:comm]%s:%d:%s(): " \
+ 		fmtstr "\n", getpid(),\
+ 		basename(__FILE__), __LINE__, __func__, ##args);\
+@@ -69,6 +69,14 @@
+ #endif                         /* USE_DLOG */
+ #else
+ #define dbg(fmtstr, args...)
++#define NATIVEFAKELOG(fmt, ...) \
++       do\
++       {\
++               printf("\n [%s: %s(): %d] " fmt"\n",  rindex(__FILE__, '/')+1, __FUNCTION__, __LINE__, ##__VA_ARGS__);\
++       } while (0)
++#define ERR(fmt, arg...) NATIVEFAKELOG(fmt, ##arg)
++#define LOGD(fmt, arg...) NATIVEFAKELOG(fmt, ##arg)
++#define LOGE(fmt, arg...) NATIVEFAKELOG(fmt, ##arg)
+ #endif
+ 
+ /* from comm_pkg_mgr.xml
+diff --git a/comm/pkgmgr_installer.h b/comm/pkgmgr_installer.h
+index 661249b..126b893 100755
+--- a/comm/pkgmgr_installer.h
++++ b/comm/pkgmgr_installer.h
+@@ -40,7 +40,7 @@ extern "C" {
+ 
+ #include <stdlib.h>
+ #include <getopt.h>
+-#include <dlog.h>
++//#include <dlog.h>
+ 
+ 
+ 
+diff --git a/comm/test/CMakeLists.txt b/comm/test/CMakeLists.txt
+index 016aca7..48c547e 100755
+--- a/comm/test/CMakeLists.txt
++++ b/comm/test/CMakeLists.txt
+@@ -1,5 +1,5 @@
+ include(FindPkgConfig)
+-pkg_check_modules(test_pkgs REQUIRED dbus-glib-1 glib-2.0 dlog)
++pkg_check_modules(test_pkgs REQUIRED dbus-glib-1 glib-2.0 )
+ 
+ add_definitions(${test_pkgs_CFLAGS})
+ 
+diff --git a/installers/sample/CMakeLists.txt b/installers/sample/CMakeLists.txt
+index 162c8f4..6a027a1 100755
+--- a/installers/sample/CMakeLists.txt
++++ b/installers/sample/CMakeLists.txt
+@@ -1,5 +1,5 @@
+ include(FindPkgConfig)
+-pkg_check_modules(parser_pkgs REQUIRED dlog libxml-2.0)
++pkg_check_modules(parser_pkgs REQUIRED libxml-2.0)
+ 
+ foreach(flag ${parser_pkgs_CFLAGS})
+         set(parser_pkgs_CFLAGS_str "${parser_pkgs_CFLAGS_str} ${flag}")
+diff --git a/installers/sample/sample_parserlib.c b/installers/sample/sample_parserlib.c
+index 4eb175b..d017318 100755
+--- a/installers/sample/sample_parserlib.c
++++ b/installers/sample/sample_parserlib.c
+@@ -33,7 +33,7 @@
+ #include <libxml/xmlreader.h>
+ 
+ /* debug output */
+-#include <dlog.h>
++//#include <dlog.h>
+ #undef LOG_TAG
+ #define LOG_TAG "PKGMGR_PARSER"
+ 
+diff --git a/tool/CMakeLists.txt b/tool/CMakeLists.txt
+index 0eeb65b..f2f951b 100755
+--- a/tool/CMakeLists.txt
++++ b/tool/CMakeLists.txt
+@@ -17,7 +17,7 @@ FOREACH(flag ${pkgs_test_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+ ENDFOREACH(flag)
+ 
+-pkg_check_modules(toolpkgs REQUIRED appcore-efl dlog bundle glib-2.0 pkgmgr-parser vconf security-server pkgmgr-info libtzplatform-config)
++pkg_check_modules(toolpkgs REQUIRED appcore-efl bundle glib-2.0 pkgmgr-parser vconf security-server pkgmgr-info libtzplatform-config)
+ FOREACH(flag ${libpkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+ ENDFOREACH(flag)
+diff --git a/server/src/pkgmgr-server.c b/server/src/pkgmgr-server.c
+index 8865c2f..45a775f 100755
+--- a/server/src/pkgmgr-server.c
++++ b/server/src/pkgmgr-server.c
+@@ -59,6 +59,7 @@
+ 
+ /* debug output */
+ #if defined(NDEBUG)
++#define DBGE(fmt, args...)
+ #define DBG(fmt, args...)
+ #define __SET_DBG_OUTPUT(fp)
+ #elif defined(PRINT)

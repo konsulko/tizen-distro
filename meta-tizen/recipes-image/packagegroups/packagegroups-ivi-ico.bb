@@ -9,13 +9,12 @@ PACKAGES = "\
             "
 
 # ICO packages
-#
 RDEPENDS_packagegroup-tizen-ivi-ico = " \
                                         ico-uxf-device-input-controller \
                                         ico-uxf-homescreen \
+                                        ico-uxf-homescreen-sample-apps \
                                         ico-uxf-utilities \
                                         ico-uxf-weston-plugin \
                                         ico-vic-amb-plugin \
                                         ico-vic-carsimulator \
-                                        ico-uxf-homescreen-sample-apps \
                                         "

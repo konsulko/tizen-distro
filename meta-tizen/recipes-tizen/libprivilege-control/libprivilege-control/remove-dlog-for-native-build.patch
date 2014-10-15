@@ -1,0 +1,55 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e2d4439..51dd041 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -14,7 +14,7 @@ SET(VERSION "${VERSION_MAJOR}.0.2")
+ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
+ 
+ INCLUDE(FindPkgConfig)
+-pkg_check_modules(pkgs REQUIRED libsmack libiri dlog sqlite3 libtzplatform-config)
++pkg_check_modules(pkgs REQUIRED libsmack libiri sqlite3 libtzplatform-config)
+ 
+ FOREACH(flag ${pkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+@@ -25,7 +25,7 @@ ENDFOREACH(flag)
+ # will be expanded to empty instruction.
+ 
+ SET(CMAKE_C_FLAGS_CCOV    "--coverage")
+-SET(CMAKE_C_FLAGS_DEBUG   "-O0 -g -ggdb -DDLOG_DEBUG_ENABLED -DTIZEN_DEBUG_ENABLE")
++SET(CMAKE_C_FLAGS_DEBUG   "-O0 -g -ggdb  -DTIZEN_DEBUG_ENABLE")
+ SET(CMAKE_C_FLAGS_RELEASE "-O2 -g")
+ 
+ SET(src_dir "./src")
+@@ -39,8 +39,6 @@ ADD_DEFINITIONS("-DHOMEDIR=${HOMEDIR}")
+ ADD_DEFINITIONS("-DLIBDIR=\"${LIB_INSTALL_DIR}\"")
+ ADD_DEFINITIONS("-Wall -Werror -Wextra")
+ 
+-ADD_DEFINITIONS("-DDLOG_WARN_ENABLED")
+-ADD_DEFINITIONS("-DDLOG_ERROR_ENABLED")
+ 
+ ###################################################################################################
+ ## for libprivilege-control.so (library)
+diff --git a/include/common.h b/include/common.h
+index a0bc6ef..07894d9 100644
+--- a/include/common.h
++++ b/include/common.h
+@@ -23,7 +23,6 @@
+ #define COMMON_H_
+ 
+ #include <stdio.h>
+-#include <dlog.h>
+ #include <fts.h>
+ #include <stdbool.h>
+ #include <sys/smack.h>
+diff --git a/src/access-db.c b/src/access-db.c
+index de8bb1b..15123e2 100644
+--- a/src/access-db.c
++++ b/src/access-db.c
+@@ -25,7 +25,6 @@
+ #include <errno.h>
+ #include <string.h>
+ #include <sys/smack.h>
+-#include <dlog.h>
+ #include <ctype.h>
+ #include <tzplatform_config.h>
+ 

@@ -1,0 +1,71 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7b9f75d..216d778 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -18,14 +18,14 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src ${CMAKE_
+ 
+ ### Required packages
+ INCLUDE(FindPkgConfig)
+-pkg_check_modules(pkgs REQUIRED glib-2.0 dlog vconf sqlite3 db-util libxml-2.0 dbus-1 dbus-glib-1 libtzplatform-config libsmack)
++pkg_check_modules(pkgs REQUIRED glib-2.0 vconf sqlite3 db-util libxml-2.0 dbus-1 dbus-glib-1 libtzplatform-config libsmack)
+ 
+ FOREACH(flag ${pkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+ ENDFOREACH(flag)
+ 
+ 
+-pkg_check_modules(libpkgs REQUIRED glib-2.0 dlog vconf sqlite3 db-util libxml-2.0 dbus-1 dbus-glib-1 libtzplatform-config libsmack)
++pkg_check_modules(libpkgs REQUIRED glib-2.0 vconf sqlite3 db-util libxml-2.0 dbus-1 dbus-glib-1 libtzplatform-config libsmack)
+ 
+ FOREACH(flag ${libpkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+diff --git a/parser/CMakeLists.txt b/parser/CMakeLists.txt
+index 8904ecc..1968805 100755
+--- a/parser/CMakeLists.txt
++++ b/parser/CMakeLists.txt
+@@ -26,7 +26,7 @@ message(STATUS "version/major : ${VERSION} / ${VERSION_MAJOR}")
+ ### Get required CFLAGS, LDFLAGS from pkg-config
+ 
+ include(FindPkgConfig)
+-pkg_check_modules(parser_pkgs REQUIRED dlog libxml-2.0 glib-2.0 sqlite3 db-util vconf)
++pkg_check_modules(parser_pkgs REQUIRED libxml-2.0 glib-2.0 sqlite3 db-util vconf)
+ 
+ foreach(flag ${parser_pkgs_CFLAGS})
+ 	set(parser_pkgs_CFLAGS_str "${parser_pkgs_CFLAGS_str} ${flag}")
+diff --git a/include/pkgmgr-info-debug.h b/include/pkgmgr-info-debug.h
+index 061fc50..809c048 100644
+--- a/include/pkgmgr-info-debug.h
++++ b/include/pkgmgr-info-debug.h
+@@ -22,12 +22,14 @@
+ #ifndef __PKGMGR_INFO_DEBUG_H__
+ #define __PKGMGR_INFO_DEBUG_H__
+ 
+-#include <dlog.h>
+-
+-#define _LOGE(fmt, arg...) LOGE(fmt, ##arg)
+-#define _LOGD(fmt, arg...) LOGD(fmt, ##arg)
++#define NATIVEFAKELOG(fmt, ...) \
++	do\
++	{\
++		printf("\n [%s: %s(): %d] " fmt"\n",  rindex(__FILE__, '/')+1, __FUNCTION__, __LINE__, ##__VA_ARGS__);\
++	} while (0)
+ 
+-#define PKGMGR_INFO_ENABLE_DLOG
++#define _LOGE(fmt, arg...) NATIVEFAKELOG(fmt, ##arg)
++#define _LOGD(fmt, arg...) NATIVEFAKELOG(fmt, ##arg)
+ 
+ #define COLOR_RED 		"\033[0;31m"
+ #define COLOR_BLUE 		"\033[0;34m"
+@@ -60,6 +62,12 @@
+     while( 0 )
+ 
+ #else
++#define PKGMGR_INFO_DEBUG_ERR(fmt, ...)\
++	do\
++	{\
++		printf("\n [%s: %s(): %d] " fmt"\n",  rindex(__FILE__, '/')+1, __FUNCTION__, __LINE__, ##__VA_ARGS__);\
++	}while (0)
++
+ #define PKGMGR_INFO_DEBUG(fmt, ...) \
+ 	do\
+ 	{\

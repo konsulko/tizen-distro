@@ -1,0 +1,49 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 149d0a6..d77d931 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -21,10 +21,9 @@ MESSAGE("Build type: ${CMAKE_BUILD_TYPE}")
+ # Set required packages
+ INCLUDE(FindPkgConfig)
+ 
+-pkg_check_modules(pkgs REQUIRED dlog glib-2.0)
+-pkg_check_modules(libpkgs REQUIRED dlog glib-2.0)
++pkg_check_modules(pkgs REQUIRED glib-2.0)
++pkg_check_modules(libpkgs REQUIRED glib-2.0)
+ 
+-FIND_LIBRARY(LIB_DL NAMES dl libdl.so.2)
+ 
+ FOREACH(flag ${libpkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+@@ -79,7 +78,7 @@ add_library(${DAEMON_NAME} SHARED
+ 	src/ac_sock.c
+ 		)
+ 
+-target_link_libraries(${DAEMON_NAME} ${pkgs_LDFLAGS} ${LIB_DL})
++target_link_libraries(${DAEMON_NAME} ${pkgs_LDFLAGS} )
+ SET_TARGET_PROPERTIES(${DAEMON_NAME} PROPERTIES SOVERSION ${VERSION_MAJOR})
+ SET_TARGET_PROPERTIES(${DAEMON_NAME} PROPERTIES VERSION ${VERSION})
+ 
+diff --git a/include/internal.h b/include/internal.h
+index 731263d..9bdc438 100755
+--- a/include/internal.h
++++ b/include/internal.h
+@@ -25,7 +25,6 @@
+ 
+ #include <unistd.h>
+ #include <ctype.h>
+-#include <dlog.h>
+ 
+ #undef LOG_TAG
+ #define LOG_TAG "APP_CHECKER"
+@@ -39,8 +38,8 @@ struct ac_data {
+ 	int pid;
+ };
+ 
+-#define _E(fmt, arg...) LOGE(fmt,##arg)
+-#define _D(fmt, arg...) LOGD(fmt,##arg)
++#define _E(fmt, arg...) //LOGE(fmt,##arg)
++#define _D(fmt, arg...) //LOGD(fmt,##arg)
+ 
+ #define retvm_if(expr, val, fmt, arg...) do { \
+ 	if(expr) { \

@@ -5,5 +5,12 @@ do_prep_append() {
     sed -i 's@INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/feature/preexec_list.txt DESTINATION /usr/share/aul )@INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/feature/preexec_list.txt DESTINATION /usr/share/aul )@' ${S}/CMakeLists.txt
 }
 
-
+SRC_URI_append_class-native = " file://remove-dlog-for-native-build.patch"
 aul_files += "${prefix}/share/aul/mida_db.sql"
+
+RDEPENDS_${PN}_remove_class-native = "systemd-native"
+RDEPENDS_${PN}_remove_class-native = "eglibc-native"
+
+DEPENDS_remove_class-native = "dlog-native"
+
+EXTRA_OECMAKE+="-DCMAKE_AR:PATH=ar"

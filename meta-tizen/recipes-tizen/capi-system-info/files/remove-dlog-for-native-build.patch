@@ -1,0 +1,491 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 2cc7e4e..1381725 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -12,9 +12,9 @@ INCLUDE_DIRECTORIES(${INC_DIR})
+ 
+ IF(ENABLE_WAYLAND)
+     ADD_DEFINITIONS("-DWAYLAND_PLATFORM")
+-SET(requires "dlog capi-base-common iniparser libxml-2.0")
++SET(requires "capi-base-common iniparser libxml-2.0")
+ ELSE(ENABLE_WAYLAND)
+-SET(requires "dlog capi-base-common xi xrandr iniparser libxml-2.0")
++SET(requires "capi-base-common xi xrandr iniparser libxml-2.0")
+ ENDIF(ENABLE_WAYLAND)
+ SET(pc_requires "capi-base-common")
+ 
+diff --git a/src/system_info.c b/src/system_info.c
+index 491f5b5..507499e 100644
+--- a/src/system_info.c
++++ b/src/system_info.c
+@@ -20,7 +20,7 @@
+ #include <string.h>
+ #include <unistd.h>
+ 
+-#include <dlog.h>
++//#include <dlog.h>
+ 
+ #include <system_info.h>
+ #include <system_info_private.h>
+@@ -170,7 +170,7 @@ void __attribute__((constructor)) system_info_init(void)
+ 	ret = system_info_get_platform_string("tizen.org/system/model_name", &str);
+ 
+ 	if (ret != SYSTEM_INFO_ERROR_NONE) {
+-		LOGE("initialize error");
++		//LOGE("initialize error");
+ 		return;
+ 	}
+ 
+@@ -204,24 +204,24 @@ int system_info_get_value(system_info_key_e key, system_info_data_type_e data_ty
+ 	system_info_get_value_cb system_info_getter;
+ 
+ 	if (value == NULL) {
+-		LOGE("INVALID_PARAMETER(0x%08x) : invalid output param", SYSTEM_INFO_ERROR_INVALID_PARAMETER);
++		//LOGE("INVALID_PARAMETER(0x%08x) : invalid output param", SYSTEM_INFO_ERROR_INVALID_PARAMETER);
+ 		return SYSTEM_INFO_ERROR_INVALID_PARAMETER;
+ 	}
+ 
+ 	if (system_info_get(key, &system_info)) {
+-		LOGE("INVALID_PARAMETER(0x%08x) : invalid key", SYSTEM_INFO_ERROR_INVALID_PARAMETER);
++		//LOGE("INVALID_PARAMETER(0x%08x) : invalid key", SYSTEM_INFO_ERROR_INVALID_PARAMETER);
+ 		return SYSTEM_INFO_ERROR_INVALID_PARAMETER;
+ 	}
+ 
+ 	if (system_info->data_type != data_type) {
+-		LOGE("INVALID_PARAMETER(0x%08x) : invalid data type", SYSTEM_INFO_ERROR_INVALID_PARAMETER);
++		//LOGE("INVALID_PARAMETER(0x%08x) : invalid data type", SYSTEM_INFO_ERROR_INVALID_PARAMETER);
+ 		return SYSTEM_INFO_ERROR_INVALID_PARAMETER;
+ 	}
+ 
+ 	system_info_getter = system_info->get_value_cb;
+ 
+ 	if (system_info_getter == NULL) {
+-		LOGE("IO_ERROR(0x%08x) : failed to call getter for the system information", SYSTEM_INFO_ERROR_IO_ERROR);
++		//LOGE("IO_ERROR(0x%08x) : failed to call getter for the system information", SYSTEM_INFO_ERROR_IO_ERROR);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+@@ -257,13 +257,13 @@ API int system_info_get_platform_bool(const char *key, bool *value)
+ 	supported = (bool *)value;
+ 
+ 	if (access(CONFIG_FILE_PATH, R_OK)) {
+-		LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
++		//LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+ 	ret = system_info_get_value_from_config_xml(PLATFORM_TAG, key, BOOL_TYPE, &string);
+ 	if (ret) {
+-		LOGE("cannot get %s", key);
++		//LOGE("cannot get %s", key);
+ 		return ret;
+ 	}
+ 
+@@ -286,13 +286,13 @@ API int system_info_get_platform_int(const char *key, int *value)
+ 	ret_val = (int *)value;
+ 
+ 	if (access(CONFIG_FILE_PATH, R_OK)) {
+-		LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
++		//LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+ 	ret = system_info_get_value_from_config_xml(PLATFORM_TAG, key, INT_TYPE, &string);
+ 	if (ret) {
+-		LOGE("cannot get %s", key);
++		//LOGE("cannot get %s", key);
+ 		return ret;
+ 	}
+ 
+@@ -312,13 +312,13 @@ API int system_info_get_platform_double(const char *key, double *value)
+ 	ret_val = (double *)value;
+ 
+ 	if (access(CONFIG_FILE_PATH, R_OK)) {
+-		LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
++		//LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+ 	ret = system_info_get_value_from_config_xml(PLATFORM_TAG, key, DBL_TYPE, &string);
+ 	if (ret) {
+-		LOGE("cannot get %s", key);
++		//LOGE("cannot get %s", key);
+ 		return ret;
+ 	}
+ 
+@@ -335,13 +335,13 @@ API int system_info_get_platform_string(const char *key, char **value)
+ 	char *string = NULL;
+ 
+ 	if (access(CONFIG_FILE_PATH, R_OK)) {
+-		LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
++		//LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+ 	ret = system_info_get_value_from_config_xml(PLATFORM_TAG, key, STR_TYPE, &string);
+ 	if (ret) {
+-		LOGE("cannot get %s", key);
++		//LOGE("cannot get %s", key);
+ 		return ret;
+ 	}
+ 
+@@ -359,13 +359,13 @@ API int system_info_get_custom_bool(const char *key, bool *value)
+ 	supported = (bool *)value;
+ 
+ 	if (access(CONFIG_FILE_PATH, R_OK)) {
+-		LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
++		//LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+ 	ret = system_info_get_value_from_config_xml(CUSTOM_TAG, key, BOOL_TYPE, &string);
+ 	if (ret) {
+-		LOGI("cannot get %s", key);
++		//LOGI("cannot get %s", key);
+ 		*supported = false;
+ 		return SYSTEM_INFO_ERROR_NONE;
+ 	}
+@@ -389,13 +389,13 @@ API int system_info_get_custom_int(const char *key, int *value)
+ 	ret_val = (int *)value;
+ 
+ 	if (access(CONFIG_FILE_PATH, R_OK)) {
+-		LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
++		//LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+ 	ret = system_info_get_value_from_config_xml(CUSTOM_TAG, key, INT_TYPE, &string);
+ 	if (ret) {
+-		LOGI("cannot get %s", key);
++		//LOGI("cannot get %s", key);
+ 		*ret_val = 0;
+ 		return SYSTEM_INFO_ERROR_NONE;
+ 	}
+@@ -416,13 +416,13 @@ API int system_info_get_custom_double(const char *key, double *value)
+ 	ret_val = (double *)value;
+ 
+ 	if (access(CONFIG_FILE_PATH, R_OK)) {
+-		LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
++		//LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+ 	ret = system_info_get_value_from_config_xml(CUSTOM_TAG, key, DBL_TYPE, &string);
+ 	if (ret) {
+-		LOGI("cannot get %s", key);
++		//LOGI("cannot get %s", key);
+ 		*ret_val = 0;
+ 	return SYSTEM_INFO_ERROR_NONE;
+ }
+@@ -440,13 +440,13 @@ API int system_info_get_custom_string(const char *key, char **value)
+ 	char *string = NULL;
+ 
+ 	if (access(CONFIG_FILE_PATH, R_OK)) {
+-		LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
++		//LOGE("cannot find file %s!!!", CONFIG_FILE_PATH);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+ 	ret = system_info_get_value_from_config_xml(CUSTOM_TAG, key, STR_TYPE, &string);
+ 	if (ret) {
+-		LOGE("cannot get %s info from %s!!!", key, CONFIG_FILE_PATH);
++		//LOGE("cannot get %s info from %s!!!", key, CONFIG_FILE_PATH);
+ 		return ret;
+ 	}
+ 
+diff --git a/src/system_info_device.c b/src/system_info_device.c
+index 18752e4..2826c61 100644
+--- a/src/system_info_device.c
++++ b/src/system_info_device.c
+@@ -19,7 +19,7 @@
+ #include <string.h>
+ #include <unistd.h>
+ 
+-#include <dlog.h>
++//#include <dlog.h>
+ 
+ #include <system_info.h>
+ #include <system_info_private.h>
+@@ -38,7 +38,7 @@ int system_info_get_manufacturer(system_info_key_e key, system_info_data_type_e
+ 
+ 	manufacturer = strdup("samsung");
+ 	if (manufacturer == NULL) {
+-		LOGE("OUT_OF_MEMORY(0x%08x)", SYSTEM_INFO_ERROR_OUT_OF_MEMORY);
++		//LOGE("OUT_OF_MEMORY(0x%08x)", SYSTEM_INFO_ERROR_OUT_OF_MEMORY);
+ 		return SYSTEM_INFO_ERROR_OUT_OF_MEMORY;
+     }
+ 
+@@ -61,7 +61,7 @@ int system_info_get_tethering_supported(system_info_key_e key, system_info_data_
+ 	}
+ 
+ 	if (system_info_get_value_from_xml(TETHERING_INFO_FILE_PATH, model, "tethering-support", &string)) {
+-		LOGE("cannot get tethering-support info from %s!!!", TETHERING_INFO_FILE_PATH);
++		//LOGE("cannot get tethering-support info from %s!!!", TETHERING_INFO_FILE_PATH);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+diff --git a/src/system_info_parse.c b/src/system_info_parse.c
+index 0bc6b88..f3b412f 100644
+--- a/src/system_info_parse.c
++++ b/src/system_info_parse.c
+@@ -19,7 +19,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
+-#include <dlog.h>
++//#include <dlog.h>
+ 
+ #include <system_info.h>
+ #include <system_info_private.h>
+@@ -47,14 +47,14 @@ int system_info_ini_get_string(char *ini_file, char *key, char **output)
+ 	ini = iniparser_load(ini_file);
+ 
+ 	if (ini == NULL) {
+-		LOGE("cannot file open %s file!!!", ini_file);
++		//LOGE("cannot file open %s file!!!", ini_file);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+ 	str = iniparser_getstring(ini, key, NULL);
+ 
+ 	if (str == NULL) {
+-		LOGE("NOT found %s(0x%08x)", key, SYSTEM_INFO_ERROR_IO_ERROR);
++		//LOGE("NOT found %s(0x%08x)", key, SYSTEM_INFO_ERROR_IO_ERROR);
+ 		iniparser_freedict(ini);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+@@ -62,7 +62,7 @@ int system_info_ini_get_string(char *ini_file, char *key, char **output)
+ 	tmp = strdup(str);
+ 
+ 	if (tmp == NULL) {
+-		LOGE("OUT_OF_MEMORY(0x%08x)", SYSTEM_INFO_ERROR_OUT_OF_MEMORY);
++		//LOGE("OUT_OF_MEMORY(0x%08x)", SYSTEM_INFO_ERROR_OUT_OF_MEMORY);
+ 		iniparser_freedict(ini);
+ 		return SYSTEM_INFO_ERROR_OUT_OF_MEMORY;
+ 	}
+@@ -86,13 +86,13 @@ int system_info_get_value_from_xml(char *xml_file_path, char *model, char *id_fi
+ 	doc = xmlParseFile(xml_file_path);
+ 
+ 	if (doc == NULL) {
+-		LOGE("cannot file open %s file!!!", xml_file_path);
++		//LOGE("cannot file open %s file!!!", xml_file_path);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+ 	cur = xmlDocGetRootElement(doc);
+ 	if (cur == NULL) {
+-		LOGE("empty document %s file!!!", xml_file_path);
++		//LOGE("empty document %s file!!!", xml_file_path);
+ 		xmlFreeDoc(doc);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+@@ -103,7 +103,7 @@ int system_info_get_value_from_xml(char *xml_file_path, char *model, char *id_fi
+ 	}
+ 
+ 	if (cur == NULL) {
+-		LOGE("cannot find %s root element file!!!", "sys-info");
++		//LOGE("cannot find %s root element file!!!", "sys-info");
+ 		xmlFreeDoc(doc);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+@@ -137,7 +137,7 @@ int system_info_get_value_from_xml(char *xml_file_path, char *model, char *id_fi
+ 						free(string);
+ 						xmlFreeDoc(doc);
+ 						if (*value == NULL) {
+-								LOGE("OUT_OF_MEMORY(0x%08x)", SYSTEM_INFO_ERROR_OUT_OF_MEMORY);
++								//LOGE("OUT_OF_MEMORY(0x%08x)", SYSTEM_INFO_ERROR_OUT_OF_MEMORY);
+ 								xmlFreeDoc(doc);
+ 								return SYSTEM_INFO_ERROR_OUT_OF_MEMORY;
+ 						}
+@@ -170,7 +170,7 @@ int system_info_get_value_from_xml(char *xml_file_path, char *model, char *id_fi
+ 							free(string);
+ 						xmlFreeDoc(doc);
+ 						if (*value == NULL) {
+-								LOGE("OUT_OF_MEMORY(0x%08x)", SYSTEM_INFO_ERROR_OUT_OF_MEMORY);
++								//LOGE("OUT_OF_MEMORY(0x%08x)", SYSTEM_INFO_ERROR_OUT_OF_MEMORY);
+ 								xmlFreeDoc(doc);
+ 								return SYSTEM_INFO_ERROR_OUT_OF_MEMORY;
+ 						}
+@@ -183,7 +183,7 @@ int system_info_get_value_from_xml(char *xml_file_path, char *model, char *id_fi
+ 		}
+ 	}
+ 
+-		LOGE("cannot find %s field from %s file!!!", id_field, xml_file_path);
++		//LOGE("cannot find %s field from %s file!!!", id_field, xml_file_path);
+ 		xmlFreeDoc(doc);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+@@ -201,13 +201,13 @@ int system_info_get_value_from_config_xml(char *feature_tag, const char *name_fi
+ 	doc = xmlParseFile(CONFIG_FILE_PATH);
+ 
+ 	if (doc == NULL) {
+-		LOGE("cannot file open %s file!!!", CONFIG_FILE_PATH);
++		//LOGE("cannot file open %s file!!!", CONFIG_FILE_PATH);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+ 	cur = xmlDocGetRootElement(doc);
+ 	if (cur == NULL) {
+-		LOGE("empty document %s file!!!", CONFIG_FILE_PATH);
++		//LOGE("empty document %s file!!!", CONFIG_FILE_PATH);
+ 		xmlFreeDoc(doc);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+@@ -218,7 +218,7 @@ int system_info_get_value_from_config_xml(char *feature_tag, const char *name_fi
+ 	}
+ 
+ 	if (cur == NULL) {
+-		LOGE("cannot find %s root element file!!!", MODEL_CONFIG_TAG);
++		//LOGE("cannot find %s root element file!!!", MODEL_CONFIG_TAG);
+ 		xmlFreeDoc(doc);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+@@ -231,7 +231,7 @@ int system_info_get_value_from_config_xml(char *feature_tag, const char *name_fi
+ 	}
+ 
+ 	if (model_node == NULL) {
+-		LOGE("cannot find %s field from %s file!!!", name_field, CONFIG_FILE_PATH);
++		//LOGE("cannot find %s field from %s file!!!", name_field, CONFIG_FILE_PATH);
+ 		xmlFreeDoc(doc);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+@@ -247,7 +247,7 @@ int system_info_get_value_from_config_xml(char *feature_tag, const char *name_fi
+ 				if (!strncmp(name, name_field, strlen(name))) {
+ 					if (!strncmp(name, name_field, strlen(name_field))) {
+ 						if (strncmp(type, type_field, strlen(type_field))) {
+-							LOGE("INVALID_PARAMETER(0x%08x) : invalid output param", SYSTEM_INFO_ERROR_INVALID_PARAMETER);
++							//LOGE("INVALID_PARAMETER(0x%08x) : invalid output param", SYSTEM_INFO_ERROR_INVALID_PARAMETER);
+ 							free(name);
+ 							free(type);
+ 							xmlFreeDoc(doc);
+@@ -270,13 +270,13 @@ int system_info_get_value_from_config_xml(char *feature_tag, const char *name_fi
+ 	}
+ 
+ 	if (!cur_node) {
+-		LOGE("cannot find %s field from %s file!!!", name_field, CONFIG_FILE_PATH);
++		//LOGE("cannot find %s field from %s file!!!", name_field, CONFIG_FILE_PATH);
+ 		xmlFreeDoc(doc);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+ 	if (*value == NULL) {
+-		LOGE("OUT_OF_MEMORY(0x%08x)", SYSTEM_INFO_ERROR_OUT_OF_MEMORY);
++		//LOGE("OUT_OF_MEMORY(0x%08x)", SYSTEM_INFO_ERROR_OUT_OF_MEMORY);
+ 		xmlFreeDoc(doc);
+ 		return SYSTEM_INFO_ERROR_OUT_OF_MEMORY;
+ 	}
+diff --git a/src/system_info_platform.c b/src/system_info_platform.c
+index 405004f..82abf9c 100644
+--- a/src/system_info_platform.c
++++ b/src/system_info_platform.c
+@@ -20,7 +20,7 @@
+ #include <unistd.h>
+ #include <string.h>
+ 
+-#include <dlog.h>
++//#include <dlog.h>
+ 
+ #include <system_info.h>
+ #include <system_info_private.h>
+@@ -72,7 +72,7 @@ int system_info_get_core_cpu_arch(system_info_key_e key, system_info_data_type_e
+ 		CORE_CPU_ARCH = strdup("x86");
+ 
+ 		if (CORE_CPU_ARCH == NULL) {
+-		LOGE("Unknown cpu");
++		//LOGE("Unknown cpu");
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+@@ -92,7 +92,7 @@ int system_info_get_core_cpu_freq(system_info_key_e key, system_info_data_type_e
+ 	if (system_info_get_system_info_model_type() != SYSTEM_INFO_MODEL_TYPE_EMULATOR) {
+ 		cpuinfo_max_freq = fopen(CPU_INFO_MAX_FREQ_PATH, "r");
+ 		if (NULL == cpuinfo_max_freq) {
+-			LOGE("cannot file open %s file!!!", CPU_INFO_MAX_FREQ_PATH);
++			//LOGE("cannot file open %s file!!!", CPU_INFO_MAX_FREQ_PATH);
+ 			return SYSTEM_INFO_ERROR_IO_ERROR;
+ 		} else {
+ 			if (fscanf(cpuinfo_max_freq, "%lf", &max_freq) < 1) {
+@@ -106,7 +106,7 @@ int system_info_get_core_cpu_freq(system_info_key_e key, system_info_data_type_e
+ 		/* Emulator */
+ 		cpuinfo = fopen(CPU_INFO_FILE_PATH, "r");
+ 		if (NULL == cpuinfo) {
+-			LOGE("cannot file open %s file!!!", CPU_INFO_FILE_PATH);
++			//LOGE("cannot file open %s file!!!", CPU_INFO_FILE_PATH);
+ 			return SYSTEM_INFO_ERROR_IO_ERROR;
+ 		} else {
+ 			while (fgets(str, MAXBUFSIZE, cpuinfo)) {
+@@ -144,7 +144,7 @@ int system_info_get_tizen_version_name(system_info_key_e key, system_info_data_t
+ 
+ 	info = fopen(OS_RELEASE_FILE_PATH, "r");
+ 	if (NULL == info) {
+-		LOGE("cannot file open %s file!!!", OS_RELEASE_FILE_PATH);
++		//LOGE("cannot file open %s file!!!", OS_RELEASE_FILE_PATH);
+ 		return SYSTEM_INFO_ERROR_IO_ERROR;
+ 	}
+ 
+@@ -159,7 +159,7 @@ int system_info_get_tizen_version_name(system_info_key_e key, system_info_data_t
+ 
+ 			TIZEN_VERSION_NAME = strdup(tmpStr);
+ 			if (TIZEN_VERSION_NAME == NULL) {
+-				LOGE("OUT_OF_MEMORY(0x%08x)", SYSTEM_INFO_ERROR_OUT_OF_MEMORY);
++				//LOGE("OUT_OF_MEMORY(0x%08x)", SYSTEM_INFO_ERROR_OUT_OF_MEMORY);
+ 				fclose(info);
+ 				return SYSTEM_INFO_ERROR_OUT_OF_MEMORY;
+ 			}
+diff --git a/src/system_info_screen.c b/src/system_info_screen.c
+index 9af9f81..c9979d7 100644
+--- a/src/system_info_screen.c
++++ b/src/system_info_screen.c
+@@ -19,7 +19,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
+-#include <dlog.h>
++//#include <dlog.h>
+ 
+ #ifndef WAYLAND_PLATFORM
+ #include <X11/Xlib.h>
+@@ -68,14 +68,14 @@ int system_info_screen_init()
+ 	memset(&g_pinfo, 0x0, sizeof(ProgInfo));
+ 	#ifdef WAYLAND_PLATFORM
+ 	//In wayland environment, noting to do in this function, FIXME if necessary.
+-	LOGE("In wayland environment, system_info_screen_init Failed");
++	//LOGE("In wayland environment, system_info_screen_init Failed");
+ 	system_info_screen_initialized = 1;
+ 		return -1;
+ 	#else
+ 	int i;
+ 	g_pinfo.dpy = XOpenDisplay(NULL);
+ 	if (NULL == g_pinfo.dpy) {
+-		LOGE("XOpenDisplay Failed");
++		//LOGE("XOpenDisplay Failed");
+ 		return -1;
+ 	}
+ 
+@@ -85,7 +85,7 @@ int system_info_screen_init()
+ 
+ 	if (!XRRQueryExtension(g_pinfo.dpy, &g_pinfo.event_base, &g_pinfo.error_base) ||
+ 		!XRRQueryVersion(g_pinfo.dpy, &g_pinfo.major, &g_pinfo.minor)) {
+-		LOGE("XRRQuery Failed");
++		//LOGE("XRRQuery Failed");
+ 		XCloseDisplay(g_pinfo.dpy);
+ 		return -1;
+ 	}
+@@ -93,7 +93,7 @@ int system_info_screen_init()
+ 	g_pinfo.res = XRRGetScreenResources(g_pinfo.dpy, g_pinfo.root);
+ 
+ 	if (!g_pinfo.res) {
+-		LOGE("XRRGetScreenResources Failed");
++		//LOGE("XRRGetScreenResources Failed");
+ 		XCloseDisplay(g_pinfo.dpy);
+ 		return -1;
+ 	}
+@@ -101,7 +101,7 @@ int system_info_screen_init()
+ 	for (i = 0; i < g_pinfo.res->noutput; i++) {
+ 		XRROutputInfo *output_info = XRRGetOutputInfo(g_pinfo.dpy, g_pinfo.res, g_pinfo.res->outputs[i]);
+ 		if (!output_info) {
+-			LOGE("XRRGetOutputInfo Failed");
++			//LOGE("XRRGetOutputInfo Failed");
+ 			XCloseDisplay(g_pinfo.dpy);
+ 			return -1;
+ 		}

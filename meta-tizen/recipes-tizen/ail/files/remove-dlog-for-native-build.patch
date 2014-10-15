@@ -51,3 +51,15 @@ index e898c7e..e0dd903 100755
  
 
 
+diff --git a/ail.pc.in b/ail.pc.in
+index a267813..33cbc37 100644
+--- a/ail.pc.in
++++ b/ail.pc.in
+@@ -6,6 +6,6 @@ includedir=@INCLUDEDIR@
+ Name: ail
+ Description: Application Information Library
+ Version: @VERSION@
+-Requires: sqlite3 vconf dlog db-util
++Requires: sqlite3 vconf db-util
+ Libs: -L@LIBDIR@ -lail @PC_LIB@
+ Cflags: -I@INCLUDEDIR@

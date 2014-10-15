@@ -1,0 +1,965 @@
+diff --git a/capi/CMakeLists.txt b/capi/CMakeLists.txt
+index ee547f7..1c81906 100644
+--- a/capi/CMakeLists.txt
++++ b/capi/CMakeLists.txt
+@@ -16,7 +16,7 @@ INCLUDE_DIRECTORIES(${INC_DIR}
+ SET(pc_requires "capi-base-common")
+ 
+ INCLUDE(FindPkgConfig)
+-pkg_check_modules(${fw_name} REQUIRED capi-base-common dlog  glib-2.0)
++pkg_check_modules(${fw_name} REQUIRED capi-base-common  glib-2.0)
+ FOREACH(flag ${${fw_name}_CFLAGS})
+     SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+ ENDFOREACH(flag)
+diff --git a/capi/src/privacy_manager.c b/capi/src/privacy_manager.c
+index 8be76fe..14f23c9 100644
+--- a/capi/src/privacy_manager.c
++++ b/capi/src/privacy_manager.c
+@@ -22,14 +22,14 @@
+ #include <privacy_info_client.h>
+ #include <privacy_manager_client.h>
+ #include <privacy_manager_types_private.h>
+-#include <dlog.h>
++//#include <dlog.h>
+ 
+ 
+ static int _privacy_manager_convert_error(int error)
+ {
+ 	int ret = PRIV_MGR_ERROR_SUCCESS;
+ 
+-	LOGD("before error : %d", error);
++	//LOGD("before error : %d", error);
+ 
+ 	switch (error)
+ 	{
+@@ -55,7 +55,7 @@ static int _privacy_manager_convert_error(int error)
+ 		ret = PRIVACY_MANAGER_ERROR_IPC_FAILED;
+ 		break;
+ 	}
+-	LOGD("after error : %d", ret);
++	//LOGD("after error : %d", ret);
+ 	return ret;
+ }
+ 
+diff --git a/client/CMakeLists.txt b/client/CMakeLists.txt
+index 4a6f526..770a7f0 100644
+--- a/client/CMakeLists.txt
++++ b/client/CMakeLists.txt
+@@ -8,7 +8,7 @@ SET(LIBDIR ${LIB_INSTALL_DIR})
+ SET(INCLUDEDIR ${INCLUDE_INSTALL_DIR})
+ 
+ INCLUDE(FindPkgConfig)
+-pkg_check_modules(privacy-manager-client REQUIRED dlog sqlite3 dbus-1 dbus-glib-1 db-util pkgmgr-info libtzplatform-config)
++pkg_check_modules(privacy-manager-client REQUIRED sqlite3 dbus-1 dbus-glib-1 db-util pkgmgr-info libtzplatform-config)
+ 
+ FOREACH(flag ${pkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+@@ -35,7 +35,7 @@ SET(common_include_dir "${CMAKE_SOURCE_DIR}/common/inc/")
+ ## Additional flag
+ ADD_DEFINITIONS("-fvisibility=hidden")
+ ADD_DEFINITIONS("-Wall -Werror")
+-ADD_DEFINITIONS("-DDLOG_ERROR_ENABLED")
++
+ OPTION (FILTER_LISTED_PKG "FILTER PKG BY LIST" ON)
+ IF(FILTER_LISTED_PKG)
+     MESSAGE("FILTER PKGs BY FILTERING LIST")
+@@ -75,7 +75,6 @@ SET(PRIVACY_MANAGER_CLIENT_LDFLAGS " -module -avoid-version ")
+ SET(PRIVACY_MANAGER_CLIENT_CFLAGS  " ${CFLAGS} -fPIC ")
+ #SET(PRIVACY_MANAGER_CLIENT_LIBADD " ")
+ 
+-ADD_DEFINITIONS("-DLOG_TAG=\"PRIVACY-MANAGER-CLIENT\"")
+ ADD_LIBRARY(privacy-manager-client SHARED ${PRIVACY_MANAGER_CLIENT_SOURCES})
+ TARGET_LINK_LIBRARIES(privacy-manager-client ${pkgs_LDFLAGS} ${pkgs_LIBRARIES})
+ SET_TARGET_PROPERTIES(privacy-manager-client PROPERTIES COMPILE_FLAGS "${PRIVACY_MANAGER_CLIENT_CFLAGS}")
+diff --git a/client/inc/SocketClient.h b/client/inc/SocketClient.h
+index d2713b1..d2ca79a 100644
+--- a/client/inc/SocketClient.h
++++ b/client/inc/SocketClient.h
+@@ -19,7 +19,7 @@
+ 
+ #include <memory>
+ #include <string>
+-#include <dlog.h>
++//#include <dlog.h>
+ #include "SocketConnection.h"
+ 
+ /* IMPORTANT:
+diff --git a/client/src/PrivacyChecker.cpp b/client/src/PrivacyChecker.cpp
+index c856f85..2164795 100644
+--- a/client/src/PrivacyChecker.cpp
++++ b/client/src/PrivacyChecker.cpp
+@@ -21,7 +21,7 @@
+ #include <algorithm> 
+ #include <memory>
+ #include <Utils.h>
+-#include <dlog.h>
++//#include <dlog.h>
+ #include <sqlite3.h>
+ #include <dbus/dbus-glib-lowlevel.h>
+ #include <sys/types.h>
+@@ -81,7 +81,7 @@ void*
+ PrivacyChecker::runSignalListenerThread(void* pData)
+ {
+ 	pthread_detach(pthread_self());
+-	LOGI("Running g main loop for signal");
++	//LOGI("Running g main loop for signal");
+ 
+ 	initializeDbus();
+ 
+@@ -149,7 +149,7 @@ PrivacyChecker::handleNotification(DBusConnection* connection, DBusMessage* mess
+ 
+ 		if (std::string(pPkgId) == m_pkgId)
+ 		{
+-			LOGI("Current app pkg privacy information updated");
++			//LOGI("Current app pkg privacy information updated");
+ 			updateCache(m_pkgId, pPrivacyId, m_privacyCache);
+ 			//printCache();
+ 		}
+@@ -157,7 +157,7 @@ PrivacyChecker::handleNotification(DBusConnection* connection, DBusMessage* mess
+ 		std::map < std::string, std::map < std::string, bool > > :: iterator iter = m_privacyInfoCache.find(std::string(pPkgId));
+ 		if (iter != m_privacyInfoCache.end())
+ 		{
+-			LOGI("Current pkg privacy is in cache");
++			//LOGI("Current pkg privacy is in cache");
+ 			updateCache(std::string(pPkgId), pPrivacyId, iter->second);
+ 		}
+ 		
+@@ -197,12 +197,12 @@ PrivacyChecker::check(const std::string privacyId, std::map < std::string, bool
+ 	iter = privacyMap.find(privacyId);
+ 	if (iter == privacyMap.end() )
+ 	{
+-		LOGD("The application cannot access the privacy inforamtion.");
++		//LOGD("The application cannot access the privacy inforamtion.");
+ 		return PRIV_MGR_ERROR_USER_NOT_CONSENTED;
+ 	}
+ 	else if (!iter->second)
+ 	{
+-		LOGD("User does not consented to access the privacy information");
++		//LOGD("User does not consented to access the privacy information");
+ 		return PRIV_MGR_ERROR_USER_NOT_CONSENTED;
+ 	}
+ 
+@@ -310,7 +310,7 @@ PrivacyChecker::printCache(void)
+ 	std::map < std::string, bool >::const_iterator iter = m_privacyCache.begin();
+ 	for (; iter != m_privacyCache.end(); ++iter)
+ 	{
+-		LOGD(" %s : %d", iter->first.c_str(), iter->second);
++		//LOGD(" %s : %d", iter->first.c_str(), iter->second);
+ 	}
+ }
+ 
+@@ -331,7 +331,7 @@ PrivacyChecker::updateCache(const std::string pkgId, std::string privacyId, std:
+ 	{
+ 		bool privacyEnabled = sqlite3_column_int(pPrivacyStmt.get(), 0) > 0 ? true : false;
+ 
+-		SECURE_LOGD("Set result : %s : %d", privacyId.c_str(), privacyEnabled );
++		//SECURE_LOGD("Set result : %s : %d", privacyId.c_str(), privacyEnabled );
+ 		pkgCacheMap.erase(privacyId);
+ 		pkgCacheMap.insert(std::map < std::string, bool >::value_type(privacyId, privacyEnabled));
+ 	}
+@@ -358,7 +358,7 @@ PrivacyChecker::updateCache(std::string pkgId, std::map < std::string, bool >& p
+ 
+ 		pkgCacheMap.insert(std::map < std::string, bool >::value_type(std::string(privacyId), privacyEnabled));
+ 
+-		SECURE_LOGD("Privacy found : %s %d", privacyId, privacyEnabled);
++		//SECURE_LOGD("Privacy found : %s %d", privacyId, privacyEnabled);
+ 	}
+ 	return PRIV_MGR_ERROR_SUCCESS;
+ }
+diff --git a/client/src/privacy_manager_client.cpp b/client/src/privacy_manager_client.cpp
+index fc01694..6397d60 100644
+--- a/client/src/privacy_manager_client.cpp
++++ b/client/src/privacy_manager_client.cpp
+@@ -17,7 +17,7 @@
+ #include <string.h>
+ #include <string>
+ #include <memory>
+-#include <dlog.h>
++//#include <dlog.h>
+ #include <PrivacyManagerClient.h>
+ #include <PrivacyIdInfo.h>
+ #include <privacy_manager_client.h> 
+diff --git a/common/inc/SocketStream.h b/common/inc/SocketStream.h
+index 0788a9d..20bcd6e 100644
+--- a/common/inc/SocketStream.h
++++ b/common/inc/SocketStream.h
+@@ -28,7 +28,7 @@ public:
+ 		, m_bytesRead(0)
+ 		,m_bytesWrote(0)
+ 	{
+-		LOGI("Created");
++		//LOGI("Created");
+ 	}
+ 
+ 	int readStream(size_t num, void * bytes);
+diff --git a/common/src/PrivacyDb.cpp b/common/src/PrivacyDb.cpp
+index f577edd..da853de 100644
+--- a/common/src/PrivacyDb.cpp
++++ b/common/src/PrivacyDb.cpp
+@@ -16,7 +16,8 @@
+ 
+ #include <sstream>
+ #include <fstream>
+-#include <dlog.h>
++//#include <dlog.h>
++#include <string.h>
+ #include <Utils.h>
+ #include <PrivacyDb.h>
+ #include <PrivacyManagerTypes.h>
+@@ -101,12 +101,12 @@ PrivacyDb::getPrivacyAppPackages(std::list <std::string>& list) const
+ 	{
+ 		const char* pValue =  reinterpret_cast < const char* > (sqlite3_column_text(pStmt.get(), 0));
+ 
+-		SECURE_LOGD("PkgId found : %s ", pValue);
++		//SECURE_LOGD("PkgId found : %s ", pValue);
+ 		std::string pkgId = std::string(pValue);
+ 
+ 		if (isFilteredPackage(pkgId))
+ 		{
+-			SECURE_LOGD("%s is Filtered", pValue);
++			//SECURE_LOGD("%s is Filtered", pValue);
+ 			continue;
+ 		}
+ 		list.push_back(std::string(pValue));
+@@ -133,7 +133,7 @@ PrivacyDb::getAppPackagePrivacyInfo(const std::string pkgId, std::list < std::pa
+ 
+ 		privacyInfoList.push_back( std::pair <std::string, bool> (std::string(privacyId), privacyEnabled) );
+ 
+-		SECURE_LOGD("Privacy found : %s %d", privacyId, privacyEnabled);
++		//SECURE_LOGD("Privacy found : %s %d", privacyId, privacyEnabled);
+ 	}
+ 
+ 	return 0;
+@@ -160,7 +160,7 @@ PrivacyDb::addAppPackagePrivacyInfo(const std::string pkgId, const std::list < s
+ 	
+ 	for ( std::list <std::string>::const_iterator iter = privilegeList.begin(); iter != privilegeList.end(); ++iter)
+ 	{
+-		SECURE_LOGD("install privacy: %s", iter->c_str());
++		//SECURE_LOGD("install privacy: %s", iter->c_str());
+ 		prepareDb(pDbHandler, privacyQuery.c_str(), pPrivacyStmt);
+ 		
+ 		res = sqlite3_bind_text(pPrivacyStmt.get(), 1, pkgId.c_str(), -1, SQLITE_TRANSIENT);
+@@ -219,7 +219,7 @@ PrivacyDb::isUserPrompted(const std::string pkgId, bool& isPrompted) const
+ 
+ 	if (isFilteredPackage(pkgId))
+ 	{
+-		SECURE_LOGD("%s is Filtered", pkgId.c_str());
++		//SECURE_LOGD("%s is Filtered", pkgId.c_str());
+ 		return 0;
+ 	}
+ 
+@@ -237,7 +237,7 @@ PrivacyDb::isUserPrompted(const std::string pkgId, bool& isPrompted) const
+ 	}
+ 	else
+ 	{
+-		SECURE_LOGE("The package[%s] can not access privacy", pkgId.c_str());
++		//SECURE_LOGE("The package[%s] can not access privacy", pkgId.c_str());
+ 		return PRIV_MGR_ERROR_SUCCESS;
+ 	}
+ 
+@@ -274,7 +274,7 @@ PrivacyDb::getAppPackagesbyPrivacyId(std::string privacyId, std::list < std::pai
+ 	openDb(PRIVACY_DB_PATH, pDbHandler, SQLITE_OPEN_READWRITE);
+ 	prepareDb(pDbHandler, sql.c_str(), pStmt);
+ 
+-	SECURE_LOGD("privacy id : %s", privacyId.c_str());
++	//SECURE_LOGD("privacy id : %s", privacyId.c_str());
+ 	int res = sqlite3_bind_text(pStmt.get(), 1, privacyId.c_str(), -1, SQLITE_TRANSIENT);
+ 	TryReturn( res == SQLITE_OK, PRIV_MGR_ERROR_DB_ERROR, , "sqlite3_bind_text : %d", res);
+ 
+@@ -286,7 +286,7 @@ PrivacyDb::getAppPackagesbyPrivacyId(std::string privacyId, std::list < std::pai
+         std::string pkgId = std::string(pPkgId);
+ 		if (isFilteredPackage(pkgId))
+ 		{
+-			SECURE_LOGD("%s is Filtered", pPkgId);
++			//SECURE_LOGD("%s is Filtered", pPkgId);
+ 			continue;
+ 		}
+ 
+@@ -300,7 +300,7 @@ PrivacyDb::PrivacyDb(void)
+ {
+ 
+ #ifdef __FILTER_LISTED_PKG
+-    SECURE_LOGD("Construct with filter list");
++    //SECURE_LOGD("Construct with filter list");
+     std::ifstream inFile;
+     inFile.open(PRIVACY_FILTER_LIST_FILE);
+     TryReturn(inFile.is_open(), , , "Cannot find %s file.", PRIVACY_FILTER_LIST_FILE.c_str());
+@@ -312,13 +312,13 @@ PrivacyDb::PrivacyDb(void)
+             continue;
+         if (strncmp(FILTER_KEY.c_str(), inputLine, FILTER_KEY.length()) != 0)
+         {
+-            SECURE_LOGD("Invalid Key[%s]", inputLine);
++            //SECURE_LOGD("Invalid Key[%s]", inputLine);
+             continue;
+         }
+         std::string pkgId = std::string(inputLine).substr(FILTER_KEY.length() + 1);
+         if (!pkgId.empty())
+             m_filteredPkgList.insert ( std::pair < std::string, bool > (pkgId, true) );
+-        SECURE_LOGD("Filter PKG: %s", pkgId.c_str());
++        //SECURE_LOGD("Filter PKG: %s", pkgId.c_str());
+     }
+ #endif
+ 
+diff --git a/common/src/PrivacyIdInfo.cpp b/common/src/PrivacyIdInfo.cpp
+index ba651d8..94a4369 100644
+--- a/common/src/PrivacyIdInfo.cpp
++++ b/common/src/PrivacyIdInfo.cpp
+@@ -17,7 +17,7 @@
+ #include <PrivacyIdInfo.h>
+ #include <privacy_manager_client_types.h>
+ #include <PrivacyManagerTypes.h>
+-#include <dlog.h>
++//#include <dlog.h>
+ #include <set>
+ #include <Utils.h>
+ #include <libintl.h>
+@@ -45,7 +45,7 @@ PrivacyIdInfo::initialize(void)
+ 		res = sqlite3_bind_text(pStmtPrivacyInfo.get(), 1, privacyId, -1, SQLITE_TRANSIENT);
+ 		TryReturn(res == SQLITE_OK, PRIV_MGR_ERROR_DB_ERROR, , "sqlite3_bind_text : %d", res);
+ 		res = sqlite3_step(pStmtPrivacyInfo.get());
+-		LOGD("privacy id : %s", privacyId);
++		//LOGD("privacy id : %s", privacyId);
+ 		TryReturn(res == SQLITE_DONE || res == SQLITE_ROW, PRIV_MGR_ERROR_DB_ERROR, , "sqlite3_step : %d", res);
+ 
+ 		const char* feature =  reinterpret_cast < const char* > (sqlite3_column_text(pStmtPrivacyInfo.get(), 0));
+@@ -107,7 +107,7 @@ PrivacyIdInfo::getPrivilegeListFromPrivacyId(const std::string privacyId, std::l
+ 
+ 	if (privilegeList.size() == 0)
+ 	{
+-		LOGE("PrivilegeList of %s privacy is empty!", privacyId.c_str());
++		//LOGE("PrivilegeList of %s privacy is empty!", privacyId.c_str());
+ 		return PRIV_MGR_ERROR_NO_DATA;
+ 	}
+ 
+@@ -162,7 +162,7 @@ PrivacyIdInfo::getAllPrivacyId(std::list< std::string >& privacyIdList)
+ 	{
+ 		const char* privacyId = reinterpret_cast < const char* > (sqlite3_column_text(pStmt.get(), 0));
+ 		const char* feature = reinterpret_cast < const char* > (sqlite3_column_text(pStmt.get(), 1));
+-		LOGD("privacy: %s, feature: %s", privacyId, feature);
++		//LOGD("privacy: %s, feature: %s", privacyId, feature);
+ 
+ 		if  (feature != NULL)
+ 		{
+@@ -176,7 +176,7 @@ PrivacyIdInfo::getAllPrivacyId(std::list< std::string >& privacyIdList)
+ 		}
+ 
+ 		privacyIdList.push_back(std::string(privacyId));
+-		SECURE_LOGD(" privacy Id : %s", privacyId);
++		//SECURE_LOGD(" privacy Id : %s", privacyId);
+ 	}
+ 
+ 	return PRIV_MGR_ERROR_SUCCESS;
+@@ -214,7 +214,7 @@ PrivacyIdInfo::getPrivaycDisplayName(const std::string privacyId, std::string& d
+ 	}
+ 	else
+ 	{
+-		LOGI("Cannot find privacy string %s ", privacyId.c_str());
++		////LOGI("Cannot find privacy string %s ", privacyId.c_str());
+ 		return PRIV_MGR_ERROR_NO_DATA;
+ 	}
+ 
+@@ -246,7 +246,7 @@ PrivacyIdInfo::getPrivaycDescription(const std::string privacyId, std::string& d
+ 	}
+ 	else
+ 	{
+-		LOGI("Cannot find privacy string %s ", privacyId.c_str());
++		////LOGI("Cannot find privacy string %s ", privacyId.c_str());
+ 		return PRIV_MGR_ERROR_NO_DATA;
+ 	}
+ 
+diff --git a/common/src/SocketStream.cpp b/common/src/SocketStream.cpp
+index 4337c3e..e72515c 100644
+--- a/common/src/SocketStream.cpp
++++ b/common/src/SocketStream.cpp
+@@ -20,7 +20,7 @@
+ #include <errno.h>
+ #include <cstring>
+ #include <unistd.h>
+-#include <dlog.h>
++//#include <dlog.h>
+ #include <Utils.h>
+ #include "SocketStream.h"
+ 
+@@ -33,7 +33,7 @@
+ int
+ SocketStream::throwWithErrnoMessage(std::string function_name)
+ {
+-	LOGE("%s : %s", function_name.c_str(), strerror(errno));
++	//LOGE("%s : %s", function_name.c_str(), strerror(errno));
+ 	return errno;
+ }
+ 
+@@ -74,7 +74,7 @@ SocketStream::readStream(size_t num, void* pBytes)
+ 		{
+ 			if (errno == EINTR)
+ 				continue;
+-			LOGD("pselect : %s", strerror(errno));
++			//LOGD("pselect : %s", strerror(errno));
+ 			return -1;
+ 		}
+ 		//This means pselect got timedout
+@@ -89,11 +89,11 @@ SocketStream::readStream(size_t num, void* pBytes)
+ 			{
+ 				if(errno == ECONNRESET || errno == ENOTCONN || errno == ETIMEDOUT)
+ 				{
+-					LOGI("Connection closed : %s", strerror(errno));
++					//LOGI("Connection closed : %s", strerror(errno));
+ 					return -1;
+ 				}
+ 				else if (errno != EAGAIN && errno != EWOULDBLOCK){
+-					LOGI("read()");
++					//LOGI("read()");
+ 					return -1;
+ 				}
+ 			}
+@@ -145,7 +145,7 @@ SocketStream::writeStream(size_t num, const void* pBytes)
+ 		{
+ 			if(errno == EINTR)
+ 				continue;
+-			LOGD("pselect : %s", strerror(errno));
++			//LOGD("pselect : %s", strerror(errno));
+ 			return -1;
+ 		}
+ 
+@@ -155,13 +155,13 @@ SocketStream::writeStream(size_t num, const void* pBytes)
+ 			{
+ 				if(errno == ECONNRESET || errno == EPIPE)
+ 				{
+-					LOGI("Connection closed : %s", strerror(errno));
++					//LOGI("Connection closed : %s", strerror(errno));
+ 					return -1;
+ 
+ 				}
+ 				else if(errno != EAGAIN && errno != EWOULDBLOCK)
+ 				{
+-					LOGE("write()");
++					//LOGE("write()");
+ 					return -1;
+ 				}
+ 			}
+diff --git a/pkgmgr_plugin/privileges.cpp b/pkgmgr_plugin/privileges.cpp
+index 1e6d61d..5eaad41 100644
+--- a/pkgmgr_plugin/privileges.cpp
++++ b/pkgmgr_plugin/privileges.cpp
+@@ -19,7 +19,8 @@
+ #include <libxml/parser.h>
+ #include <libxml/tree.h>
+ #include <privacy_manager_client.h>
+-#include <dlog.h>
++//#include <dlog.h>
++#include <string.h>
+ #include <list>
+ #include <string>
+ 
+@@ -49,7 +49,7 @@ int PKGMGR_PARSER_PLUGIN_INSTALL(xmlDocPtr docPtr, const char* packageId)
+ 	curPtr = curPtr->xmlChildrenNode;
+ 	if (curPtr == NULL)
+ 	{
+-		LOGD("No privileges");
++		//LOGD("No privileges");
+ 		return 0;
+ 	}
+ 
+@@ -62,7 +62,7 @@ int PKGMGR_PARSER_PLUGIN_INSTALL(xmlDocPtr docPtr, const char* packageId)
+             
+ 			if (pPrivilege == NULL)
+ 			{
+-				LOGE("Failed to get value");
++				//LOGE("Failed to get value");
+ 				return -EINVAL;
+ 			}
+             else 
+@@ -98,7 +98,7 @@ int PKGMGR_PARSER_PLUGIN_INSTALL(xmlDocPtr docPtr, const char* packageId)
+ 	destroy_char_list(ppPrivilegeList, privilegeList.size() + 1);
+ 	if (ret != PRIV_MGR_ERROR_SUCCESS)
+ 	{
+-		LOGD("Failed to install privacy info: %d", ret);
++		//LOGD("Failed to install privacy info: %d", ret);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -112,12 +112,12 @@ int PKGMGR_PARSER_PLUGIN_UNINSTALL(xmlDocPtr docPtr, const char* packageId)
+ 	int res = privacy_manager_client_uninstall_privacy_by_server(packageId);
+ 	if (res != PRIV_MGR_ERROR_SUCCESS)
+ 	{
+-		LOGD("Failed to uninstall privacy info in server: %d", res);
++		//LOGD("Failed to uninstall privacy info in server: %d", res);
+ 		
+ 		res = privacy_manager_client_uninstall_privacy(packageId);
+ 		if (res != PRIV_MGR_ERROR_SUCCESS)
+ 		{
+-			LOGD("Failed to uninstall privacy info: %d", res);
++			//LOGD("Failed to uninstall privacy info: %d", res);
+ 			return -EINVAL;
+ 		}
+ 	}
+@@ -131,18 +131,18 @@ int PKGMGR_PARSER_PLUGIN_UPGRADE(xmlDocPtr docPtr, const char* packageId)
+ {
+ 	int res = 0;
+     
+-    LOGD("Update privacy Info");
++    //LOGD("Update privacy Info");
+ 
+ 	res = PKGMGR_PARSER_PLUGIN_UNINSTALL(docPtr, packageId);
+ 	if (res != 0)
+ 	{
+-		LOGD("Privacy info can be already uninstalled");
++		//LOGD("Privacy info can be already uninstalled");
+ 	}
+ 
+ 	res = PKGMGR_PARSER_PLUGIN_INSTALL(docPtr, packageId);
+ 	if (res != 0)
+ 	{
+-		LOGD("Failed to install privacy Info: %d", res);
++		//LOGD("Failed to install privacy Info: %d", res);
+ 	}
+ 	return res;
+ }
+diff --git a/server/CMakeLists.txt b/server/CMakeLists.txt
+index ec51d1a..945fe14 100644
+--- a/server/CMakeLists.txt
++++ b/server/CMakeLists.txt
+@@ -7,7 +7,7 @@ SET(EXEC_PREFIX "\${prefix}")
+ SET(INCLUDEDIR "\${prefix}/include")
+ 
+ INCLUDE(FindPkgConfig)
+-pkg_check_modules(pkgs REQUIRED dlog sqlite3 dbus-1 dbus-glib-1 db-util pkgmgr-info capi-system-info libtzplatform-config)
++pkg_check_modules(pkgs REQUIRED sqlite3 dbus-1 dbus-glib-1 db-util pkgmgr-info capi-system-info libtzplatform-config)
+ 
+ FOREACH(flag ${pkgs_CFLAGS})
+ 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+@@ -70,7 +69,6 @@ SET(PRIVACY_MANAGER_SERVER_LDFLAGS " -module -avoid-version ")
+ SET(PRIVACY_MANAGER_SERVER_CFLAGS  " ${CFLAGS} -fPIC ")
+ #SET(PRIVACY_MANAGER_SERVER_LIBADD " ")
+ 
+-ADD_DEFINITIONS("-DLOG_TAG=\"PRIVACY-MANAGER-SERVER\"")
+ ADD_LIBRARY(privacy-manager-server SHARED ${PRIVACY_MANAGER_SERVER_SOURCES})
+ TARGET_LINK_LIBRARIES(privacy-manager-server ${pkgs_LDFLAGS} ${pkgs_LIBRARIES})
+ SET_TARGET_PROPERTIES(privacy-manager-server PROPERTIES COMPILE_FLAGS "${PRIVACY_MANAGER_SERVER_CFLAGS}")
+diff --git a/server/src/PrivacyManagerServer.cpp b/server/src/PrivacyManagerServer.cpp
+index b1b50f2..4ca68e8 100644
+--- a/server/src/PrivacyManagerServer.cpp
++++ b/server/src/PrivacyManagerServer.cpp
+@@ -15,7 +15,7 @@
+  */
+ 
+ #include <sstream>
+-#include <dlog.h>
++//#include <dlog.h>
+ #include <Utils.h>
+ #include <PrivacyManagerServer.h>
+ #include <PrivacyManagerTypes.h>
+diff --git a/server/src/SocketService.cpp b/server/src/SocketService.cpp
+index 296525e..93951d1 100644
+--- a/server/src/SocketService.cpp
++++ b/server/src/SocketService.cpp
+@@ -25,7 +25,7 @@
+ #include <unistd.h>
+ #include <fcntl.h>
+ #include <memory>
+-#include <dlog.h>
++//#include <dlog.h>
+ #include <PrivacyManagerTypes.h>
+ #include <Utils.h>
+ #include "SocketService.h"
+@@ -49,7 +49,7 @@ SocketService::~SocketService(void)
+ int
+ SocketService::initialize(void)
+ {
+-	LOGI("SocketService initializing");
++	//LOGI("SocketService initializing");
+ 
+ 	m_listenFd = socket(AF_UNIX, SOCK_STREAM, 0);
+ 	TryReturn( m_listenFd != -1, PRIV_MGR_ERROR_SYSTEM_ERROR, , "socket : %s", strerror(errno));
+@@ -76,7 +76,7 @@ SocketService::initialize(void)
+ 
+ 	umask(original_umask);
+ 
+-	LOGI("SocketService initialized");
++	//LOGI("SocketService initialized");
+ 
+ 	return PRIV_MGR_ERROR_SUCCESS;
+ }
+@@ -84,13 +84,13 @@ SocketService::initialize(void)
+ int
+ SocketService::start(void)
+ {
+-	LOGI("SocketService starting");
++	//LOGI("SocketService starting");
+ 
+ 	sigset_t sigset;
+ 	sigemptyset(&sigset);
+ //	if ( sigaddset(&sigset, m_signalToClose) == -1 )
+ //	{
+-//		LOGE("Failed to sigaddset : %s", strerror(errno));
++//		//LOGE("Failed to sigaddset : %s", strerror(errno));
+ //		return -1;
+ //	}
+ 
+@@ -104,7 +104,7 @@ SocketService::start(void)
+ 
+ 	m_mainThread = mainThread;
+ 
+-	LOGI("SocketService started");
++	//LOGI("SocketService started");
+ 
+ 	return PRIV_MGR_ERROR_SUCCESS;
+ }
+@@ -114,7 +114,7 @@ SocketService::serverThread(void* pData)
+ {
+ 	pthread_detach(pthread_self());
+ 	SocketService &t = *static_cast< SocketService* > (pData);
+-	LOGI("Running main thread");
++	//LOGI("Running main thread");
+ 	int ret = t.mainloop();
+ 	if (ret < 0)
+ 	{
+@@ -127,7 +127,7 @@ int
+ SocketService::mainloop(void)
+ {
+ 	if( listen(m_listenFd, MAX_LISTEN) == -1 ){
+-		LOGE("listen : %s", strerror(errno));
++		//LOGE("listen : %s", strerror(errno));
+ 		return PRIV_MGR_ERROR_IPC_ERROR;
+ 	}
+ 
+@@ -139,7 +139,7 @@ SocketService::mainloop(void)
+ 	TryReturn( res != -1, PRIV_MGR_ERROR_SYSTEM_ERROR, , "sigemptyset : %s", strerror(errno));
+ 
+ //	if( sigaddset(&sigset, m_signalToClose) == -1) {
+-//		LOGE("sigaddset : %s", strerror(errno));
++//		//LOGE("sigaddset : %s", strerror(errno));
+ //		return -1;
+ //	}
+ 	signal_fd = signalfd(-1, &sigset, 0);
+@@ -167,13 +167,13 @@ SocketService::mainloop(void)
+ 		if(pselect(maxfd, &rset, NULL, NULL, NULL, NULL) == -1)
+ 		{
+ 			closeConnections();
+-			LOGE("pselect()");
++			//LOGE("pselect()");
+ 			return PRIV_MGR_ERROR_SYSTEM_ERROR;
+ 		}
+ 
+ 		if(FD_ISSET(signal_fd, &rset))
+ 		{
+-			LOGI("Got signal to close");
++			//LOGI("Got signal to close");
+ 			signalfd_siginfo siginfo;
+ 			ssize_t res;
+ 			res = read(signal_fd, &siginfo, sizeof(siginfo));
+@@ -182,13 +182,13 @@ SocketService::mainloop(void)
+ 
+ 			if((int)siginfo.ssi_signo == m_signalToClose)
+ 			{
+-				LOGI("Server thread got signal to close");
++				//LOGI("Server thread got signal to close");
+ 				closeConnections();
+ 				return PRIV_MGR_ERROR_SUCCESS;
+ 			}
+ 			else
+ 			{
+-				LOGI("Got not handled signal");
++				//LOGI("Got not handled signal");
+ 			}
+ 		}
+ 		if(FD_ISSET(m_listenFd, &rset))
+@@ -197,7 +197,7 @@ SocketService::mainloop(void)
+ 			clientFd = accept(m_listenFd, NULL, NULL);
+ 			TryReturn( clientFd != -1, PRIV_MGR_ERROR_IPC_ERROR, closeConnections();, "accept : %s", strerror(errno));
+ 
+-			LOGI("Got incoming connection");
++			//LOGI("Got incoming connection");
+ 			ConnectionInfo * connection = new ConnectionInfo(clientFd, (void *)this);
+ 			int res;
+ 			pthread_t client_thread;
+@@ -206,7 +206,7 @@ SocketService::mainloop(void)
+ 				delete connection;
+ 				errno = res;
+ 				closeConnections();
+-				LOGE("pthread_create()");
++				//LOGE("pthread_create()");
+ 				return PRIV_MGR_ERROR_SYSTEM_ERROR;
+ 			}
+ 			addClientSocket(clientFd);
+@@ -220,16 +220,16 @@ SocketService::connectionThread(void* pData)
+ 	pthread_detach(pthread_self());
+ 	std::unique_ptr<ConnectionInfo> connectionInfo (static_cast<ConnectionInfo *>(pData));
+ 	SocketService &t = *static_cast<SocketService *>(connectionInfo->pData);
+-	LOGI("Starting connection thread");
++	//LOGI("Starting connection thread");
+ 	int ret = t.connectionService(connectionInfo->connFd);
+ 	if (ret < 0)
+ 	{
+-		LOGE("Connection thread error");
++		//LOGE("Connection thread error");
+ 		t.removeClientSocket(connectionInfo->connFd);
+ 		close(connectionInfo->connFd);
+ 		return (void*)1;
+ 	}
+-	LOGI("Client serviced");
++	//LOGI("Client serviced");
+ 	return (void*)0;
+ }
+ 
+@@ -243,40 +243,40 @@ SocketService::connectionService(int fd)
+ 	int res = connector.read(&interfaceName, &methodName);
+ 	if (res != PRIV_MGR_ERROR_SUCCESS)
+ 	{
+-		LOGE("read : %d", res);
++		//LOGE("read : %d", res);
+ 		return res;
+ 	}
+ 
+-	LOGD("Got interface : %s", interfaceName.c_str());
+-	LOGD("Got method : %s",  methodName.c_str());
++	//LOGD("Got interface : %s", interfaceName.c_str());
++	//LOGD("Got method : %s",  methodName.c_str());
+ 
+ 	if( m_callbackMap.find(interfaceName) == m_callbackMap.end())
+ 	{
+-		LOGE("Unknown interface : %s", interfaceName.c_str());
++		//LOGE("Unknown interface : %s", interfaceName.c_str());
+ 		return PRIV_MGR_ERROR_NO_DATA;
+ 	}
+ 
+ 	if(m_callbackMap[interfaceName].find(methodName) == m_callbackMap[interfaceName].end())
+ 	{
+-		LOGE("Unknown method : %s", methodName.c_str());
++		//LOGE("Unknown method : %s", methodName.c_str());
+ 		return PRIV_MGR_ERROR_NO_DATA;
+ 	}
+ 
+ //	if(m_callbackMap[interfaceName][methodName]->securityCallback != NULL){
+ //		if(!m_callbackMap[interfaceName][methodName]->securityCallback(fd)){
+-//			LOGE("Security check returned false");
++//			//LOGE("Security check returned false");
+ //			return -1;
+ //		}
+ //	}
+ 
+-	LOGI("Calling service");
++	//LOGI("Calling service");
+ 	m_callbackMap[interfaceName][methodName]->serviceCallback(&connector);
+    
+-	LOGI("Removing client");
++	//LOGI("Removing client");
+ 	removeClientSocket(fd);
+ 	close(fd);
+ 
+-	LOGI("Call served");
++	//LOGI("Call served");
+ 
+ 	return PRIV_MGR_ERROR_SUCCESS;
+ }
+@@ -284,11 +284,11 @@ SocketService::connectionService(int fd)
+ int
+ SocketService::stop(void)
+ {
+-	LOGI("Stopping");
++	//LOGI("Stopping");
+ 	if(close(m_listenFd) == -1)
+ 		if(errno != ENOTCONN)
+ 		{
+-			LOGE("close() : %s", strerror(errno));
++			//LOGE("close() : %s", strerror(errno));
+ 			return PRIV_MGR_ERROR_IPC_ERROR;
+ 		}
+ 
+@@ -296,12 +296,12 @@ SocketService::stop(void)
+ 	if((returned_value = pthread_kill(m_mainThread, m_signalToClose)) < 0)
+ 	{
+ 		errno = returned_value;
+-		LOGE("pthread_kill() : %s", strerror(errno));
++		//LOGE("pthread_kill() : %s", strerror(errno));
+ 		return PRIV_MGR_ERROR_IPC_ERROR;
+ 	}
+ 	pthread_join(m_mainThread, NULL);
+ 
+-	LOGI("Stopped");
++	//LOGI("Stopped");
+ 	return PRIV_MGR_ERROR_SUCCESS;
+ }
+ 
+@@ -316,12 +316,12 @@ SocketService::registerServiceCallback(const std::string &interfaceName,  const
+ {
+ 	if(NULL == callbackMethod)
+ 	{
+-		LOGE("Null callback");
++		//LOGE("Null callback");
+ 		return PRIV_MGR_ERROR_INVALID_PARAMETER;
+ 	}
+ 	if(interfaceName.empty() || methodName.empty())
+ 	{
+-		LOGE("Interface and method name cannot be empty");
++		//LOGE("Interface and method name cannot be empty");
+ 		return PRIV_MGR_ERROR_INVALID_PARAMETER;
+ 	}
+ 
+@@ -361,14 +361,14 @@ void
+ SocketService::closeConnections(void)
+ {
+ 	int clientSocket;
+-	LOGI("Closing client sockets");
++	//LOGI("Closing client sockets");
+ 	while(popClientSocket(&clientSocket))
+ 	{
+ 		if(close(clientSocket) == -1)
+ 		{
+-			LOGE("close() : %s", strerror(errno));
++			//LOGE("close() : %s", strerror(errno));
+ 		}
+ 	}
+ 
+-	LOGI("Connections closed");
++	//LOGI("Connections closed");
+ }
+diff --git a/server/src/service/PrivacyInfoService.cpp b/server/src/service/PrivacyInfoService.cpp
+index bffda01..d71a2e1 100644
+--- a/server/src/service/PrivacyInfoService.cpp
++++ b/server/src/service/PrivacyInfoService.cpp
+@@ -16,7 +16,7 @@
+ 
+ #include <PrivacyInfoService.h>
+ #include <PrivacyManagerServer.h>
+-#include <dlog.h>
++//#include <dlog.h>
+ #include <Utils.h>
+ 
+ void
+@@ -114,7 +114,7 @@ PrivacyInfoService::setUserPrompted(SocketConnection* pConnector)
+ 	PrivacyManagerServer* pPrivacyManagerServer = PrivacyManagerServer::getInstance();
+ 
+ 	int res = pPrivacyManagerServer->setUserPrompted(pkgId, prompted);
+-	LOGI("write");
++	//LOGI("write");
+ 	pConnector->write( res );
+ 
+ }
+diff --git a/pkgmgr_plugin/CMakeLists.txt b/pkgmgr_plugin/CMakeLists.txt
+index 00f8428..319ebd9 100644
+--- a/pkgmgr_plugin/CMakeLists.txt
++++ b/pkgmgr_plugin/CMakeLists.txt
+@@ -5,7 +5,7 @@ SET (this_target privileges)
+ SET(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/cmake_build_tmp/output)
+ 
+ INCLUDE(FindPkgConfig)
+-pkg_check_modules(pkg REQUIRED glib-2.0 dlog libxml-2.0 )
++pkg_check_modules(pkg REQUIRED glib-2.0 libxml-2.0 )
+ 
+ FOREACH(flag ${privileges_CFLAGS})
+     SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
+@@ -21,8 +21,6 @@ SET (${this_target}_SOURCE_FILES
+     privileges.cpp
+     )
+ 
+-ADD_DEFINITIONS("-DDLOG_ERROR_ENABLED")
+-ADD_DEFINITIONS("-DLOG_TAG=\"PRIVILEGE_PLUGIN\"")
+ SET(EXTRA_CFLAGS  "${EXTRA_CFLAGS} -Wall" )
+ 
+ SET(CMAKE_C_FLAGS_PROFILING    " -g -pg")
+diff --git a/common/inc/Utils.h b/common/inc/Utils.h
+index 53bd238..6eb2b87 100644
+--- a/common/inc/Utils.h
++++ b/common/inc/Utils.h
+@@ -20,7 +20,6 @@
+ #include <vector>
+ #include <iostream>
+ #include <algorithm>
+-#include <dlog.h>
+ #include <sqlite3.h>
+ #include <memory>
+ #include <string>
+@@ -28,13 +27,11 @@
+ #include <db-util.h>
+ 
+ #define	TryCatchLogReturn(condition, expr, r, logFormat)	if (!(condition)) { \
+-		LOGE(logFormat); \
+ 		expr; \
+ 		return r; \
+ 	} else {;}
+ 
+ #define	TryCatchResLogReturn(condition, expr, r, logFormat, res)	if (!(condition)) { \
+-		LOGE(logFormat, res); \
+ 		expr; \
+ 		return r; \
+ 	} else {;}
+@@ -42,7 +39,6 @@
+ 
+ #define TryReturn(condition, r, expr, ...) \
+ 	if ( !(condition) ) { \
+-		LOGE(__VA_ARGS__); \
+ 		expr; \
+ 		return r; \
+ 	} else {;}
+@@ -75,7 +71,6 @@ static const int SLEEP_TIME = 50000;
+ 			}\
+ 			else\
+ 			{\
+-				LOGE("[DbRetryCount][%d]: Database is busy!", dbRetryCount); \
+ 				usleep(SLEEP_TIME);\
+ 			}\
+ 		}\
+diff --git a/client/src/SocketClient.cpp b/client/src/SocketClient.cpp
+index a144628..7ccdad8 100644
+--- a/client/src/SocketClient.cpp
++++ b/client/src/SocketClient.cpp
+@@ -26,7 +26,6 @@
+ #include <Utils.h>
+ 
+ #define throwWithErrnoMessage(specificInfo)	do {\
+-												LOGE("%s : %s", specificInfo, strerror(errno)); \
+ 												return -1; \
+ 											} while(0)
+ 
+@@ -34,7 +33,7 @@ SocketClient::SocketClient(const std::string& interfaceName)
+ {
+ 	m_interfaceName = interfaceName;
+ 	m_serverAddress = SERVER_ADDRESS;
+-	LOGI("Client created");
++	//LOGI("Client created");
+ }
+ 
+ int SocketClient::connect()
+@@ -59,7 +58,7 @@ int SocketClient::connect()
+ 
+ 	m_socketConnector.reset(new SocketConnection(m_socketFd));
+ 	
+-	LOGI("Client connected");
++	//LOGI("Client connected");
+ 
+ 	return PRIV_MGR_ERROR_SUCCESS;
+ }
+@@ -69,7 +68,7 @@ int SocketClient::disconnect()
+ 	//Socket should be already closed by server side,
+ 	//even though we should close it in case of any errors
+ 	close(m_socketFd);
+-	LOGI("Client disconnected");
++	//LOGI("Client disconnected");
+ 
+ 	return PRIV_MGR_ERROR_SUCCESS;
+ }
+diff --git a/common/inc/SocketConnection.h b/common/inc/SocketConnection.h
+index d6bd88c..d8d64e5 100644
+--- a/common/inc/SocketConnection.h
++++ b/common/inc/SocketConnection.h
+@@ -16,8 +16,8 @@
+ 
+ #ifndef _SOCKET_CONNECTION_H_
+ #define _SOCKET_CONNECTION_H_
+-
+-#include <dlog.h>
++#include <string.h>
++//#include <dlog.h>
+ #include <new>
+ #include <list>
+ #include <utility>
+@@ -41,7 +41,7 @@ class EXTERN_API SocketConnection
+ public:
+ 
+ 	explicit SocketConnection(int socket_fd) : m_socketStream(socket_fd){
+-		LOGI("Created");
++		//LOGI("Created");
+ 	}
+ 
+ 	template<typename T, typename ...Args>
