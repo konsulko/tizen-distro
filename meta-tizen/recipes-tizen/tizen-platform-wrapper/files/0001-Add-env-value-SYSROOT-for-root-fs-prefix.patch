@@ -1,41 +1,50 @@
-From e2f6f775f696bebf5acad2c424bc1fde5ce7e0c0 Mon Sep 17 00:00:00 2001
+From 3f698caea8b6e35f89963e8ad633a9f6ca8f4970 Mon Sep 17 00:00:00 2001
 From: Ronan Le Martret <ronan@fridu.net>
-Date: Tue, 8 Jul 2014 10:40:21 +0200
-Subject: [PATCH 1/1] Add env value SYSROOT for root fs prefix.
+Date: Tue, 08 Jul 2014 10:40:21 +0200
+Subject: [PATCH] meta-tizen: Add env value SYSROOT for root fs prefix
 
 Change-Id: I5c57494317473dcd74c85cbc2bce19a6d68c2739
 Signed-off-by: Ronan Le Martret <ronan@fridu.net>
 ---
- src/foreign.c           |  5 +++++
- src/foreign.h           |  7 ++++++-
- src/tzplatform_config.c | 14 +++++++++++++-
- 3 files changed, 24 insertions(+), 2 deletions(-)
 
 diff --git a/src/foreign.c b/src/foreign.c
-index dab1c21..b700274 100644
+index a19f6ad..6b172b2 100644
 --- a/src/foreign.c
 +++ b/src/foreign.c
-@@ -85,6 +85,11 @@ enum fkey foreign( const char *name, size_t length)
+@@ -85,6 +85,11 @@
          default: break;
          }
      }
 +#if _FOREIGN_HAS_(SYSROOT)
-+    else if (length == 7 && name[0]=='S' && name[1]=='Y' && name[2]=='S' && name[3]=='R' && name[4]=='O' && name[5]=='O' && name[6]=='T') {
-+      return SYSROOT;
-+    }
++    else if (length == 7)
++        if (name[0]=='S' && name[1]=='Y' && name[2]=='S' && name[3]=='R' && name[4]=='O' && name[5]=='O' && name[6]=='T')
++            return SYSROOT;
 +#endif
      return _FOREIGN_INVALID_;
  }
  
-diff --git a/src/foreign.h b/
-
-index 3c9066f..a918bd8 100644
+diff --git a/src/foreign.h b/src/foreign.h
+index 646a41d..6b1ea06 100644
 --- a/src/foreign.h
 +++ b/src/foreign.h
-@@ -31,9 +31,11 @@
- #define _FOREIGN_MASK_EHOME_  16
- #define _FOREIGN_MASK_EUID_   32
- #define _FOREIGN_MASK_EUSER_  64
+@@ -24,26 +24,28 @@
+ #ifndef FOREIGN_H
+ #define FOREIGN_H
+ 
+-#define _FOREIGN_MASK_HOME_    1
+-#define _FOREIGN_MASK_UID_     2
+-#define _FOREIGN_MASK_USER_    4
+-#define _FOREIGN_MASK_GID_     8
+-#define _FOREIGN_MASK_EHOME_  16
+-#define _FOREIGN_MASK_EUID_   32
+-#define _FOREIGN_MASK_EUSER_  64
++#define _FOREIGN_MASK_HOME_       1
++#define _FOREIGN_MASK_UID_        2
++#define _FOREIGN_MASK_USER_       4
++#define _FOREIGN_MASK_GID_        8
++#define _FOREIGN_MASK_EHOME_     16
++#define _FOREIGN_MASK_EUID_      32
++#define _FOREIGN_MASK_EUSER_     64
 +#define _FOREIGN_MASK_SYSROOT_  128
  
  #define _FOREIGNS_TO_USE_   ( _FOREIGN_MASK_HOME_  \
@@ -45,7 +54,29 @@ index 3c9066f..a918bd8 100644
  
  #define _FOREIGN_HAS_(x)  (0 != ((_FOREIGNS_TO_USE_) & (_FOREIGN_MASK_##x##_)))
  
-@@ -60,6 +62,9 @@ enum fkey {
+ enum fkey {
+-    _FOREIGN_INVALID_ = -1, 
++    _FOREIGN_INVALID_ = -1,
+ #if _FOREIGN_HAS_(HOME)
+     HOME,
+ #endif
+ #if _FOREIGN_HAS_(UID)
+-    UID, 
++    UID,
+ #endif
+ #if _FOREIGN_HAS_(USER)
+     USER,
+@@ -52,14 +54,17 @@
+     GID, 
+ #endif
+ #if _FOREIGN_HAS_(EHOME)
+-    EHOME, 
++    EHOME,
+ #endif
+ #if _FOREIGN_HAS_(EUID)
+-    EUID, 
++    EUID,
+ #endif
  #if _FOREIGN_HAS_(EUSER)
      EUSER,
  #endif
@@ -56,10 +87,10 @@ index 3c9066f..a918bd8 100644
  };
  
 diff --git a/src/init.c b/src/init.c
-index 735fef6..184ebb3 100644
+index 76868cc..9d16d86 100644
 --- a/src/init.c
 +++ b/src/init.c
-@@ -65,7 +65,8 @@ static inline void unlock() { }
+@@ -63,7 +63,8 @@
  
  #define _HAS_IDS_   (  _FOREIGN_HAS_(UID)  \
                      || _FOREIGN_HAS_(EUID) \
@@ -69,24 +100,28 @@ index 735fef6..184ebb3 100644
  
  #define _HAS_PWS_   (  _FOREIGN_HAS_(HOME)  \
                      || _FOREIGN_HAS_(USER)  \
-@@ -292,6 +293,17 @@ static const char *getcb( struct parsing *parsing,
+@@ -275,7 +276,7 @@
+ }
+ 
+ /* callback for solving variables */
+-static const char *getcb( struct parsing *parsing, 
++static const char *getcb( struct parsing *parsing,
+             const char *key, size_t length,
+             size_t begin_pos, size_t end_pos)
+ {
+@@ -284,6 +285,15 @@
      size_t offset;
      struct reading *reading = parsing->data;
- 
-+    if (strncmp( key, "SYSROOT", 7) == 0){
-+      char * res_sysroot=getenv("SYSROOT");
+     int id;
++    char *res_sysroot;
 +
-+      if (res_sysroot == NULL){
-+          return "" ;
-+      }
-+      else{
-+          return res_sysroot;
-+      }
++    if (strncmp( key, "SYSROOT", 7) == 0) {
++        res_sysroot = getenv("SYSROOT");
++        if (res_sysroot == NULL)
++            return "";
++        else
++            return res_sysroot;
 +    }
-+
+ 
      /* try to find a tzplatform variable */
-     vara = hashvar( key, length);
-     if (vara) {
--- 
-1.8.1.4
-
+     id = hashid(key, length);
