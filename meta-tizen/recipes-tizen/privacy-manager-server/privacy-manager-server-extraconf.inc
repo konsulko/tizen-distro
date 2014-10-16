@@ -12,6 +12,6 @@ do_configure() {
 
 DEPENDS += "binutils-native"
 DEPENDS_remove_class-native = "dlog-native"
-RDEPENDS_${PN}_remove_class-native = "eglibc-native"
+RDEPENDS_${PN}_remove_class-native = "glibc-native"
 
 EXTRA_OECMAKE+="-DCMAKE_STRIP:PATH=strip"

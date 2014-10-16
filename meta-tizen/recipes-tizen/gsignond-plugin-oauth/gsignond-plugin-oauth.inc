@@ -21,7 +21,7 @@ PROVIDES += "gsignond-plugin-oauth-doc"
 
 RDEPENDS = ""
 #RDEPENDS of gsignond-plugin-oauth (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of gsignond-plugin-oauth-doc (${PN}-doc)
 RDEPENDS_${PN}-doc += "gsignond-plugin-oauth"

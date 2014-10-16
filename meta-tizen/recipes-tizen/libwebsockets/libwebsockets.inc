@@ -21,7 +21,7 @@ PROVIDES += "libwebsockets-dev"
 
 RDEPENDS = ""
 #RDEPENDS of libwebsockets (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of libwebsockets-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "libwebsockets"

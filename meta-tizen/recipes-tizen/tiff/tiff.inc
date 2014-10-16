@@ -29,7 +29,7 @@ PROVIDES += "libtiff-dev"
 
 RDEPENDS = ""
 #RDEPENDS of libtiff-dev (lib${PN}-dev)
-RDEPENDS_lib${PN}-dev += "eglibc"
+RDEPENDS_lib${PN}-dev += "glibc"
 RDEPENDS_lib${PN}-dev += "libtiff"
 RDEPENDS_lib${PN}-dev += "libstdc++-dev"
 

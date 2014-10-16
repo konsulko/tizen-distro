@@ -37,7 +37,7 @@ PROVIDES += "app-core-efl-dev"
 
 RDEPENDS = ""
 #RDEPENDS of app-core-efl (${PN}-efl)
-RDEPENDS_${PN}-efl += "eglibc"
+RDEPENDS_${PN}-efl += "glibc"
 
 #RDEPENDS of app-core-common-dev (${PN}-common-dev)
 RDEPENDS_${PN}-common-dev += "elementary"
@@ -47,7 +47,7 @@ RDEPENDS_${PN}-common-dev += "vconf"
 RDEPENDS_${PN}-common-dev += "aul"
 
 #RDEPENDS of app-core-common (${PN}-common)
-RDEPENDS_${PN}-common += "eglibc"
+RDEPENDS_${PN}-common += "glibc"
 
 #RDEPENDS of app-core-efl-dev (${PN}-efl-dev)
 RDEPENDS_${PN}-efl-dev += "app-core-efl"

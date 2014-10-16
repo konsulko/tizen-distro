@@ -24,7 +24,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-dev += "genivi-audio-manager"
 
 #RDEPENDS of genivi-audio-manager (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 
 DEPENDS = ""

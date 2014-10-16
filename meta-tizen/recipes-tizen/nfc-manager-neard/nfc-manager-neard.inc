@@ -34,7 +34,7 @@ RDEPENDS_nfc-client-lib-neard-dev += "nfc-client-lib-neard"
 #RDEPENDS of nfc-manager-neard (${PN})
 RDEPENDS_${PN} += "neardal"
 RDEPENDS_${PN} += "neard"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "nfc-client-lib-neard"
 RDEPENDS_${PN} += "vconf"
 

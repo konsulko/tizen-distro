@@ -40,7 +40,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-dev += "libdlt"
 
 #RDEPENDS of dlt (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 
 DEPENDS = ""

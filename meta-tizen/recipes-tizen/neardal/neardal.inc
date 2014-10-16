@@ -24,7 +24,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-dev += "neardal"
 
 #RDEPENDS of neardal (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 
 DEPENDS = ""

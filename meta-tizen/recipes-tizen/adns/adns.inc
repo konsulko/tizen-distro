@@ -26,7 +26,7 @@ PROVIDES += "libadns-dev"
 RDEPENDS = ""
 #RDEPENDS of libadns-dev (lib${PN}-dev)
 RDEPENDS_lib${PN}-dev += "libadns"
-RDEPENDS_lib${PN}-dev += "eglibc"
+RDEPENDS_lib${PN}-dev += "glibc"
 
 
 DEPENDS = ""

@@ -24,7 +24,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-dev += "libnet-client"
 
 #RDEPENDS of libnet-client (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 
 DEPENDS = ""

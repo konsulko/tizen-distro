@@ -24,7 +24,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-doc += "gsignond-plugin-sasl"
 
 #RDEPENDS of gsignond-plugin-sasl (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 
 DEPENDS = ""

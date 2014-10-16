@@ -23,7 +23,7 @@ RDEPENDS = ""
 #RDEPENDS of calendar-service (${PN})
 RDEPENDS_${PN} += "sqlite3"
 RDEPENDS_${PN} += "coreutils"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of calendar-service-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "calendar-service"

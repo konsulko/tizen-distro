@@ -39,7 +39,7 @@ RDEPENDS_${PN}-dev += "libfeedback"
 RDEPENDS_libsvi += "libfeedback"
 
 #RDEPENDS of libfeedback (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of libsvi-dev (libsvi-dev)
 RDEPENDS_libsvi-dev += "libsvi"

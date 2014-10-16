@@ -30,7 +30,7 @@ RDEPENDS_${PN}2 += "libprivilege-control"
 #RDEPENDS of contacts-service (${PN})
 RDEPENDS_${PN} += "sqlite3"
 RDEPENDS_${PN} += "coreutils"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "vconf"
 
 #RDEPENDS of contacts-service2-dev (${PN}2-dev)

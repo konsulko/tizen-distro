@@ -36,7 +36,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-certs += "security-server"
 
 #RDEPENDS of libsecurity-server-client (lib${PN}-client)
-RDEPENDS_lib${PN}-client += "eglibc"
+RDEPENDS_lib${PN}-client += "glibc"
 RDEPENDS_lib${PN}-client += "security-server"
 
 #RDEPENDS of libsecurity-server-client-dev (lib${PN}-client-dev)

@@ -25,7 +25,7 @@ PROVIDES += "libavsysaudio"
 
 RDEPENDS = ""
 #RDEPENDS of avsystem (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "systemd"
 
 #RDEPENDS of avsystem-dev (${PN}-dev)

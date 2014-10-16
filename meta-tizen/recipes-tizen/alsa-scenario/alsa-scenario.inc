@@ -24,7 +24,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-dev += "alsa-scenario"
 
 #RDEPENDS of alsa-scenario (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 
 DEPENDS = ""

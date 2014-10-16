@@ -26,7 +26,7 @@ PROVIDES += "keyutils-dev"
 RDEPENDS = ""
 #RDEPENDS of keyutils-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "libkeyutils"
-RDEPENDS_${PN}-dev += "eglibc"
+RDEPENDS_${PN}-dev += "glibc"
 
 
 DEPENDS = ""

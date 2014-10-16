@@ -22,7 +22,7 @@ PROVIDES += "libaccounts-svc-dev"
 RDEPENDS = ""
 #RDEPENDS of libaccounts-svc (${PN})
 RDEPENDS_${PN} += "sqlite3"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "libtzplatform-config"
 
 #RDEPENDS of libaccounts-svc-dev (${PN}-dev)

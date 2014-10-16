@@ -24,7 +24,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-dev += "libgsasl"
 
 #RDEPENDS of libgsasl (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 
 DEPENDS = ""

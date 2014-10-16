@@ -28,7 +28,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-dev += "sync-agent"
 
 #RDEPENDS of sync-agent (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 
 DEPENDS = ""

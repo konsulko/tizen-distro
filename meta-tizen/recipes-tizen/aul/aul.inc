@@ -21,7 +21,7 @@ PROVIDES += "aul-dev"
 
 RDEPENDS = ""
 #RDEPENDS of aul (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "systemd"
 
 #RDEPENDS of aul-dev (${PN}-dev)

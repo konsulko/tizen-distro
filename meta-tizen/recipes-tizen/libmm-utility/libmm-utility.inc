@@ -25,7 +25,7 @@ PROVIDES += "libmm-utility-tool"
 
 RDEPENDS = ""
 #RDEPENDS of libmm-utility (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of libmm-utility-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "libmm-utility"

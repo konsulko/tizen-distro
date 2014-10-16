@@ -88,7 +88,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-vala-bindings += "pulseaudio"
 
 #RDEPENDS of pulseaudio (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "udev"
 
 #RDEPENDS of pulseaudio-realtime-scheduling (${PN}-realtime-scheduling)

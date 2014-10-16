@@ -23,7 +23,7 @@ RDEPENDS = ""
 #RDEPENDS of download-provider (${PN})
 RDEPENDS_${PN} += "sqlite3"
 RDEPENDS_${PN} += "connman"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "vconf"
 RDEPENDS_${PN} += "net-config"
 

@@ -28,7 +28,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-dev += "audio-session-manager"
 
 #RDEPENDS of audio-session-manager (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "vconf"
 
 #RDEPENDS of audio-session-manager-sdk-dev (${PN}-sdk-dev)

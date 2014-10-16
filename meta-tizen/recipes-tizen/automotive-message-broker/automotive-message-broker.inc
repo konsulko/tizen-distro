@@ -97,7 +97,7 @@ RDEPENDS_${PN}-dev += "automotive-message-broker"
 #RDEPENDS of automotive-message-broker (${PN})
 RDEPENDS_${PN} += "automotive-message-broker-plugins-murphy"
 RDEPENDS_${PN} += "automotive-message-broker-plugins"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "default-ac-domains"
 
 #RDEPENDS of automotive-message-broker-plugins-database (${PN}-plugins-database)

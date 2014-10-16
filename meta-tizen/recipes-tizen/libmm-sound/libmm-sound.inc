@@ -38,7 +38,7 @@ RDEPENDS_${PN}-sdk-dev += "libmm-sound-dev"
 RDEPENDS_${PN}-tool += "libmm-sound"
 
 #RDEPENDS of libmm-sound (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "vconf"
 
 

@@ -40,7 +40,7 @@ RDEPENDS = ""
 RDEPENDS_privacy-manager-client += "privacy-manager-server"
 
 #RDEPENDS of privacy-manager-server (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of privacy-manager-server-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "privacy-manager-server"

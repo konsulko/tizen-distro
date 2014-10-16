@@ -31,7 +31,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-doc += "gsignond"
 
 #RDEPENDS of gsignond (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of gsignond-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "gsignond"

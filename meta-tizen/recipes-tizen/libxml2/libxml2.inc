@@ -28,7 +28,7 @@ RDEPENDS = ""
 RDEPENDS_${PN}-dev += "libxml2"
 RDEPENDS_${PN}-dev += "zlib"
 RDEPENDS_${PN}-dev += "xz"
-RDEPENDS_${PN}-dev += "eglibc"
+RDEPENDS_${PN}-dev += "glibc"
 RDEPENDS_${PN}-dev += "libxml2-tools"
 RDEPENDS_${PN}-dev += "readline"
 

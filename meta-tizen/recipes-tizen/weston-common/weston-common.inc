@@ -29,7 +29,7 @@ PROVIDES += "weston-common-tz-launcher"
 RDEPENDS = ""
 #RDEPENDS of weston-common (${PN})
 RDEPENDS_${PN} += "weston"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "shadow"
 
 

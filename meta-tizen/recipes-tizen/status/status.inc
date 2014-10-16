@@ -21,7 +21,7 @@ PROVIDES += "status-dev"
 
 RDEPENDS = ""
 #RDEPENDS of status (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of status-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "status"

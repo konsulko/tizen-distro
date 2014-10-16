@@ -21,7 +21,7 @@ PROVIDES += "capi-web-favorites-dev"
 
 RDEPENDS = ""
 #RDEPENDS of capi-web-favorites (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of capi-web-favorites-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "capi-web-favorites"

@@ -59,7 +59,7 @@ RDEPENDS_${PN} += "hwdata"
 RDEPENDS_${PN} += "dbus"
 RDEPENDS_${PN} += "gawk"
 RDEPENDS_${PN} += "coreutils"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "shadow"
 
 #RDEPENDS of libgudev-dev (libgudev-dev)

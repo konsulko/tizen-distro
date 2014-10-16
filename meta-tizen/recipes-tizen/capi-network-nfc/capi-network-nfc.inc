@@ -21,7 +21,7 @@ PROVIDES += "capi-network-nfc-dev"
 
 RDEPENDS = ""
 #RDEPENDS of capi-network-nfc (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of capi-network-nfc-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "capi-network-nfc"

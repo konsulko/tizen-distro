@@ -35,7 +35,7 @@ RDEPENDS_${PN}-dev += "syspopup"
 RDEPENDS_${PN}-caller-dev += "syspopup"
 
 #RDEPENDS of syspopup-caller (${PN}-caller)
-RDEPENDS_${PN}-caller += "eglibc"
+RDEPENDS_${PN}-caller += "glibc"
 RDEPENDS_${PN}-caller += "syspopup"
 
 

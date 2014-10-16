@@ -42,7 +42,7 @@ RDEPENDS_${PN} += "bluetooth-tools"
 RDEPENDS_${PN} += "dbus"
 RDEPENDS_${PN} += "syspopup"
 RDEPENDS_${PN} += "vconf"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 
 DEPENDS = ""

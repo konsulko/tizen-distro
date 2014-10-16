@@ -29,7 +29,7 @@ RDEPENDS_${PN}-service-dev += "notification"
 
 #RDEPENDS of notification (${PN})
 RDEPENDS_${PN} += "sqlite3"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "libtzplatform-config"
 
 #RDEPENDS of notification-dev (${PN}-dev)

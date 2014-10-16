@@ -25,7 +25,7 @@ PROVIDES += "CommonAPI-DBus-dev"
 
 RDEPENDS = ""
 #RDEPENDS of CommonAPI-DBus (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of CommonAPI-DBus-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "libCommonAPI-DBus"

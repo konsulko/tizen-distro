@@ -29,7 +29,7 @@ PROVIDES += "message-port-tests"
 
 RDEPENDS = ""
 #RDEPENDS of libmessage-port (lib${PN})
-RDEPENDS_lib${PN} += "eglibc"
+RDEPENDS_lib${PN} += "glibc"
 RDEPENDS_lib${PN} += "message-port"
 
 #RDEPENDS of libmessage-port-dev (lib${PN}-dev)

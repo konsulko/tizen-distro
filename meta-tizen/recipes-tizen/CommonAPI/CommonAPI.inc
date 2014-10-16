@@ -25,7 +25,7 @@ PROVIDES += "CommonAPI-dev"
 
 RDEPENDS = ""
 #RDEPENDS of CommonAPI (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of CommonAPI-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "libCommonAPI"

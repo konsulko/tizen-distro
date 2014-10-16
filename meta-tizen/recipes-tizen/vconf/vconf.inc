@@ -29,7 +29,7 @@ RDEPENDS_${PN}-keys-dev += "vconf"
 RDEPENDS_${PN}-keys-dev += "vconf-internal-keys-dev"
 
 #RDEPENDS of vconf (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "systemd"
 
 #RDEPENDS of vconf-dev (${PN}-dev)

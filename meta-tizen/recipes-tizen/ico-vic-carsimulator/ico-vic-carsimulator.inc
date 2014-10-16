@@ -18,7 +18,7 @@ PROVIDES = ""
 RDEPENDS = ""
 #RDEPENDS of ico-vic-carsimulator (${PN})
 RDEPENDS_${PN} += "ico-vic-amb-plugin"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "ico-uxf-utilities"
 
 

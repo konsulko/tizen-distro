@@ -1,6 +1,6 @@
 SRC_URI_append_class-native = " file://remove-dlog-for-native.patch"
 
-RDEPENDS_${PN}_remove_class-native = "eglibc-native"
+RDEPENDS_${PN}_remove_class-native = "glibc-native"
 RDEPENDS_${PN}_remove_class-native = "systemd-native"
 DEPENDS_remove_class-native = "dlog-native"
 

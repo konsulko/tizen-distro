@@ -37,7 +37,7 @@ RDEPENDS_lib${PN}-dev += "libtdb"
 RDEPENDS_lib${PN}-dev += "pkgconfig"
 
 #RDEPENDS of libtdb (lib${PN})
-RDEPENDS_lib${PN} += "eglibc"
+RDEPENDS_lib${PN} += "glibc"
 RDEPENDS_lib${PN} += "pkgconfig"
 
 

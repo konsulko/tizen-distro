@@ -31,7 +31,7 @@ RDEPENDS_wbxml2-tools += "libxml2"
 #RDEPENDS of libwbxml2-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "libwbxml2"
 RDEPENDS_${PN}-dev += "libxml2"
-RDEPENDS_${PN}-dev += "eglibc"
+RDEPENDS_${PN}-dev += "glibc"
 RDEPENDS_${PN}-dev += "expat"
 
 

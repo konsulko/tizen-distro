@@ -34,7 +34,7 @@ RDEPENDS_libecryptfs-python += "libecryptfs"
 #RDEPENDS of ecryptfs-utils (${PN})
 RDEPENDS_${PN} += "keyutils"
 RDEPENDS_${PN} += "libecryptfs"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of libecryptfs-dev (libecryptfs-dev)
 RDEPENDS_libecryptfs-dev += "libecryptfs"

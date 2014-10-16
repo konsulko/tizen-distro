@@ -31,7 +31,7 @@ RDEPENDS_${PN}-dev += "libgsignon-glib"
 RDEPENDS_${PN} += "gsignon"
 RDEPENDS_${PN} += "gsignond-plugin-oauth"
 RDEPENDS_${PN} += "dbus"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "gsignond-plugin-sasl"
 
 

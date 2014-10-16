@@ -21,7 +21,7 @@ PROVIDES += "app-svc-dev"
 
 RDEPENDS = ""
 #RDEPENDS of app-svc (${PN})
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 
 #RDEPENDS of app-svc-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "app-svc"

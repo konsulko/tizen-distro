@@ -9,7 +9,7 @@ SRC_URI_append_class-native = " file://remove-dlog-for-native-build.patch"
 aul_files += "${prefix}/share/aul/mida_db.sql"
 
 RDEPENDS_${PN}_remove_class-native = "systemd-native"
-RDEPENDS_${PN}_remove_class-native = "eglibc-native"
+RDEPENDS_${PN}_remove_class-native = "glibc-native"
 
 DEPENDS_remove_class-native = "dlog-native"
 

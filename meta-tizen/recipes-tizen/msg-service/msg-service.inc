@@ -33,17 +33,17 @@ PROVIDES += "msg-service-dev"
 
 RDEPENDS = ""
 #RDEPENDS of mms-plugin (mms-plugin)
-RDEPENDS_mms-plugin += "eglibc"
+RDEPENDS_mms-plugin += "glibc"
 RDEPENDS_mms-plugin += "msg-service"
 
 #RDEPENDS of msg-service-tools (${PN}-tools)
 RDEPENDS_${PN}-tools += "sqlite3"
-RDEPENDS_${PN}-tools += "eglibc"
+RDEPENDS_${PN}-tools += "glibc"
 RDEPENDS_${PN}-tools += "vconf"
 RDEPENDS_${PN}-tools += "msg-service"
 
 #RDEPENDS of sms-plugin (sms-plugin)
-RDEPENDS_sms-plugin += "eglibc"
+RDEPENDS_sms-plugin += "glibc"
 RDEPENDS_sms-plugin += "msg-service"
 
 #RDEPENDS of msg-service-dev (${PN}-dev)
@@ -51,7 +51,7 @@ RDEPENDS_${PN}-dev += "msg-service"
 
 #RDEPENDS of msg-service (${PN})
 RDEPENDS_${PN} += "sqlite3"
-RDEPENDS_${PN} += "eglibc"
+RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "systemd"
 RDEPENDS_${PN} += "vconf"
 
