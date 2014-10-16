@@ -39,3 +39,26 @@ FILES_${PN}-dbg += "${prefix}/apps/org.tizen.ico.onscreen/bin/.debug"
 FILES_${PN}-dbg += "${prefix}/apps/org.tizen.ico.statusbar/bin/.debug/StatusBar"
 FILES_${PN}-dbg += "${prefix}/apps/org.tizen.ico.homescreen/bin/.debug/HomeScreen"
 FILES_${PN}-dbg += "${prefix}/apps/org.tizen.ico.system-controller/bin/.debug"
+
+pkg_postinst_${PN}() {
+    #!/bin/sh -e
+
+    [ "x$D" == "x" ] && ldconfig
+    # Update the app database.
+    #pkg_initdb
+    #ail_initdb
+
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
+    [ "x$D" == "x" ] && ldconfig
+    rm -f $D${prefix}/share/applications/org.tizen.ico.homescreen.desktop
+    rm -f $D${prefix}/share/applications/org.tizen.ico.statusbar.desktop
+    rm -f $D${prefix}/share/applications/org.tizen.ico.onscreen.desktop
+    rm -f $D${prefix}/share/applications/org.tizen.ico.system-controller.desktop
+    #pkg_initdb
+    #ail_initdb
+
+}
