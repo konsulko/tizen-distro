@@ -2,6 +2,8 @@ inherit gettext pkgconfig
 
 RPROVIDES_libpulse += "libpulsecommon"
 
+DEPENDS_remove = "tdb"
+
 EXTRA_OECONF = "--disable-orc \
                 --prefix=${prefix} \
                 --disable-static \
@@ -20,13 +22,13 @@ EXTRA_OECONF = "--disable-orc \
                 --disable-bluez4 \
                 --with-bluetooth-headset-backend=ofono \
                 --enable-systemd \
-                --with-database=tdb \
                 --enable-samsung-policy \
                 --with-udev-rules-dir=${prefix}/lib/udev/rules.d \
                 --with-system-user=pulse \
                 --with-system-group=pulse \
                 --with-access-group=pulse-access \
                 "
+EXTRA_OECONF += "--host=${HOST_SYS}"
 
 do_configure_append() {
     # Configure is done twice, once in bootsrap.sh and once in
