@@ -1,11 +1,11 @@
 DEPENDS += "python"
 
-do_configure_append() {
-    export BUILD_SYS=${BUILD_SYS}
-    export HOST_SYS=${HOST_SYS}
-    export STAGING_LIBDIR=${STAGING_LIBDIR}
-    export STAGING_INCDIR=${STAGING_INCDIR}
+export BUILD_SYS
+export HOST_SYS
+export STAGING_LIBDIR
+export STAGING_INCDIR
 
+do_configure_append() {
     ./configure --prefix=${prefix}
 }
 
