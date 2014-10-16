@@ -1,6 +1,10 @@
 SRC_URI += "file://Add_extralib.diff"
 SRC_URI_append_class-native = " file://remove-dlog-for-native-build.patch"
 
+do_compile_prepend_class-native() {
+ sed -i "s@"/usr/bin/pkginfo@"${STAGING_BINDIR_NATIVE}/pkginfo@g" ${S}/tool/pkg_initdb.c
+}
+
 do_install_append() {
  rm -fr "${D}${prefix}/bin/pkgcmd.real"
  rm -fr "${D}${prefix}/bin/pkgcmd.wrapper"
