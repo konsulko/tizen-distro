@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index 992877b..9cf4631 100644
+--- a/Makefile
++++ b/Makefile
+@@ -39,7 +39,7 @@
+ ###########################################################################
+ TOP=.
+ DIRNAME=.
+-BUILD_DIRS = src lib examples bin doc
++BUILD_DIRS = src lib examples bin
+ ALL_DIRS=config $(BUILD_DIRS) testsuite
+ CONFIG=configure configure.in config.sub config.guess \
+        missing install-sh mkinstalldirs

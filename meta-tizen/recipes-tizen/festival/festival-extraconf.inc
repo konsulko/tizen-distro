@@ -1,10 +1,10 @@
 do_prep_prepend() {
  pushd ${S}/../
- ln -sf ${S} festival-2.1
+ ln -sf ${S} ${PN}-2.1
  popd 
 }
 
-INSANE_SKIP_${PN} = "dev-deps"
+SRC_URI += "file://remove_doc.patch"
 
 do_compile() {
  cd ${S}
@@ -29,12 +29,13 @@ do_compile() {
 
  ./configure --prefix=${prefix} \
             --libdir=${prefix}/lib \
-                --datadir=${prefix}/share/festival \
-            --sysconfdir=${sysconfdir}
+            --datadir=${prefix}/share/festival \
+            --sysconfdir=${sysconfdir} \
+            --host=${HOST_SYS}
 
- make CC="i586-oe-linux-gcc -fPIC $RPM_OPT_FLAGS" CXX="i586-oe-linux-g++ $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
+ make CC="${CC} -fPIC $RPM_OPT_FLAGS" CXX="${CXX} $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
  cd ../festival-2.1
- make CC="i586-oe-linux-gcc -fPIC $RPM_OPT_FLAGS" CXX="i586-oe-linux-g++ $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
- make doc
-
+ make CC="${CC} -fPIC $RPM_OPT_FLAGS" CXX="${CXX} $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
 }
+
+INSANE_SKIP_${PN} = "dev-deps"

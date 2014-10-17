@@ -135,9 +135,9 @@ do_install() {
  install -m 755 bin/festival_server* ${D}${prefix}/bin/
  install -m 755 examples/saytime ${D}${prefix}/bin/
  # install manpages
- install -D -m 644 doc/festival.1 ${D}${mandir}/man1/festival.1
- install -m 644 doc/festival_client.1 ${D}${mandir}/man1/
- install -m 644 doc/text2wave.1 ${D}${mandir}/man1/
+ #install -D -m 644 doc/festival.1 ${D}${mandir}/man1/festival.1
+ #install -m 644 doc/festival_client.1 ${D}${mandir}/man1/
+ #install -m 644 doc/text2wave.1 ${D}${mandir}/man1/
  # install configs
  install -D lib/festival.scm ${D}${sysconfdir}/festival.scm
  # install dictionarys
