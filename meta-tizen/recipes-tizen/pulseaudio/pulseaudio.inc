@@ -136,12 +136,6 @@ DEPENDS += "vconf"
 
 do_prep() {
  cd ${S}
- #extracte source 0 
- pushd ${S}/../
- unp ${S}/packaging/pulseaudio-5.0.tar.gz 
- popd 
- chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -T -b0
  echo "5.0" > .tarball-version
  cp ${S}/packaging/pulseaudio.manifest .
  
