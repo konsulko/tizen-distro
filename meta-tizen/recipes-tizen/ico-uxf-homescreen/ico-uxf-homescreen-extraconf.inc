@@ -22,6 +22,14 @@ do_compile_prepend()  {
  sed -i "s@-I/usr/include/ico-util@-I${PKG_CONFIG_SYSROOT_DIR}/usr/include/ico-util@g" ${S}/configure.ac
 }
 
+do_install_append() {
+    if ${@bb.utils.contains('SYS_CTLR_PROVIDER', 'ico-uxf-homescreen', 'false', 'true', d)}; then
+      rm -f ${D}${systemd_unitdir}/user/ico-uxf-wait-launchpad-ready.path
+      rm -f ${D}${systemd_unitdir}/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path
+      rm -f ${D}${systemd_unitdir}/user/ico-system-controller.service
+    fi
+}
+
 DEPENDS += "pkgmgr-native"
 DEPENDS += "ail-native"
 
@@ -62,3 +70,6 @@ pkg_postrm_${PN}() {
     #ail_initdb
 
 }
+
+PROVIDES_remove := "${@bb.utils.contains('SYS_CTLR_PROVIDER', 'ico-uxf-homescreen',"","system-controller",d)}"
+RPROVIDES_ico-uxf-homescreen-system-controller_remove :=  "${@bb.utils.contains('SYS_CTLR_PROVIDER', 'ico-uxf-homescreen','',"system-controller",d)}"

@@ -13,3 +13,5 @@ CORE_IMAGE_EXTRA_INSTALL += "packagegroup-tizen-ivi-ico"
 
 # Crosswalk
 CORE_IMAGE_EXTRA_INSTALL += "packagegroup-tizen-crosswalk"
+
+SYS_CTLR_PROVIDEER = "ico-uxf-homescreen"
