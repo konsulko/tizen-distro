@@ -33,19 +33,19 @@ do_prep() {
  cd ${S}
  #extracte source 1 
  pushd ${S}/../
- unp ${S}/packaging/speech_tools-2.1-release.tar.gz 
+ tar zxf ${S}/packaging/speech_tools-2.1-release.tar.gz
  popd 
  #extracte source 2 
  pushd ${S}/../
- unp ${S}/packaging/festlex_CMU.tar.gz 
+ tar zxf ${S}/packaging/festlex_CMU.tar.gz
  popd 
  #extracte source 3 
  pushd ${S}/../
- unp ${S}/packaging/festvox_kallpc16k.tar.gz 
+ tar zxf ${S}/packaging/festvox_kallpc16k.tar.gz
  popd 
  #extracte source 4 
  pushd ${S}/../
- unp ${S}/packaging/festlex_POSLEX.tar.gz 
+ tar zxf ${S}/packaging/festlex_POSLEX.tar.gz
  popd 
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -b 1 -b 2 -b 3 -b 4
