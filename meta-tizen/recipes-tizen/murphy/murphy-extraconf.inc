@@ -1,3 +1,6 @@
+#We should deseable PARALLEL_MAKE only for install
+PARALLEL_MAKE = ""
+
 do_install_append() {
     rm -fr ${D}${systemd_unitdir}/user
     rm ${D}/usr/lib/libmurphy-plugin-system-monitor*
