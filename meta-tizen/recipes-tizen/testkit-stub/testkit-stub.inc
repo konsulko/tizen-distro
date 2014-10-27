@@ -2,6 +2,7 @@ DESCRIPTION = "Test stub of testkit-lite"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Development/Testing"
 LICENSE = "GPL-2.0"
+
 PV = "1.0"
 
 SRC_URI = ""

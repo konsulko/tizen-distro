@@ -2,6 +2,7 @@ DESCRIPTION = "Launcher of Tizen Common test suites"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Development/Testing"
 LICENSE = "GPL-2.0"
+
 PV = "2.1.0"
 
 SRC_URI = ""

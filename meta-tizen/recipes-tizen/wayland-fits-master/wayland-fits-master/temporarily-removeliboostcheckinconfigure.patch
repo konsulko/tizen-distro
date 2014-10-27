@@ -1,0 +1,47 @@
+From 9f437cf0ad8f6d2d2f9baf9d252b88ecfbd88721 Mon Sep 17 00:00:00 2001
+From: Xavier Roche <xavier.roche@open.eurogiciel.org>
+Date: Thu, 6 Nov 2014 14:38:21 +0100
+Subject: [PATCH] meta-tizen: temporarily remove liboost check in configure
+
+Signed-off-by: Xavier Roche <xavier.roche@open.eurogiciel.org>
+---
+ configure.ac | 23 -----------------------
+ 1 file changed, 23 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index fd9a91f..df77cc3 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -29,29 +29,6 @@ m4_define([efl_req_version],		[1.7.6])
+ m4_define([gtk_req_version],		[3.8.0])
+ m4_define([boost_req_version],		[1.49.0])
+ 
+-AX_BOOST_BASE([boost_req_version],
+-	[
+-		AX_BOOST_FILESYSTEM
+-		AX_BOOST_REGEX
+-		AX_BOOST_SYSTEM
+-		AX_BOOST_PROGRAM_OPTIONS
+-		AX_BOOST_THREAD
+-		BOOST_LIBS="$BOOST_LDFLAGS $BOOST_FILESYSTEM_LIB $BOOST_REGEX_LIB $BOOST_SYSTEM_LIB $BOOST_PROGRAM_OPTIONS_LIB $BOOST_THREAD_LIB"
+-		AC_SUBST(BOOST_LIBS)
+-	],
+-	[
+-		AC_MSG_ERROR([
+-
+-			Boost libraries are required:
+-
+-			boost_filesystem >= boost_req_version
+-			boost_regex >= boost_req_version
+-			boost_system >= boost_req_version
+-			boost_program_options >= boost_req_version
+-			boost_thread >= boost_req_version
+-		])
+-	]
+-)
+ 
+ PKG_CHECK_MODULES([CHECK], [check >= check_req_version])
+ PKG_CHECK_MODULES([WAYLAND],
+-- 
+1.8.4.5
+
