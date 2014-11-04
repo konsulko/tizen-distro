@@ -2,12 +2,13 @@ DESCRIPTION = "A hash table for C structures"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Kernel"
 LICENSE = "BSD-style single-clause"
+PV = "1.9.7"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

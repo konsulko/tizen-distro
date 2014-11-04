@@ -2,12 +2,13 @@ DESCRIPTION = "Stand-alone ini file parsing library"
 HOMEPAGE = "http://ndevilla.free.fr/iniparser/"
 SECTION = "System/Libraries"
 LICENSE = "MIT"
+PV = "2.17"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

@@ -2,12 +2,13 @@ DESCRIPTION = "Library for Crypto UI related task"
 HOMEPAGE = "http://www.gnome.org"
 SECTION = "Security/Crypto Libraries"
 LICENSE = "LGPL-2.1+"
+PV = "3.8.2"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

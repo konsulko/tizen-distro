@@ -2,12 +2,13 @@ DESCRIPTION = "NFC Core API"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Network & Connectivity/NFC"
 LICENSE = "Apache-2.0"
+PV = "0.1.5"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -30,10 +31,10 @@ RDEPENDS_${PN}-dev += "capi-network-nfc"
 DEPENDS = ""
 #DEPENDS of capi-network-nfc
 inherit tizen_cmake
-DEPENDS += "vconf"
 inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
+DEPENDS += "vconf"
 DEPENDS += "capi-base-common"
 DEPENDS += "nfc-manager-neard"
 

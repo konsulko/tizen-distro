@@ -2,12 +2,13 @@ DESCRIPTION = "Bluetooth framework for BlueZ and Obexd"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Network & Connectivity/Bluetooth"
 LICENSE = "Apache-2.0"
+PV = "0.2.55"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -38,9 +39,8 @@ RDEPENDS_${PN}-dev += "bluetooth-frwk"
 RDEPENDS_${PN}-service += "bluetooth-frwk"
 
 #RDEPENDS of bluetooth-frwk (${PN})
-RDEPENDS_${PN} += "bluetooth-tools"
 RDEPENDS_${PN} += "dbus"
-RDEPENDS_${PN} += "syspopup"
+RDEPENDS_${PN} += "bluetooth-tools"
 RDEPENDS_${PN} += "vconf"
 RDEPENDS_${PN} += "glibc"
 
@@ -51,7 +51,6 @@ DEPENDS += "status"
 inherit tizen_cmake
 DEPENDS += "libxml2"
 DEPENDS += "dbus"
-DEPENDS += "syspopup"
 DEPENDS += "tizen-platform-config"
 inherit pkgconfig
 DEPENDS += "dlog"
@@ -92,6 +91,7 @@ do_compile() {
  export CFLAGS+="   -Wall -g -fvisibility=hidden -fPIC"
  export LDFLAGS+=" -Wl,--rpath=${prefix}/lib -Wl,--as-needed -Wl,--unresolved-symbols=ignore-in-shared-libs"
  
+ 
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
          -DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
@@ -105,6 +105,7 @@ do_compile() {
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} . \
  -DTZ_SYS_USER_GROUP=users \
+ -DTZ_SYS_DEFAULT_USER=app \
   -DLIBNOTIFY_SUPPORT=Off \
   -DLIBNOTIFICATION_SUPPORT=On
  
@@ -133,16 +134,16 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}${sysconfdir}/rc.d/rc3.d/
- mkdir -p ${D}${sysconfdir}/rc.d/rc5.d/
- ln -s ${sysconfdir}/rc.d/init.d/bluetooth-frwk-service ${D}${sysconfdir}/rc.d/rc3.d/S80bluetooth-frwk-service
- ln -s ${sysconfdir}/rc.d/init.d/bluetooth-frwk-service ${D}${sysconfdir}/rc.d/rc5.d/S80bluetooth-frwk-service
  
  mkdir -p ${D}${systemd_unitdir}/user
  mkdir -p ${D}${systemd_unitdir}/user/tizen-middleware.target.wants
  install -m 0644 bt-service/bluetooth-frwk-service.service ${D}${systemd_unitdir}/user
  ln -s ../bluetooth-frwk-service.service ${D}${systemd_unitdir}/user/tizen-middleware.target.wants/bluetooth-frwk-service.service
  
+ mkdir -p ${D}${prefix}/share/icons/default
+ install -m 0644 ${S}/packaging/bt-icon.png ${D}${prefix}/share/icons/default/bt-icon.png
+ 
+ # On IVI bt-service needs to be run as 'app' even if there is a 'guest' user.
  
  
 }
@@ -189,14 +190,12 @@ MANIFESTFILES_${PN}-core = "bluetooth-frwk.manifest"
 
 bluetooth-frwk-service_files = ""
 bluetooth-frwk-service_files += "${prefix}/share/dbus-1/system-services/org.projectx.bt.service"
-bluetooth-frwk-service_files += "${sysconfdir}/rc.d/init.d/bluetooth-frwk-service"
-bluetooth-frwk-service_files += "${sysconfdir}/rc.d/rc3.d/S80bluetooth-frwk-service"
-bluetooth-frwk-service_files += "${sysconfdir}/rc.d/rc5.d/S80bluetooth-frwk-service"
 bluetooth-frwk-service_files += "${prefix}/bin/bt-service"
 bluetooth-frwk-service_files += "${systemd_unitdir}/user/tizen-middleware.target.wants/bluetooth-frwk-service.service"
 bluetooth-frwk-service_files += "${systemd_unitdir}/user/bluetooth-frwk-service.service"
 bluetooth-frwk-service_files += "/opt/var/lib/bluetooth/auto-pair-blacklist"
 bluetooth-frwk-service_files += "${sysconfdir}/dbus-1/system.d/bluetooth-frwk-service.conf"
+bluetooth-frwk-service_files += "${prefix}/share/icons/default/bt-icon.png"
 MANIFESTFILES_${PN}-service = "bluetooth-frwk.manifest"
 
 bluetooth-frwk_files = ""

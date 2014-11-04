@@ -2,12 +2,13 @@ DESCRIPTION = "Common Meta Data"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Base/Configuration"
 LICENSE = "GPL-2.0"
+PV = "001"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -26,6 +27,7 @@ do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
+ cp ${S}/packaging/meta-common.manifest .
  
  
 }
@@ -43,7 +45,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- make
+ oe_runmake
  
  
  
@@ -69,7 +71,6 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  
- 
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
@@ -81,6 +82,7 @@ meta-common_files += "${prefix}/share/image-configurations/common/*.yaml"
 meta-common_files += "${prefix}/share/image-configurations/common/configs/*.yaml"
 meta-common_files += "${prefix}/share/image-configurations/common/partitions"
 meta-common_files += "${prefix}/share/image-configurations/common/scripts"
+MANIFESTFILES_${PN} = "meta-common.manifest"
 
 FILES_${PN} = "${meta-common_files}"
 

@@ -2,12 +2,13 @@ DESCRIPTION = "Alarm library"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Application Framework/Libraries"
 LICENSE = "Apache-2.0"
+PV = "0.4.86"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

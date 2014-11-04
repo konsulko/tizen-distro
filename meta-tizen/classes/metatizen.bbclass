@@ -26,8 +26,21 @@ python tizen_copy_manifest () {
     # Start by package population by taking a copy of the installed
     # files to operate on
     # Preserve sparse files and hard links
-    cmd = 'cp %s/*.manifest %s' % (dest, dvar)
-    (retval, output) = oe.utils.getstatusoutput(cmd)
-    if retval:
-        bb.fatal("file copy failed with exit code %s (cmd was %s)%s" % (retval, cmd, ":\n%s" % output if output else ""))
+    packages = d.getVar('PACKAGES', True)
+    for pkg in packages.split():
+        manifest_path=d.getVar('MANIFESTFILES_%s' % pkg, True)
+        if manifest_path:
+            manifest_dir = os.path.dirname(manifest_path)
+
+            if manifest_dir:
+                cmd = 'mkdir -p %s/%s' % (dvar,manifest_dir)
+                (retval, output) = oe.utils.getstatusoutput(cmd)
+                if retval:
+                    bb.fatal("directory failed to be created with exit code %s (cmd was %s)%s" % (retval, cmd, ":\n%s" % output if output else ""))
+
+            cmd = 'cp %s/%s %s/%s' % (dest, manifest_path , dvar,manifest_dir)
+
+            (retval, output) = oe.utils.getstatusoutput(cmd)
+            if retval:
+                bb.fatal("file copy failed with exit code %s (cmd was %s)%s" % (retval, cmd, ":\n%s" % output if output else ""))
 }

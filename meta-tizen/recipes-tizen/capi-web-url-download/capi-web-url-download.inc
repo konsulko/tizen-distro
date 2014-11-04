@@ -2,12 +2,13 @@ DESCRIPTION = "CAPI for content download with web url"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Development/Libraries"
 LICENSE = "Apache-2.0"
+PV = "1.1.1"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

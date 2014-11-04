@@ -2,12 +2,13 @@ DESCRIPTION = "Improved Linux sound server"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Multimedia/Audio"
 LICENSE = "GPL-2.0+ and LGPL-2.1+"
+PV = "5.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -136,6 +137,12 @@ DEPENDS += "vconf"
 
 do_prep() {
  cd ${S}
+ #extracte source 0 
+ pushd ${S}/../
+ unp ${S}/packaging/pulseaudio-5.0.tar.gz 
+ popd 
+ chmod -Rf a+rX,u+w,g-w,o-w ${S}
+ #setup -q -T -b0
  echo "5.0" > .tarball-version
  cp ${S}/packaging/pulseaudio.manifest .
  
@@ -150,42 +157,23 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- 
- export CFLAGS="$CFLAGS -fno-strict-aliasing"
- export LD_AS_NEEDED=0
- ./bootstrap.sh --prefix=${prefix} \
-         --disable-static \
-         --enable-alsa \
-         --disable-ipv6 \
-         --disable-oss-output \
-         --disable-oss-wrapper \
-         --disable-x11 \
-         --disable-hal-compat \
-         --disable-lirc \
-         --disable-avahi \
-         --disable-jack \
-         --disable-xen \
-         --without-fftw \
-         --enable-bluez5 \
-         --disable-bluez4 \
-         --with-bluetooth-headset-backend=ofono \
-         --enable-systemd \
-         --with-database=tdb \
-         --enable-samsung-policy \
-         --with-udev-rules-dir=${prefix}/lib/udev/rules.d \
-         --with-system-user=pulse \
-         --with-system-group=pulse \
-         --with-access-group=pulse-access
- 
- oe_runmake -j16 V=0
- 
- 
- 
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  export CFLAGS="$CFLAGS -fno-strict-aliasing"
+  export LD_AS_NEEDED=0
+  NOCONFIGURE=yes ./bootstrap.sh
+  
+  autotools_do_configure
+  
+  oe_runmake -j16 V=0
+  
+  
+  
 }
+EXTRA_OECONF += " --prefix=${prefix} --disable-static --enable-alsa --disable-ipv6 --disable-oss-output --disable-oss-wrapper --disable-x11 --disable-hal-compat --disable-lirc --disable-avahi --disable-jack --disable-xen --without-fftw --enable-bluez5 --disable-bluez4 --with-bluetooth-headset-backend=ofono --enable-systemd --with-database=tdb --enable-samsung-policy --with-udev-rules-dir=${prefix}/lib/udev/rules.d --with-system-user=pulse --with-system-group=pulse --with-access-group=pulse-access"
 
 do_install() {
  export RPM_BUILD_ROOT=${D}

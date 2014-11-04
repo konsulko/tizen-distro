@@ -2,12 +2,13 @@ DESCRIPTION = "GnuPG 2"
 HOMEPAGE = "http://www.gnupg.org/aegypten2/"
 SECTION = "Security/Certificate Management"
 LICENSE = "GPL-3.0+"
+PV = "2.0.19"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

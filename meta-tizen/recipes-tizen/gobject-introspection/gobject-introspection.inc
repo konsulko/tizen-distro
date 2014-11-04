@@ -2,12 +2,13 @@ DESCRIPTION = "GObject Introspection Tools"
 HOMEPAGE = "http://live.gnome.org/GObjectIntrospection"
 SECTION = "Development/Libraries"
 LICENSE = "LGPL-2.1+ and GPL-2.0+"
+PV = "1.36.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

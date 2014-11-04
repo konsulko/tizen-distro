@@ -2,12 +2,13 @@ DESCRIPTION = "Virtual Keyboard Application"
 HOMEPAGE = "http://github.com/etrunko/weekeyboard"
 SECTION = "Graphics & UI Framework/Libraries"
 LICENSE = "Apache-2.0"
+PV = "0.0.2"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -59,7 +60,7 @@ do_compile() {
   
   
   autotools_do_configure
-  oe_runmake -j16
+  make -j16
   
   
   

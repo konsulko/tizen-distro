@@ -2,12 +2,13 @@ DESCRIPTION = "Library for accessing the Secret Service API"
 HOMEPAGE = "http://www.gnome.org/"
 SECTION = "System/Libraries"
 LICENSE = "LGPL-2.1+"
+PV = "0.15"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

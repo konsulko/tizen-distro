@@ -2,12 +2,13 @@ DESCRIPTION = "Tizen Platform Configuration"
 HOMEPAGE = "http://www.tizen.org"
 SECTION = "System/Configuration"
 LICENSE = "MIT"
+PV = "2.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

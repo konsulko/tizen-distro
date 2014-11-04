@@ -2,12 +2,13 @@ DESCRIPTION = "A toolkit to generate the libtizen-platform-config library"
 HOMEPAGE = "http://www.tizen.org"
 SECTION = "Development/Tools"
 LICENSE = "LGPL-2.0"
+PV = "2.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

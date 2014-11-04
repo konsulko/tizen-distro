@@ -2,12 +2,13 @@ DESCRIPTION = "The definition of default ac domains"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Security/Access Control"
 LICENSE = "GPL-2.0"
+PV = "0.1"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

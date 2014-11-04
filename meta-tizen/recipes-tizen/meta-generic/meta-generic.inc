@@ -2,12 +2,13 @@ DESCRIPTION = "Tizen Package Groups and Images Configurations"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Base/Configuration"
 LICENSE = "GPL-2.0"
+PV = "0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

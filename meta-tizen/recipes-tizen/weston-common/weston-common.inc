@@ -2,12 +2,13 @@ DESCRIPTION = "Tizen Common Weston configuration and set-up"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Base/Configuration"
 LICENSE = "MIT"
+PV = "1"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -36,6 +37,7 @@ RDEPENDS_${PN} += "shadow"
 DEPENDS = ""
 #DEPENDS of weston-common
 DEPENDS += "weston"
+DEPENDS += "virtual/egl"
 DEPENDS += "libxkbcommon"
 DEPENDS += "libjpeg-turbo"
 DEPENDS += "glib-2.0"
@@ -48,10 +50,10 @@ DEPENDS_append_class-native = " libtool"
 DEPENDS_append_class-target = " libtool-cross"
 DEPENDS += "cairo"
 DEPENDS += "libpng"
-DEPENDS += "mesa"
 DEPENDS_append_class-native = " autoconf-native"
 DEPENDS_append_class-target = " autoconf-native"
 DEPENDS += "vconf"
+DEPENDS += "virtual/libgles2"
 DEPENDS += "pixman"
 
 do_prep() {
@@ -137,17 +139,17 @@ do_install() {
  # open the graphics device
  mkdir -p ${D}${sysconfdir}/udev/rules.d
  cat >${D}${sysconfdir}/udev/rules.d/99-dri.rules <<'EOF'
- SUBSYSTEM=="drm", MODE="0660", GROUP="display", SMACK="*"
+ SUBSYSTEM=="drm", MODE="0660", GROUP="display", SECLABEL{smack}="*"
 EOF
  
  # user 'display' must own /dev/tty7 for weston to start correctly
  cat >${D}${sysconfdir}/udev/rules.d/99-tty.rules <<'EOF'
- SUBSYSTEM=="tty", KERNEL=="tty7", OWNER="display", SMACK="^"
+ SUBSYSTEM=="tty", KERNEL=="tty7", OWNER="display", SECLABEL{smack}="^"
 EOF
  
- # user 'display' must also be able to access /dev/input/event*
+ # user 'display' must also be able to access /dev/input/*
  cat >${D}${sysconfdir}/udev/rules.d/99-input.rules <<'EOF'
- SUBSYSTEM=="input", KERNEL=="event*", MODE="0660", GROUP="input", SMACK="^"
+ SUBSYSTEM=="input", MODE="0660", GROUP="input", SECLABEL{smack}="^"
 EOF
  
  # install desktop file

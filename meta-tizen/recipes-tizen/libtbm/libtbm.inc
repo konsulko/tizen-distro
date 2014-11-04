@@ -2,12 +2,13 @@ DESCRIPTION = "The library for Tizen Buffer Manager"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
 LICENSE = "MIT"
+PV = "1.1.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

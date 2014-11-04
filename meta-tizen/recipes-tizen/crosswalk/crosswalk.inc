@@ -2,12 +2,13 @@ DESCRIPTION = "Chromium-based app runtime"
 HOMEPAGE = "https://github.com/otcshare/crosswalk"
 SECTION = "Web Framework/Web Run Time"
 LICENSE = "(BSD-3-Clause and LGPL-2.1+)"
+PV = "10.38.222.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -30,7 +31,7 @@ DEPENDS += "app-core"
 DEPENDS += "xmlsec1"
 DEPENDS += "libxslt"
 inherit perlnative
-DEPENDS += "pango"
+DEPENDS += "secure-storage"
 DEPENDS += "bzip2"
 DEPENDS += "nss"
 DEPENDS += "alsa-lib"
@@ -58,8 +59,9 @@ DEPENDS += "libcap"
 DEPENDS += "python-xml"
 DEPENDS_append_class-native = " ninja-native"
 DEPENDS_append_class-target = " ninja-native"
-DEPENDS += "mesa"
+DEPENDS += "pango"
 DEPENDS += "vconf"
+DEPENDS += "virtual/egl"
 DEPENDS += "nspr"
 DEPENDS += "dbus"
 DEPENDS += "libxkbcommon"
@@ -80,7 +82,7 @@ do_prep() {
  cp ${S}/packaging/crosswalk.manifest .
  cp ${S}/packaging/crosswalk.xml.in .
  cp ${S}/packaging/crosswalk.png .
- sed "s/@VERSION@/10.38.217.0/g" crosswalk.xml.in > crosswalk.xml
+ sed "s/@VERSION@/10.38.222.0/g" crosswalk.xml.in > crosswalk.xml
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.in > xwalk
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.service.in > xwalk.service
  
@@ -109,6 +111,13 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
+ 
+ mkdir -p src/out
+ if [ -f ${prefix}/share/crosswalk-thirdparty/out.tgz ]; then
+   tar -zxvf ${prefix}/share/crosswalk-thirdparty/out.tgz
+ fi
+ 
+ find . -exec touch -a -m -t "200912120000" {} \;
  
  # Stop unconditionally passing -Wall to the compiler. Chromium has its own
  # mechanisms for deciding which parts of the code need -Wall and which need it
@@ -236,8 +245,8 @@ pkg_postinst_${PN}() {
 pkg_prerm_${PN}() {
     #!/bin/sh -e
 
-    if [ $1 -eq 1 ] ; then
-    # don't remove if we are upgrade the rpm package
+    if [ $1 -eq 0 ] ; then
+     # don't remove if we are upgrade the rpm package
     [ -L /etc/package-manager/backendlib/libxpk.so ] && rm /etc/package-manager/backendlib/libxpk.so
     [ -L /etc/package-manager/backendlib/libwgt.so ] && rm /etc/package-manager/backendlib/libwgt.so
     [ -L /etc/package-manager/backend/xpk ] && rm /etc/package-manager/backend/xpk

@@ -2,12 +2,13 @@ DESCRIPTION = "Identifying or deleting duplicate files"
 HOMEPAGE = "http://premium.caribe.net/~adrian2/fdupes.html"
 SECTION = "Base/Compression"
 LICENSE = "MIT"
+PV = "1.40"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

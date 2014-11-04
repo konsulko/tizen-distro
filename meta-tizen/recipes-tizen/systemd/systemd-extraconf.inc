@@ -10,6 +10,7 @@ GROUPADD_PARAM_${PN} += "--system -g 19 floppy"
 
 EXTRA_OECONF += "--disable-manpages"
 EXTRA_OECONF += "--without-python"
+#EXTRA_OECONF += "--with-rootprefix=/"
 
 GTKDOC_DOCDIR = "${S}/docs/"
 

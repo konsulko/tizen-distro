@@ -2,12 +2,13 @@ DESCRIPTION = "GENIVI Audio Manager"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/API"
 LICENSE = "MPL-2.0"
+PV = "6.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

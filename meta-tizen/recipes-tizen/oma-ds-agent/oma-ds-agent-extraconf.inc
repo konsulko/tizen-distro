@@ -1,0 +1,1 @@
+INSANE_SKIP_ds-public-plugins = "dev-so"

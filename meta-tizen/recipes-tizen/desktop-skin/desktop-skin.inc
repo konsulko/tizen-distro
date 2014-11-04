@@ -2,12 +2,13 @@ DESCRIPTION = "Desktop skin for Tizen:Common"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Applications/Multimedia"
 LICENSE = "GPL-2.0+"
+PV = "2.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -26,6 +27,7 @@ do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
+ cp ${S}/packaging/desktop-skin.manifest .
  
  
 }
@@ -99,6 +101,7 @@ desktop-skin_files += "${prefix}/share/media/photos/*"
 desktop-skin_files += "${prefix}/share/icons/tizen/32x32/*"
 desktop-skin_files += "${prefix}/share/applications/tizen/*"
 desktop-skin_files += "${prefix}/share/backgrounds/tizen/*"
+MANIFESTFILES_${PN} = "desktop-skin.manifest"
 
 FILES_${PN} = "${desktop-skin_files}"
 

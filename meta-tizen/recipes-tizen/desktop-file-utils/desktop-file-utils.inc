@@ -2,12 +2,13 @@ DESCRIPTION = "Utilities for Manipulating Desktop Files"
 HOMEPAGE = "http://www.freedesktop.org/wiki/Software/desktop-file-utils"
 SECTION = "Development/Tools/Other"
 LICENSE = "GPL-2.0+"
+PV = "0.20"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

@@ -2,12 +2,13 @@ DESCRIPTION = "Resource policy framework"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Service"
 LICENSE = "BSD-3-Clause"
+PV = "0.0.59"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -109,7 +110,7 @@ RDEPENDS_${PN}-tests += "murphy"
 RDEPENDS_${PN}-gam += "murphy"
 
 #RDEPENDS of murphy-system-controller (${PN}-system-controller)
-#RDEPENDS_${PN}-system-controller += "ico-uxf-homescreen"
+RDEPENDS_${PN}-system-controller += "ico-uxf-homescreen"
 
 #RDEPENDS of murphy-plugins-base (${PN}-plugins-base)
 RDEPENDS_${PN}-plugins-base += "murphy-core"
@@ -147,7 +148,8 @@ DEPENDS += "weston-ivi-shell"
 DEPENDS += "smack"
 DEPENDS += "libwebsockets"
 DEPENDS += "ecore"
-DEPENDS += "mesa"
+DEPENDS += "virtual/libgles2"
+DEPENDS += "virtual/egl"
 DEPENDS += "dbus"
 DEPENDS += "pulseaudio"
 DEPENDS += "ail"
@@ -279,10 +281,9 @@ do_install() {
  # Copy the systemd files in place.
  mkdir -p ${D}${systemd_unitdir}/system
  cp packaging.in/murphyd.service ${D}${systemd_unitdir}/system
- mkdir -p ${D}${systemd_unitdir}/user
- cp packaging.in/ico-homescreen.service ${D}${systemd_unitdir}/user
- cp packaging.in/murphy-wait-for-launchpad-ready.path \
-     ${D}${systemd_unitdir}/user
+ # cp packaging.in/ico-homescreen.service %{buildroot}%{_unitdir_user}
+ # cp packaging.in/murphy-wait-for-launchpad-ready.path \
+ #     %{buildroot}%{_unitdir_user}
  
  mkdir -p ${D}${sysconfdir}/dbus-1/system.d
  sed "s/@TZ_SYS_USER_GROUP@/users/g" \
@@ -346,11 +347,11 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     # prevent system controller from starting
-    rm -f ${systemd_unitdir}/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path
+    # rm -f %{_unitdir_user}/weston.target.wants/ico-uxf-wait-launchpad-ready.path
     # instead launch just ico-homescreen
-    rm -f ${systemd_unitdir}/user/weston.target.wants/murphy-wait-for-launchpad-ready.path
-    ln -s ${systemd_unitdir}/user/murphy-wait-for-launchpad-ready.path \
-        ${systemd_unitdir}/user/weston.target.wants/murphy-wait-for-launchpad-ready.path
+    # rm -f %{_unitdir_user}/weston.target.wants/murphy-wait-for-launchpad-ready.path
+    # ln -s %{_unitdir_user}/murphy-wait-for-launchpad-ready.path \
+    #     %{_unitdir_user}/weston.target.wants/murphy-wait-for-launchpad-ready.path
 
 }
 
@@ -371,13 +372,12 @@ pkg_postrm_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    if [ "$1" = "0" ]; then
-    rm -f ${systemd_unitdir}/user/weston.target.wants/murphy-wait-for-launchpad-ready.path
-    if [ -f ${systemd_unitdir}/user/ico-uxf-wait-launchpad-ready.path ]; then
-        ln -sf ${systemd_unitdir}/user/ico-uxf-wait-launchpad-ready.path \
-            ${systemd_unitdir}/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path
-    fi
-    fi
+    #if [ "$1" = "0" ]; then
+    # rm -f %{_unitdir_user}/weston.target.wants/murphy-wait-for-launchpad-ready.path
+    # if [ -f %{_unitdir_user}/ico-uxf-wait-launchpad-ready.path ]; then
+    #     ln -sf %{_unitdir_user}/ico-uxf-wait-launchpad-ready.path \
+    #         %{_unitdir_user}/weston.target.wants/ico-uxf-wait-launchpad-ready.path
+    #fi
 
 }
 
@@ -385,7 +385,7 @@ pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     if [ "$1" = "0" ]; then
-    /bin/systemctl disable murphyd.service
+        systemctl disable murphyd.service
     fi
     ldconfig
 
@@ -547,8 +547,6 @@ murphy-gam_files += "${prefix}/lib/murphy/plugins/plugin-gam-resource-manager.so
 
 murphy-system-controller_files = ""
 murphy-system-controller_files += "${prefix}/lib/murphy/plugins/plugin-system-controller.so"
-murphy-system-controller_files += "${systemd_unitdir}/user/ico-homescreen.service"
-murphy-system-controller_files += "${systemd_unitdir}/user/murphy-wait-for-launchpad-ready.path"
 MANIFESTFILES_${PN}-system-controller = "murphy.manifest"
 
 murphy-glib_files = ""

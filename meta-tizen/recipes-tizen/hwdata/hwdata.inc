@@ -2,12 +2,13 @@ DESCRIPTION = "Hardware identification and configuration data"
 HOMEPAGE = "http://git.fedorahosted.org/git/hwdata.git"
 SECTION = "System/Base"
 LICENSE = "GPL-2.0+"
+PV = "0.260"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

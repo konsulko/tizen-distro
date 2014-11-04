@@ -2,12 +2,13 @@ DESCRIPTION = "Tools for Converting from and to the Tiff Format"
 HOMEPAGE = "http://www.remotesensing.org/libtiff"
 SECTION = "Productivity/Graphics/Convertors"
 LICENSE = "HPND"
+PV = "4.0.2"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

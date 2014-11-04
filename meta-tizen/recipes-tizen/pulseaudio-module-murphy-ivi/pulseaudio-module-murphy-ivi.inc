@@ -1,13 +1,14 @@
 DESCRIPTION = "Pulseaudio module for enforcing policy decisions in the audio domain"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Multimedia/Audio FW"
+SECTION = "Automotive/Resource Policy"
 LICENSE = "LGPL-2.1"
+PV = "0.9.32"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

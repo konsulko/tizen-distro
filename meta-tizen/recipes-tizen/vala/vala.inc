@@ -1,13 +1,14 @@
 DESCRIPTION = "Programming language for GNOME"
 HOMEPAGE = "http://live.gnome.org/Vala"
-SECTION = "Development/Gnome"
+SECTION = "Platform Development/Utilities"
 LICENSE = "LGPL-2.0"
+PV = "0.24.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -45,6 +46,7 @@ do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
+ cp ${S}/packaging/vala.manifest .
  
  
 }
@@ -64,7 +66,7 @@ do_compile() {
   
   
   autotools_do_configure
-  make -j16
+  oe_runmake -j16
   
   
   
@@ -140,6 +142,7 @@ PACKAGES += " libvala-dev "
 
 libvala_files = ""
 libvala_files += "${prefix}/lib/libvala-0.24.so.*"
+MANIFESTFILES_lib${PN} = "vala.manifest"
 
 vala_files = ""
 vala_files += "${prefix}/bin/vala-0.24"
@@ -157,6 +160,7 @@ vala_files += "${prefix}/share/vala"
 vala_files += "${prefix}/share/vala/Makefile.vapigen"
 vala_files += "${prefix}/share/vala-0.24/"
 vala_files += "${prefix}/lib/vala-0.24/"
+MANIFESTFILES_${PN} = "vala.manifest"
 DIRFILES_${PN} = ""
 DIRFILES_${PN} += "${prefix}/share/vala"
 
@@ -165,6 +169,7 @@ libvala-dev_files += "AUTHORS ChangeLog NEWS README"
 libvala-dev_files += "${prefix}/include/vala-0.24/"
 libvala-dev_files += "${prefix}/lib/libvala-0.24.so"
 libvala-dev_files += "${prefix}/lib/pkgconfig/libvala-0.24.pc"
+MANIFESTFILES_lib${PN}-dev = "vala.manifest"
 
 FILES_lib${PN} = "${libvala_files}"
 FILES_${PN} = "${vala_files}"

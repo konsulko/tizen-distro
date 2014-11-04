@@ -2,12 +2,13 @@ DESCRIPTION = "Bullet Continuous Collision Detection and Physics Library"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
 LICENSE = "Zlib"
+PV = "2.81"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

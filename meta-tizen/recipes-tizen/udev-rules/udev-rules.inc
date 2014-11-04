@@ -2,12 +2,13 @@ DESCRIPTION = "Tizen IVI udev Rules"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/Hardware Adaptation"
 LICENSE = "GPL-2.0"
+PV = "0.13"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

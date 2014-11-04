@@ -2,12 +2,13 @@ DESCRIPTION = "Multimedia Framework Common Library"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Multimedia/Libraries"
 LICENSE = "Apache-2.0"
+PV = "0.2.55"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

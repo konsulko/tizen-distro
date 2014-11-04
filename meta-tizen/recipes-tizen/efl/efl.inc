@@ -2,12 +2,13 @@ DESCRIPTION = "Enlightenment Foundation Libraries - set of libraries used (not o
 HOMEPAGE = "http://enlightenment.org/"
 SECTION = "Graphics & UI Framework/API"
 LICENSE = "LGPL-2.1"
+PV = "1.9.3"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -340,11 +341,11 @@ DEPENDS += "giflib"
 DEPENDS += "udev"
 DEPENDS += "capi-system-sensor"
 DEPENDS += "gnutls"
-DEPENDS += "mesa"
 DEPENDS += "util-linux"
 DEPENDS += "vconf"
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
+DEPENDS += "virtual/egl"
 DEPENDS += "libxkbcommon"
 DEPENDS += "fribidi"
 DEPENDS += "libjpeg-turbo"

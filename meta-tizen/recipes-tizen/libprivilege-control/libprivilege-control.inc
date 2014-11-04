@@ -2,12 +2,13 @@ DESCRIPTION = "Library to control privilege of application"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Security/Access Control"
 LICENSE = "Apache-2.0"
+PV = "0.0.43.TIZEN"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

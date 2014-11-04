@@ -2,12 +2,13 @@ DESCRIPTION = "NFC framework manager"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Network & Connectivity/NFC"
 LICENSE = "Flora"
+PV = "0.1.6"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -43,13 +44,13 @@ DEPENDS = ""
 #DEPENDS of nfc-manager-neard
 DEPENDS += "pkgmgr"
 DEPENDS += "security-server"
-inherit pkgconfig
+DEPENDS += "aul"
 DEPENDS += "dlog"
 DEPENDS += "curl"
 inherit tizen_cmake
 DEPENDS += "capi-network-wifi"
 DEPENDS += "app-svc"
-DEPENDS += "aul"
+inherit pkgconfig
 DEPENDS += "capi-media-wav-player"
 DEPENDS += "glib-2.0"
 DEPENDS += "system-server"

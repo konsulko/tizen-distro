@@ -2,12 +2,13 @@ DESCRIPTION = "Library for the light-weight IPC"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Base/IPC"
 LICENSE = "Apache-2.0"
+PV = "0.5.9"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

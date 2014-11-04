@@ -2,12 +2,13 @@ DESCRIPTION = "Application Information Library"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Application Framework/Libraries"
 LICENSE = "Apache-2.0"
+PV = "0.2.80"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -23,9 +24,6 @@ PROVIDES += "ail-dev"
 
 
 RDEPENDS = ""
-#RDEPENDS of ail (${PN})
-RDEPENDS_${PN} += "libcap"
-
 #RDEPENDS of ail-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "tizen-platform-config"
 RDEPENDS_${PN}-dev += "libail"

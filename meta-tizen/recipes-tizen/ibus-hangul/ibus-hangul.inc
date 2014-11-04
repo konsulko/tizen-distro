@@ -2,12 +2,13 @@ DESCRIPTION = "The Hangul engine for IBus input platform"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
 LICENSE = "GPL-2.0+"
+PV = "1.4.2"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

@@ -2,12 +2,13 @@ DESCRIPTION = "A Device library in TIZEN C API"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/API"
 LICENSE = "Apache-2.0"
+PV = "0.1.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

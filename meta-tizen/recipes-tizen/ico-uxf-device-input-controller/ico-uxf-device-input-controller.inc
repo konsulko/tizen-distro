@@ -2,12 +2,13 @@ DESCRIPTION = "Device Input Controller"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Graphics & UI Framework/Input"
 LICENSE = "Apache-2.0"
+PV = "0.9.06"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -25,10 +26,12 @@ RDEPENDS_${PN} += "ico-uxf-weston-plugin"
 DEPENDS = ""
 #DEPENDS of ico-uxf-device-input-controller
 DEPENDS += "ico-uxf-utilities"
+DEPENDS += "virtual/egl"
 inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "wayland"
-DEPENDS += "mesa"
+DEPENDS += "virtual/libgl"
+DEPENDS += "virtual/libgles2"
 DEPENDS += "ico-uxf-weston-plugin"
 
 do_prep() {

@@ -2,12 +2,13 @@ DESCRIPTION = "Library providing support for "XML Signature" and "XML Encryption
 HOMEPAGE = "http://www.aleksey.com/xmlsec/index.html"
 SECTION = "System/Libraries"
 LICENSE = "MIT"
+PV = "1.2.19"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

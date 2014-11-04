@@ -2,12 +2,13 @@ DESCRIPTION = "Account DB library"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Social & Content/Utilities"
 LICENSE = "Apache-2.0"
+PV = "0.2.52"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

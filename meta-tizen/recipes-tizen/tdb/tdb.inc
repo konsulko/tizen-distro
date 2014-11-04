@@ -2,12 +2,13 @@ DESCRIPTION = "Samba Trivial Database"
 HOMEPAGE = "http://tdb.samba.org/"
 SECTION = "System/Libraries"
 LICENSE = "GPLv3.0+"
+PV = "1.2.10"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

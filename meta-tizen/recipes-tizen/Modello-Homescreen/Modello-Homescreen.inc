@@ -2,12 +2,13 @@ DESCRIPTION = "A proof of concept pure html5 UI"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/Modello"
 LICENSE = "Apache-2.0"
+PV = "0.0.2"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -23,6 +24,7 @@ RDEPENDS_${PN} += "Modello-Common"
 DEPENDS = ""
 #DEPENDS of Modello-Homescreen
 DEPENDS += "tizen-platform-config"
+inherit pkgconfig
 DEPENDS += "zip"
 
 do_prep() {

@@ -2,12 +2,13 @@ DESCRIPTION = "GENIVI Node Startup Controller"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/GENIVI"
 LICENSE = "MPL-2.0"
+PV = "1.0.2"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

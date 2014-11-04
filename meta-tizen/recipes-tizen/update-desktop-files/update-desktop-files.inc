@@ -2,12 +2,13 @@ DESCRIPTION = "A Build Tool to Update Desktop Files"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Development/Tools"
 LICENSE = "GPL-2.0+"
+PV = "12.1"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

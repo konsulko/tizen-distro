@@ -2,12 +2,13 @@ DESCRIPTION = "Weston IVI Shell"
 HOMEPAGE = "https://github.com/ntanibata/weston-ivi-shell/"
 SECTION = "Graphics & UI Framework/Wayland Window System"
 LICENSE = "MIT"
+PV = "0.1.7"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -42,6 +43,7 @@ RDEPENDS_${PN} += "weston"
 
 DEPENDS = ""
 #DEPENDS of weston-ivi-shell
+DEPENDS += "virtual/egl"
 DEPENDS += "mtdev"
 DEPENDS += "libxkbcommon"
 DEPENDS += "libjpeg-turbo"
@@ -53,10 +55,9 @@ DEPENDS += "wayland"
 DEPENDS_append_class-native = " libtool"
 DEPENDS_append_class-target = " libtool-cross"
 DEPENDS += "cairo"
-DEPENDS += "mesa"
+DEPENDS += "pango"
 DEPENDS_append_class-native = " autoconf-native"
 DEPENDS_append_class-target = " autoconf-native"
-DEPENDS += "pango"
 DEPENDS += "pixman"
 
 do_prep() {

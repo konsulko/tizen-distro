@@ -2,12 +2,13 @@ DESCRIPTION = "Evolution Data Server"
 HOMEPAGE = "http://www.gnome.org"
 SECTION = "Development/Libraries"
 LICENSE = "LGPL-2.0+"
+PV = "3.11.93"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -66,9 +67,9 @@ RDEPENDS_${PN}-doc += "evolution-data-server"
 RDEPENDS_${PN}-dev += "evolution-data-server"
 RDEPENDS_${PN}-dev += "libedataserver"
 RDEPENDS_${PN}-dev += "libecal"
+RDEPENDS_${PN}-dev += "glibc"
 RDEPENDS_${PN}-dev += "libcamel"
 RDEPENDS_${PN}-dev += "libedata-cal"
-RDEPENDS_${PN}-dev += "glibc"
 RDEPENDS_${PN}-dev += "libedata-book"
 RDEPENDS_${PN}-dev += "libebook"
 RDEPENDS_${PN}-dev += "libebackend"
@@ -78,6 +79,7 @@ DEPENDS = ""
 #DEPENDS of evolution-data-server
 DEPENDS_append_class-native = " intltool-native"
 DEPENDS_append_class-target = " intltool-native"
+DEPENDS += "glibc-locale"
 DEPENDS += "gnome-common"
 DEPENDS += "gperf"
 DEPENDS += "nss"

@@ -2,12 +2,13 @@ DESCRIPTION = "Sensor framework client library"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Sensor Framework"
 LICENSE = "Apache-2.0"
+PV = "0.5.27"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

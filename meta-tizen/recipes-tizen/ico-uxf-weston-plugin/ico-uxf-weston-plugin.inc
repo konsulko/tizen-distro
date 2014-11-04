@@ -2,12 +2,13 @@ DESCRIPTION = "Weston Plugins for IVI"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/ICO Homescreen"
 LICENSE = "MIT"
+PV = "0.9.22"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -33,13 +34,14 @@ RDEPENDS_${PN} += "weekeyboard"
 DEPENDS = ""
 #DEPENDS of ico-uxf-weston-plugin
 DEPENDS += "genivi-shell"
+DEPENDS += "virtual/egl"
 DEPENDS += "evas"
 DEPENDS += "aul"
 DEPENDS += "weston-ivi-shell"
 inherit pkgconfig
 DEPENDS += "weston"
+DEPENDS += "virtual/libgl"
 DEPENDS += "ecore"
-DEPENDS += "mesa"
 DEPENDS += "pixman"
 
 do_prep() {

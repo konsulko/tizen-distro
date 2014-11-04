@@ -2,12 +2,13 @@ DESCRIPTION = "Pure html5 UI"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/Modello"
 LICENSE = "Apache-2.0"
+PV = "0.0.3"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -29,7 +30,7 @@ DEPENDS += "zip"
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello-Hvac-0.0.2
+ #setup -q -n Modello-Hvac-0.0.3
  cp ${S}/packaging/Modello-Hvac.manifest .
  
  

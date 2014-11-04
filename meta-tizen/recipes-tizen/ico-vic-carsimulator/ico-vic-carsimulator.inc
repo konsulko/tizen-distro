@@ -2,12 +2,13 @@ DESCRIPTION = "CarSimulator"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/ICO Homescreen"
 LICENSE = "Apache-2.0"
+PV = "0.9.10"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -26,6 +27,7 @@ DEPENDS = ""
 #DEPENDS of ico-vic-carsimulator
 DEPENDS += "ico-uxf-utilities"
 DEPENDS += "make"
+inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "json-glib"
 DEPENDS_append_class-native = " automake-native"

@@ -2,12 +2,13 @@ DESCRIPTION = "An IRI parsing library"
 HOMEPAGE = "http://code.google.com/p/libiri/"
 SECTION = "System/Libraries"
 LICENSE = "BSD-3-Clause"
+PV = "1.1"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

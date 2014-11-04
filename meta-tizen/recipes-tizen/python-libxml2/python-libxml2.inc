@@ -2,12 +2,13 @@ DESCRIPTION = "Python Bindings for libxml2"
 HOMEPAGE = "http://xmlsoft.org"
 SECTION = "Platform Development/Python"
 LICENSE = "MIT"
+PV = "2.8.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

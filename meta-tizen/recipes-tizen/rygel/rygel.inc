@@ -2,12 +2,13 @@ DESCRIPTION = "GNOME UPnP/DLNA Media Server"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Applications/Multimedia"
 LICENSE = "LGPL-2.0+"
+PV = "0_22_0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -22,6 +23,7 @@ PROVIDES += "rygel-dev"
 RDEPENDS = ""
 #RDEPENDS of rygel (${PN})
 RDEPENDS_${PN} += "coreutils"
+RDEPENDS_${PN} += "/usr/bin/pkg_initdb"
 
 #RDEPENDS of rygel-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "rygel"
@@ -34,7 +36,7 @@ DEPENDS += "util-linux"
 DEPENDS += "gupnp-dlna"
 DEPENDS += "gnome-common"
 DEPENDS += "gstreamer1.0-plugins-base"
-DEPENDS += "vala"
+DEPENDS += "gstreamer1.0"
 inherit pkgconfig
 DEPENDS += "gupnp"
 DEPENDS += "libsoup-2.4"
@@ -45,7 +47,7 @@ DEPENDS += "gupnp-av"
 DEPENDS += "sqlite3"
 DEPENDS += "libxslt"
 DEPENDS += "glib-2.0"
-DEPENDS += "gstreamer1.0"
+DEPENDS += "vala"
 DEPENDS += "dbus-glib"
 
 do_prep() {
@@ -95,6 +97,9 @@ do_install() {
  mkdir -p ${D}
  
  rm -rf ${D}
+ mkdir -p ${D}${prefix}/share/packages/
+ install -m 0644 org.tizen.rygel.xml ${D}${prefix}/share/packages/
+ 
  # >> install pre
  # << install pre
  
@@ -128,6 +133,7 @@ pkg_postinst_${PN}() {
     /bin/touch --no-create $D${prefix}/share/icons/hicolor || :
     $D${prefix}/bin/gtk-update-icon-cache \
       --quiet $D${prefix}/share/icons/hicolor 2> /dev/null|| :
+    /usr/bin/pkg_initdb
     # systemctl daemon-reload
     # systemctl restart rygel.service
 
@@ -191,6 +197,7 @@ rygel_files += "${prefix}/share/rygel/xml/RenderingControl2.xml"
 rygel_files += "${prefix}/share/rygel/xml/X_MS_MediaReceiverRegistrar1.xml"
 rygel_files += "${prefix}/share/man/man1/rygel.1.gz"
 rygel_files += "${prefix}/share/man/man5/rygel.conf.5.gz"
+rygel_files += "${prefix}/share/packages/org.tizen.rygel.xml"
 rygel_files += "${prefix}/lib/librygel-*.so.*"
 rygel_files += "${prefix}/lib/rygel-2.2/plugins/*.so"
 rygel_files += "${prefix}/lib/rygel-2.2/plugins/*.plugin"

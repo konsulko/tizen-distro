@@ -2,12 +2,13 @@ DESCRIPTION = "Neard Abstraction Library (for Neard v0.7)"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Network & Connectivity/NFC"
 LICENSE = "LGPL-2.0"
+PV = "0.7.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -50,6 +51,7 @@ do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -n neardal-0.7.0
+ cp ${S}/packaging/neardal.manifest .
  
  
 }
@@ -118,11 +120,13 @@ neardal-dev_files = ""
 neardal-dev_files += "${prefix}/include/neardal/*.h"
 neardal-dev_files += "${prefix}/lib/pkgconfig/neardal.pc"
 neardal-dev_files += "${prefix}/lib/libneardal.so"
+MANIFESTFILES_${PN}-dev = "neardal.manifest"
 
 neardal_files = ""
 neardal_files += "README AUTHORS"
 neardal_files += "${prefix}/lib/libneardal.so.0"
 neardal_files += "${prefix}/lib/libneardal.so.0.0.1"
+MANIFESTFILES_${PN} = "neardal.manifest"
 
 FILES_${PN}-dev = "${neardal-dev_files}"
 FILES_${PN} = "${neardal_files}"

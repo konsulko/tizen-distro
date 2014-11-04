@@ -2,12 +2,13 @@ DESCRIPTION = "Message port daemon"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Service"
 LICENSE = "LGPL-2.1+"
+PV = "1.0.3"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -43,10 +44,10 @@ DEPENDS = ""
 #DEPENDS of libmessage-port
 #DEPENDS of message-port
 DEPENDS += "pkgmgr-info"
-DEPENDS += "aul"
 inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "glib-2.0"
+DEPENDS += "aul"
 DEPENDS += "bundle"
 
 do_prep() {

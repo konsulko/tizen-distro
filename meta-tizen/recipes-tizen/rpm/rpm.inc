@@ -2,12 +2,13 @@ DESCRIPTION = "The Package Manager"
 HOMEPAGE = "http://www.rpm.org"
 SECTION = "Base/Package Management"
 LICENSE = "GPL-2.0+"
+PV = "4.11.0.1"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -62,10 +63,10 @@ RDEPENDS_${PN}-build += "make"
 RDEPENDS_${PN}-build += "gcc"
 RDEPENDS_${PN}-build += "patch"
 RDEPENDS_${PN}-build += "xz"
-RDEPENDS_${PN}-build += "glibc"
 RDEPENDS_${PN}-build += "findutils"
 RDEPENDS_${PN}-build += "gzip"
 RDEPENDS_${PN}-build += "rpm"
+RDEPENDS_${PN}-build += "glibc"
 RDEPENDS_${PN}-build += "binutils"
 
 #RDEPENDS of rpm-dev (${PN}-dev)
@@ -83,9 +84,9 @@ DEPENDS += "file"
 DEPENDS += "popt"
 DEPENDS += "uthash"
 DEPENDS += "nss"
+DEPENDS += "make"
 DEPENDS += "bzip2"
 DEPENDS += "lua"
-DEPENDS += "elfutils"
 DEPENDS += "patch"
 inherit pkgconfig
 inherit pythonnative
@@ -102,7 +103,7 @@ DEPENDS += "acl"
 DEPENDS += "gzip"
 DEPENDS_append_class-native = " fdupes-native"
 DEPENDS_append_class-target = " fdupes-native"
-DEPENDS += "make"
+DEPENDS += "elfutils"
 DEPENDS += "binutils"
 
 do_prep() {
@@ -204,7 +205,8 @@ do_install() {
  rm -rf ${D}${mandir}/{fr,ja,ko,pl,ru,sk}
  rm -f ${D}${prefix}/share/locale/de/LC_MESSAGES/rpm.mo
  rm -f ${D}${prefix}/lib/rpm/cpanflute ${D}${prefix}/lib/rpm/cpanflute2
- install -m 755 scripts/find-supplements{,.ksyms} ${D}${prefix}/lib/rpm
+ install -m 755 scripts/find-supplements ${D}${prefix}/lib/rpm
+ install -m 755 scripts/find-supplements.ksyms ${D}${prefix}/lib/rpm
  install -m 755 scripts/firmware.prov ${D}${prefix}/lib/rpm
  install -m 755 scripts/debuginfo.prov ${D}${prefix}/lib/rpm
  rm -f ${D}${prefix}/lib/locale ${D}${prefix}/lib/rpmrc

@@ -2,12 +2,13 @@ DESCRIPTION = "Selection of tools for developers working with Smack"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Security/Access Control"
 LICENSE = "LGPL-2.1"
+PV = "1.0.4"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

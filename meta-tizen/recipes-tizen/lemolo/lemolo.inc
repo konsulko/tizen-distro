@@ -2,12 +2,13 @@ DESCRIPTION = "Ofono EFL Dialer"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Applications/Telephony"
 LICENSE = "Apache-2.0"
+PV = "0.1.7"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -26,7 +27,6 @@ DEPENDS = ""
 #Replace "DEPENDS" on gettext by "inherit gettext"
 inherit gettext
 DEPENDS += "pulseaudio"
-inherit pkgconfig
 DEPENDS += "ofono"
 DEPENDS += "capi-system-power"
 DEPENDS += "evas"

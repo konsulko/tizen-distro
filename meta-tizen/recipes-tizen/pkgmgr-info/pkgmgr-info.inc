@@ -2,12 +2,13 @@ DESCRIPTION = "Packager Manager infomation api for package"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Application Framework/Package Management"
 LICENSE = "Apache-2.0"
+PV = "0.0.134"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

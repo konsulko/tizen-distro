@@ -2,12 +2,13 @@ DESCRIPTION = "Small Embeddable Language with Simple Procedural Syntax"
 HOMEPAGE = "http://www.lua.org"
 SECTION = "Base/Libraries"
 LICENSE = "MIT"
+PV = "5.1.4"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

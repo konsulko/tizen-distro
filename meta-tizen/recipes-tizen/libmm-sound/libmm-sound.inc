@@ -2,12 +2,13 @@ DESCRIPTION = "MMSound Package contains client lib and sound_server binary"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
 LICENSE = "Apache-2.0"
+PV = "0.7.2f"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

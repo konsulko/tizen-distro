@@ -2,12 +2,13 @@ DESCRIPTION = "Advanced Easy-to-Use Asynchronous-Capable DNS Utilities"
 HOMEPAGE = "http://www.chiark.greenend.org.uk/~ian/adns/"
 SECTION = "System/Utilities"
 LICENSE = "GPL-2.0+"
+PV = "1.4"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

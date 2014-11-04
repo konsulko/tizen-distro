@@ -2,12 +2,13 @@ DESCRIPTION = "HomeScreen sample application"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/ICO Homescreen"
 LICENSE = "Apache-2.0"
+PV = "0.9.8"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

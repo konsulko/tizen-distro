@@ -1,13 +1,14 @@
-DESCRIPTION = "File manager service server"
+DESCRIPTION = "File manager service server."
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Multimedia/Service"
 LICENSE = "Apache-2.0"
+PV = "0.2.47"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -107,6 +108,8 @@ do_install() {
  
  mkdir -p ${D}${systemd_unitdir}/system/multi-user.target.wants
  install -m 644 ${S}/packaging/media-server.service ${D}${systemd_unitdir}/system/media-server.service
+ mkdir -p ${D}${systemd_unitdir}/user
+ install -m 644 ${S}/packaging/media-server-user.service ${D}${systemd_unitdir}/user/media-server-user.service
  ln -s ../media-server.service ${D}${systemd_unitdir}/system/multi-user.target.wants/media-server.service
  mkdir -p ${D}${prefix}/data/data-media/Camera
  mkdir -p ${D}${prefix}/data/data-media/Downloads
@@ -143,6 +146,9 @@ pkg_postinst_${PN}() {
     chgrp users $D${prefix}/bin/media-data-sdk_create_db.sh
     chgrp -R users $D${prefix}/data/data-media
     chgrp -R users $D${prefix}/data/file-manager-service
+    # setup dbupdate in user session
+    mkdir -p ${systemd_unitdir}/user/default.target.requires/
+    ln -sf ../media-server-user.service  ${systemd_unitdir}/user/default.target.wants/
 
 }
 
@@ -169,6 +175,7 @@ media-server_files += "${prefix}/bin/media-scanner"
 media-server_files += "${prefix}/bin/mediadb-update"
 media-server_files += "${systemd_unitdir}/system/media-server.service"
 media-server_files += "${systemd_unitdir}/system/multi-user.target.wants/media-server.service"
+media-server_files += "${systemd_unitdir}/user/media-server-user.service"
 media-server_files += "${prefix}/bin/media-data-sdk_create_db.sh"
 media-server_files += "${prefix}/data/data-media/*"
 media-server_files += "${prefix}/data/file-manager-service/.thumb/*"

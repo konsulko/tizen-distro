@@ -2,12 +2,13 @@ DESCRIPTION = "Hangul input library used by scim-hangul and ibus-hangul"
 HOMEPAGE = "http://code.google.com/p/libhangul"
 SECTION = "System/Utilities"
 LICENSE = "LGPL-2.1"
+PV = "0.1.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

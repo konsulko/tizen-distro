@@ -2,12 +2,13 @@ DESCRIPTION = "WBXML parser and compiler library"
 HOMEPAGE = "http://libwbxml.opensync.org/"
 SECTION = "System/Libraries"
 LICENSE = "LGPL-2.1+"
+PV = "0.11.2"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

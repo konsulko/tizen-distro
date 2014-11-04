@@ -2,12 +2,13 @@ DESCRIPTION = "Userspace interface to kernel DRM services"
 HOMEPAGE = "http://cgit.freedesktop.org/mesa/drm"
 SECTION = "Graphics & UI Framework/Libraries"
 LICENSE = "MIT"
+PV = "2.4.52"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

@@ -2,12 +2,13 @@ DESCRIPTION = "Python bindings for D-Bus"
 HOMEPAGE = "http://www.freedesktop.org/wiki/Software/DBusBindings/"
 SECTION = "System/Libraries"
 LICENSE = "MIT"
+PV = "1.1.1"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

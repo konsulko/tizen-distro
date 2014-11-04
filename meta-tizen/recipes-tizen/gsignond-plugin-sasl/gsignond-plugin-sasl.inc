@@ -2,12 +2,13 @@ DESCRIPTION = "SASL plugin for GLib"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Security/Accounts"
 LICENSE = "LGPL-2.1+"
+PV = "1.0.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

@@ -2,12 +2,13 @@ DESCRIPTION = "Network Wi-Fi library in TIZEN C API"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Network"
 LICENSE = "Apache-2.0"
+PV = "0.1.2_18"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

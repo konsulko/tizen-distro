@@ -2,12 +2,13 @@ DESCRIPTION = "Intelligent Input Bus for Linux OS"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
 LICENSE = "LGPL-2.0+"
+PV = "1.5.4"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

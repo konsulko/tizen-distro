@@ -1,0 +1,21 @@
+diff --git a/src/build/common.gypi b/src/build/common.gypi
+index 5ce3249..329623f 100644
+--- a/src/build/common.gypi
++++ b/src/build/common.gypi
+@@ -4187,7 +4187,7 @@
+             # Newer gccs and clangs support -fuse-ld, use the flag to force gold
+             # selection.
+             # gcc -- http://gcc.gnu.org/onlinedocs/gcc-4.8.0/gcc/Optimize-Options.html
+-            'ldflags': [ '-fuse-ld=gold', ],
++            #'ldflags': [ '-fuse-ld=gold', ],
+ 
+             'target_conditions': [
+               ['_toolset=="target"', {
+@@ -4201,6 +4201,7 @@
+                   # crashing on the bots: crbug.com/161942.
+                   # '-Wl,--threads',
+                   # '-Wl,--thread-count=4',
++                  '-fuse-ld=gold',
+                 ],
+               }],
+             ],

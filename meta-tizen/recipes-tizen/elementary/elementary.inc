@@ -2,12 +2,13 @@ DESCRIPTION = "EFL toolkit for small touchscreens"
 HOMEPAGE = "http://trac.enlightenment.org/e/wiki/Elementary"
 SECTION = "Graphics & UI Framework/Development"
 LICENSE = "LGPL-2.1+"
+PV = "1.9.3"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

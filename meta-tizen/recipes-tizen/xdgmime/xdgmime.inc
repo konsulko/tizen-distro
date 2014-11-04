@@ -2,12 +2,13 @@ DESCRIPTION = "Querying information about file type"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Applications/Other"
 LICENSE = "LGPL-2.0 and AFL-2.0"
+PV = "0.0.12"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

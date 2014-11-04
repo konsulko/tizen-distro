@@ -2,12 +2,13 @@ DESCRIPTION = "GLib based Single Sign-On daemon"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Security/Accounts"
 LICENSE = "LGPL-2.1+ and GPL-2.0+"
+PV = "1.0.3"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -39,12 +40,12 @@ RDEPENDS_${PN}-dev += "gsignond"
 
 DEPENDS = ""
 #DEPENDS of gsignond
-DEPENDS += "smack"
-DEPENDS += "dbus"
 inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "ecryptfs-utils"
+DEPENDS += "smack"
 DEPENDS += "sqlite3"
+DEPENDS += "dbus"
 
 do_prep() {
  cd ${S}
@@ -100,7 +101,7 @@ do_install() {
  install -m 755 -d ${D}${systemd_unitdir}/user
  install -m 644 data/gsignond.service ${D}${systemd_unitdir}/user/
  install -m 755 -d ${D}${systemd_unitdir}/user/weston.target.wants
- ln -sf ../gsignond.service ${D}${systemd_unitdir}/user/weston.target.wants/gsignond.service
+ ln -s ../gsignond.service ${D}${systemd_unitdir}/user/weston.target.wants/gsignond.service
  
  
 }
@@ -128,7 +129,7 @@ gsignond-doc_files = ""
 gsignond-doc_files += "${prefix}/share/gtk-doc/html/gsignond/*"
 
 gsignond_files = ""
-gsignond_files += "AUTHORS COPYING.LIB"
+gsignond_files += "AUTHORS COPYING.LIB INSTALL NEWS README"
 gsignond_files += "${prefix}/bin/gsignond"
 gsignond_files += "${prefix}/lib/libgsignond-*.so.*"
 gsignond_files += "${prefix}/lib/gsignond/extensions/*.so*"

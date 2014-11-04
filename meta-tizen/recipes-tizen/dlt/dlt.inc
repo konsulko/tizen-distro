@@ -2,12 +2,13 @@ DESCRIPTION = "GENIVI Diagnostic Log and Trace"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/GENIVI"
 LICENSE = "MPL-2.0"
+PV = "2.11.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

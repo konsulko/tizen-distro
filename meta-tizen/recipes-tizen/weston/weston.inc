@@ -2,12 +2,13 @@ DESCRIPTION = "Wayland Compositor Infrastructure"
 HOMEPAGE = "http://weston.freedesktop.org/"
 SECTION = "Graphics & UI Framework/Wayland Window System"
 LICENSE = "MIT"
+PV = "1.5.0"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -41,7 +42,8 @@ DEPENDS += "expat"
 DEPENDS += "udev"
 DEPENDS += "libvpx"
 DEPENDS += "xz"
-DEPENDS += "poppler"
+DEPENDS_append_class-native = " automake-native"
+DEPENDS_append_class-target = " automake-native"
 DEPENDS += "mesa"
 DEPENDS += "systemd"
 inherit pkgconfig
@@ -53,13 +55,14 @@ DEPENDS_append_class-native = " libtool"
 DEPENDS_append_class-target = " libtool-cross"
 DEPENDS += "libffi"
 DEPENDS += "pango"
+DEPENDS += "poppler"
+DEPENDS += "virtual/libgles2"
 DEPENDS += "libpam"
+DEPENDS += "virtual/egl"
 DEPENDS += "libxkbcommon"
 DEPENDS += "libjpeg-turbo"
 DEPENDS_append_class-native = " autoconf-native"
 DEPENDS_append_class-target = " autoconf-native"
-DEPENDS_append_class-native = " automake-native"
-DEPENDS_append_class-target = " automake-native"
 
 do_prep() {
  cd ${S}

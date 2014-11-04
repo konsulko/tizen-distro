@@ -2,12 +2,13 @@ DESCRIPTION = "DB Utility"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Application Framework/Database"
 LICENSE = "Apache-2.0"
+PV = "0.1.1"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

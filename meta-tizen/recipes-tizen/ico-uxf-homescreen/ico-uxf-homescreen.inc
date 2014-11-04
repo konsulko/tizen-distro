@@ -2,12 +2,13 @@ DESCRIPTION = "Sample homescreen and system controller"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/ICO Homescreen"
 LICENSE = "Apache-2.0"
+PV = "0.9.22"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -68,6 +69,7 @@ DEPENDS += "app-svc"
 inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "wayland"
+DEPENDS += "virtual/libgl"
 DEPENDS += "boost"
 DEPENDS += "ico-uxf-weston-plugin"
 DEPENDS += "ico-uxf-utilities"
@@ -78,7 +80,7 @@ DEPENDS += "bundle"
 DEPENDS += "weston-ivi-shell"
 DEPENDS += "libwebsockets"
 DEPENDS += "ecore"
-DEPENDS += "mesa"
+DEPENDS += "virtual/egl"
 DEPENDS += "dbus"
 DEPENDS += "ail"
 DEPENDS_append_class-native = " fdupes-native"

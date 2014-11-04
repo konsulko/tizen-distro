@@ -2,12 +2,13 @@ DESCRIPTION = "GENIVI IPC Common API C++ Runtime"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/GENIVI"
 LICENSE = "MPL-2.0"
+PV = "2.1.6"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

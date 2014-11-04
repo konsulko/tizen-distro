@@ -2,12 +2,13 @@ DESCRIPTION = "Tizen Web APIs implemented using Crosswalk"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Development/Libraries"
 LICENSE = "BSD-3-Clause and Apache-2.0"
+PV = "0.107"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -39,6 +40,7 @@ RDEPENDS_${PN}-bluetooth-demo += "tizen-extensions-crosswalk"
 RDEPENDS_${PN}-audiosystem-demo += "tizen-extensions-crosswalk"
 
 #RDEPENDS of tizen-extensions-crosswalk (${PN})
+RDEPENDS_${PN} += "oma-ds-agent"
 RDEPENDS_${PN} += "crosswalk"
 RDEPENDS_${PN} += "media-thumbnail-server"
 

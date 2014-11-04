@@ -2,12 +2,13 @@ DESCRIPTION = "EFL Wrapper for DBus"
 HOMEPAGE = "http://www.enlightenment.org/"
 SECTION = "Graphics & UI Framework/EFL"
 LICENSE = "BSD-2-Clause"
+PV = "1.7.8"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

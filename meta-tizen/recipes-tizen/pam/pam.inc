@@ -2,12 +2,13 @@ DESCRIPTION = "A Security Tool that Provides Authentication for Applications"
 HOMEPAGE = "http://www.linux-pam.org/"
 SECTION = "Security/Access Control"
 LICENSE = "GPL-2.0+ or BSD-3-Clause"
+PV = "1.1.6"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

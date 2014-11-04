@@ -2,12 +2,13 @@ DESCRIPTION = "A free speech synthesis and text-to-speech system"
 HOMEPAGE = "http://www.cstr.ed.ac.uk/projects/festival/"
 SECTION = "System/Libraries"
 LICENSE = "MIT and GPL-2.0+ and TCL"
+PV = "2.1"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""
@@ -33,19 +34,19 @@ do_prep() {
  cd ${S}
  #extracte source 1 
  pushd ${S}/../
- tar zxf ${S}/packaging/speech_tools-2.1-release.tar.gz
+ unp ${S}/packaging/speech_tools-2.1-release.tar.gz 
  popd 
  #extracte source 2 
  pushd ${S}/../
- tar zxf ${S}/packaging/festlex_CMU.tar.gz
+ unp ${S}/packaging/festlex_CMU.tar.gz 
  popd 
  #extracte source 3 
  pushd ${S}/../
- tar zxf ${S}/packaging/festvox_kallpc16k.tar.gz
+ unp ${S}/packaging/festvox_kallpc16k.tar.gz 
  popd 
  #extracte source 4 
  pushd ${S}/../
- tar zxf ${S}/packaging/festlex_POSLEX.tar.gz
+ unp ${S}/packaging/festlex_POSLEX.tar.gz 
  popd 
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -b 1 -b 2 -b 3 -b 4
@@ -100,7 +101,33 @@ do_configure() {
 }
 
 do_compile() {
+ cd ${S}
+  LANG=C
+  export LANG
+  unset DISPLAY
+  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+  
+  # festival
+  
+  autotools_do_configure
+  
+  cd ..
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/speech_tools/lib
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/festival-2.1/src/lib
+  # speech tools
+  cd speech_tools
+  ./configure --prefix=${prefix}               --libdir=${prefix}/lib               --datadir=${prefix}/share/festival               --sysconfdir=${sysconfdir}
+  
+  oe_runmake CC="${CC} -fPIC $RPM_OPT_FLAGS" CXX="${HOST_SYS}-g++ $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
+  cd ../festival-2.1
+  oe_runmake CC="${CC} -fPIC $RPM_OPT_FLAGS" CXX="${HOST_SYS}-g++ $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
+  oe_runmake doc
+  
+  
+  
+  
 }
+EXTRA_OECONF += " --prefix=${prefix} --libdir=${prefix}/lib --datadir=${prefix}/share/festival --sysconfdir=${sysconfdir}"
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -135,9 +162,9 @@ do_install() {
  install -m 755 bin/festival_server* ${D}${prefix}/bin/
  install -m 755 examples/saytime ${D}${prefix}/bin/
  # install manpages
- #install -D -m 644 doc/festival.1 ${D}${mandir}/man1/festival.1
- #install -m 644 doc/festival_client.1 ${D}${mandir}/man1/
- #install -m 644 doc/text2wave.1 ${D}${mandir}/man1/
+ install -D -m 644 doc/festival.1 ${D}${mandir}/man1/festival.1
+ install -m 644 doc/festival_client.1 ${D}${mandir}/man1/
+ install -m 644 doc/text2wave.1 ${D}${mandir}/man1/
  # install configs
  install -D lib/festival.scm ${D}${sysconfdir}/festival.scm
  # install dictionarys

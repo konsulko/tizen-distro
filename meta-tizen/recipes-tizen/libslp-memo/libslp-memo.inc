@@ -2,12 +2,13 @@ DESCRIPTION = "Memo DB interface library"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Application Framework/Libraries"
 LICENSE = "Flora"
+PV = "0.1.5"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

@@ -2,12 +2,13 @@ DESCRIPTION = "GENIVI Shell Plugin-in"
 HOMEPAGE = "http://git.projects.genivi.org/wayland-ivi-extension.git"
 SECTION = "Graphics & UI Framework/Wayland Window System"
 LICENSE = "Apache-2.0"
+PV = "0.2.3"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

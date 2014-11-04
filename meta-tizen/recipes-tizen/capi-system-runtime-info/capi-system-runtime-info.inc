@@ -2,12 +2,13 @@ DESCRIPTION = "A Runtime Information library in Tizen Native API"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/API"
 LICENSE = "Apache-2.0"
+PV = "0.0.3"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep
+inherit manifest autotools-brokensep
 
 BBCLASSEXTEND = ""
 PROVIDES = ""

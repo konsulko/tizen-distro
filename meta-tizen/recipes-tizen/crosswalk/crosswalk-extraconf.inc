@@ -1,11 +1,14 @@
 inherit gettext
 
+DEPENDS += "crosswalk-thirdparty"
+
 FILESEXTRAPATHS_prepend := "${THISDIR}/crosswalk:"
 
 SRC_URI += "\
             file://include.gypi \
             file://oe-defaults.gypi \
             "
+SRC_URI += "file://fix-crosbuild.patch"
 
 # This comes from the chromium recipe:
 # http://layers.openembedded.org/layerindex/recipe/4969/
@@ -27,9 +30,12 @@ do_compile_prepend() {
 
  LD="${CXX}" export LD
  CC="${CC}" export CC
- CXX="${CXX}" export CXX_host
+ CXX="${CXX}" export CXX
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -I${WORKDIR}/oe-defaults.gypi -I${WORKDIR}/include.gypi"
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Dhost_clang=0 "
+ 
+ mkdir -p src/out
+ tar -zxvf ${STAGING_DIR_HOST}${prefix}/share/crosswalk-thirdparty/out.tgz
 }
 
 do_configure() {
