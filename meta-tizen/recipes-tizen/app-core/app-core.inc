@@ -135,8 +135,8 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- install -d ${D}${systemd_unitdir}/user/core-efl.target.wants
- install -m0644 ${S}/packaging/core-efl-wayland.target ${D}${systemd_unitdir}/user/core-efl.target
+ install -d ${D}${prefix}/lib/systemd/user/core-efl.target.wants
+ install -m0644 ${S}/packaging/core-efl-wayland.target ${D}${prefix}/lib/systemd/user/core-efl.target
  
  
  
@@ -184,8 +184,8 @@ MANIFESTFILES_${PN}-efl = "app-core.manifest"
 
 app-core-common_files = ""
 app-core-common_files += "${prefix}/lib/libappcore-common.so.*"
-app-core-common_files += "${systemd_unitdir}/user/core-efl.target"
-app-core-common_files += "${systemd_unitdir}/user/core-efl.target.wants/"
+app-core-common_files += "${prefix}/lib/systemd/user/core-efl.target"
+app-core-common_files += "${prefix}/lib/systemd/user/core-efl.target.wants/"
 MANIFESTFILES_${PN}-common = "app-core.manifest"
 
 app-core-common-dev_files = ""

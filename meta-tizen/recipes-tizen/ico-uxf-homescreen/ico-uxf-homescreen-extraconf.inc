@@ -24,9 +24,8 @@ do_compile_prepend()  {
 
 do_install_append() {
     if ${@bb.utils.contains('SYS_CTLR_PROVIDER', 'ico-uxf-homescreen', 'false', 'true', d)}; then
-      rm -f ${D}${systemd_unitdir}/user/ico-uxf-wait-launchpad-ready.path
-      rm -f ${D}${systemd_unitdir}/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path
-      rm -f ${D}${systemd_unitdir}/user/ico-system-controller.service
+      rm -f ${D}${prefix}/lib/systemd/user/ico-uxf-wait-launchpad-ready.path
+      rm -fr ${D}${prefix}/lib/systemd/use
     fi
 }
 

@@ -136,12 +136,13 @@ do_compile() {
   intltoolize --force --automake
   
   autotools_do_configure
-  oe_runmake -j16           systemunitdir=${systemd_unitdir}/system           userunitdir=${systemd_unitdir}/user
+  
+  oe_runmake -j16
   
   
   
 }
-EXTRA_OECONF += " --enable-compat-libs --enable-bootchart --libexecdir=${prefix}/lib --docdir=${prefix}/share/doc/packages/systemd --disable-static --with-sysvinit-path= --with-sysvrcnd-path= --with-smack-run-label=System cc_cv_CFLAGS__flto=no"
+EXTRA_OECONF += " --enable-compat-libs --enable-bootchart --libexecdir=${prefix}/lib --docdir=${prefix}/share/doc/packages/systemd --disable-static --with-sysvinit-path= --with-sysvrcnd-path= --with-smack-run-label=System --with-rootprefix=/ --with-rootlibdir=//lib cc_cv_CFLAGS__flto=no"
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -161,11 +162,12 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
+ 
  #find_lang systemd
  cat <<EOF >> systemd.lang
- %lang(fr) /usr/lib/systemd/catalog/systemd.fr.catalog
- %lang(it) /usr/lib/systemd/catalog/systemd.it.catalog
- %lang(ru) /usr/lib/systemd/catalog/systemd.ru.catalog
+ %lang(fr) ${prefix}/lib/systemd/catalog/systemd.fr.catalog
+ %lang(it) ${prefix}/lib/systemd/catalog/systemd.it.catalog
+ %lang(ru) ${prefix}/lib/systemd/catalog/systemd.ru.catalog
 EOF
  
  # udev links
@@ -175,22 +177,22 @@ EOF
  
  # Create SysV compatibility symlinks. systemctl/systemd are smart
  # enough to detect in which way they are called.
- ln -s ../lib/systemd/systemd ${D}${prefix}/sbin/init
- ln -s ../lib/systemd/systemd ${D}${prefix}/bin/systemd
- ln -s ../bin/systemctl ${D}${prefix}/sbin/reboot
- ln -s ../bin/systemctl ${D}${prefix}/sbin/halt
- ln -s ../bin/systemctl ${D}${prefix}/sbin/poweroff
- ln -s ../bin/systemctl ${D}${prefix}/sbin/shutdown
- ln -s ../bin/systemctl ${D}${prefix}/sbin/telinit
- ln -s ../bin/systemctl ${D}${prefix}/sbin/runlevel
+ ln -sf //lib/systemd/systemd ${D}${prefix}/sbin/init
+ ln -sf //lib/systemd/systemd ${D}${prefix}/bin/systemd
+ ln -sf ../bin/systemctl ${D}${prefix}/sbin/reboot
+ ln -sf ../bin/systemctl ${D}${prefix}/sbin/halt
+ ln -sf ../bin/systemctl ${D}${prefix}/sbin/poweroff
+ ln -sf ../bin/systemctl ${D}${prefix}/sbin/shutdown
+ ln -sf ../bin/systemctl ${D}${prefix}/sbin/telinit
+ ln -sf ../bin/systemctl ${D}${prefix}/sbin/runlevel
  
  # legacy links
- ln -s loginctl ${D}${prefix}/bin/systemd-loginctl
+ ln -sf loginctl ${D}${prefix}/bin/systemd-loginctl
  
  # We create all wants links manually at installation time to make sure
  # they are not owned and hence overriden by rpm after the used deleted
  # them.
- rm -r ${D}${sysconfdir}/systemd/system/*.target.wants
+ rm -rf ${D}${sysconfdir}/systemd/system/*.target.wants
  
  # Make sure the ghost-ing below works
  touch ${D}${sysconfdir}/systemd/system/runlevel2.target
@@ -199,13 +201,13 @@ EOF
  touch ${D}${sysconfdir}/systemd/system/runlevel5.target
  
  # Make sure these directories are properly owned
- mkdir -p ${D}${prefix}/lib/systemd/system/basic.target.wants
- mkdir -p ${D}${prefix}/lib/systemd/system/default.target.wants
- mkdir -p ${D}${prefix}/lib/systemd/system/dbus.target.wants
- mkdir -p ${D}${prefix}/lib/systemd/system/syslog.target.wants
+ mkdir -p ${D}${systemd_unitdir}/system/basic.target.wants
+ mkdir -p ${D}${systemd_unitdir}/system/default.target.wants
+ mkdir -p ${D}${systemd_unitdir}/system/dbus.target.wants
+ mkdir -p ${D}${systemd_unitdir}/system/syslog.target.wants
  
  # Make sure the user generators dir exists too
- mkdir -p ${D}${prefix}/lib/systemd/system-generators
+ mkdir -p ${D}//lib/systemd/system-generators
  mkdir -p ${D}${prefix}/lib/systemd/user-generators
  
  # Create new-style configuration files so that we can ghost-own them
@@ -215,15 +217,15 @@ EOF
  touch ${D}${sysconfdir}/machine-id
  touch ${D}${sysconfdir}/machine-info
  touch ${D}${sysconfdir}/timezone
- #mkdir -p ${D}${sysconfdir}/X11/xorg.conf.d
- #touch ${D}${sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
+ #mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
+ #touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
  
- mkdir -p ${D}${prefix}/lib/systemd/system-preset/
- mkdir -p ${D}${prefix}/lib/systemd/user-preset/
+ mkdir -p ${D}//lib/systemd/system-preset/
+ mkdir -p ${D}//lib/systemd/user-preset/
  
  # Make sure the shutdown/sleep drop-in dirs exist
- mkdir -p ${D}${prefix}/lib/systemd/system-shutdown/
- mkdir -p ${D}${prefix}/lib/systemd/system-sleep/
+ mkdir -p ${D}//lib/systemd/system-shutdown/
+ mkdir -p ${D}//lib/systemd/system-sleep/
  
  # Make sure the NTP units dir exists
  mkdir -p ${D}${prefix}/lib/systemd/ntp-units.d/
@@ -232,8 +234,8 @@ EOF
  mkdir -p ${D}${sysconfdir}/modprobe.d/
  
  # Enable readahead services
- ln -s ../systemd-readahead-collect.service ${D}${prefix}/lib/systemd/system/default.target.wants/
- ln -s ../systemd-readahead-replay.service ${D}${prefix}/lib/systemd/system/default.target.wants/
+ ln -sf ../systemd-readahead-collect.service ${D}${systemd_unitdir}/system/default.target.wants/
+ ln -sf ../systemd-readahead-replay.service ${D}${systemd_unitdir}/system/default.target.wants/
  
  # Fix the dangling /var/lock -> /run/lock symlink
  install -Dm644 tmpfiles.d/legacy.conf ${D}${prefix}/lib/tmpfiles.d/legacy.conf
@@ -247,7 +249,11 @@ EOF
  # Move macros to the proper location for Tizen
  mkdir -p ${D}${sysconfdir}/rpm
  install -m644 src/core/macros.systemd ${D}${sysconfdir}/rpm/macros.systemd
- rm -f ${D}${prefix}/lib/rpm/macros.d/macros.systemd
+ 
+ rm -fr ${D}${prefix}/lib/rpm
+ rm -fr ${D}${sysconfdir}/kernel
+ rm -fr ${D}${sysconfdir}/modprobe.d
+ rm -fr ${D}${localstatedir}
  
  
 }
@@ -297,7 +303,7 @@ pkg_prerm_${PN}() {
                     remote-fs.target \
                     systemd-readahead-replay.service \
                     systemd-readahead-collect.service >/dev/null 2>&1 || :
-            rm -f /etc/systemd/system/default.target >/dev/null 2>&1 || :
+            rm -f ${sysconfdir}/systemd/system/default.target >/dev/null 2>&1 || :
     fi
 
 }
@@ -334,13 +340,13 @@ PACKAGES += " libgudev "
 PACKAGES += " systemd-analyze "
 
 libsystemd_files = ""
-libsystemd_files += "${prefix}/lib/security/pam_systemd.so"
-libsystemd_files += "${prefix}/lib/libsystemd.so.*"
-libsystemd_files += "${prefix}/lib/libudev.so.*"
-libsystemd_files += "${prefix}/lib/libsystemd-daemon.so.*"
-libsystemd_files += "${prefix}/lib/libsystemd-id128.so.*"
-libsystemd_files += "${prefix}/lib/libsystemd-journal.so.*"
-libsystemd_files += "${prefix}/lib/libsystemd-login.so.*"
+libsystemd_files += "/lib/security/pam_systemd.so"
+libsystemd_files += "/lib/libsystemd.so.*"
+libsystemd_files += "/lib/libudev.so.*"
+libsystemd_files += "/lib/libsystemd-daemon.so.*"
+libsystemd_files += "/lib/libsystemd-id128.so.*"
+libsystemd_files += "/lib/libsystemd-journal.so.*"
+libsystemd_files += "/lib/libsystemd-login.so.*"
 libsystemd_files += "${prefix}/lib/libnss_myhostname.so.2"
 MANIFESTFILES_lib${PN} = "systemd.manifest"
 
@@ -350,13 +356,13 @@ systemd_files += "${sysconfdir}/pam.d/systemd-user"
 systemd_files += "${prefix}/bin/bootctl"
 systemd_files += "${prefix}/bin/busctl"
 systemd_files += "${prefix}/bin/kernel-install"
-systemd_files += "${prefix}/bin/machinectl"
+systemd_files += "/bin/machinectl"
 systemd_files += "${prefix}/bin/systemd-run"
 systemd_files += "${prefix}/lib/kernel"
 systemd_files += "${prefix}/lib/kernel/install.d"
 systemd_files += "${prefix}/lib/kernel/install.d/50-depmod.install"
 systemd_files += "${prefix}/lib/kernel/install.d/90-loaderentry.install"
-systemd_files += "${prefix}/lib/systemd/system-generators/systemd-efi-boot-generator"
+systemd_files += "/lib/systemd/system-generators/systemd-efi-boot-generator"
 systemd_files += "${prefix}/bin/hostnamectl"
 systemd_files += "${prefix}/bin/localectl"
 systemd_files += "${prefix}/bin/systemd-coredumpctl"
@@ -373,14 +379,14 @@ systemd_files += "${prefix}/share/zsh/site-functions"
 systemd_files += "${prefix}/share/zsh/site-functions/*"
 systemd_files += "${sysconfdir}/udev"
 systemd_files += "${sysconfdir}/udev/rules.d"
-systemd_files += "${prefix}/lib/systemd"
-systemd_files += "${prefix}/lib/systemd/system"
-systemd_files += "${prefix}/lib/systemd/system-generators"
+systemd_files += "/lib/systemd"
+systemd_files += "${systemd_unitdir}/system"
+systemd_files += "/lib/systemd/system-generators"
 systemd_files += "${prefix}/lib/systemd/user-generators"
-systemd_files += "${prefix}/lib/systemd/system-preset"
-systemd_files += "${prefix}/lib/systemd/user-preset"
-systemd_files += "${prefix}/lib/systemd/system-shutdown"
-systemd_files += "${prefix}/lib/systemd/system-sleep"
+systemd_files += "/lib/systemd/system-preset"
+systemd_files += "/lib/systemd/user-preset"
+systemd_files += "/lib/systemd/system-shutdown"
+systemd_files += "/lib/systemd/system-sleep"
 systemd_files += "${prefix}/lib/tmpfiles.d"
 systemd_files += "${prefix}/lib/sysctl.d"
 systemd_files += "${prefix}/lib/modules-load.d"
@@ -388,6 +394,7 @@ systemd_files += "${prefix}/lib/binfmt.d"
 systemd_files += "${prefix}/lib/firmware"
 systemd_files += "${prefix}/lib/firmware/updates"
 systemd_files += "${prefix}/share/systemd"
+systemd_files += "${prefix}/lib/systemd/ntp-units.d"
 systemd_files += "${sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf"
 systemd_files += "${sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf"
 systemd_files += "${sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf"
@@ -402,15 +409,15 @@ systemd_files += "${sysconfdir}/udev/udev.conf"
 systemd_files += "${sysconfdir}/rpm/macros.systemd"
 systemd_files += "${sysconfdir}/xdg/systemd"
 systemd_files += "${prefix}/bin/systemd"
-systemd_files += "${prefix}/bin/systemctl"
-systemd_files += "${prefix}/bin/systemd-notify"
-systemd_files += "${prefix}/bin/systemd-ask-password"
-systemd_files += "${prefix}/bin/systemd-tty-ask-password-agent"
-systemd_files += "${prefix}/bin/systemd-machine-id-setup"
-systemd_files += "${prefix}/bin/loginctl"
+systemd_files += "/bin/systemctl"
+systemd_files += "/bin/systemd-notify"
+systemd_files += "/bin/systemd-ask-password"
+systemd_files += "/bin/systemd-tty-ask-password-agent"
+systemd_files += "/bin/systemd-machine-id-setup"
+systemd_files += "/bin/loginctl"
 systemd_files += "${prefix}/bin/systemd-loginctl"
-systemd_files += "${prefix}/bin/journalctl"
-systemd_files += "${prefix}/bin/systemd-tmpfiles"
+systemd_files += "/bin/journalctl"
+systemd_files += "/bin/systemd-tmpfiles"
 systemd_files += "${prefix}/bin/systemd-nspawn"
 systemd_files += "${prefix}/bin/systemd-stdio-bridge"
 systemd_files += "${prefix}/bin/systemd-cat"
@@ -418,12 +425,12 @@ systemd_files += "${prefix}/bin/systemd-cgls"
 systemd_files += "${prefix}/bin/systemd-cgtop"
 systemd_files += "${prefix}/bin/systemd-delta"
 systemd_files += "${prefix}/bin/systemd-detect-virt"
-systemd_files += "${prefix}/bin/systemd-inhibit"
-systemd_files += "${prefix}/bin/udevadm"
+systemd_files += "/bin/systemd-inhibit"
+systemd_files += "/bin/udevadm"
 systemd_files += "${prefix}/lib/sysctl.d/*.conf"
-systemd_files += "${prefix}/lib/systemd/systemd"
-systemd_files += "${prefix}/lib/systemd/system"
-systemd_files += "${prefix}/lib/systemd/system/basic.target.wants"
+systemd_files += "/lib/systemd/systemd"
+systemd_files += "${systemd_unitdir}/system"
+systemd_files += "${systemd_unitdir}/system/basic.target.wants"
 systemd_files += "${prefix}/lib/systemd/user"
 systemd_files += "${prefix}/lib/systemd/network"
 systemd_files += "${prefix}/lib/systemd/user/basic.target"
@@ -440,14 +447,14 @@ systemd_files += "${prefix}/lib/systemd/user/timers.target"
 systemd_files += "${prefix}/lib/systemd/user/busnames.target"
 systemd_files += "${prefix}/lib/systemd/network/80-container-host0.network"
 systemd_files += "${prefix}/lib/systemd/network/99-default.link"
-systemd_files += "${prefix}/lib/systemd/systemd-*"
+systemd_files += "/lib/systemd/systemd-*"
 systemd_files += "${prefix}/lib/systemd/catalog"
 systemd_files += "${prefix}/lib/systemd/catalog/systemd.catalog"
-systemd_files += "${prefix}/lib/udev"
-systemd_files += "${prefix}/lib/systemd/system-generators/systemd-getty-generator"
-systemd_files += "${prefix}/lib/systemd/system-generators/systemd-fstab-generator"
-systemd_files += "${prefix}/lib/systemd/system-generators/systemd-system-update-generator"
-systemd_files += "${prefix}/lib/systemd/system-generators/systemd-gpt-auto-generator"
+systemd_files += "/lib/udev"
+systemd_files += "/lib/systemd/system-generators/systemd-getty-generator"
+systemd_files += "/lib/systemd/system-generators/systemd-fstab-generator"
+systemd_files += "/lib/systemd/system-generators/systemd-system-update-generator"
+systemd_files += "/lib/systemd/system-generators/systemd-gpt-auto-generator"
 systemd_files += "${prefix}/lib/tmpfiles.d/systemd.conf"
 systemd_files += "${prefix}/lib/tmpfiles.d/x11.conf"
 systemd_files += "${prefix}/lib/tmpfiles.d/tmp.conf"
@@ -480,6 +487,7 @@ systemd_files += "${prefix}/share/polkit-1/actions/org.freedesktop.timedate1.pol
 systemd_files += "${prefix}/share/pkgconfig/systemd.pc"
 systemd_files += "${prefix}/share/pkgconfig/udev.pc"
 CONFFILES_${PN} = ""
+CONFFILES_${PN} += "${sysconfdir}/systemd/bootchart.conf"
 CONFFILES_${PN} += "${sysconfdir}/pam.d/systemd-user"
 MANIFESTFILES_${PN} = "systemd.manifest"
 DIRFILES_${PN} = ""
@@ -495,14 +503,14 @@ DIRFILES_${PN} += "${sysconfdir}/binfmt.d"
 DIRFILES_${PN} += "${prefix}/share/zsh/site-functions"
 DIRFILES_${PN} += "${sysconfdir}/udev"
 DIRFILES_${PN} += "${sysconfdir}/udev/rules.d"
-DIRFILES_${PN} += "${prefix}/lib/systemd"
-DIRFILES_${PN} += "${prefix}/lib/systemd/system"
-DIRFILES_${PN} += "${prefix}/lib/systemd/system-generators"
+DIRFILES_${PN} += "/lib/systemd"
+DIRFILES_${PN} += "${systemd_unitdir}/system"
+DIRFILES_${PN} += "/lib/systemd/system-generators"
 DIRFILES_${PN} += "${prefix}/lib/systemd/user-generators"
-DIRFILES_${PN} += "${prefix}/lib/systemd/system-preset"
-DIRFILES_${PN} += "${prefix}/lib/systemd/user-preset"
-DIRFILES_${PN} += "${prefix}/lib/systemd/system-shutdown"
-DIRFILES_${PN} += "${prefix}/lib/systemd/system-sleep"
+DIRFILES_${PN} += "/lib/systemd/system-preset"
+DIRFILES_${PN} += "/lib/systemd/user-preset"
+DIRFILES_${PN} += "/lib/systemd/system-shutdown"
+DIRFILES_${PN} += "/lib/systemd/system-sleep"
 DIRFILES_${PN} += "${prefix}/lib/tmpfiles.d"
 DIRFILES_${PN} += "${prefix}/lib/sysctl.d"
 DIRFILES_${PN} += "${prefix}/lib/modules-load.d"
@@ -510,7 +518,8 @@ DIRFILES_${PN} += "${prefix}/lib/binfmt.d"
 DIRFILES_${PN} += "${prefix}/lib/firmware"
 DIRFILES_${PN} += "${prefix}/lib/firmware/updates"
 DIRFILES_${PN} += "${prefix}/share/systemd"
-DIRFILES_${PN} += "${prefix}/lib/systemd/system/basic.target.wants"
+DIRFILES_${PN} += "${prefix}/lib/systemd/ntp-units.d"
+DIRFILES_${PN} += "${systemd_unitdir}/system/basic.target.wants"
 DIRFILES_${PN} += "${prefix}/lib/systemd/user"
 DIRFILES_${PN} += "${prefix}/lib/systemd/network"
 DIRFILES_${PN} += "${prefix}/lib/systemd/catalog"
@@ -556,7 +565,7 @@ DIRFILES_${PN}-dev += "${prefix}/include/systemd"
 systemd-docs_files = ""
 
 libgudev_files = ""
-libgudev_files += "${prefix}/lib/libgudev-1.0.so.*"
+libgudev_files += "/lib/libgudev-1.0.so.*"
 MANIFESTFILES_libgudev = "systemd.manifest"
 
 systemd-analyze_files = ""

@@ -122,7 +122,7 @@ do_compile() {
          -DVERSION=0.0.4 \
          -DFILTER_LISTED_PKG=ON \
          -DPRIVACY_POPUP=OFF
- make -j16
+ oe_runmake -j16
  
  
  
@@ -154,9 +154,9 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}${prefix}/lib/systemd/system/multi-user.target.wants
- #install -m 0644 ${S}/packaging/privacy-manager-server.service ${D}${prefix}/lib/systemd/system/privacy-manager-server.service
- #ln -sf /usr/lib/systemd/system/privacy-manager-server.service ${D}${prefix}/lib/systemd/system/multi-user.target.wants/privacy-manager-server.service
+ #mkdir -p %{buildroot}%{_libdir}/systemd/system/multi-user.target.wants
+ #install -m 0644 %{SOURCE1} %{buildroot}%{_libdir}/systemd/system/privacy-manager-server.service
+ #ln -sf /usr/lib/systemd/system/privacy-manager-server.service %{buildroot}%{_libdir}/systemd/system/multi-user.target.wants/privacy-manager-server.service
  
  
  
@@ -171,12 +171,12 @@ pkg_postinst_privacy-manager-client() {
 pkg_postinst_privacy-manager-server() {
     #!/bin/sh -e
 
-    [ "x$D" == "x" ] && ldconfig
+    ldconfig
     echo "Check privacy DB"
     if [ ! -f $D${prefix}/dbspace/.privacy.db ]
     then
     	echo "Create privacy DB"
-    	$D${prefix}/bin/privacy_manager_create_clean_db.sh
+    	privacy_manager_create_clean_db.sh
     fi
     chsmack -a 'User' $D${prefix}/dbspace/.privacy.db*
     chsmack -a 'User' $D${prefix}/dbspace/.privacylist.db*
@@ -224,7 +224,7 @@ MANIFESTFILES_privacy-manager-client = "privacy-manager-client.manifest"
 privacy-manager-server_files = ""
 privacy-manager-server_files += "${prefix}/lib/libprivacy-manager-server.so*"
 privacy-manager-server_files += "${prefix}/dbspace/.privacylist.db"
-privacy-manager-server_files += "/usr/bin/*"
+privacy-manager-server_files += "${prefix}/bin/*"
 MANIFESTFILES_${PN} = "privacy-manager-server.manifest"
 
 privacy-manager-server-dev_files = ""

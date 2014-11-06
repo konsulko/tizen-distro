@@ -124,8 +124,8 @@ do_install() {
  install -m 0644 weston_tmpfiles.conf ${D}${prefix}/lib/tmpfiles.d/weston.conf
  
  # install weston-user service in user session
- mkdir -p ${D}${systemd_unitdir}/user
- install -m 644 weston-user.service ${D}${systemd_unitdir}/user/
+ mkdir -p ${D}${prefix}/lib/systemd/user
+ install -m 644 weston-user.service ${D}${prefix}/lib/systemd/user/
  
  # install weston.sh
  mkdir -p ${D}${sysconfdir}/profile.d/
@@ -176,8 +176,8 @@ pkg_preinst_${PN}() {
     mkdir -p ${systemd_unitdir}/system/graphical.target.wants/
     ln -sf ../display-manager.path  ${systemd_unitdir}/system/graphical.target.wants/
     # setup display manager access (inside user session)
-    mkdir -p ${systemd_unitdir}/user/default.target.requires/
-    ln -sf ../weston-user.service  ${systemd_unitdir}/user/default.target.requires/
+    mkdir -p $D${prefix}/lib/systemd/user/default.target.requires/
+    ln -sf ../weston-user.service  $D${prefix}/lib/systemd/user/default.target.requires/
 
 }
 
@@ -185,7 +185,7 @@ pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     rm -f ${systemd_unitdir}/system/graphical.target.wants/display-manager.path
-    rm -f ${systemd_unitdir}/user/default.target.requires/weston-user.service
+    rm -f $D${prefix}/lib/systemd/user/default.target.requires/weston-user.service
 
 }
 
@@ -205,7 +205,7 @@ weston-common_files += "${systemd_unitdir}/system/display-manager.service"
 weston-common_files += "${systemd_unitdir}/system/display-manager.path"
 weston-common_files += "${sysconfdir}/sysconfig/*"
 weston-common_files += "${prefix}/lib/tmpfiles.d/weston.conf"
-weston-common_files += "${systemd_unitdir}/user/weston-user.service"
+weston-common_files += "${prefix}/lib/systemd/user/weston-user.service"
 weston-common_files += "${sysconfdir}/profile.d/*"
 weston-common_files += "${sysconfdir}/udev/rules.d/*"
 weston-common_files += "${prefix}/share/applications/*.desktop"

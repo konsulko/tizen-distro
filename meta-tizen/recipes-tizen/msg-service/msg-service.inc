@@ -128,7 +128,7 @@ do_compile() {
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} . \
  	-DTZ_SYS_SHARE=${prefix}/share \
- 	-DUNITDIR_USER=${systemd_unitdir}/user \
+ 	-DUNITDIR_USER=${prefix}/lib/systemd/user \
  	-DTZ_SYS_SMACK=${sysconfdir}/smack
  
  make -j16
@@ -161,10 +161,10 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}${systemd_unitdir}/user/tizen-middleware.target.wants
- #install -m 0644 ${S}/packaging/msg-service.service ${D}${systemd_unitdir}/user/
- ln -s ../msg-service.service ${D}${systemd_unitdir}/user/tizen-middleware.target.wants/msg-service.service
- ln -s ../msg-service-log.service ${D}${systemd_unitdir}/user/tizen-middleware.target.wants/msg-service-log.service
+ mkdir -p ${D}${prefix}/lib/systemd/user/tizen-middleware.target.wants
+ #install -m 0644 ${S}/packaging/msg-service.service ${D}${prefix}/lib/systemd/user/
+ ln -s ../msg-service.service ${D}${prefix}/lib/systemd/user/tizen-middleware.target.wants/msg-service.service
+ ln -s ../msg-service-log.service ${D}${prefix}/lib/systemd/user/tizen-middleware.target.wants/msg-service-log.service
  
  mkdir -p  ${D}${sysconfdir}/rc.d/rc3.d
  ln -s ${sysconfdir}/rc.d/init.d/msg-server  ${D}${sysconfdir}/rc.d/rc3.d/S70msg-server
@@ -251,10 +251,10 @@ msg-service-tools_files += "${prefix}/share/msg-service/plugin.cfg"
 msg-service-tools_files += "${sysconfdir}/rc.d/init.d/msg-server"
 msg-service-tools_files += "${sysconfdir}/rc.d/rc3.d/S70msg-server"
 msg-service-tools_files += "${sysconfdir}/rc.d/rc5.d/S70msg-server"
-msg-service-tools_files += "${systemd_unitdir}/user/msg-service.service"
-msg-service-tools_files += "${systemd_unitdir}/user/msg-service-log.service"
-msg-service-tools_files += "${systemd_unitdir}/user/tizen-middleware.target.wants/msg-service.service"
-msg-service-tools_files += "${systemd_unitdir}/user/tizen-middleware.target.wants/msg-service-log.service"
+msg-service-tools_files += "${prefix}/lib/systemd/user/msg-service.service"
+msg-service-tools_files += "${prefix}/lib/systemd/user/msg-service-log.service"
+msg-service-tools_files += "${prefix}/lib/systemd/user/tizen-middleware.target.wants/msg-service.service"
+msg-service-tools_files += "${prefix}/lib/systemd/user/tizen-middleware.target.wants/msg-service-log.service"
 msg-service-tools_files += "${sysconfdir}/config/sysinfo-message.xml"
 msg-service-tools_files += "/var/log/msgfw"
 MANIFESTFILES_${PN}-tools = "msg-service-tools.manifest"

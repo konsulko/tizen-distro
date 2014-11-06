@@ -23,13 +23,13 @@ SRC_URI += " file://0002-Add-_DBUS_GNUC_WARN_UNUSED_RESULT-similar-to-GLib-s.pat
 DEPENDS += "smack"
 
 do_install_append() {
-	mkdir -p ${D}${systemd_unitdir}/user
-	install -m 0644 ${WORKDIR}/dbus-user.service ${D}${systemd_unitdir}/user/dbus.service
-	install -m 0644 ${WORKDIR}/dbus-user.socket ${D}${systemd_unitdir}/user/dbus.socket
+	mkdir -p ${D}${prefix}/lib/systemd/user
+	install -m 0644 ${WORKDIR}/dbus-user.service ${D}${prefix}/lib/systemd/user/dbus.service
+	install -m 0644 ${WORKDIR}/dbus-user.socket ${D}${prefix}/lib/systemd/user/dbus.socket
 }
 
-FILES_${PN} += "${systemd_unitdir}/user/dbus.service \
-               ${systemd_unitdir}/user/dbus.socket \
+FILES_${PN} += "${prefix}/lib/systemd/user/dbus.service \
+               ${prefix}/lib/systemd/user/dbus.socket \
               "
 
 EXTRA_OECONF += " --enable-smack "

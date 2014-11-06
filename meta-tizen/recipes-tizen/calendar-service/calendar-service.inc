@@ -117,9 +117,9 @@ do_install() {
  ln -s ../init.d/calendar-serviced.sh ${D}/etc/rc.d/rc3.d/S85calendar-serviced
  ln -s ../init.d/calendar-serviced.sh ${D}/etc/rc.d/rc5.d/S85calendar-serviced
  
- mkdir -p ${D}${systemd_unitdir}/user/tizen-middleware.target.wants
- install ${S}/packaging/calendar.service ${D}${systemd_unitdir}/user/
- ln -s ../calendar.service ${D}${systemd_unitdir}/user/tizen-middleware.target.wants/
+ mkdir -p ${D}${prefix}/lib/systemd/user/tizen-middleware.target.wants
+ install ${S}/packaging/calendar.service ${D}${prefix}/lib/systemd/user/
+ ln -s ../calendar.service ${D}${prefix}/lib/systemd/user/tizen-middleware.target.wants/
  
  
 }
@@ -148,8 +148,8 @@ calendar-service_files += "/etc/rc.d/init.d/calendar-serviced.sh"
 calendar-service_files += "/etc/rc.d/rc3.d/S85calendar-serviced"
 calendar-service_files += "/etc/rc.d/rc5.d/S85calendar-serviced"
 calendar-service_files += "/usr/share/calendar-svc/dft-calendar"
-calendar-service_files += "${systemd_unitdir}/user/calendar.service"
-calendar-service_files += "${systemd_unitdir}/user/tizen-middleware.target.wants/calendar.service"
+calendar-service_files += "${prefix}/lib/systemd/user/calendar.service"
+calendar-service_files += "${prefix}/lib/systemd/user/tizen-middleware.target.wants/calendar.service"
 MANIFESTFILES_${PN} = "calendar-service.manifest"
 
 calendar-service-dev_files = ""

@@ -75,9 +75,9 @@ do_install() {
  mkdir -p ${D}
  
  
- install -d ${D}${systemd_unitdir}/user/weston.target.wants
- install -m 644 weston.service ${D}${systemd_unitdir}/user/weston.service
- ln -sf ../weston.service ${D}/${systemd_unitdir}/user/weston.target.wants/
+ install -d ${D}${prefix}/lib/systemd/user/weston.target.wants
+ install -m 644 weston.service ${D}${prefix}/lib/systemd/user/weston.service
+ ln -sf ../weston.service ${D}/${prefix}/lib/systemd/user/weston.target.wants/
  
  mkdir -p ${D}${sysconfdir}/profile.d/
  install -m 0644 weston.sh ${D}${sysconfdir}/profile.d/
@@ -93,7 +93,7 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     ln -s ${sysconfdir}/xdg/weston/weston-modello.ini ${sysconfdir}/xdg/weston/weston.ini
-    sed -i 's/ --current-mode//' ${systemd_unitdir}/user/weston.service
+    sed -i 's/ --current-mode//' $D${prefix}/lib/systemd/user/weston.service
 
 }
 
@@ -101,7 +101,7 @@ pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     rm ${sysconfdir}/xdg/weston/weston.ini
-    sed -i 's/\(^ExecStart.*\)/\1 --current-mode/' ${systemd_unitdir}/user/weston.service
+    sed -i 's/\(^ExecStart.*\)/\1 --current-mode/' $D${prefix}/lib/systemd/user/weston.service
 
 }
 
@@ -123,8 +123,8 @@ CONFFILES_${PN}-config += "${sysconfdir}/xdg/weston/weston.ini"
 MANIFESTFILES_${PN}-config = "weston-ivi.manifest"
 
 weston-ivi_files = ""
-weston-ivi_files += "${systemd_unitdir}/user/weston.service"
-weston-ivi_files += "${systemd_unitdir}/user/weston.target.wants/weston.service"
+weston-ivi_files += "${prefix}/lib/systemd/user/weston.service"
+weston-ivi_files += "${prefix}/lib/systemd/user/weston.target.wants/weston.service"
 weston-ivi_files += "${sysconfdir}/profile.d/*"
 CONFFILES_${PN} = ""
 CONFFILES_${PN} += "${sysconfdir}/profile.d/*"

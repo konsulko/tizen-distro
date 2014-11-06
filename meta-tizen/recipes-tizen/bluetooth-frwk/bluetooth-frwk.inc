@@ -135,10 +135,10 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}${systemd_unitdir}/user
- mkdir -p ${D}${systemd_unitdir}/user/tizen-middleware.target.wants
- install -m 0644 bt-service/bluetooth-frwk-service.service ${D}${systemd_unitdir}/user
- ln -s ../bluetooth-frwk-service.service ${D}${systemd_unitdir}/user/tizen-middleware.target.wants/bluetooth-frwk-service.service
+ mkdir -p ${D}${prefix}/lib/systemd/user
+ mkdir -p ${D}${prefix}/lib/systemd/user/tizen-middleware.target.wants
+ install -m 0644 bt-service/bluetooth-frwk-service.service ${D}${prefix}/lib/systemd/user
+ ln -s ../bluetooth-frwk-service.service ${D}${prefix}/lib/systemd/user/tizen-middleware.target.wants/bluetooth-frwk-service.service
  
  mkdir -p ${D}${prefix}/share/icons/default
  install -m 0644 ${S}/packaging/bt-icon.png ${D}${prefix}/share/icons/default/bt-icon.png
@@ -191,8 +191,8 @@ MANIFESTFILES_${PN}-core = "bluetooth-frwk.manifest"
 bluetooth-frwk-service_files = ""
 bluetooth-frwk-service_files += "${prefix}/share/dbus-1/system-services/org.projectx.bt.service"
 bluetooth-frwk-service_files += "${prefix}/bin/bt-service"
-bluetooth-frwk-service_files += "${systemd_unitdir}/user/tizen-middleware.target.wants/bluetooth-frwk-service.service"
-bluetooth-frwk-service_files += "${systemd_unitdir}/user/bluetooth-frwk-service.service"
+bluetooth-frwk-service_files += "${prefix}/lib/systemd/user/tizen-middleware.target.wants/bluetooth-frwk-service.service"
+bluetooth-frwk-service_files += "${prefix}/lib/systemd/user/bluetooth-frwk-service.service"
 bluetooth-frwk-service_files += "/opt/var/lib/bluetooth/auto-pair-blacklist"
 bluetooth-frwk-service_files += "${sysconfdir}/dbus-1/system.d/bluetooth-frwk-service.conf"
 bluetooth-frwk-service_files += "${prefix}/share/icons/default/bt-icon.png"

@@ -70,11 +70,11 @@ do_install() {
      install -m 0644 Homescreen_icon.png ${D}${prefix}/share/Modello/Common/icons
  
      mkdir -p ${D}${prefix}/bin
-     mkdir -p ${D}${systemd_unitdir}/user/weston.target.wants/
+     mkdir -p ${D}${prefix}/lib/systemd/user/weston.target.wants/
      install -m 755 systemd/modello_launcher.sh ${D}${prefix}/bin
-     install -m 0644 systemd/Modello_Homescreen-launchpad-ready.path ${D}${systemd_unitdir}/user
-     install -m 0644 systemd/Modello_Homescreen.service ${D}${systemd_unitdir}/user
-     ln -sf ../Modello_Homescreen-launchpad-ready.path ${D}${systemd_unitdir}/user/weston.target.wants/
+     install -m 0644 systemd/Modello_Homescreen-launchpad-ready.path ${D}${prefix}/lib/systemd/user
+     install -m 0644 systemd/Modello_Homescreen.service ${D}${prefix}/lib/systemd/user
+     ln -sf ../Modello_Homescreen-launchpad-ready.path ${D}${prefix}/lib/systemd/user/weston.target.wants/
  
  
 }
@@ -85,10 +85,10 @@ PACKAGES += " Modello-Homescreen "
 Modello-Homescreen_files = ""
 Modello-Homescreen_files += "/opt/usr/apps/.preinstallWidgets/Modello-Homescreen.wgt"
 Modello-Homescreen_files += "${prefix}/share/Modello/Common/icons/Homescreen_icon.png"
-Modello-Homescreen_files += "${systemd_unitdir}/user/Modello_Homescreen.service"
-Modello-Homescreen_files += "${systemd_unitdir}/user/Modello_Homescreen-launchpad-ready.path"
+Modello-Homescreen_files += "${prefix}/lib/systemd/user/Modello_Homescreen.service"
+Modello-Homescreen_files += "${prefix}/lib/systemd/user/Modello_Homescreen-launchpad-ready.path"
 Modello-Homescreen_files += "${prefix}/bin/modello_launcher.sh"
-Modello-Homescreen_files += "${systemd_unitdir}/user/weston.target.wants"
+Modello-Homescreen_files += "${prefix}/lib/systemd/user/weston.target.wants"
 
 FILES_${PN} = "${Modello-Homescreen_files}"
 

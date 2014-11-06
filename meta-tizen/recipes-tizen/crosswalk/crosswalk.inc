@@ -116,7 +116,6 @@ do_compile() {
  if [ -f ${prefix}/share/crosswalk-thirdparty/out.tgz ]; then
    tar -zxvf ${prefix}/share/crosswalk-thirdparty/out.tgz
  fi
- 
  find . -exec touch -a -m -t "200912120000" {} \;
  
  # Stop unconditionally passing -Wall to the compiler. Chromium has its own

@@ -10,7 +10,6 @@ GROUPADD_PARAM_${PN} += "--system -g 19 floppy"
 
 EXTRA_OECONF += "--disable-manpages"
 EXTRA_OECONF += "--without-python"
-#EXTRA_OECONF += "--with-rootprefix=/"
 
 GTKDOC_DOCDIR = "${S}/docs/"
 
@@ -42,27 +41,19 @@ pkg_preinst_${PN}() {
     $D${prefix}/bin/mv -n ${sysconfdir}/systemd/systemd-journald.conf ${sysconfdir}/systemd/journald.conf >/dev/null 2>&1 || :
 }
 
-systemd_files += "${sysconfdir}/*"
-systemd_files += "/usr/lib64/python2.7/site-packages/systemd/__init__.py"
-systemd_files += "/usr/lib64/python2.7/site-packages/systemd/daemon.py"
-systemd_files += "/usr/lib64/python2.7/site-packages/systemd/_daemon.so"
-systemd_files += "/usr/lib64/python2.7/site-packages/systemd/_reader.so"
-systemd_files += "/usr/lib64/python2.7/site-packages/systemd/_journal.so"
-systemd_files += "/usr/lib64/python2.7/site-packages/systemd/__init__.pyo"
-systemd_files += "/usr/lib64/python2.7/site-packages/systemd/daemon.pyo"
-systemd_files += "/usr/lib64/python2.7/site-packages/systemd/journal.pyo"
-systemd_files += "/usr/lib64/python2.7/site-packages/systemd/journal.py"
-systemd_files += "/usr/lib64/python2.7/site-packages/systemd/id128.so"
-systemd_files += "/usr/lib64/python2.7/site-packages/systemd/login.so"
-systemd_files += "${prefix}/lib/rpm/macros.d"
-systemd_files += "/var/log"
-systemd_files += "/var/lib/systemd"
-systemd_files += "/var/volatile/log/README"
-systemd_files += "/var/volatile/log/journal"
-
-systemd-dbg_files += "${prefix}/lib/security/.debug"
-systemd-dbg_files += "${prefix}/lib/systemd/system-generators/.debug"
-systemd-dbg_files += "${prefix}/lib/udev/.debug"
-systemd-dbg_files += "${prefix}/lib64/python2.7/site-packages/systemd/.debug"
+systemd-dbg_files += "${systemd_unitdir}/.debug"
+systemd-dbg_files += "/lib/security/.debug"
+systemd-dbg_files += "${systemd_unitdir}/system-generators/.debug"
+systemd-dbg_files += "/lib/udev/.debug"
 
 FILES_${PN}-dbg += "${systemd-dbg_files}"
+
+
+FILES_${PN}-locale-fr += "${prefix}/lib/systemd/catalog/systemd.fr.catalog"
+FILES_${PN}-locale-it += "${prefix}/lib/systemd/catalog/systemd.it.catalog"
+FILES_${PN}-locale-ru += "${prefix}/lib/systemd/catalog/systemd.ru.catalog"
+FILES_${PN}-locale    += "${prefix}/lib/systemd/catalog/systemd.catalog"
+  
+  
+  
+  

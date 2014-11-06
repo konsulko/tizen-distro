@@ -68,7 +68,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . \
         -DCMAKE_INSTALL_PREFIX=${prefix} \
         -DENABLE_TIME_TRACER="OFF" \
-        -DSYSTEMD_SERVICE_PREFIX="${systemd_unitdir}/user"
+        -DSYSTEMD_SERVICE_PREFIX="${prefix}/lib/systemd/user"
  
  oe_runmake -j16 VERBOSE=1
  
@@ -110,8 +110,8 @@ phoned_files = ""
 phoned_files += "${prefix}/lib/pkgconfig/phoned.pc"
 phoned_files += "${prefix}/bin/phoned"
 phoned_files += "${prefix}/share/dbus-1/services/org.tizen.phone.service"
-phoned_files += "${systemd_unitdir}/user/phoned.service"
-phoned_files += "${systemd_unitdir}/user/weston.target.wants/phoned.service"
+phoned_files += "${prefix}/lib/systemd/user/phoned.service"
+phoned_files += "${prefix}/lib/systemd/user/weston.target.wants/phoned.service"
 MANIFESTFILES_${PN} = "phoned.manifest"
 
 FILES_${PN} = "${phoned_files}"

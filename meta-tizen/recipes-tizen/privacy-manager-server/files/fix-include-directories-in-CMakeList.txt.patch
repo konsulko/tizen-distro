@@ -15,10 +15,5 @@ index b8a0488..00f8428 100644
      "${CMAKE_SOURCE_DIR}/client/inc/"
      "${CMAKE_SOURCE_DIR}/common/inc/"
      )
-@@ -61,5 +57,5 @@ ADD_CUSTOM_COMMAND(TARGET ${this_target}
-     COMMENT "strip ${this_target}"
-         )   
- 
--INSTALL(TARGETS ${this_target} DESTINATION "../etc/package-manager/parserlib")
-+INSTALL(TARGETS ${this_target} DESTINATION lib)
+
  

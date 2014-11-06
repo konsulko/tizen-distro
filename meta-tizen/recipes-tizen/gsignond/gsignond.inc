@@ -98,10 +98,10 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- install -m 755 -d ${D}${systemd_unitdir}/user
- install -m 644 data/gsignond.service ${D}${systemd_unitdir}/user/
- install -m 755 -d ${D}${systemd_unitdir}/user/weston.target.wants
- ln -s ../gsignond.service ${D}${systemd_unitdir}/user/weston.target.wants/gsignond.service
+ install -m 755 -d ${D}${prefix}/lib/systemd/user
+ install -m 644 data/gsignond.service ${D}${prefix}/lib/systemd/user/
+ install -m 755 -d ${D}${prefix}/lib/systemd/user/weston.target.wants
+ ln -s ../gsignond.service ${D}${prefix}/lib/systemd/user/weston.target.wants/gsignond.service
  
  
 }
@@ -135,8 +135,8 @@ gsignond_files += "${prefix}/lib/libgsignond-*.so.*"
 gsignond_files += "${prefix}/lib/gsignond/extensions/*.so*"
 gsignond_files += "${prefix}/lib/gsignond/gplugins/*.so*"
 gsignond_files += "${prefix}/lib/gsignond/pluginloaders/gsignond-plugind"
-gsignond_files += "${systemd_unitdir}/user/gsignond.service"
-gsignond_files += "${systemd_unitdir}/user/weston.target.wants/gsignond.service"
+gsignond_files += "${prefix}/lib/systemd/user/gsignond.service"
+gsignond_files += "${prefix}/lib/systemd/user/weston.target.wants/gsignond.service"
 gsignond_files += "${sysconfdir}/gsignond.conf"
 MANIFESTFILES_${PN} = "gsignond.manifest"
 

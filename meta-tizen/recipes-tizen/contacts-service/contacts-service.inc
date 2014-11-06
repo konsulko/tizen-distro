@@ -122,13 +122,13 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}${systemd_unitdir}/user/tizen-middleware.target.wants
- install -m 0644 ${S}/packaging/contacts-service.service ${D}${systemd_unitdir}/user/contacts-service.service
- ln -s ../contacts-service.service ${D}${systemd_unitdir}/user/tizen-middleware.target.wants/contacts-service.service
+ mkdir -p ${D}${prefix}/lib/systemd/user/tizen-middleware.target.wants
+ install -m 0644 ${S}/packaging/contacts-service.service ${D}${prefix}/lib/systemd/user/contacts-service.service
+ ln -s ../contacts-service.service ${D}${prefix}/lib/systemd/user/tizen-middleware.target.wants/contacts-service.service
  
- mkdir -p ${D}${systemd_unitdir}/user/sockets.target.wants
- install -m 0644 ${S}/packaging/contacts-service.socket ${D}${systemd_unitdir}/user/contacts-service.socket
- ln -s ../contacts-service.socket ${D}${systemd_unitdir}/user/sockets.target.wants/contacts-service.socket
+ mkdir -p ${D}${prefix}/lib/systemd/user/sockets.target.wants
+ install -m 0644 ${S}/packaging/contacts-service.socket ${D}${prefix}/lib/systemd/user/contacts-service.socket
+ ln -s ../contacts-service.socket ${D}${prefix}/lib/systemd/user/sockets.target.wants/contacts-service.socket
  
  
  
@@ -164,10 +164,10 @@ PACKAGES += " contacts-service2-dev "
 contacts-service2_files = ""
 contacts-service2_files += "${prefix}/lib/libcontacts-service2.so.*"
 contacts-service2_files += "${prefix}/bin/contacts-service-ipcd*"
-contacts-service2_files += "${systemd_unitdir}/user/contacts-service.service"
-contacts-service2_files += "${systemd_unitdir}/user/tizen-middleware.target.wants/contacts-service.service"
-contacts-service2_files += "${systemd_unitdir}/user/sockets.target.wants/contacts-service.socket"
-contacts-service2_files += "${systemd_unitdir}/user/contacts-service.socket"
+contacts-service2_files += "${prefix}/lib/systemd/user/contacts-service.service"
+contacts-service2_files += "${prefix}/lib/systemd/user/tizen-middleware.target.wants/contacts-service.service"
+contacts-service2_files += "${prefix}/lib/systemd/user/sockets.target.wants/contacts-service.socket"
+contacts-service2_files += "${prefix}/lib/systemd/user/contacts-service.socket"
 MANIFESTFILES_${PN}2 = "contacts-service2.manifest"
 
 contacts-service2-dev_files = ""

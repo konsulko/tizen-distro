@@ -23,11 +23,7 @@ do_install_append() {
     rm -rf ${D}/usr/src
 }
 
-FILES_${PN}-dbg = "${prefix}/bin/.debug/IVISurfaceCreator"
-FILES_${PN}-dbg = "${prefix}/bin/.debug/LayerManagerControl"
-FILES_${PN}-dbg = "${prefix}/bin/.debug/EGLWLMockNavigation"
-FILES_${PN}-dbg = "${prefix}/lib/.debug/libilmCommon.so.1.2.0"
-FILES_${PN}-dbg = "${prefix}/lib/.debug/libilmControl.so.1.2.0"
-FILES_${PN}-dbg = "${prefix}/lib/.debug/libilmClient.so.1.2.0"
-FILES_${PN}-dbg = "${prefix}/lib/weston/.debug/ivi-controller.so"
-
+FILES_${PN}-dbg += "${prefix}/bin/.debug"
+FILES_${PN}-dbg += "${prefix}/lib/weston/.debug"
+FILES_${PN}-dbg += "${prefix}/src/debug/.debug"
+FILES_${PN}-dbg += "${prefix}/lib/.debug"
