@@ -228,6 +228,11 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     [ "x$D" == "x" ] && ldconfig
+    if [ $1 -eq 1 ] ; then
+    # Initial installation
+    systemctl --user --global preset pulseaudio.socket >/dev/null 2>&1 || :
+    fi
+
 }
 
 pkg_postinst_libpulse-mainloop-glib() {
@@ -249,13 +254,17 @@ pkg_postinst_${PN}() {
 
 }
 
-pkg_postrm_libpulse() {
+pkg_prerm_${PN}() {
     #!/bin/sh -e
 
-    [ "x$D" == "x" ] && ldconfig
+    if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    systemctl --no-reload --user --global disable pulseaudio.socket > /dev/null 2>&1 || :
+    fi
+
 }
 
-pkg_postrm_${PN}() {
+pkg_postrm_libpulse() {
     #!/bin/sh -e
 
     [ "x$D" == "x" ] && ldconfig
@@ -270,30 +279,40 @@ pkg_postrm_libpulse-mainloop-glib() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
+    [ "x$D" == "x" ] && ldconfig
+}
+
+pkg_postrm_${PN}() {
+    #!/bin/sh -e
+
     /usr/sbin/setcap -r /usr/bin/pulseaudio
     #lang_package
 
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
+PACKAGES += " pulseaudio-module-filter "
 PACKAGES += " libpulse "
-PACKAGES += " pulseaudio-vala-bindings "
 PACKAGES += " pulseaudio-module-dbus-protocol "
 PACKAGES += " pulseaudio-realtime-scheduling "
-PACKAGES += " pulseaudio-module-bluetooth "
 PACKAGES += " pulseaudio-module-combine-sink "
-PACKAGES += " libpulse-mainloop-glib "
+PACKAGES += " pulseaudio-module-bluetooth "
+PACKAGES += " pulseaudio-utils "
 PACKAGES += " pulseaudio-module-raop "
 PACKAGES += " pulseaudio-config "
-PACKAGES += " pulseaudio-module-filter "
+PACKAGES += " libpulse-mainloop-glib "
 PACKAGES += " pulseaudio-module-augment-properties "
 PACKAGES += " pulseaudio "
-PACKAGES += " pulseaudio-utils "
 PACKAGES += " pulseaudio-module-dev "
 PACKAGES += " libpulse-dev "
+PACKAGES += " pulseaudio-vala-bindings "
 PACKAGES += " pulseaudio-module-switch-on-connect "
 PACKAGES += " pulseaudio-docs "
 PACKAGES += " pulseaudio-module-null-source "
+
+pulseaudio-module-filter_files = ""
+pulseaudio-module-filter_files += "${prefix}/lib/pulse-5.0/modules/module-filter-*.so"
+MANIFESTFILES_${PN}-module-filter = "pulseaudio.manifest"
 
 libpulse_files = ""
 libpulse_files += "${prefix}/lib/libpulse.so.*"
@@ -301,15 +320,15 @@ libpulse_files += "${prefix}/lib/libpulse-simple.so.*"
 libpulse_files += "${prefix}/lib/pulseaudio/libpulsecommon-*.so"
 MANIFESTFILES_libpulse = "pulseaudio.manifest"
 
-pulseaudio-vala-bindings_files = ""
-pulseaudio-vala-bindings_files += "${prefix}/share/vala/vapi/*"
-MANIFESTFILES_${PN}-vala-bindings = "pulseaudio.manifest"
-
 pulseaudio-module-dbus-protocol_files = ""
 pulseaudio-module-dbus-protocol_files += "${prefix}/lib/pulse-5.0/modules/module-dbus-protocol.so"
 MANIFESTFILES_${PN}-module-dbus-protocol = "pulseaudio.manifest"
 
 pulseaudio-realtime-scheduling_files = ""
+
+pulseaudio-module-combine-sink_files = ""
+pulseaudio-module-combine-sink_files += "${prefix}/lib/pulse-5.0/modules/module-combine-sink.so"
+MANIFESTFILES_${PN}-module-combine-sink = "pulseaudio.manifest"
 
 pulseaudio-module-bluetooth_files = ""
 pulseaudio-module-bluetooth_files += "${prefix}/lib/pulse-5.0/modules/module-bluetooth-discover.so"
@@ -319,13 +338,18 @@ pulseaudio-module-bluetooth_files += "${prefix}/lib/pulse-5.0/modules/module-blu
 pulseaudio-module-bluetooth_files += "${prefix}/lib/pulse-5.0/modules/libbluez5-util.so"
 MANIFESTFILES_${PN}-module-bluetooth = "pulseaudio.manifest"
 
-pulseaudio-module-combine-sink_files = ""
-pulseaudio-module-combine-sink_files += "${prefix}/lib/pulse-5.0/modules/module-combine-sink.so"
-MANIFESTFILES_${PN}-module-combine-sink = "pulseaudio.manifest"
-
-libpulse-mainloop-glib_files = ""
-libpulse-mainloop-glib_files += "${prefix}/lib/libpulse-mainloop-glib.so.*"
-MANIFESTFILES_libpulse-mainloop-glib = "pulseaudio.manifest"
+pulseaudio-utils_files = ""
+pulseaudio-utils_files += "${mandir}/man1/*"
+pulseaudio-utils_files += "${mandir}/man5/*"
+pulseaudio-utils_files += "${prefix}/bin/pacat"
+pulseaudio-utils_files += "${prefix}/bin/pacmd"
+pulseaudio-utils_files += "${prefix}/bin/pactl"
+pulseaudio-utils_files += "${prefix}/bin/paplay"
+pulseaudio-utils_files += "${prefix}/bin/parec"
+pulseaudio-utils_files += "${prefix}/bin/pamon"
+pulseaudio-utils_files += "${prefix}/bin/parecord"
+pulseaudio-utils_files += "${prefix}/bin/pasuspender"
+MANIFESTFILES_${PN}-utils = "pulseaudio.manifest"
 
 pulseaudio-module-raop_files = ""
 pulseaudio-module-raop_files += "${prefix}/lib/pulse-5.0/modules/libraop.so"
@@ -343,9 +367,9 @@ pulseaudio-config_files += "${prefix}/share/pulseaudio/alsa-mixer/paths/*"
 pulseaudio-config_files += "${prefix}/share/pulseaudio/alsa-mixer/profile-sets/*"
 MANIFESTFILES_${PN}-config = "pulseaudio.manifest"
 
-pulseaudio-module-filter_files = ""
-pulseaudio-module-filter_files += "${prefix}/lib/pulse-5.0/modules/module-filter-*.so"
-MANIFESTFILES_${PN}-module-filter = "pulseaudio.manifest"
+libpulse-mainloop-glib_files = ""
+libpulse-mainloop-glib_files += "${prefix}/lib/libpulse-mainloop-glib.so.*"
+MANIFESTFILES_libpulse-mainloop-glib = "pulseaudio.manifest"
 
 pulseaudio-module-augment-properties_files = ""
 pulseaudio-module-augment-properties_files += "${prefix}/lib/pulse-5.0/modules/module-augment-properties.so"
@@ -427,6 +451,8 @@ pulseaudio_files += "${prefix}/lib/pulse-5.0/modules/module-switch-on-port-avail
 pulseaudio_files += "${prefix}/lib/pulse-5.0/modules/module-virtual-surround-sink.so"
 pulseaudio_files += "${prefix}/lib/pulse-5.0/modules/module-role-ducking.so"
 pulseaudio_files += "${prefix}/lib/pulse-5.0/modules/module-systemd-login.so"
+pulseaudio_files += "${prefix}/lib/systemd/user/pulseaudio.service"
+pulseaudio_files += "${prefix}/lib/systemd/user/pulseaudio.socket"
 pulseaudio_files += "${prefix}/lib/pulse-5.0/modules/module-policy.so"
 pulseaudio_files += "${prefix}/lib/pulse-5.0/modules/libvolume-api.so"
 pulseaudio_files += "${prefix}/lib/pulse-5.0/modules/libmain-volume-policy.so"
@@ -437,19 +463,6 @@ pulseaudio_files += "/etc/bash_completion.d/pulseaudio-bash-completion.sh"
 CONFFILES_${PN} = ""
 CONFFILES_${PN} += "${sysconfdir}/pulse/filter/*.dat"
 MANIFESTFILES_${PN} = "pulseaudio.manifest"
-
-pulseaudio-utils_files = ""
-pulseaudio-utils_files += "${mandir}/man1/*"
-pulseaudio-utils_files += "${mandir}/man5/*"
-pulseaudio-utils_files += "${prefix}/bin/pacat"
-pulseaudio-utils_files += "${prefix}/bin/pacmd"
-pulseaudio-utils_files += "${prefix}/bin/pactl"
-pulseaudio-utils_files += "${prefix}/bin/paplay"
-pulseaudio-utils_files += "${prefix}/bin/parec"
-pulseaudio-utils_files += "${prefix}/bin/pamon"
-pulseaudio-utils_files += "${prefix}/bin/parecord"
-pulseaudio-utils_files += "${prefix}/bin/pasuspender"
-MANIFESTFILES_${PN}-utils = "pulseaudio.manifest"
 
 pulseaudio-module-dev_files = ""
 pulseaudio-module-dev_files += "${prefix}/include/pulsemodule/pulsecore/*.h"
@@ -470,6 +483,10 @@ libpulse-dev_files += "${prefix}/lib/cmake/PulseAudio/PulseAudioConfig.cmake"
 libpulse-dev_files += "${prefix}/lib/cmake/PulseAudio/PulseAudioConfigVersion.cmake"
 MANIFESTFILES_libpulse-dev = "pulseaudio.manifest"
 
+pulseaudio-vala-bindings_files = ""
+pulseaudio-vala-bindings_files += "${prefix}/share/vala/vapi/*"
+MANIFESTFILES_${PN}-vala-bindings = "pulseaudio.manifest"
+
 pulseaudio-module-switch-on-connect_files = ""
 pulseaudio-module-switch-on-connect_files += "${prefix}/lib/pulse-5.0/modules/module-switch-on-connect.so"
 MANIFESTFILES_${PN}-module-switch-on-connect = "pulseaudio.manifest"
@@ -480,40 +497,40 @@ pulseaudio-module-null-source_files = ""
 pulseaudio-module-null-source_files += "${prefix}/lib/pulse-5.0/modules/module-null-source.so"
 MANIFESTFILES_${PN}-module-null-source = "pulseaudio.manifest"
 
+FILES_${PN}-module-filter = "${pulseaudio-module-filter_files}"
 FILES_libpulse = "${libpulse_files}"
-FILES_${PN}-vala-bindings = "${pulseaudio-vala-bindings_files}"
 FILES_${PN}-module-dbus-protocol = "${pulseaudio-module-dbus-protocol_files}"
 FILES_${PN}-realtime-scheduling = "${pulseaudio-realtime-scheduling_files}"
-FILES_${PN}-module-bluetooth = "${pulseaudio-module-bluetooth_files}"
 FILES_${PN}-module-combine-sink = "${pulseaudio-module-combine-sink_files}"
-FILES_libpulse-mainloop-glib = "${libpulse-mainloop-glib_files}"
+FILES_${PN}-module-bluetooth = "${pulseaudio-module-bluetooth_files}"
+FILES_${PN}-utils = "${pulseaudio-utils_files}"
 FILES_${PN}-module-raop = "${pulseaudio-module-raop_files}"
 FILES_${PN}-config = "${pulseaudio-config_files}"
-FILES_${PN}-module-filter = "${pulseaudio-module-filter_files}"
+FILES_libpulse-mainloop-glib = "${libpulse-mainloop-glib_files}"
 FILES_${PN}-module-augment-properties = "${pulseaudio-module-augment-properties_files}"
 FILES_${PN} = "${pulseaudio_files}"
-FILES_${PN}-utils = "${pulseaudio-utils_files}"
 FILES_${PN}-module-dev = "${pulseaudio-module-dev_files}"
 FILES_libpulse-dev = "${libpulse-dev_files}"
+FILES_${PN}-vala-bindings = "${pulseaudio-vala-bindings_files}"
 FILES_${PN}-module-switch-on-connect = "${pulseaudio-module-switch-on-connect_files}"
 FILES_${PN}-docs = "${pulseaudio-docs_files}"
 FILES_${PN}-module-null-source = "${pulseaudio-module-null-source_files}"
 
+PKG_pulseaudio-module-filter= "pulseaudio-module-filter"
 PKG_libpulse= "libpulse"
-PKG_pulseaudio-vala-bindings= "pulseaudio-vala-bindings"
 PKG_pulseaudio-module-dbus-protocol= "pulseaudio-module-dbus-protocol"
 PKG_pulseaudio-realtime-scheduling= "pulseaudio-realtime-scheduling"
-PKG_pulseaudio-module-bluetooth= "pulseaudio-module-bluetooth"
 PKG_pulseaudio-module-combine-sink= "pulseaudio-module-combine-sink"
-PKG_libpulse-mainloop-glib= "libpulse-mainloop-glib"
+PKG_pulseaudio-module-bluetooth= "pulseaudio-module-bluetooth"
+PKG_pulseaudio-utils= "pulseaudio-utils"
 PKG_pulseaudio-module-raop= "pulseaudio-module-raop"
 PKG_pulseaudio-config= "pulseaudio-config"
-PKG_pulseaudio-module-filter= "pulseaudio-module-filter"
+PKG_libpulse-mainloop-glib= "libpulse-mainloop-glib"
 PKG_pulseaudio-module-augment-properties= "pulseaudio-module-augment-properties"
 PKG_pulseaudio= "pulseaudio"
-PKG_pulseaudio-utils= "pulseaudio-utils"
 PKG_pulseaudio-module-dev= "pulseaudio-module-dev"
 PKG_libpulse-dev= "libpulse-dev"
+PKG_pulseaudio-vala-bindings= "pulseaudio-vala-bindings"
 PKG_pulseaudio-module-switch-on-connect= "pulseaudio-module-switch-on-connect"
 PKG_pulseaudio-docs= "pulseaudio-docs"
 PKG_pulseaudio-module-null-source= "pulseaudio-module-null-source"
