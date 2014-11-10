@@ -1,3 +1,5 @@
+SRC_URI += "file://Makefile.am.diff"
+
 do_install() {
  echo export RPM_BUILD_ROOT=${D}
  cd ${S}
