@@ -2,7 +2,6 @@ DESCRIPTION = "Sanity suite for Tizen Common"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Development/Testing"
 LICENSE = "GPL-2.0"
-
 PV = "1.1"
 
 SRC_URI = ""

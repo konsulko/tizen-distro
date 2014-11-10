@@ -44,7 +44,6 @@ DEPENDS += "glib-2.0"
 inherit pkgconfig
 DEPENDS += "gstreamer1.0"
 
-
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
@@ -77,7 +76,6 @@ do_compile() {
   
 }
 EXTRA_OECONF += " --prefix=${prefix}"
-
 
 do_install() {
  export RPM_BUILD_ROOT=${D}

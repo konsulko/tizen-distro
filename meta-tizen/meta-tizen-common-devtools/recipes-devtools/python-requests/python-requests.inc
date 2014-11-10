@@ -2,13 +2,11 @@ DESCRIPTION = "Awesome Python HTTP Library That's Actually Usable"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Base"
 LICENSE = "Apache-2.0"
-
 PV = "2.2.1"
 
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
-
 
 inherit manifest autotools-brokensep
 

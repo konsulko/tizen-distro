@@ -4,7 +4,6 @@ SECTION = "Development/Testing"
 LICENSE = "GPL-2.0"
 PV = "1.1"
 
-
 SRC_URI = ""
 
 S = "${WORKDIR}/git"
