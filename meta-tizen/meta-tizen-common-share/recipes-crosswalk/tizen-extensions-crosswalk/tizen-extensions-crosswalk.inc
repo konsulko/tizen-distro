@@ -2,7 +2,7 @@ DESCRIPTION = "Tizen Web APIs implemented using Crosswalk"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Development/Libraries"
 LICENSE = "BSD-3-Clause and Apache-2.0"
-PV = "0.107"
+PV = "0.110"
 
 SRC_URI = ""
 
@@ -40,7 +40,6 @@ RDEPENDS_${PN}-bluetooth-demo += "tizen-extensions-crosswalk"
 RDEPENDS_${PN}-audiosystem-demo += "tizen-extensions-crosswalk"
 
 #RDEPENDS of tizen-extensions-crosswalk (${PN})
-RDEPENDS_${PN} += "oma-ds-agent"
 RDEPENDS_${PN} += "crosswalk"
 RDEPENDS_${PN} += "media-thumbnail-server"
 
@@ -60,7 +59,6 @@ DEPENDS += "capi-appfw-application"
 DEPENDS += "libgsignon-glib"
 DEPENDS += "app-core"
 DEPENDS += "capi-network-bluetooth"
-DEPENDS += "sync-agent"
 DEPENDS += "dbus-glib"
 DEPENDS += "pkgmgr-info"
 DEPENDS += "notification"
