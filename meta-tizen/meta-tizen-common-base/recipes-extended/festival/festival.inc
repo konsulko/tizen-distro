@@ -34,19 +34,19 @@ do_prep() {
  cd ${S}
  #extracte source 1 
  pushd ${S}/../
- unp ${S}/packaging/speech_tools-2.1-release.tar.gz 
+ tar -zxf ${S}/packaging/speech_tools-2.1-release.tar.gz
  popd 
  #extracte source 2 
  pushd ${S}/../
- unp ${S}/packaging/festlex_CMU.tar.gz 
+ tar -zxf ${S}/packaging/festlex_CMU.tar.gz
  popd 
  #extracte source 3 
  pushd ${S}/../
- unp ${S}/packaging/festvox_kallpc16k.tar.gz 
+ tar -zxf ${S}/packaging/festvox_kallpc16k.tar.gz
  popd 
  #extracte source 4 
  pushd ${S}/../
- unp ${S}/packaging/festlex_POSLEX.tar.gz 
+ tar -zxf ${S}/packaging/festlex_POSLEX.tar.gz
  popd 
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -b 1 -b 2 -b 3 -b 4
@@ -116,11 +116,11 @@ do_compile() {
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/festival-2.1/src/lib
   # speech tools
   cd speech_tools
-  ./configure --prefix=${prefix}               --libdir=${prefix}/lib               --datadir=${prefix}/share/festival               --sysconfdir=${sysconfdir}
+  ./configure --host=${HOST_SYS} --prefix=${prefix}               --libdir=${prefix}/lib               --datadir=${prefix}/share/festival               --sysconfdir=${sysconfdir}
   
-  oe_runmake CC="${CC} -fPIC $RPM_OPT_FLAGS" CXX="${HOST_SYS}-g++ $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
+  oe_runmake CC="${CC} -fPIC $RPM_OPT_FLAGS" CXX="${CXX} $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
   cd ../festival-2.1
-  oe_runmake CC="${CC} -fPIC $RPM_OPT_FLAGS" CXX="${HOST_SYS}-g++ $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
+  oe_runmake CC="${CC} -fPIC $RPM_OPT_FLAGS" CXX="${CXX} $RPM_OPT_FLAGS -fPIC -Wno-non-template-friend -ffriend-injection -fno-strict-aliasing"
   oe_runmake doc
   
   
