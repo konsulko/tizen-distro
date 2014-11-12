@@ -10,7 +10,7 @@ RDEPENDS_${PN}_remove_class-native = "update-alternatives-native"
 DEPENDS_append_class-target = " vala-native"
 
 do_install_append() {
- rm -r ${D}${prefix}/share/devhelp
+ rm -rf ${D}${prefix}/share/devhelp
 }
 
 vala_files += "${prefix}/bin/vala"
