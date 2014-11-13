@@ -1,0 +1,51 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index fec703f..0fd3ed4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -15,6 +15,9 @@ add_definitions(-DPROJECT_VERSION="${PROJECT_VERSION}")
+ add_definitions(-DPROJECT_NAME="${PROJECT_NAME}")
+ add_definitions(-DLATER1024)
+ 
++FIND_FILE(ICO_UTIL_DIR ico-util )
++FIND_FILE(DBUS_DIR dbus-1.0)
++
+ include (CMakeForceCompiler)
+ option(ENABLE_ICECC "Enable icecc checking, for distributed compilation" OFF)
+ 
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 40a043b..39fd603 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1,6 +1,6 @@
+ include(CheckIncludeFiles)
+ 
+-include_directories(${CMAKE_SOURCE_DIR}/lib ${include_dirs} ${gio_INCLUDE_DIRS} ${gio-unix_INCLUDE_DIRS} /usr/include/amb /usr/include/dbus-1.0)
++include_directories(${CMAKE_SOURCE_DIR}/lib ${include_dirs} ${gio_INCLUDE_DIRS} ${gio-unix_INCLUDE_DIRS} ${ambd_INCLUDE_DIRS} ${DBUS_DIR})
+ 
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -std=c++11 -O3")
+ set(vehicleplugin_headers common.h abstractconfig.h ambconfig.h convert.h standardmessage.h datamessage.h eventmessage.h messageformat.h controlwebsocket.h mwinterface.h viccommunicator.h ambinterface.h)
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 415a1c5..2491c39 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -1,6 +1,6 @@
+ include(CheckIncludeFiles)
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -std=c++11")
+-include_directories(${CMAKE_SOURCE_DIR}/lib ${include_dirs} ${gio_INCLUDE_DIRS} ${gio-unix_INCLUDE_DIRS} ${ambd_INCLUDE_DIRS} ${appcore-efl_INCLUDE_DIRS}  ${elementary_INCLUDE_DIRS} /usr/include/ico-util ../src/)
++include_directories(${CMAKE_SOURCE_DIR}/lib ${include_dirs} ${gio_INCLUDE_DIRS} ${gio-unix_INCLUDE_DIRS} ${ambd_INCLUDE_DIRS} ${appcore-efl_INCLUDE_DIRS}  ${elementary_INCLUDE_DIRS} ${ICO_UTIL_DIR} ../src/)
+ 
+ set(VICCommon_sources ../src/standardmessage.cc ../src/datamessage.cc ../src/eventmessage.cc controlwebsocketclient.cc)
+ set(Common_sources ../src/abstractconfig.cc ../src/ambconfig.cc logresult.cc)
+diff --git a/tool/CMakeLists.txt b/tool/CMakeLists.txt
+index 5669512..9bb46a3 100644
+--- a/tool/CMakeLists.txt
++++ b/tool/CMakeLists.txt
+@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
+ include(CheckIncludeFiles)
+ 
+ set(ico_set_vehicleinfo_sources ico_set_vehicleinfo.c)
+-include_directories(${CMAKE_SOURCE_DIR}/lib ${include_dirs} /usr/include/ico-util)
++
++include_directories(${CMAKE_SOURCE_DIR}/lib ${include_dirs} ${ICO_UTIL_DIR})
+ add_executable(ico_set_vehicleinfo ${ico_set_vehicleinfo_sources})
+ target_link_libraries(ico_set_vehicleinfo websockets -L${CMAKE_CURRENT_BINARY_DIR}/lib ${link_libraries} -lico-util)

@@ -1,0 +1,25 @@
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index c1a1f81..40a043b 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1,7 +1,8 @@
+ include(CheckIncludeFiles)
+ 
+ include_directories(${CMAKE_SOURCE_DIR}/lib ${include_dirs} ${gio_INCLUDE_DIRS} ${gio-unix_INCLUDE_DIRS} /usr/include/amb /usr/include/dbus-1.0)
+-set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11 -O3")
++
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -std=c++11 -O3")
+ set(vehicleplugin_headers common.h abstractconfig.h ambconfig.h convert.h standardmessage.h datamessage.h eventmessage.h messageformat.h controlwebsocket.h mwinterface.h viccommunicator.h ambinterface.h)
+ set(vehicleplugin_sources abstractconfig.cc ambconfig.cc convert.cc standardmessage.cc eventmessage.cc datamessage.cc mwinterface.cc controlwebsocket.cc viccommunicator.cc ambinterface.cc)
+ add_library(vehicleplugin MODULE ${vehicleplugin_sources})
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 46933cc..415a1c5 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -1,5 +1,5 @@
+ include(CheckIncludeFiles)
+-set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -std=c++11")
+ include_directories(${CMAKE_SOURCE_DIR}/lib ${include_dirs} ${gio_INCLUDE_DIRS} ${gio-unix_INCLUDE_DIRS} ${ambd_INCLUDE_DIRS} ${appcore-efl_INCLUDE_DIRS}  ${elementary_INCLUDE_DIRS} /usr/include/ico-util ../src/)
+ 
+ set(VICCommon_sources ../src/standardmessage.cc ../src/datamessage.cc ../src/eventmessage.cc controlwebsocketclient.cc)
