@@ -31,7 +31,7 @@ PROVIDES += "ofono-dev"
 RDEPENDS = ""
 #RDEPENDS of ofono-test (${PN}-test)
 RDEPENDS_${PN}-test += "python-xml"
-RDEPENDS_${PN}-test += "python-gobject"
+RDEPENDS_${PN}-test += "python-pygobject"
 RDEPENDS_${PN}-test += "dbus-python"
 RDEPENDS_${PN}-test += "ofono"
 
