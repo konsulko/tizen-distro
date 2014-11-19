@@ -1,8 +1,8 @@
 DESCRIPTION = "Messaging Framework Library"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Libraries"
-LICENSE = "Flora-1.1"
-PV = "0.9.3"
+LICENSE = "Apache-2.0"
+PV = "0.9.4"
 
 SRC_URI = ""
 
@@ -238,12 +238,10 @@ PACKAGES += " msg-service-dev "
 PACKAGES += " msg-service "
 
 mms-plugin_files = ""
-mms-plugin_files += "Flora License v1.1 LICENSE.Flora"
 mms-plugin_files += "${prefix}/lib/libmsg_mms_plugin.so"
 MANIFESTFILES_mms-plugin = "mms-plugin.manifest"
 
 msg-service-tools_files = ""
-msg-service-tools_files += "Flora License v1.1 LICENSE.Flora"
 msg-service-tools_files += "${prefix}/bin/msg-helper"
 msg-service-tools_files += "${prefix}/bin/msg-server"
 msg-service-tools_files += "${prefix}/share/media/Sherbet.wav"
@@ -260,7 +258,6 @@ msg-service-tools_files += "/var/log/msgfw"
 MANIFESTFILES_${PN}-tools = "msg-service-tools.manifest"
 
 sms-plugin_files = ""
-sms-plugin_files += "Flora License v1.1 LICENSE.Flora"
 sms-plugin_files += "${prefix}/lib/libmsg_sms_plugin.so"
 MANIFESTFILES_sms-plugin = "sms-plugin.manifest"
 
@@ -271,7 +268,6 @@ msg-service-dev_files += "${prefix}/include/msg-service/*"
 MANIFESTFILES_${PN}-dev = "msg-service-devel.manifest"
 
 msg-service_files = ""
-msg-service_files += "Flora License v1.1 LICENSE.Flora"
 msg-service_files += "${prefix}/lib/libmsg_plugin_manager.so"
 msg-service_files += "${prefix}/lib/libmsg_mapi.so.*"
 msg-service_files += "${prefix}/lib/libmsg_framework_handler.so"

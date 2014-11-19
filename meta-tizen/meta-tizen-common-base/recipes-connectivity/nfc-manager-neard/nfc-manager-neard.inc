@@ -133,9 +133,10 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- mkdir -p ${D}${prefix}/lib/systemd/system/multi-user.target.wants
- cp -af ${S}/packaging/nfc-manager-neard.service ${D}${prefix}/lib/systemd/system/
- ln -s ../nfc-manager-neard.service ${D}${prefix}/lib/systemd/system/multi-user.target.wants/nfc-manager-neard.service
+ install -d ${D}${systemd_unitdir}/system
+ install -d ${D}${systemd_unitdir}/system/multi-user.target.wants/
+ install -m 644 ${S}/packaging/nfc-manager-neard.service ${D}${systemd_unitdir}/system/nfc-manager-neard.service
+ ln -s ../nfc-manager-neard.service ${D}${systemd_unitdir}/system/multi-user.target.wants/nfc-manager-neard.service
  
  
 }
@@ -198,8 +199,8 @@ nfc-client-lib-neard-dev_files += "${prefix}/include/nfc/*.h"
 
 nfc-manager-neard_files = ""
 nfc-manager-neard_files += "${prefix}/bin/nfc-manager-daemon"
-nfc-manager-neard_files += "${prefix}/lib/systemd/system/nfc-manager-neard.service"
-nfc-manager-neard_files += "${prefix}/lib/systemd/system/multi-user.target.wants/nfc-manager-neard.service"
+nfc-manager-neard_files += "${systemd_unitdir}/system/nfc-manager-neard.service"
+nfc-manager-neard_files += "${systemd_unitdir}/system/multi-user.target.wants/nfc-manager-neard.service"
 nfc-manager-neard_files += "${prefix}/share/dbus-1/system-services/org.tizen.NetNfcService.service"
 nfc-manager-neard_files += "${prefix}/share/packages/nfc-manager.xml"
 nfc-manager-neard_files += "${prefix}/share/nfc-manager-daemon/sounds/*"

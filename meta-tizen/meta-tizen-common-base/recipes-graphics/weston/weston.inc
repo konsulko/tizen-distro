@@ -95,7 +95,7 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --disable-static --disable-setuid-install --enable-simple-clients --enable-clients --disable-libunwind --disable-xwayland --disable-xwayland-test --disable-x11-compositor --disable-rpi-compositor "
+EXTRA_OECONF += " --disable-static --disable-setuid-install --enable-simple-clients --enable-clients --disable-libunwind --disable-xwayland --disable-xwayland-test --disable-x11-compositor --disable-rpi-compositor --with-cairo=glesv2 "
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -121,6 +121,8 @@ do_install() {
  install -m 755 weston-simple-touch ${D}${prefix}/bin
  install -m 755 weston-simple-shm ${D}${prefix}/bin
  install -m 755 weston-simple-egl ${D}${prefix}/bin
+ install -m 755 weston-nested-client ${D}${prefix}/bin
+ install -m 755 weston-nested ${D}${prefix}/bin
  install -m 755 weston-flower ${D}${prefix}/bin
  install -m 755 weston-image ${D}${prefix}/bin
  install -m 755 weston-cliptest ${D}${prefix}/bin
@@ -184,6 +186,8 @@ weston-clients_files = ""
 weston-clients_files += "${prefix}/bin/weston-simple-touch"
 weston-clients_files += "${prefix}/bin/weston-simple-shm"
 weston-clients_files += "${prefix}/bin/weston-simple-egl"
+weston-clients_files += "${prefix}/bin/weston-nested-client"
+weston-clients_files += "${prefix}/bin/weston-nested"
 weston-clients_files += "${prefix}/bin/weston-flower"
 weston-clients_files += "${prefix}/bin/weston-image"
 weston-clients_files += "${prefix}/bin/weston-cliptest"
