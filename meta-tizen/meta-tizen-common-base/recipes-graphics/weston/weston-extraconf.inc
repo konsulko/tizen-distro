@@ -11,9 +11,7 @@ EXTRA_OECONF += "   \
                     --disable-vaapi-recorder \
                     --enable-weston-launch \
                     --enable-drm-compositor \
-                    --disable-rdp-compositor \
                     --enable-sys-uid \
-                    --with-cairo=image \
                     --enable-egl \
                     --enable-simple-egl-clients \
                     --enable-fbdev-compositor \
@@ -24,6 +22,8 @@ EXTRA_OECONF += "   \
                     --disable-webp \
                     "
 
+EXTRA_OECONF += "   --disable-rdp-compositor "
+                    
 do_configure_prepend() {
     sed -i 's/PKG_CHECK_MODULES(WAYLAND_SCANNER, wayland-scanner)//' configure.ac
 }
