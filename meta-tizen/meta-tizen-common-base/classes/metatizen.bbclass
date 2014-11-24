@@ -13,19 +13,26 @@ python () {
 }
 
 DIRFILES = "1"
-RPM_EXTRA_PKGDATA = "1"
 
+# MANIFESTFILES_<pn> is the Tizen Smack .manifest file to be used for a binary .rpm.
+# It must be part of the source tree (either at the root or in a sub-directory)
+# or get created there during configure. Out-of-tree compilation is not supported.
+
+# Enable extra code for the binary .rpm spec files which injects the %manifest
+# lines for each package.
+RPM_EXTRA_PKGDATA = "1"
 def package_rpm_extra_pkgdata(splitname, spec_file, d):
     if d.getVar('MANIFESTFILES', True):
-        spec_file.append('%%manifest %s' % (d.getVar('MANIFESTFILES', True)))
+        # Must use .manifest files at the location where tizen_copy_manifest() put it.
+        spec_file.append('%%manifest ../packages-split/%s' % (d.getVar('MANIFESTFILES', True)))
 
+# Copies manifest files from source to packages-split. Necessary because
+# source is not always available during packaging (for example, when
+# using sstate), only $PKGDEST is.
 python tizen_copy_manifest () {
     dest = d.getVar('S', True)
     dvar = d.getVar('PKGDEST', True)
 
-    # Start by package population by taking a copy of the installed
-    # files to operate on
-    # Preserve sparse files and hard links
     packages = d.getVar('PACKAGES', True)
     for pkg in packages.split():
         manifest_path=d.getVar('MANIFESTFILES_%s' % pkg, True)
