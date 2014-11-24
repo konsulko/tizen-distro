@@ -29,6 +29,7 @@ def package_rpm_extra_pkgdata(splitname, spec_file, d):
 # Copies manifest files from source to packages-split. Necessary because
 # source is not always available during packaging (for example, when
 # using sstate), only $PKGDEST is.
+PACKAGESPLITFUNCS_append = " tizen_copy_manifest"
 python tizen_copy_manifest () {
     dest = d.getVar('S', True)
     dvar = d.getVar('PKGDEST', True)
