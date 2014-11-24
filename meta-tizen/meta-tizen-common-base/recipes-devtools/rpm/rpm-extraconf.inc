@@ -129,7 +129,7 @@ do_install() {
  chmod 755 ${D}${sysconfdir}/rpm
  mkdir -p ${D}${prefix}/lib/rpm/macros.d
  # remove some nonsense or non-working scripts
- pushd ${D}${prefix}/lib/rpm/
+ cd ${D}${prefix}/lib/rpm/
  for f in rpm2cpio.sh rpm.daily rpmdiff* rpm.log rpm.xinetd freshen.sh u_pkg.sh \
           magic magic.mgc magic.mime* rpmfile *.pl javadeps brp-redhat \
           brp-strip-static-archive vpkg-provides*.sh http.req sql.req tcl.req \
@@ -142,7 +142,7 @@ do_install() {
      rm -f "${i##*/}"
    fi
  done
- popd
+ cd ${S}
  rm -f ${D}${prefix}/lib/*.la
  rm -f ${D}${prefix}/lib/rpm-plugins/*.la
 
