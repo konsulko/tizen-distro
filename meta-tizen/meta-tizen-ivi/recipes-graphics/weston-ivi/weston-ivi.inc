@@ -92,7 +92,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    ln -s ${sysconfdir}/xdg/weston/weston-modello.ini ${sysconfdir}/xdg/weston/weston.ini
+    ln -s $D${sysconfdir}/xdg/weston/weston-modello.ini $D${sysconfdir}/xdg/weston/weston.ini
     sed -i 's/ --current-mode//' $D${prefix}/lib/systemd/user/weston.service
 
 }
@@ -100,7 +100,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    rm ${sysconfdir}/xdg/weston/weston.ini
+    rm $D${sysconfdir}/xdg/weston/weston.ini
     sed -i 's/\(^ExecStart.*\)/\1 --current-mode/' $D${prefix}/lib/systemd/user/weston.service
 
 }

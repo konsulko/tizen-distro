@@ -2,7 +2,6 @@ SRC_URI += "file://modello-installer-postinst.sh"
 SRC_URI += "file://modello-installer-postinst.service"
 
 RDEPENDS_Modello-Installer-xwalk_remove = "Modello-Phone"
-systemd_unitdir = "/usr/lib/systemd"
 
 RDEPENDS_${PN}-wrt_remove = "wrt-installer"
 

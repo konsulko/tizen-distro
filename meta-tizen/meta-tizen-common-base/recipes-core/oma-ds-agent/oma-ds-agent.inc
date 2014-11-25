@@ -123,13 +123,13 @@ pkg_postinst_${PN}() {
     then
     	mkdir $D${prefix}/dbspace
     fi
-    if [ ! -d ${sysconfdir}/rc.d/rc3.d ]
+    if [ ! -d $D${sysconfdir}/rc.d/rc3.d ]
     then
-    	mkdir ${sysconfdir}/rc.d/rc3.d
+    	mkdir $D${sysconfdir}/rc.d/rc3.d
     fi
-    if [ ! -d ${sysconfdir}/rc.d/rc5.d ]
+    if [ ! -d $D${sysconfdir}/rc.d/rc5.d ]
     then
-    	mkdir ${sysconfdir}/rc.d/rc5.d
+    	mkdir $D${sysconfdir}/rc.d/rc5.d
     fi
 
 }
@@ -139,8 +139,8 @@ pkg_postrm_${PN}() {
 
     rm -f /tmp/agent_fw_event_omads*
     rm -f /tmp/agent_fw_noti_reply_omads*
-    rm -f ${sysconfdir}/rc.d/rc3.d/S91oma-ds-agent
-    rm -f ${sysconfdir}/rc.d/rc5.d/S91oma-ds-agent
+    rm -f $D${sysconfdir}/rc.d/rc3.d/S91oma-ds-agent
+    rm -f $D${sysconfdir}/rc.d/rc5.d/S91oma-ds-agent
     rm -f $D${prefix}/dbspace/.omasyncagent.db $D${prefix}/dbspace/.omasyncagent.db-journal
     rm -rf /usr/share/oma-ds-cfg
 

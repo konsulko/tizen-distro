@@ -98,7 +98,7 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    source ${sysconfdir}/tizen-platform.conf
+    source $D${sysconfdir}/tizen-platform.conf
     for list in $(find $TZ_SYS_APP_PREINSTALL -name "Modello*")
     do
     #wrt-installer requires you be root to install files
@@ -117,7 +117,7 @@ pkg_postinst_${PN}() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    source ${sysconfdir}/tizen-platform.conf
+    source $D${sysconfdir}/tizen-platform.conf
     export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/5000/dbus/user_bus_socket"
     for list in $(find $TZ_SYS_APP_PREINSTALL -name "Modello*")
     do
@@ -139,7 +139,7 @@ pkg_postinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    source ${sysconfdir}/tizen-platform.conf
+    source $D${sysconfdir}/tizen-platform.conf
     export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/5000/dbus/user_bus_socket"
     for list3 in $(su app -c "xwalkctl" | grep Modello | cut -c 1-10)
     do
