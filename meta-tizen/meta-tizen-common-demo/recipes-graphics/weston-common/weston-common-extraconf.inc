@@ -18,29 +18,30 @@ GROUPADD_PARAM_${PN} += "--system -o weston-launch"
 do_install_append() {
     install -m 755 uid.sh ${D}/etc/profile.d
 
-    mkdir -p ${D}/lib/systemd/user/default.target.wants
-    ln -sf ../weston-user.service ${D}/lib/systemd/user/default.target.wants/weston-user.service
+    mkdir -p ${D}${prefix}/lib/systemd/user/default.target.requires
+    ln -sf ../weston-user.service ${D}${prefix}/lib/systemd/user/default.target.requires/weston-user.service
 
-    mkdir -p ${D}/lib/systemd/system/multi-user.target.wants
-    ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/multi-user.target.wants/user-session-launch@seat0-5001.service
-    ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/multi-user.target.wants/user-session-launch@seat0-5002.service
-    ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/multi-user.target.wants/user-session-launch@seat0-5003.service
-    ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/multi-user.target.wants/user-session-launch@seat0-9999.service
-    ln -sf ../user-session@.service ${D}/lib/systemd/system/multi-user.target.wants/user-session@5001.service
-    ln -sf ../user-session@.service ${D}/lib/systemd/system/multi-user.target.wants/user-session@5002.service
-    ln -sf ../user-session@.service ${D}/lib/systemd/system/multi-user.target.wants/user-session@5003.service
-    ln -sf ../user-session@.service ${D}/lib/systemd/system/multi-user.target.wants/user-session@9999.service
+    mkdir -p ${D}/lib/systemd/system/graphical.target.wants
+    ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5001.service
+    ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5002.service
+    ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5003.service
+    ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-9999.service
+    ln -sf ../user-session@.service ${D}/lib/systemd/system/graphical.target.wants/user-session@5001.service
+    ln -sf ../user-session@.service ${D}/lib/systemd/system/graphical.target.wants/user-session@5002.service
+    ln -sf ../user-session@.service ${D}/lib/systemd/system/graphical.target.wants/user-session@5003.service
+    ln -sf ../user-session@.service ${D}/lib/systemd/system/graphical.target.wants/user-session@9999.service
 }
 
 pkg_preinst_${PN}() {
     #!/bin/sh -e
 
     # setup display manager service
-    mkdir -p /lib/systemd/system/graphical.target.wants/
-    ln -sf ../display-manager.path  /lib/systemd/system/graphical.target.wants/
+    mkdir -p $D${systemd_unitdir}/system/graphical.target.wants/
+    ln -sf ../display-manager.path  $D${systemd_unitdir}/system/graphical.target.wants/
     # setup display manager access (inside user session)
-    mkdir -p /lib/systemd/user/default.target.requires/
-    ln -sf ../weston-user.service  /lib/systemd/user/default.target.requires/
+    mkdir -p $D${prefix}/lib/systemd/user/default.target.requires/
+    ln -sf ../weston-user.service  $D${prefix}/lib/systemd/user/default.target.requires/
+
 }
 
 pkg_postinst_${PN} () {
@@ -51,16 +52,19 @@ pkg_postinst_${PN} () {
         find $D/home/$user/ -type d -exec chsmack -a User {} \;
         chown -R $user:users $D/home/$user/
     done
+    
+    SERVICE_PATH=$D/lib/systemd/system/user-session-launch@.service
+    grep -q display-manager.path $SERVICE_PATH || sed -i 's@systemd-logind.service@systemd-logind.service display-manager.path@g' $SERVICE_PATH
 }
 
-weston-common_files += "/lib/systemd/user/default.target.wants/weston-user.service"
+weston-common_files += "${prefix}/lib/systemd/user/default.target.requires/weston-user.service"
 weston-common_files += "/home/*"
 
-FILES_${PN} += "/lib/systemd/system/multi-user.target.wants/user-session-launch@seat0-5001.service"
-FILES_${PN} += "/lib/systemd/system/multi-user.target.wants/user-session-launch@seat0-5002.service"
-FILES_${PN} += "/lib/systemd/system/multi-user.target.wants/user-session-launch@seat0-5003.service"
-FILES_${PN} += "/lib/systemd/system/multi-user.target.wants/user-session-launch@seat0-9999.service"
-FILES_${PN} += "/lib/systemd/system/multi-user.target.wants/user-session@5001.service"
-FILES_${PN} += "/lib/systemd/system/multi-user.target.wants/user-session@5002.service"
-FILES_${PN} += "/lib/systemd/system/multi-user.target.wants/user-session@5003.service"
-FILES_${PN} += "/lib/systemd/system/multi-user.target.wants/user-session@9999.service"
+FILES_${PN} += "/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5001.service"
+FILES_${PN} += "/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5002.service"
+FILES_${PN} += "/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5003.service"
+FILES_${PN} += "/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-9999.service"
+FILES_${PN} += "/lib/systemd/system/graphical.target.wants/user-session@5001.service"
+FILES_${PN} += "/lib/systemd/system/graphical.target.wants/user-session@5002.service"
+FILES_${PN} += "/lib/systemd/system/graphical.target.wants/user-session@5003.service"
+FILES_${PN} += "/lib/systemd/system/graphical.target.wants/user-session@9999.service"

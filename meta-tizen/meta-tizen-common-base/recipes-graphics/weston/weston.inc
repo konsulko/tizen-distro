@@ -2,7 +2,7 @@ DESCRIPTION = "Wayland Compositor Infrastructure"
 HOMEPAGE = "http://weston.freedesktop.org/"
 SECTION = "Graphics & UI Framework/Wayland Window System"
 LICENSE = "MIT"
-PV = "1.5.0"
+PV = "1.6.0"
 
 SRC_URI = ""
 
@@ -42,6 +42,7 @@ DEPENDS += "expat"
 DEPENDS += "udev"
 DEPENDS += "libvpx"
 DEPENDS += "xz"
+DEPENDS += "libinput"
 DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
 DEPENDS += "mesa"
@@ -121,6 +122,7 @@ do_install() {
  install -m 755 weston-simple-touch ${D}${prefix}/bin
  install -m 755 weston-simple-shm ${D}${prefix}/bin
  install -m 755 weston-simple-egl ${D}${prefix}/bin
+ install -m 755 weston-simple-damage ${D}${prefix}/bin
  install -m 755 weston-nested-client ${D}${prefix}/bin
  install -m 755 weston-nested ${D}${prefix}/bin
  install -m 755 weston-flower ${D}${prefix}/bin
@@ -128,7 +130,9 @@ do_install() {
  install -m 755 weston-cliptest ${D}${prefix}/bin
  install -m 755 weston-dnd ${D}${prefix}/bin
  install -m 755 weston-editor ${D}${prefix}/bin
+ install -m 755 weston-stacking ${D}${prefix}/bin
  install -m 755 weston-smoke ${D}${prefix}/bin
+ install -m 755 weston-scaler ${D}${prefix}/bin
  install -m 755 weston-resizor ${D}${prefix}/bin
  install -m 755 weston-eventdemo ${D}${prefix}/bin
  install -m 755 weston-clickdot ${D}${prefix}/bin
@@ -186,6 +190,7 @@ weston-clients_files = ""
 weston-clients_files += "${prefix}/bin/weston-simple-touch"
 weston-clients_files += "${prefix}/bin/weston-simple-shm"
 weston-clients_files += "${prefix}/bin/weston-simple-egl"
+weston-clients_files += "${prefix}/bin/weston-simple-damage"
 weston-clients_files += "${prefix}/bin/weston-nested-client"
 weston-clients_files += "${prefix}/bin/weston-nested"
 weston-clients_files += "${prefix}/bin/weston-flower"
@@ -193,7 +198,9 @@ weston-clients_files += "${prefix}/bin/weston-image"
 weston-clients_files += "${prefix}/bin/weston-cliptest"
 weston-clients_files += "${prefix}/bin/weston-dnd"
 weston-clients_files += "${prefix}/bin/weston-editor"
+weston-clients_files += "${prefix}/bin/weston-stacking"
 weston-clients_files += "${prefix}/bin/weston-smoke"
+weston-clients_files += "${prefix}/bin/weston-scaler"
 weston-clients_files += "${prefix}/bin/weston-resizor"
 weston-clients_files += "${prefix}/bin/weston-eventdemo"
 weston-clients_files += "${prefix}/bin/weston-clickdot"

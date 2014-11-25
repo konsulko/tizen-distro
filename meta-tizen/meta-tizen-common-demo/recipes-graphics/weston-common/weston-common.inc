@@ -173,8 +173,8 @@ pkg_preinst_${PN}() {
     groupmod -A display input
     groupmod -A display video
     # setup display manager service
-    mkdir -p ${systemd_unitdir}/system/graphical.target.wants/
-    ln -sf ../display-manager.path  ${systemd_unitdir}/system/graphical.target.wants/
+    mkdir -p $D${systemd_unitdir}/system/graphical.target.wants/
+    ln -sf ../display-manager.path  $D${systemd_unitdir}/system/graphical.target.wants/
     # setup display manager access (inside user session)
     mkdir -p $D${prefix}/lib/systemd/user/default.target.requires/
     ln -sf ../weston-user.service  $D${prefix}/lib/systemd/user/default.target.requires/
@@ -184,7 +184,7 @@ pkg_preinst_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    rm -f ${systemd_unitdir}/system/graphical.target.wants/display-manager.path
+    rm -f $D${systemd_unitdir}/system/graphical.target.wants/display-manager.path
     rm -f $D${prefix}/lib/systemd/user/default.target.requires/weston-user.service
 
 }
