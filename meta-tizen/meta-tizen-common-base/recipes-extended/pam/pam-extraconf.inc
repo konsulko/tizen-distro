@@ -21,22 +21,18 @@ RPROVIDES_${PN}-modules-extra += "pam-plugin-rootok"
 RPROVIDES_${PN}-modules-extra += "pam-plugin-keyinit"
 RPROVIDES_${PN}-modules-extra += "pam-plugin-loginuid"
 
-EXTRA_OECONF = " --libdir=${prefix}/lib --includedir=${prefix}/include/security --enable-isadir=../..${prefix}/lib/security --disable-audit --with-db-uniquename=_pam --with-libiconv-prefix=/usr --enable-read-both-confs "
-EXTRA_OECONF += "--disable-nis \
-                 --disable-regenerate-docu \
-                 --disable-prelude"
+inherit pkgconfig
+
+EXTRA_OECONF += " --libdir=${base_libdir} \
+                "
+
+EXTRA_OECONF += " --disable-nis \
+                  --disable-regenerate-docu \
+                  --disable-prelude \
+                "
 
 PACKAGECONFIG[audit] = "--enable-audit,--disable-audit,audit,"
 
-do_compile() {
-    cd ${S}
-    LANG=C
-    export LANG
-    unset DISPLAY
-    LD_AS_NEEDED=1; export LD_AS_NEEDED ;
-    autotools_do_configure
-    make  CFLAGS="$CFLAGS -lfl -lcrypt"
-}
 
 do_install_append() {
     install -m 0644 ${WORKDIR}/system-auth ${D}${sysconfdir}/pam.d
@@ -45,47 +41,59 @@ do_install_append() {
 pam_files += "${prefix}/sbin/*"
 pam_files += "/var/log"
 
-pam-dbg_files += "${prefix}/lib/security/.debug/*"
-pam-dbg_files += "${prefix}/lib/security/pam_filter/.debug/*"
+pam-dbg_files += "${base_libdir}/security/.debug/*"
+pam-dbg_files += "${base_libdir}/security/pam_filter/.debug/*"
 
 FILES_${PN}-dbg += "${pam-dbg_files}"
 
 pam-dev_files += "${prefix}/include/*"
-pam-dev_files += "${prefix}/lib/security/pam_unix_acct.so"
-pam-dev_files += "${prefix}/lib/security/pam_unix_auth.so"
-pam-dev_files += "${prefix}/lib/security/pam_unix_passwd.so"
-pam-dev_files += "${prefix}/lib/security/pam_unix_session.so"
+pam-dev_files += "${base_libdir}/security/pam_unix_acct.so"
+pam-dev_files += "${base_libdir}/security/pam_unix_auth.so"
+pam-dev_files += "${base_libdir}/security/pam_unix_passwd.so"
+pam-dev_files += "${base_libdir}/security/pam_unix_session.so"
 
 pam-modules-extra_files = ""
 pam-modules-extra_files += "pam.manifest"
-pam-modules-extra_files += "${prefix}/lib/security/pam_access.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_debug.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_echo.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_exec.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_faildelay.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_filter.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_ftp.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_group.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_issue.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_listfile.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_localuser.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_mail.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_motd.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_pwhistory.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_rhosts.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_shells.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_stress.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_tally.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_time.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_timestamp.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_umask.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_unix_acct.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_unix_auth.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_unix_passwd.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_unix_session.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_warn.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_smack.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_cracklib.so"
+pam-modules-extra_files += "${base_libdir}/security/*.so"
+
+
+do_install() {
+ export RPM_BUILD_ROOT=${D}
+ cd ${S}
+ LANG=C
+ export LANG
+ unset DISPLAY
+ rm -rf ${D}
+ mkdir -p ${D}
+ 
+ 
+   oe_runmake \
+         DESTDIR=${D} \
+         INSTALL_ROOT=${D} \
+         BINDIR=${prefix}/bin \
+   install  
+   rm -f ${D}${infodir}/dir 
+   find ${D} -regex ".*\.la$" | xargs rm -f -- 
+   find ${D} -regex ".*\.a$" | xargs rm -f --
+ 
+ # RPM uses docs from source tree
+ rm -rf ${D}${prefix}/share/doc/Linux-PAM
+ # Included in setup package
+ rm -f ${D}${sysconfdir}/environment
+ 
+ for phase in auth acct passwd session ; do
+     ln -sf pam_unix.so ${D}${base_libdir}/security/pam_unix_${phase}.so
+ done
+ 
+ # Install default pam configuration files
+ install -d -m 0755 ${D}${sysconfdir}/pam.d
+ install -m 0644 ${S}/packaging/system-auth ${D}${sysconfdir}/pam.d/
+ install -m 0644 ${S}/packaging/other ${D}${sysconfdir}/pam.d/
+ 
+ #find_lang Linux-PAM
+ 
+ 
+}
 
 do_install_append() {
     mkdir -p $D/var/log

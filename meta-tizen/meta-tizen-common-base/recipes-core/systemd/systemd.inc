@@ -2,7 +2,7 @@ DESCRIPTION = "A System and Service Manager"
 HOMEPAGE = "http://www.freedesktop.org/wiki/Software/systemd"
 SECTION = "Base/Startup"
 LICENSE = "LGPL-2.0+ and MIT and GPL-2.0+"
-PV = "212"
+PV = "216"
 
 SRC_URI = ""
 
@@ -30,7 +30,7 @@ RPROVIDES_systemd += "/bin/systemctl"
 # the PROVIDES rules is ignore "/sbin/shutdown  "
 PROVIDES += "/sbin/shutdown"
 RPROVIDES_systemd += "/sbin/shutdown"
-# the PROVIDES rules is ignore "udev = 212"
+# the PROVIDES rules is ignore "udev = 216"
 PROVIDES += "udev"
 RPROVIDES_systemd += "udev"
 
@@ -41,7 +41,7 @@ PROVIDES += "libgudev-dev"
 
 #PROVIDES by systemd-dev
 PROVIDES += "systemd-dev"
-# the PROVIDES rules is ignore "libudev-dev = 212"
+# the PROVIDES rules is ignore "libudev-dev = 216"
 PROVIDES += "libudev-dev"
 RPROVIDES_systemd-dev += "libudev-dev"
 
@@ -142,7 +142,7 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --enable-compat-libs --enable-bootchart --libexecdir=${prefix}/lib --docdir=${prefix}/share/doc/packages/systemd --disable-static --with-sysvinit-path= --with-sysvrcnd-path= --with-smack-run-label=System --with-rootprefix=/ --with-rootlibdir=//lib cc_cv_CFLAGS__flto=no"
+EXTRA_OECONF += " --disable-kdbus --enable-compat-libs --enable-bootchart --disable-sysusers --disable-firstboot --disable-timesyncd --disable-resolved --disable-networkd --libexecdir=${prefix}/lib --docdir=${prefix}/share/doc/packages/systemd --disable-static --with-sysvinit-path= --with-sysvrcnd-path= --with-smack-run-label=System --with-rootprefix=/ --with-rootlibdir=//lib cc_cv_CFLAGS__flto=no"
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -217,8 +217,6 @@ EOF
  touch ${D}${sysconfdir}/machine-id
  touch ${D}${sysconfdir}/machine-info
  touch ${D}${sysconfdir}/timezone
- #mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
- #touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
  
  mkdir -p ${D}//lib/systemd/system-preset/
  mkdir -p ${D}//lib/systemd/user-preset/
@@ -255,6 +253,11 @@ EOF
  rm -fr ${D}${sysconfdir}/modprobe.d
  rm -fr ${D}${localstatedir}
  
+ # Exclude ELF binaries
+ rm -f ${D}///lib/systemd/system-generators/systemd-debug-generator
+ rm -f ${D}/${prefix}/lib/systemd/system-generators/systemd-hibernate-resume-generator
+ 
+ # end of install
  
 }
 
@@ -267,8 +270,8 @@ pkg_preinst_${PN}() {
     getent group floppy >/dev/null 2>&1 || /usr/sbin/groupadd -r -g 19 floppy >/dev/null 2>&1 || :
     systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
     # Rename configuration files that changed their names
-    mv -n ${sysconfdir}/systemd/systemd-logind.conf ${sysconfdir}/systemd/logind.conf >/dev/null 2>&1 || :
-    mv -n ${sysconfdir}/systemd/systemd-journald.conf ${sysconfdir}/systemd/journald.conf >/dev/null 2>&1 || :
+    mv -n $D${sysconfdir}/systemd/systemd-logind.conf $D${sysconfdir}/systemd/logind.conf >/dev/null 2>&1 || :
+    mv -n $D${sysconfdir}/systemd/systemd-journald.conf $D${sysconfdir}/systemd/journald.conf >/dev/null 2>&1 || :
 
 }
 
@@ -303,7 +306,7 @@ pkg_prerm_${PN}() {
                     remote-fs.target \
                     systemd-readahead-replay.service \
                     systemd-readahead-collect.service >/dev/null 2>&1 || :
-            rm -f ${sysconfdir}/systemd/system/default.target >/dev/null 2>&1 || :
+            rm -f $D${sysconfdir}/systemd/system/default.target >/dev/null 2>&1 || :
     fi
 
 }
@@ -348,10 +351,10 @@ libsystemd_files += "/lib/libsystemd-id128.so.*"
 libsystemd_files += "/lib/libsystemd-journal.so.*"
 libsystemd_files += "/lib/libsystemd-login.so.*"
 libsystemd_files += "${prefix}/lib/libnss_myhostname.so.2"
+libsystemd_files += "${prefix}/lib/libnss_mymachines.so.2"
 MANIFESTFILES_lib${PN} = "systemd.manifest"
 
 systemd_files = ""
-systemd_files += "${sysconfdir}/systemd/bootchart.conf"
 systemd_files += "${sysconfdir}/pam.d/systemd-user"
 systemd_files += "${prefix}/bin/bootctl"
 systemd_files += "${prefix}/bin/busctl"
@@ -362,10 +365,9 @@ systemd_files += "${prefix}/lib/kernel"
 systemd_files += "${prefix}/lib/kernel/install.d"
 systemd_files += "${prefix}/lib/kernel/install.d/50-depmod.install"
 systemd_files += "${prefix}/lib/kernel/install.d/90-loaderentry.install"
-systemd_files += "/lib/systemd/system-generators/systemd-efi-boot-generator"
 systemd_files += "${prefix}/bin/hostnamectl"
 systemd_files += "${prefix}/bin/localectl"
-systemd_files += "${prefix}/bin/systemd-coredumpctl"
+systemd_files += "${prefix}/bin/coredumpctl"
 systemd_files += "${prefix}/bin/timedatectl"
 systemd_files += "${sysconfdir}/systemd"
 systemd_files += "${sysconfdir}/systemd/system"
@@ -401,12 +403,13 @@ systemd_files += "${sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf"
 systemd_files += "${sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf"
 systemd_files += "${sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf"
 systemd_files += "${sysconfdir}/dbus-1/system.d/org.freedesktop.machine1.conf"
+systemd_files += "${sysconfdir}/systemd/bootchart.conf"
+systemd_files += "${sysconfdir}/systemd/coredump.conf"
 systemd_files += "${sysconfdir}/systemd/system.conf"
 systemd_files += "${sysconfdir}/systemd/user.conf"
 systemd_files += "${sysconfdir}/systemd/logind.conf"
 systemd_files += "${sysconfdir}/systemd/journald.conf"
 systemd_files += "${sysconfdir}/udev/udev.conf"
-systemd_files += "${sysconfdir}/rpm/macros.systemd"
 systemd_files += "${sysconfdir}/xdg/systemd"
 systemd_files += "${prefix}/bin/systemd"
 systemd_files += "/bin/systemctl"
@@ -427,12 +430,14 @@ systemd_files += "${prefix}/bin/systemd-delta"
 systemd_files += "${prefix}/bin/systemd-detect-virt"
 systemd_files += "/bin/systemd-inhibit"
 systemd_files += "/bin/udevadm"
+systemd_files += "/bin/systemd-escape"
+systemd_files += "${prefix}/bin/systemd-path"
 systemd_files += "${prefix}/lib/sysctl.d/*.conf"
 systemd_files += "/lib/systemd/systemd"
 systemd_files += "${systemd_unitdir}/system"
 systemd_files += "${systemd_unitdir}/system/basic.target.wants"
 systemd_files += "${prefix}/lib/systemd/user"
-systemd_files += "${prefix}/lib/systemd/network"
+systemd_files += "/lib/systemd/network"
 systemd_files += "${prefix}/lib/systemd/user/basic.target"
 systemd_files += "${prefix}/lib/systemd/user/bluetooth.target"
 systemd_files += "${prefix}/lib/systemd/user/exit.target"
@@ -445,12 +450,13 @@ systemd_files += "${prefix}/lib/systemd/user/paths.target"
 systemd_files += "${prefix}/lib/systemd/user/smartcard.target"
 systemd_files += "${prefix}/lib/systemd/user/timers.target"
 systemd_files += "${prefix}/lib/systemd/user/busnames.target"
-systemd_files += "${prefix}/lib/systemd/network/80-container-host0.network"
-systemd_files += "${prefix}/lib/systemd/network/99-default.link"
+systemd_files += "/lib/systemd/network/80-container-host0.network"
+systemd_files += "/lib/systemd/network/99-default.link"
 systemd_files += "/lib/systemd/systemd-*"
 systemd_files += "${prefix}/lib/systemd/catalog"
 systemd_files += "${prefix}/lib/systemd/catalog/systemd.catalog"
 systemd_files += "/lib/udev"
+systemd_files += "/lib/systemd/system-generators/systemd-efi-boot-generator"
 systemd_files += "/lib/systemd/system-generators/systemd-getty-generator"
 systemd_files += "/lib/systemd/system-generators/systemd-fstab-generator"
 systemd_files += "/lib/systemd/system-generators/systemd-system-update-generator"
@@ -461,6 +467,9 @@ systemd_files += "${prefix}/lib/tmpfiles.d/tmp.conf"
 systemd_files += "${prefix}/lib/tmpfiles.d/legacy.conf"
 systemd_files += "${prefix}/lib/tmpfiles.d/pamconsole-tmp.conf"
 systemd_files += "${prefix}/lib/tmpfiles.d/systemd-nologin.conf"
+systemd_files += "${prefix}/lib/tmpfiles.d/etc.conf"
+systemd_files += "${prefix}/lib/tmpfiles.d/systemd-remote.conf"
+systemd_files += "${prefix}/lib/tmpfiles.d/var.conf"
 systemd_files += "${prefix}/sbin/init"
 systemd_files += "${prefix}/sbin/reboot"
 systemd_files += "${prefix}/sbin/halt"
@@ -484,10 +493,7 @@ systemd_files += "${prefix}/share/polkit-1/actions/org.freedesktop.hostname1.pol
 systemd_files += "${prefix}/share/polkit-1/actions/org.freedesktop.login1.policy"
 systemd_files += "${prefix}/share/polkit-1/actions/org.freedesktop.locale1.policy"
 systemd_files += "${prefix}/share/polkit-1/actions/org.freedesktop.timedate1.policy"
-systemd_files += "${prefix}/share/pkgconfig/systemd.pc"
-systemd_files += "${prefix}/share/pkgconfig/udev.pc"
 CONFFILES_${PN} = ""
-CONFFILES_${PN} += "${sysconfdir}/systemd/bootchart.conf"
 CONFFILES_${PN} += "${sysconfdir}/pam.d/systemd-user"
 MANIFESTFILES_${PN} = "systemd.manifest"
 DIRFILES_${PN} = ""
@@ -521,7 +527,7 @@ DIRFILES_${PN} += "${prefix}/share/systemd"
 DIRFILES_${PN} += "${prefix}/lib/systemd/ntp-units.d"
 DIRFILES_${PN} += "${systemd_unitdir}/system/basic.target.wants"
 DIRFILES_${PN} += "${prefix}/lib/systemd/user"
-DIRFILES_${PN} += "${prefix}/lib/systemd/network"
+DIRFILES_${PN} += "/lib/systemd/network"
 DIRFILES_${PN} += "${prefix}/lib/systemd/catalog"
 DIRFILES_${PN} += "${prefix}/share/polkit-1"
 DIRFILES_${PN} += "${prefix}/share/polkit-1/actions"
@@ -545,12 +551,12 @@ systemd-dev_files += "${prefix}/lib/libsystemd-id128.so"
 systemd-dev_files += "${prefix}/lib/libsystemd-journal.so"
 systemd-dev_files += "${prefix}/lib/libsystemd-login.so"
 systemd-dev_files += "${prefix}/include/systemd"
-systemd-dev_files += "${prefix}/include/systemd/sd-daemon.h"
-systemd-dev_files += "${prefix}/include/systemd/sd-login.h"
-systemd-dev_files += "${prefix}/include/systemd/sd-journal.h"
-systemd-dev_files += "${prefix}/include/systemd/sd-id128.h"
-systemd-dev_files += "${prefix}/include/systemd/sd-messages.h"
 systemd-dev_files += "${prefix}/include/systemd/_sd-common.h"
+systemd-dev_files += "${prefix}/include/systemd/sd-daemon.h"
+systemd-dev_files += "${prefix}/include/systemd/sd-id128.h"
+systemd-dev_files += "${prefix}/include/systemd/sd-journal.h"
+systemd-dev_files += "${prefix}/include/systemd/sd-login.h"
+systemd-dev_files += "${prefix}/include/systemd/sd-messages.h"
 systemd-dev_files += "${prefix}/include/libudev.h"
 systemd-dev_files += "${prefix}/lib/pkgconfig/libudev.pc"
 systemd-dev_files += "${prefix}/lib/pkgconfig/libsystemd.pc"
@@ -558,6 +564,11 @@ systemd-dev_files += "${prefix}/lib/pkgconfig/libsystemd-daemon.pc"
 systemd-dev_files += "${prefix}/lib/pkgconfig/libsystemd-id128.pc"
 systemd-dev_files += "${prefix}/lib/pkgconfig/libsystemd-journal.pc"
 systemd-dev_files += "${prefix}/lib/pkgconfig/libsystemd-login.pc"
+systemd-dev_files += "${prefix}/share/pkgconfig/systemd.pc"
+systemd-dev_files += "${prefix}/share/pkgconfig/udev.pc"
+systemd-dev_files += "${sysconfdir}/rpm/macros.systemd"
+CONFFILES_${PN}-dev = ""
+CONFFILES_${PN}-dev += "${sysconfdir}/rpm/macros.systemd"
 MANIFESTFILES_${PN}-dev = "systemd.manifest"
 DIRFILES_${PN}-dev = ""
 DIRFILES_${PN}-dev += "${prefix}/include/systemd"
@@ -565,7 +576,7 @@ DIRFILES_${PN}-dev += "${prefix}/include/systemd"
 systemd-docs_files = ""
 
 libgudev_files = ""
-libgudev_files += "/lib/libgudev-1.0.so.*"
+libgudev_files += "${prefix}/lib/libgudev-1.0.so.*"
 MANIFESTFILES_libgudev = "systemd.manifest"
 
 systemd-analyze_files = ""

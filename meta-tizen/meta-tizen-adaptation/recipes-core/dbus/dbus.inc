@@ -21,8 +21,6 @@ SRC_URI = "http://dbus.freedesktop.org/releases/dbus/dbus-${PV}.tar.gz \
            file://fixed-memory-freeing-if-error-during-listing-service.patch \
 "
 
-systemd_unitdir = "/usr/lib/systemd"
-
 inherit useradd autotools pkgconfig gettext update-rc.d
 
 INITSCRIPT_NAME = "dbus-1"

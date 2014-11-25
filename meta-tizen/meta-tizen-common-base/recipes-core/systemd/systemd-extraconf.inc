@@ -30,6 +30,11 @@ do_install_append() {
     rm ${D}${sysconfdir}/machine-info
     rm ${D}${sysconfdir}/timezone
 
+    rm -fr ${D}${prefix}/share/factory
+    rm -fr ${D}/lib/systemd/network/80-container-ve.network
+    rm -fr ${D}/lib/systemd/network/80-container-host0.network
+    rm -fr ${D}/lib/systemd/system-preset/90-systemd.preset
+    
     install -m 0644 ${WORKDIR}/systemd-user ${D}${sysconfdir}/pam.d
 }
 
@@ -37,8 +42,8 @@ pkg_preinst_${PN}() {
     #!/bin/sh -e
 
     # Rename configuration files that changed their names
-    $D${prefix}/bin/mv -n ${sysconfdir}/systemd/systemd-logind.conf ${sysconfdir}/systemd/logind.conf >/dev/null 2>&1 || :
-    $D${prefix}/bin/mv -n ${sysconfdir}/systemd/systemd-journald.conf ${sysconfdir}/systemd/journald.conf >/dev/null 2>&1 || :
+    mv -n $D${sysconfdir}/systemd/systemd-logind.conf $D${sysconfdir}/systemd/logind.conf >/dev/null 2>&1 || :
+    mv -n $D${sysconfdir}/systemd/systemd-journald.conf $D${sysconfdir}/systemd/journald.conf >/dev/null 2>&1 || :
 }
 
 systemd-dbg_files += "${systemd_unitdir}/.debug"
@@ -54,6 +59,5 @@ FILES_${PN}-locale-it += "${prefix}/lib/systemd/catalog/systemd.it.catalog"
 FILES_${PN}-locale-ru += "${prefix}/lib/systemd/catalog/systemd.ru.catalog"
 FILES_${PN}-locale    += "${prefix}/lib/systemd/catalog/systemd.catalog"
   
-  
-  
+systemd_files += "${prefix}/lib/systemd/network"
   

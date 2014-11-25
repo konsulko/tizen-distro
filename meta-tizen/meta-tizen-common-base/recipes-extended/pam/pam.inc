@@ -47,7 +47,6 @@ DEPENDS += "flex"
 inherit gettext
 DEPENDS += "zlib"
 DEPENDS += "db"
-inherit pkgconfig
 DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
 DEPENDS += "smack"
@@ -89,7 +88,7 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --libdir=${prefix}/lib --includedir=${prefix}/include/security --enable-isadir=../..${prefix}/lib/security --disable-audit --with-db-uniquename=_pam --with-libiconv-prefix=/usr --enable-read-both-confs "
+EXTRA_OECONF += " --libdir=${base_libdir} --includedir=${prefix}/include/security --enable-isadir=../..${base_libdir}/security --disable-audit --with-db-uniquename=_pam --with-libiconv-prefix=${prefix} --enable-read-both-confs "
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -116,7 +115,7 @@ do_install() {
  rm -f ${D}${sysconfdir}/environment
  
  for phase in auth acct passwd session ; do
-     ln -sf pam_unix.so ${D}${prefix}/lib/security/pam_unix_${phase}.so
+ 	ln -sf pam_unix.so ${D}${base_libdir}/security/pam_unix_${phase}.so
  done
  
  # Install default pam configuration files
@@ -133,11 +132,11 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     [ "x$D" == "x" ] && ldconfig
-    if [ ! -a /var/log/faillog ] ; then
-        /usr/bin/install -m 600 /dev/null /var/log/faillog
+    if [ ! -a ${localstatedir}/log/faillog ] ; then
+    	install -m 600 /dev/null ${localstatedir}/log/faillog
     fi
-    if [ ! -a /var/log/tallylog ] ; then
-        /usr/bin/install -m 600 /dev/null /var/log/tallylog
+    if [ ! -a ${localstatedir}/log/tallylog ] ; then
+    	install -m 600 /dev/null ${localstatedir}/log/tallylog
     fi
 
 }
@@ -155,41 +154,41 @@ PACKAGES += " pam "
 PACKAGES += " pam-docs "
 
 pam-modules-extra_files = ""
-pam-modules-extra_files += "${prefix}/lib/security/pam_access.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_debug.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_echo.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_exec.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_faildelay.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_filter.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_ftp.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_group.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_issue.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_listfile.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_localuser.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_mail.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_motd.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_pwhistory.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_rhosts.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_shells.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_stress.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_tally.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_time.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_timestamp.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_umask.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_unix_acct.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_unix_auth.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_unix_passwd.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_unix_session.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_warn.so"
-pam-modules-extra_files += "${prefix}/lib/security/pam_smack.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_access.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_debug.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_echo.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_exec.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_faildelay.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_filter.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_ftp.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_group.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_issue.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_listfile.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_localuser.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_mail.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_motd.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_pwhistory.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_rhosts.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_shells.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_stress.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_tally.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_time.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_timestamp.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_umask.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_unix_acct.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_unix_auth.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_unix_passwd.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_unix_session.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_warn.so"
+pam-modules-extra_files += "${base_libdir}/security/pam_smack.so"
 MANIFESTFILES_${PN}-modules-extra = "pam.manifest"
 
 pam-dev_files = ""
 pam-dev_files += "${prefix}/include/security/*"
-pam-dev_files += "${prefix}/lib/libpam.so"
-pam-dev_files += "${prefix}/lib/libpam_misc.so"
-pam-dev_files += "${prefix}/lib/libpamc.so"
-pam-dev_files += "${prefix}/lib/security/pam_tally2.so"
+pam-dev_files += "${base_libdir}/libpam.so"
+pam-dev_files += "${base_libdir}/libpam_misc.so"
+pam-dev_files += "${base_libdir}/libpamc.so"
+pam-dev_files += "${base_libdir}/security/pam_tally2.so"
 MANIFESTFILES_${PN}-dev = "pam.manifest"
 
 pam_files = ""
@@ -200,26 +199,26 @@ pam_files += "/sbin/unix_chkpwd"
 pam_files += "/sbin/unix_update"
 pam_files += "/sbin/mkhomedir_helper"
 pam_files += "${sysconfdir}/security/limits.conf"
-pam_files += "${prefix}/lib/libpam.so.*"
-pam_files += "${prefix}/lib/libpam_misc.so.*"
-pam_files += "${prefix}/lib/libpamc.so.*"
-pam_files += "${prefix}/lib/security/pam_deny.so"
-pam_files += "${prefix}/lib/security/pam_env.so"
-pam_files += "${prefix}/lib/security/pam_keyinit.so"
-pam_files += "${prefix}/lib/security/pam_limits.so"
-pam_files += "${prefix}/lib/security/pam_loginuid.so"
-pam_files += "${prefix}/lib/security/pam_namespace.so"
-pam_files += "${prefix}/lib/security/pam_nologin.so"
-pam_files += "${prefix}/lib/security/pam_permit.so"
-pam_files += "${prefix}/lib/security/pam_lastlog.so"
-pam_files += "${prefix}/lib/security/pam_rootok.so"
-pam_files += "${prefix}/lib/security/pam_securetty.so"
-pam_files += "${prefix}/lib/security/pam_succeed_if.so"
-pam_files += "${prefix}/lib/security/pam_unix.so"
-pam_files += "${prefix}/lib/security/pam_wheel.so"
-pam_files += "${prefix}/lib/security/pam_xauth.so"
-pam_files += "${prefix}/lib/security/pam_filter"
-pam_files += "${prefix}/lib/security/pam_mkhomedir.so"
+pam_files += "${base_libdir}/libpam.so.*"
+pam_files += "${base_libdir}/libpam_misc.so.*"
+pam_files += "${base_libdir}/libpamc.so.*"
+pam_files += "${base_libdir}/security/pam_deny.so"
+pam_files += "${base_libdir}/security/pam_env.so"
+pam_files += "${base_libdir}/security/pam_keyinit.so"
+pam_files += "${base_libdir}/security/pam_limits.so"
+pam_files += "${base_libdir}/security/pam_loginuid.so"
+pam_files += "${base_libdir}/security/pam_namespace.so"
+pam_files += "${base_libdir}/security/pam_nologin.so"
+pam_files += "${base_libdir}/security/pam_permit.so"
+pam_files += "${base_libdir}/security/pam_lastlog.so"
+pam_files += "${base_libdir}/security/pam_rootok.so"
+pam_files += "${base_libdir}/security/pam_securetty.so"
+pam_files += "${base_libdir}/security/pam_succeed_if.so"
+pam_files += "${base_libdir}/security/pam_unix.so"
+pam_files += "${base_libdir}/security/pam_wheel.so"
+pam_files += "${base_libdir}/security/pam_xauth.so"
+pam_files += "${base_libdir}/security/pam_filter"
+pam_files += "${base_libdir}/security/pam_mkhomedir.so"
 pam_files += "${sysconfdir}/security"
 pam_files += "${sysconfdir}/security/access.conf"
 pam_files += "${sysconfdir}/security/group.conf"
