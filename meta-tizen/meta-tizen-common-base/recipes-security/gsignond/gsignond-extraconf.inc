@@ -3,6 +3,17 @@ inherit useradd
 USERADD_PACKAGES = "${PN}"
 GROUPADD_PARAM_${PN} += "--system gsignond"
 
+do_compile() {
+    cd ${S}
+    LANG=C
+    export LANG
+    unset DISPLAY
+    LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+
+    autotools_do_configure
+    oe_runmake -j1
+}
+
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
