@@ -1,6 +1,7 @@
+From f029d2b6e4516c4ea5ecc9a740f4cafadb081330 Mon Sep 17 00:00:00 2001
 From: Casey Schaufler <casey@schaufler-ca.com>
 Date: Thu, 21 Nov 2013 10:55:10 +0200
-Subject: Smack: Cgroup filesystem access
+Subject: [PATCH 01/20] Smack: Cgroup filesystem access
 
 The cgroup filesystems are not mounted using conventional
 mechanisms. This prevents the use of mount options to
@@ -11,6 +12,7 @@ uses them.
 Change-Id: I1e0429f133db9e14117dc754d682dec08221354c
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
+Signed-off-by: Stephane Desneux <stephane.desneux@open.eurogiciel.org>
 ---
  security/smack/smack_lsm.c | 30 ++++++++++++++++++------------
  1 file changed, 18 insertions(+), 12 deletions(-)
@@ -75,3 +77,6 @@ index 14f52be..acd8574 100644
  	case PROC_SUPER_MAGIC:
  		/*
  		 * Casey says procfs appears not to care.
+-- 
+1.8.1.4
+

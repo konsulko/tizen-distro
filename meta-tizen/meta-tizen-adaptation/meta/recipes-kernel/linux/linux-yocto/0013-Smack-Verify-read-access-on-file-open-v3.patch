@@ -1,0 +1,64 @@
+From 8bc0ffa8453714e928d548164560c52d2c7c4897 Mon Sep 17 00:00:00 2001
+From: Casey Schaufler <casey@schaufler-ca.com>
+Date: Mon, 21 Apr 2014 11:10:26 -0700
+Subject: [PATCH 13/20] Smack: Verify read access on file open - v3
+
+Smack believes that many of the operatons that can
+be performed on an open file descriptor are read operations.
+The fstat and lseek system calls are examples.
+An implication of this is that files shouldn't be open
+if the task doesn't have read access even if it has
+write access and the file is being opened write only.
+
+Targeted for git://git.gitorious.org/smack-next/kernel.git
+
+Change-Id: Iefff38549f9f2e242fd21fce42db067c4c4d8a12
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Rafal Krypa <r.krypa@samsung.com>
+---
+ security/smack/smack_lsm.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 40f2681..f2c3080 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -1462,19 +1462,32 @@ static int smack_file_receive(struct file *file)
+ /**
+  * smack_file_open - Smack dentry open processing
+  * @file: the object
+- * @cred: unused
++ * @cred: task credential
+  *
+  * Set the security blob in the file structure.
++ * Allow the open only if the task has read access. There are
++ * many read operations (e.g. fstat) that you can do with an
++ * fd even if you have the file open write-only.
+  *
+  * Returns 0
+  */
+ static int smack_file_open(struct file *file, const struct cred *cred)
+ {
++	struct task_smack *tsp = cred->security;
+ 	struct inode_smack *isp = file_inode(file)->i_security;
++	struct smk_audit_info ad;
++	int rc;
+ 
+-	file->f_security = isp->smk_inode;
++	if (smack_privileged(CAP_MAC_OVERRIDE))
++		return 0;
+ 
+-	return 0;
++	smk_ad_init(&ad, __func__, LSM_AUDIT_DATA_PATH);
++	smk_ad_setfield_u_fs_path(&ad, file->f_path);
++	rc = smk_access(tsp->smk_task, isp->smk_inode, MAY_READ, &ad);
++	if (rc == 0)
++		file->f_security = isp->smk_inode;
++
++	return rc;
+ }
+ 
+ /*
+-- 
+1.8.1.4
+

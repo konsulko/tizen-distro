@@ -1,0 +1,34 @@
+From 2feea04e966c9c32a9ae53931f5b54f5a830712c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Toralf=20F=C3=B6rster?= <toralf.foerster@gmx.de>
+Date: Sun, 27 Apr 2014 19:33:34 +0200
+Subject: [PATCH 14/20] Warning in scanf string typing
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This fixes a warning about the mismatch of types between
+the declared unsigned and integer.
+
+Change-Id: Ie7170fa22c1f641b2990721b44059d399c92ffe6
+Signed-off-by: Toralf Förster <toralf.foerster@gmx.de>
+Signed-off-by: Rafal Krypa <r.krypa@samsung.com>
+---
+ security/smack/smackfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 177d878..32b2488 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -1193,7 +1193,7 @@ static ssize_t smk_write_netlbladdr(struct file *file, const char __user *buf,
+ 
+ 	data[count] = '\0';
+ 
+-	rc = sscanf(data, "%hhd.%hhd.%hhd.%hhd/%d %s",
++	rc = sscanf(data, "%hhd.%hhd.%hhd.%hhd/%u %s",
+ 		&host[0], &host[1], &host[2], &host[3], &m, smack);
+ 	if (rc != 6) {
+ 		rc = sscanf(data, "%hhd.%hhd.%hhd.%hhd %s",
+-- 
+1.8.1.4
+

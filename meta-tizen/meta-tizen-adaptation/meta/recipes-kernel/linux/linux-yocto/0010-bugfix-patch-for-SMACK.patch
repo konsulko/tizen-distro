@@ -1,0 +1,45 @@
+From d162327c8181f3cefeb0dc9ed1e1399ab6637288 Mon Sep 17 00:00:00 2001
+From: Pankaj Kumar <pankaj.k2@samsung.com>
+Date: Fri, 13 Dec 2013 15:12:22 +0530
+Subject: [PATCH 10/20] bugfix patch for SMACK
+
+1. In order to remove any SMACK extended attribute from a file, a user
+should have CAP_MAC_ADMIN capability. But user without having this
+capability is able to remove SMACK64MMAP security attribute.
+
+2. While validating size and value of smack extended attribute in
+smack_inode_setsecurity hook, wrong error code is returned.
+
+Change-Id: Ib4b290150f4a003733f76cbb7ccc25d228310ecb
+Signed-off-by: Pankaj Kumar <pamkaj.k2@samsung.com>
+Signed-off-by: Himanshu Shukla <himanshu.sh@samsung.com>
+Signed-off-by: Rafal Krypa <r.krypa@samsung.com>
+---
+ security/smack/smack_lsm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index d430977..b86825b 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -1020,7 +1020,7 @@ static int smack_inode_removexattr(struct dentry *dentry, const char *name)
+ 	    strcmp(name, XATTR_NAME_SMACKIPOUT) == 0 ||
+ 	    strcmp(name, XATTR_NAME_SMACKEXEC) == 0 ||
+ 	    strcmp(name, XATTR_NAME_SMACKTRANSMUTE) == 0 ||
+-	    strcmp(name, XATTR_NAME_SMACKMMAP)) {
++	    strcmp(name, XATTR_NAME_SMACKMMAP) == 0) {
+ 		if (!smack_privileged(CAP_MAC_ADMIN))
+ 			rc = -EPERM;
+ 	} else
+@@ -2158,7 +2158,7 @@ static int smack_inode_setsecurity(struct inode *inode, const char *name,
+ 	int rc = 0;
+ 
+ 	if (value == NULL || size > SMK_LONGLABEL || size == 0)
+-		return -EACCES;
++		return -EINVAL;
+ 
+ 	skp = smk_import_entry(value, size);
+ 	if (skp == NULL)
+-- 
+1.8.1.4
+

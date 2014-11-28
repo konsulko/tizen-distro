@@ -1,0 +1,33 @@
+From d686f81341ff627f841153f6ebe0a382f30a9f4f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jos=C3=A9=20Bollo?= <jose.bollo@open.eurogiciel.org>
+Date: Mon, 15 Sep 2014 11:42:04 +0200
+Subject: [PATCH 20/20] SMACK: Fix wrong copy size
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The function strncpy was copying an extra character	9
+when i == len (what is possible via revoke interface).
+
+Change-Id: Ic7452da05773e620a1d7bbc55e859c25a86c65f6
+Signed-off-by: José Bollo <jose.bollo@open.eurogiciel.org>
+---
+ security/smack/smack_access.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/security/smack/smack_access.c b/security/smack/smack_access.c
+index c062e94..930e548 100644
+--- a/security/smack/smack_access.c
++++ b/security/smack/smack_access.c
+@@ -432,7 +432,7 @@ char *smk_parse_smack(const char *string, int len)
+ 
+ 	smack = kzalloc(i + 1, GFP_KERNEL);
+ 	if (smack != NULL) {
+-		strncpy(smack, string, i + 1);
++		strncpy(smack, string, i);
+ 		smack[i] = '\0';
+ 	}
+ 	return smack;
+-- 
+1.8.1.4
+

@@ -1,0 +1,62 @@
+From bc71ad29132e6774789de28eda50693be0beeef0 Mon Sep 17 00:00:00 2001
+From: Konstantin Khlebnikov <k.khlebnikov@samsung.com>
+Date: Thu, 7 Aug 2014 20:52:43 +0400
+Subject: [PATCH 16/20] Smack: handle zero-length security labels without panic
+
+Zero-length security labels are invalid but kernel should handle them.
+
+This patch fixes kernel panic after setting zero-length security labels:
+
+And after writing zero-length string into smackfs files syslog and onlycp:
+
+The problem is caused by brain-damaged logic in function smk_parse_smack()
+which takes pointer to buffer and its length but if length below or equal zero
+it thinks that the buffer is zero-terminated. Unfortunately callers of this
+function are widely used and proper fix requires serious refactoring.
+
+Change-Id: I931735ccfaea4d8d2f0a98eacf8467f0a8359bc6
+Signed-off-by: Konstantin Khlebnikov <k.khlebnikov@samsung.com>
+Signed-off-by: Rafal Krypa <r.krypa@samsung.com>
+---
+ security/smack/smack_lsm.c | 2 +-
+ security/smack/smackfs.c   | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 8473576..7bd0363 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -923,7 +923,7 @@ static int smack_inode_setxattr(struct dentry *dentry, const char *name,
+ 		rc = -EPERM;
+ 
+ 	if (rc == 0 && check_import) {
+-		skp = smk_import_entry(value, size);
++		skp = size ? smk_import_entry(value, size) : NULL;
+ 		if (skp == NULL || (check_star &&
+ 		    (skp == &smack_known_star || skp == &smack_known_web)))
+ 			rc = -EINVAL;
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 32b2488..585bea0 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -1677,7 +1677,7 @@ static ssize_t smk_write_onlycap(struct file *file, const char __user *buf,
+ 	if (smack_onlycap != NULL && smack_onlycap != skp)
+ 		return -EPERM;
+ 
+-	data = kzalloc(count, GFP_KERNEL);
++	data = kzalloc(count + 1, GFP_KERNEL);
+ 	if (data == NULL)
+ 		return -ENOMEM;
+ 
+@@ -2228,7 +2228,7 @@ static ssize_t smk_write_syslog(struct file *file, const char __user *buf,
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
+ 
+-	data = kzalloc(count, GFP_KERNEL);
++	data = kzalloc(count + 1, GFP_KERNEL);
+ 	if (data == NULL)
+ 		return -ENOMEM;
+ 
+-- 
+1.8.1.4
+

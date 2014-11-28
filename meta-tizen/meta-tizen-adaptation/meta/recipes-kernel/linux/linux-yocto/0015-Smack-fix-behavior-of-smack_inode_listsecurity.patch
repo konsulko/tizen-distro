@@ -1,0 +1,47 @@
+From f57b7f5bb1c2d7d1fa93a807f3290eae2514ab3f Mon Sep 17 00:00:00 2001
+From: Konstantin Khlebnikov <k.khlebnikov@samsung.com>
+Date: Thu, 7 Aug 2014 20:52:33 +0400
+Subject: [PATCH 15/20] Smack: fix behavior of smack_inode_listsecurity
+
+Security operation ->inode_listsecurity is used for generating list of
+available extended attributes for syscall listxattr. Currently it's used
+only in nfs4 or if filesystem doesn't provide i_op->listxattr.
+
+The list is the set of NULL-terminated names, one after the other.
+This method must include zero byte at the and into result.
+
+Also this function must return length even if string does not fit into
+output buffer or it is NULL, see similar method in selinux and man listxattr.
+
+Change-Id: I3ba4524fead6ef6ab0c93238fa8d422e6b155efb
+Signed-off-by: Konstantin Khlebnikov <k.khlebnikov@samsung.com>
+Signed-off-by: Rafal Krypa <r.krypa@samsung.com>
+---
+ security/smack/smack_lsm.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index f2c3080..8473576 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -1122,13 +1122,12 @@ static int smack_inode_getsecurity(const struct inode *inode,
+ static int smack_inode_listsecurity(struct inode *inode, char *buffer,
+ 				    size_t buffer_size)
+ {
+-	int len = strlen(XATTR_NAME_SMACK);
++	int len = sizeof(XATTR_NAME_SMACK);
+ 
+-	if (buffer != NULL && len <= buffer_size) {
++	if (buffer != NULL && len <= buffer_size)
+ 		memcpy(buffer, XATTR_NAME_SMACK, len);
+-		return len;
+-	}
+-	return -EINVAL;
++
++	return len;
+ }
+ 
+ /**
+-- 
+1.8.1.4
+

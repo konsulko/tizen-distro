@@ -1,0 +1,499 @@
+From 5bcfdca5ba3685dff3b0b0de0cf4d0a0fd4e6567 Mon Sep 17 00:00:00 2001
+From: David Howells <dhowells@redhat.com>
+Date: Fri, 14 Mar 2014 17:44:49 +0000
+Subject: [PATCH 04/20] KEYS: Move the flags representing required permission
+ to linux/key.h
+
+Move the flags representing required permission to linux/key.h as the perm
+parameter of security_key_permission() is in terms of them - and not the
+permissions mask flags used in key->perm.
+
+Whilst we're at it:
+
+ (1) Rename them to be KEY_NEED_xxx rather than KEY_xxx to avoid collisions
+     with symbols in uapi/linux/input.h.
+
+ (2) Don't use key_perm_t for a mask of required permissions, but rather limit
+     it to the permissions mask attached to the key and arguments related
+     directly to that.
+
+Change-Id: Id9de84f93e5dd668a3b8ba00fc2440c6d6c6f988
+Signed-off-by: David Howells <dhowells@redhat.com>
+Tested-by: Dmitry Kasatkin <d.kasatkin@samsung.com>
+Signed-off-by: Rafal Krypa <r.krypa@samsung.com>
+Origin: upstream
+---
+ include/linux/key.h        | 11 +++++++++++
+ include/linux/security.h   |  6 +++---
+ security/capability.c      |  2 +-
+ security/keys/internal.h   | 11 +----------
+ security/keys/key.c        |  6 +++---
+ security/keys/keyctl.c     | 44 ++++++++++++++++++++++----------------------
+ security/keys/keyring.c    |  8 ++++----
+ security/keys/permission.c |  4 ++--
+ security/keys/persistent.c |  4 ++--
+ security/keys/proc.c       |  2 +-
+ security/security.c        |  2 +-
+ security/selinux/hooks.c   |  2 +-
+ security/smack/smack_lsm.c |  2 +-
+ 13 files changed, 53 insertions(+), 51 deletions(-)
+
+diff --git a/include/linux/key.h b/include/linux/key.h
+index 80d6774..cd0abb8 100644
+--- a/include/linux/key.h
++++ b/include/linux/key.h
+@@ -309,6 +309,17 @@ static inline key_serial_t key_serial(const struct key *key)
+ 
+ extern void key_set_timeout(struct key *, unsigned);
+ 
++/*
++ * The permissions required on a key that we're looking up.
++ */
++#define	KEY_NEED_VIEW	0x01	/* Require permission to view attributes */
++#define	KEY_NEED_READ	0x02	/* Require permission to read content */
++#define	KEY_NEED_WRITE	0x04	/* Require permission to update / modify */
++#define	KEY_NEED_SEARCH	0x08	/* Require permission to search (keyring) or find (key) */
++#define	KEY_NEED_LINK	0x10	/* Require permission to link */
++#define	KEY_NEED_SETATTR 0x20	/* Require permission to change attributes */
++#define	KEY_NEED_ALL	0x3f	/* All the above permissions */
++
+ /**
+  * key_is_instantiated - Determine if a key has been positively instantiated
+  * @key: The key to check.
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 2fc42d1..6726006 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1708,7 +1708,7 @@ struct security_operations {
+ 	void (*key_free) (struct key *key);
+ 	int (*key_permission) (key_ref_t key_ref,
+ 			       const struct cred *cred,
+-			       key_perm_t perm);
++			       unsigned perm);
+ 	int (*key_getsecurity)(struct key *key, char **_buffer);
+ #endif	/* CONFIG_KEYS */
+ 
+@@ -3030,7 +3030,7 @@ static inline int security_path_chroot(struct path *path)
+ int security_key_alloc(struct key *key, const struct cred *cred, unsigned long flags);
+ void security_key_free(struct key *key);
+ int security_key_permission(key_ref_t key_ref,
+-			    const struct cred *cred, key_perm_t perm);
++			    const struct cred *cred, unsigned perm);
+ int security_key_getsecurity(struct key *key, char **_buffer);
+ 
+ #else
+@@ -3048,7 +3048,7 @@ static inline void security_key_free(struct key *key)
+ 
+ static inline int security_key_permission(key_ref_t key_ref,
+ 					  const struct cred *cred,
+-					  key_perm_t perm)
++					  unsigned perm)
+ {
+ 	return 0;
+ }
+diff --git a/security/capability.c b/security/capability.c
+index 21e2b9c..4a4bc41 100644
+--- a/security/capability.c
++++ b/security/capability.c
+@@ -879,7 +879,7 @@ static void cap_key_free(struct key *key)
+ }
+ 
+ static int cap_key_permission(key_ref_t key_ref, const struct cred *cred,
+-			      key_perm_t perm)
++			      unsigned perm)
+ {
+ 	return 0;
+ }
+diff --git a/security/keys/internal.h b/security/keys/internal.h
+index 80b2aac..5f20da0 100644
+--- a/security/keys/internal.h
++++ b/security/keys/internal.h
+@@ -176,20 +176,11 @@ extern int key_task_permission(const key_ref_t key_ref,
+ /*
+  * Check to see whether permission is granted to use a key in the desired way.
+  */
+-static inline int key_permission(const key_ref_t key_ref, key_perm_t perm)
++static inline int key_permission(const key_ref_t key_ref, unsigned perm)
+ {
+ 	return key_task_permission(key_ref, current_cred(), perm);
+ }
+ 
+-/* required permissions */
+-#define	KEY_VIEW	0x01	/* require permission to view attributes */
+-#define	KEY_READ	0x02	/* require permission to read content */
+-#define	KEY_WRITE	0x04	/* require permission to update / modify */
+-#define	KEY_SEARCH	0x08	/* require permission to search (keyring) or find (key) */
+-#define	KEY_LINK	0x10	/* require permission to link */
+-#define	KEY_SETATTR	0x20	/* require permission to change attributes */
+-#define	KEY_ALL		0x3f	/* all the above permissions */
+-
+ /*
+  * Authorisation record for request_key().
+  */
+diff --git a/security/keys/key.c b/security/keys/key.c
+index 6e21c11..2048a11 100644
+--- a/security/keys/key.c
++++ b/security/keys/key.c
+@@ -714,7 +714,7 @@ static inline key_ref_t __key_update(key_ref_t key_ref,
+ 	int ret;
+ 
+ 	/* need write permission on the key to update it */
+-	ret = key_permission(key_ref, KEY_WRITE);
++	ret = key_permission(key_ref, KEY_NEED_WRITE);
+ 	if (ret < 0)
+ 		goto error;
+ 
+@@ -838,7 +838,7 @@ key_ref_t key_create_or_update(key_ref_t keyring_ref,
+ 
+ 	/* if we're going to allocate a new key, we're going to have
+ 	 * to modify the keyring */
+-	ret = key_permission(keyring_ref, KEY_WRITE);
++	ret = key_permission(keyring_ref, KEY_NEED_WRITE);
+ 	if (ret < 0) {
+ 		key_ref = ERR_PTR(ret);
+ 		goto error_link_end;
+@@ -928,7 +928,7 @@ int key_update(key_ref_t key_ref, const void *payload, size_t plen)
+ 	key_check(key);
+ 
+ 	/* the key must be writable */
+-	ret = key_permission(key_ref, KEY_WRITE);
++	ret = key_permission(key_ref, KEY_NEED_WRITE);
+ 	if (ret < 0)
+ 		goto error;
+ 
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index cee72ce..cd5bd0c 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -111,7 +111,7 @@ SYSCALL_DEFINE5(add_key, const char __user *, _type,
+ 	}
+ 
+ 	/* find the target keyring (which must be writable) */
+-	keyring_ref = lookup_user_key(ringid, KEY_LOOKUP_CREATE, KEY_WRITE);
++	keyring_ref = lookup_user_key(ringid, KEY_LOOKUP_CREATE, KEY_NEED_WRITE);
+ 	if (IS_ERR(keyring_ref)) {
+ 		ret = PTR_ERR(keyring_ref);
+ 		goto error3;
+@@ -195,7 +195,7 @@ SYSCALL_DEFINE4(request_key, const char __user *, _type,
+ 	dest_ref = NULL;
+ 	if (destringid) {
+ 		dest_ref = lookup_user_key(destringid, KEY_LOOKUP_CREATE,
+-					   KEY_WRITE);
++					   KEY_NEED_WRITE);
+ 		if (IS_ERR(dest_ref)) {
+ 			ret = PTR_ERR(dest_ref);
+ 			goto error3;
+@@ -253,7 +253,7 @@ long keyctl_get_keyring_ID(key_serial_t id, int create)
+ 	long ret;
+ 
+ 	lflags = create ? KEY_LOOKUP_CREATE : 0;
+-	key_ref = lookup_user_key(id, lflags, KEY_SEARCH);
++	key_ref = lookup_user_key(id, lflags, KEY_NEED_SEARCH);
+ 	if (IS_ERR(key_ref)) {
+ 		ret = PTR_ERR(key_ref);
+ 		goto error;
+@@ -334,7 +334,7 @@ long keyctl_update_key(key_serial_t id,
+ 	}
+ 
+ 	/* find the target key (which must be writable) */
+-	key_ref = lookup_user_key(id, 0, KEY_WRITE);
++	key_ref = lookup_user_key(id, 0, KEY_NEED_WRITE);
+ 	if (IS_ERR(key_ref)) {
+ 		ret = PTR_ERR(key_ref);
+ 		goto error2;
+@@ -365,12 +365,12 @@ long keyctl_revoke_key(key_serial_t id)
+ 	key_ref_t key_ref;
+ 	long ret;
+ 
+-	key_ref = lookup_user_key(id, 0, KEY_WRITE);
++	key_ref = lookup_user_key(id, 0, KEY_NEED_WRITE);
+ 	if (IS_ERR(key_ref)) {
+ 		ret = PTR_ERR(key_ref);
+ 		if (ret != -EACCES)
+ 			goto error;
+-		key_ref = lookup_user_key(id, 0, KEY_SETATTR);
++		key_ref = lookup_user_key(id, 0, KEY_NEED_SETATTR);
+ 		if (IS_ERR(key_ref)) {
+ 			ret = PTR_ERR(key_ref);
+ 			goto error;
+@@ -401,7 +401,7 @@ long keyctl_invalidate_key(key_serial_t id)
+ 
+ 	kenter("%d", id);
+ 
+-	key_ref = lookup_user_key(id, 0, KEY_SEARCH);
++	key_ref = lookup_user_key(id, 0, KEY_NEED_SEARCH);
+ 	if (IS_ERR(key_ref)) {
+ 		ret = PTR_ERR(key_ref);
+ 		goto error;
+@@ -428,7 +428,7 @@ long keyctl_keyring_clear(key_serial_t ringid)
+ 	key_ref_t keyring_ref;
+ 	long ret;
+ 
+-	keyring_ref = lookup_user_key(ringid, KEY_LOOKUP_CREATE, KEY_WRITE);
++	keyring_ref = lookup_user_key(ringid, KEY_LOOKUP_CREATE, KEY_NEED_WRITE);
+ 	if (IS_ERR(keyring_ref)) {
+ 		ret = PTR_ERR(keyring_ref);
+ 
+@@ -470,13 +470,13 @@ long keyctl_keyring_link(key_serial_t id, key_serial_t ringid)
+ 	key_ref_t keyring_ref, key_ref;
+ 	long ret;
+ 
+-	keyring_ref = lookup_user_key(ringid, KEY_LOOKUP_CREATE, KEY_WRITE);
++	keyring_ref = lookup_user_key(ringid, KEY_LOOKUP_CREATE, KEY_NEED_WRITE);
+ 	if (IS_ERR(keyring_ref)) {
+ 		ret = PTR_ERR(keyring_ref);
+ 		goto error;
+ 	}
+ 
+-	key_ref = lookup_user_key(id, KEY_LOOKUP_CREATE, KEY_LINK);
++	key_ref = lookup_user_key(id, KEY_LOOKUP_CREATE, KEY_NEED_LINK);
+ 	if (IS_ERR(key_ref)) {
+ 		ret = PTR_ERR(key_ref);
+ 		goto error2;
+@@ -505,7 +505,7 @@ long keyctl_keyring_unlink(key_serial_t id, key_serial_t ringid)
+ 	key_ref_t keyring_ref, key_ref;
+ 	long ret;
+ 
+-	keyring_ref = lookup_user_key(ringid, 0, KEY_WRITE);
++	keyring_ref = lookup_user_key(ringid, 0, KEY_NEED_WRITE);
+ 	if (IS_ERR(keyring_ref)) {
+ 		ret = PTR_ERR(keyring_ref);
+ 		goto error;
+@@ -548,7 +548,7 @@ long keyctl_describe_key(key_serial_t keyid,
+ 	char *tmpbuf;
+ 	long ret;
+ 
+-	key_ref = lookup_user_key(keyid, KEY_LOOKUP_PARTIAL, KEY_VIEW);
++	key_ref = lookup_user_key(keyid, KEY_LOOKUP_PARTIAL, KEY_NEED_VIEW);
+ 	if (IS_ERR(key_ref)) {
+ 		/* viewing a key under construction is permitted if we have the
+ 		 * authorisation token handy */
+@@ -639,7 +639,7 @@ long keyctl_keyring_search(key_serial_t ringid,
+ 	}
+ 
+ 	/* get the keyring at which to begin the search */
+-	keyring_ref = lookup_user_key(ringid, 0, KEY_SEARCH);
++	keyring_ref = lookup_user_key(ringid, 0, KEY_NEED_SEARCH);
+ 	if (IS_ERR(keyring_ref)) {
+ 		ret = PTR_ERR(keyring_ref);
+ 		goto error2;
+@@ -649,7 +649,7 @@ long keyctl_keyring_search(key_serial_t ringid,
+ 	dest_ref = NULL;
+ 	if (destringid) {
+ 		dest_ref = lookup_user_key(destringid, KEY_LOOKUP_CREATE,
+-					   KEY_WRITE);
++					   KEY_NEED_WRITE);
+ 		if (IS_ERR(dest_ref)) {
+ 			ret = PTR_ERR(dest_ref);
+ 			goto error3;
+@@ -676,7 +676,7 @@ long keyctl_keyring_search(key_serial_t ringid,
+ 
+ 	/* link the resulting key to the destination keyring if we can */
+ 	if (dest_ref) {
+-		ret = key_permission(key_ref, KEY_LINK);
++		ret = key_permission(key_ref, KEY_NEED_LINK);
+ 		if (ret < 0)
+ 			goto error6;
+ 
+@@ -727,7 +727,7 @@ long keyctl_read_key(key_serial_t keyid, char __user *buffer, size_t buflen)
+ 	key = key_ref_to_ptr(key_ref);
+ 
+ 	/* see if we can read it directly */
+-	ret = key_permission(key_ref, KEY_READ);
++	ret = key_permission(key_ref, KEY_NEED_READ);
+ 	if (ret == 0)
+ 		goto can_read_key;
+ 	if (ret != -EACCES)
+@@ -799,7 +799,7 @@ long keyctl_chown_key(key_serial_t id, uid_t user, gid_t group)
+ 		goto error;
+ 
+ 	key_ref = lookup_user_key(id, KEY_LOOKUP_CREATE | KEY_LOOKUP_PARTIAL,
+-				  KEY_SETATTR);
++				  KEY_NEED_SETATTR);
+ 	if (IS_ERR(key_ref)) {
+ 		ret = PTR_ERR(key_ref);
+ 		goto error;
+@@ -905,7 +905,7 @@ long keyctl_setperm_key(key_serial_t id, key_perm_t perm)
+ 		goto error;
+ 
+ 	key_ref = lookup_user_key(id, KEY_LOOKUP_CREATE | KEY_LOOKUP_PARTIAL,
+-				  KEY_SETATTR);
++				  KEY_NEED_SETATTR);
+ 	if (IS_ERR(key_ref)) {
+ 		ret = PTR_ERR(key_ref);
+ 		goto error;
+@@ -947,7 +947,7 @@ static long get_instantiation_keyring(key_serial_t ringid,
+ 
+ 	/* if a specific keyring is nominated by ID, then use that */
+ 	if (ringid > 0) {
+-		dkref = lookup_user_key(ringid, KEY_LOOKUP_CREATE, KEY_WRITE);
++		dkref = lookup_user_key(ringid, KEY_LOOKUP_CREATE, KEY_NEED_WRITE);
+ 		if (IS_ERR(dkref))
+ 			return PTR_ERR(dkref);
+ 		*_dest_keyring = key_ref_to_ptr(dkref);
+@@ -1315,7 +1315,7 @@ long keyctl_set_timeout(key_serial_t id, unsigned timeout)
+ 	long ret;
+ 
+ 	key_ref = lookup_user_key(id, KEY_LOOKUP_CREATE | KEY_LOOKUP_PARTIAL,
+-				  KEY_SETATTR);
++				  KEY_NEED_SETATTR);
+ 	if (IS_ERR(key_ref)) {
+ 		/* setting the timeout on a key under construction is permitted
+ 		 * if we have the authorisation token handy */
+@@ -1418,7 +1418,7 @@ long keyctl_get_security(key_serial_t keyid,
+ 	char *context;
+ 	long ret;
+ 
+-	key_ref = lookup_user_key(keyid, KEY_LOOKUP_PARTIAL, KEY_VIEW);
++	key_ref = lookup_user_key(keyid, KEY_LOOKUP_PARTIAL, KEY_NEED_VIEW);
+ 	if (IS_ERR(key_ref)) {
+ 		if (PTR_ERR(key_ref) != -EACCES)
+ 			return PTR_ERR(key_ref);
+@@ -1482,7 +1482,7 @@ long keyctl_session_to_parent(void)
+ 	struct cred *cred;
+ 	int ret;
+ 
+-	keyring_r = lookup_user_key(KEY_SPEC_SESSION_KEYRING, 0, KEY_LINK);
++	keyring_r = lookup_user_key(KEY_SPEC_SESSION_KEYRING, 0, KEY_NEED_LINK);
+ 	if (IS_ERR(keyring_r))
+ 		return PTR_ERR(keyring_r);
+ 
+diff --git a/security/keys/keyring.c b/security/keys/keyring.c
+index 2fb2576..9cf2575 100644
+--- a/security/keys/keyring.c
++++ b/security/keys/keyring.c
+@@ -541,7 +541,7 @@ static int keyring_search_iterator(const void *object, void *iterator_data)
+ 	/* key must have search permissions */
+ 	if (!(ctx->flags & KEYRING_SEARCH_NO_CHECK_PERM) &&
+ 	    key_task_permission(make_key_ref(key, ctx->possessed),
+-				ctx->cred, KEY_SEARCH) < 0) {
++				ctx->cred, KEY_NEED_SEARCH) < 0) {
+ 		ctx->result = ERR_PTR(-EACCES);
+ 		kleave(" = %d [!perm]", ctx->skipped_ret);
+ 		goto skipped;
+@@ -721,7 +721,7 @@ ascend_to_node:
+ 		/* Search a nested keyring */
+ 		if (!(ctx->flags & KEYRING_SEARCH_NO_CHECK_PERM) &&
+ 		    key_task_permission(make_key_ref(key, ctx->possessed),
+-					ctx->cred, KEY_SEARCH) < 0)
++					ctx->cred, KEY_NEED_SEARCH) < 0)
+ 			continue;
+ 
+ 		/* stack the current position */
+@@ -843,7 +843,7 @@ key_ref_t keyring_search_aux(key_ref_t keyring_ref,
+ 		return ERR_PTR(-ENOTDIR);
+ 
+ 	if (!(ctx->flags & KEYRING_SEARCH_NO_CHECK_PERM)) {
+-		err = key_task_permission(keyring_ref, ctx->cred, KEY_SEARCH);
++		err = key_task_permission(keyring_ref, ctx->cred, KEY_NEED_SEARCH);
+ 		if (err < 0)
+ 			return ERR_PTR(err);
+ 	}
+@@ -973,7 +973,7 @@ struct key *find_keyring_by_name(const char *name, bool skip_perm_check)
+ 
+ 			if (!skip_perm_check &&
+ 			    key_permission(make_key_ref(keyring, 0),
+-					   KEY_SEARCH) < 0)
++					   KEY_NEED_SEARCH) < 0)
+ 				continue;
+ 
+ 			/* we've got a match but we might end up racing with
+diff --git a/security/keys/permission.c b/security/keys/permission.c
+index efcc0c8..732cc0b 100644
+--- a/security/keys/permission.c
++++ b/security/keys/permission.c
+@@ -28,7 +28,7 @@
+  * permissions bits or the LSM check.
+  */
+ int key_task_permission(const key_ref_t key_ref, const struct cred *cred,
+-			key_perm_t perm)
++			unsigned perm)
+ {
+ 	struct key *key;
+ 	key_perm_t kperm;
+@@ -68,7 +68,7 @@ use_these_perms:
+ 	if (is_key_possessed(key_ref))
+ 		kperm |= key->perm >> 24;
+ 
+-	kperm = kperm & perm & KEY_ALL;
++	kperm = kperm & perm & KEY_NEED_ALL;
+ 
+ 	if (kperm != perm)
+ 		return -EACCES;
+diff --git a/security/keys/persistent.c b/security/keys/persistent.c
+index 0ad3ee2..c9fae5e 100644
+--- a/security/keys/persistent.c
++++ b/security/keys/persistent.c
+@@ -108,7 +108,7 @@ static long key_get_persistent(struct user_namespace *ns, kuid_t uid,
+ 	return PTR_ERR(persistent_ref);
+ 
+ found:
+-	ret = key_task_permission(persistent_ref, current_cred(), KEY_LINK);
++	ret = key_task_permission(persistent_ref, current_cred(), KEY_NEED_LINK);
+ 	if (ret == 0) {
+ 		persistent = key_ref_to_ptr(persistent_ref);
+ 		ret = key_link(key_ref_to_ptr(dest_ref), persistent);
+@@ -151,7 +151,7 @@ long keyctl_get_persistent(uid_t _uid, key_serial_t destid)
+ 	}
+ 
+ 	/* There must be a destination keyring */
+-	dest_ref = lookup_user_key(destid, KEY_LOOKUP_CREATE, KEY_WRITE);
++	dest_ref = lookup_user_key(destid, KEY_LOOKUP_CREATE, KEY_NEED_WRITE);
+ 	if (IS_ERR(dest_ref))
+ 		return PTR_ERR(dest_ref);
+ 	if (key_ref_to_ptr(dest_ref)->type != &key_type_keyring) {
+diff --git a/security/keys/proc.c b/security/keys/proc.c
+index 88e9a46..d3f6f2f 100644
+--- a/security/keys/proc.c
++++ b/security/keys/proc.c
+@@ -218,7 +218,7 @@ static int proc_keys_show(struct seq_file *m, void *v)
+ 	 * - the caller holds a spinlock, and thus the RCU read lock, making our
+ 	 *   access to __current_cred() safe
+ 	 */
+-	rc = key_task_permission(key_ref, ctx.cred, KEY_VIEW);
++	rc = key_task_permission(key_ref, ctx.cred, KEY_NEED_VIEW);
+ 	if (rc < 0)
+ 		return 0;
+ 
+diff --git a/security/security.c b/security/security.c
+index 919cad9..d91fec4 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1407,7 +1407,7 @@ void security_key_free(struct key *key)
+ }
+ 
+ int security_key_permission(key_ref_t key_ref,
+-			    const struct cred *cred, key_perm_t perm)
++			    const struct cred *cred, unsigned perm)
+ {
+ 	return security_ops->key_permission(key_ref, cred, perm);
+ }
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 47b5c69..c8195b3 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5723,7 +5723,7 @@ static void selinux_key_free(struct key *k)
+ 
+ static int selinux_key_permission(key_ref_t key_ref,
+ 				  const struct cred *cred,
+-				  key_perm_t perm)
++				  unsigned perm)
+ {
+ 	struct key *key;
+ 	struct key_security_struct *ksec;
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index f0ebcb0..eabb97f 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -3514,7 +3514,7 @@ static void smack_key_free(struct key *key)
+  * an error code otherwise
+  */
+ static int smack_key_permission(key_ref_t key_ref,
+-				const struct cred *cred, key_perm_t perm)
++				const struct cred *cred, unsigned perm)
+ {
+ 	struct key *keyp;
+ 	struct smk_audit_info ad;
+-- 
+1.8.1.4
+

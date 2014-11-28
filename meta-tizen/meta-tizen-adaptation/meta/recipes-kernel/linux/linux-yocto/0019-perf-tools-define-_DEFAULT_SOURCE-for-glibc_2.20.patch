@@ -1,0 +1,33 @@
+From bd0310a223ab0726327e59d4dfe52c5a138449aa Mon Sep 17 00:00:00 2001
+From: Chanho Park <chanho61.park@samsung.com>
+Date: Fri, 12 Sep 2014 11:03:01 +0900
+Subject: [PATCH 19/20] perf tools: define _DEFAULT_SOURCE for glibc_2.20
+
+_BSD_SOURCE was deprecated in favour of _DEFAULT_SOURCE since glibc
+2.20[1]. To avoid build warning on glibc2.20, _DEFAULT_SOURCE should
+also be defined.
+
+[1]: https://sourceware.org/glibc/wiki/Release/2.20
+
+Change-Id: I01a2849bb8642cbf5c875caf227ab05e6fa0fa41
+Signed-off-by: Chanho Park <chanho61.park@samsung.com>
+---
+ tools/perf/util/util.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tools/perf/util/util.h b/tools/perf/util/util.h
+index 6995d66..3830f6d 100644
+--- a/tools/perf/util/util.h
++++ b/tools/perf/util/util.h
+@@ -39,6 +39,8 @@
+ 
+ #define _ALL_SOURCE 1
+ #define _BSD_SOURCE 1
++/* glibc 2.20 deprecates _BSD_SOURCE in favour of _DEFAULT_SOURCE */
++#define _DEFAULT_SOURCE 1
+ #define HAS_BOOL
+ 
+ #include <unistd.h>
+-- 
+1.8.1.4
+

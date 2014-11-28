@@ -1,8 +1,9 @@
-From: =?utf-8?q?Jos=C3=A9_Bollo?= <jose.bollo@open.eurogiciel.org>
+From f7723d32c993ea1e00bc11d9ef1c4a9ba2050f31 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jos=C3=A9=20Bollo?= <jose.bollo@open.eurogiciel.org>
 Date: Thu, 3 Apr 2014 09:51:07 +0200
-Subject: SMACK: Fix handling value==NULL in post setxattr
+Subject: [PATCH 02/20] SMACK: Fix handling value==NULL in post setxattr
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 The function `smack_inode_post_setxattr` is called each
@@ -28,6 +29,7 @@ write.
 
 Change-Id: Iaf0039c2be9bccb6cee11c24a3b44d209101fe47
 Signed-off-by: José Bollo <jose.bollo@open.eurogiciel.org>
+Signed-off-by: Stephane Desneux <stephane.desneux@open.eurogiciel.org>
 ---
  security/smack/smack_lsm.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
@@ -58,3 +60,6 @@ index acd8574..f0ebcb0 100644
  		if (skp != NULL)
  			isp->smk_mmap = skp;
  		else
+-- 
+1.8.1.4
+

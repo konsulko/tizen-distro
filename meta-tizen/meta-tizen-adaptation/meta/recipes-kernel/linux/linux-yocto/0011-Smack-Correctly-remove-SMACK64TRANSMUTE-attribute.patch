@@ -1,0 +1,66 @@
+From a9aab799877935740562b588c00c74e7f092b626 Mon Sep 17 00:00:00 2001
+From: Casey Schaufler <casey@schaufler-ca.com>
+Date: Thu, 10 Apr 2014 16:35:36 -0700
+Subject: [PATCH 11/20] Smack: Correctly remove SMACK64TRANSMUTE attribute
+
+Sam Henderson points out that removing the SMACK64TRANSMUTE
+attribute from a directory does not result in the directory
+transmuting. This is because the inode flag indicating that
+the directory is transmuting isn't cleared. The fix is a tad
+less than trivial because smk_task and smk_mmap should have
+been broken out, too.
+
+Targeted for git://git.gitorious.org/smack-next/kernel.git
+
+Change-Id: Iae25080bfd0ec247391c997a59f3e2327423e33d
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Rafal Krypa <r.krypa@samsung.com>
+---
+ security/smack/smack_lsm.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
+
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index b86825b..1c05130 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -1026,18 +1026,31 @@ static int smack_inode_removexattr(struct dentry *dentry, const char *name)
+ 	} else
+ 		rc = cap_inode_removexattr(dentry, name);
+ 
++	if (rc != 0)
++		return rc;
++
+ 	smk_ad_init(&ad, __func__, LSM_AUDIT_DATA_DENTRY);
+ 	smk_ad_setfield_u_fs_path_dentry(&ad, dentry);
+-	if (rc == 0)
+-		rc = smk_curacc(smk_of_inode(dentry->d_inode), MAY_WRITE, &ad);
+ 
+-	if (rc == 0) {
+-		isp = dentry->d_inode->i_security;
++	rc = smk_curacc(smk_of_inode(dentry->d_inode), MAY_WRITE, &ad);
++	if (rc != 0)
++		return rc;
++
++	isp = dentry->d_inode->i_security;
++	/*
++	 * Don't do anything special for these.
++	 *	XATTR_NAME_SMACKIPIN
++	 *	XATTR_NAME_SMACKIPOUT
++	 *	XATTR_NAME_SMACKEXEC
++	 */
++	if (strcmp(name, XATTR_NAME_SMACK) == 0)
+ 		isp->smk_task = NULL;
++	else if (strcmp(name, XATTR_NAME_SMACKMMAP) == 0)
+ 		isp->smk_mmap = NULL;
+-	}
++	else if (strcmp(name, XATTR_NAME_SMACKTRANSMUTE) == 0)
++		isp->smk_flags &= ~SMK_INODE_TRANSMUTE;
+ 
+-	return rc;
++	return 0;
+ }
+ 
+ /**
+-- 
+1.8.1.4
+

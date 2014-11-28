@@ -1,0 +1,110 @@
+From da699868113882aae41dab690c98788abffe263a Mon Sep 17 00:00:00 2001
+From: Philippe Coval <philippe.coval@open.eurogiciel.org>
+Date: Fri, 22 Aug 2014 10:09:19 +0200
+Subject: [PATCH 03/20] Revert "x86/efi: Correct EFI boot stub use of
+ code32_start"
+
+This reverts commit 45ada9fae6d836aa8e3be5302d7aeb50c44e0629.
+
+With this change in , nexcom's vtc1010 does not boot anynore
+even rebased on latest version v3.14.17
+and with latest firmware :
+ftp://ftp.nexcom.com/pub/BIOS/VTC1010/x86_32bit/MV11A109.rom
+( md5=f5ccb5284ca5bd8668fa1031067dad27 )
+
+The bug is now tracked upstream.
+
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=82891
+Change-Id: I82bb1227dcbcbfe1371d685d241e985a6e58ddf3
+Bug-Tizen: TC-1513/part
+---
+ arch/x86/boot/compressed/eboot.c   |  5 ++---
+ arch/x86/boot/compressed/head_32.S | 14 ++++++--------
+ arch/x86/boot/compressed/head_64.S |  9 ++++++---
+ 3 files changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/arch/x86/boot/compressed/eboot.c b/arch/x86/boot/compressed/eboot.c
+index 78cbb2d..a7677ba 100644
+--- a/arch/x86/boot/compressed/eboot.c
++++ b/arch/x86/boot/compressed/eboot.c
+@@ -425,9 +425,6 @@ void setup_graphics(struct boot_params *boot_params)
+  * Because the x86 boot code expects to be passed a boot_params we
+  * need to create one ourselves (usually the bootloader would create
+  * one for us).
+- *
+- * The caller is responsible for filling out ->code32_start in the
+- * returned boot_params.
+  */
+ struct boot_params *make_boot_params(void *handle, efi_system_table_t *_table)
+ {
+@@ -486,6 +483,8 @@ struct boot_params *make_boot_params(void *handle, efi_system_table_t *_table)
+ 	hdr->vid_mode = 0xffff;
+ 	hdr->boot_flag = 0xAA55;
+ 
++	hdr->code32_start = (__u64)(unsigned long)image->image_base;
++
+ 	hdr->type_of_loader = 0x21;
+ 
+ 	/* Convert unicode cmdline to ascii */
+diff --git a/arch/x86/boot/compressed/head_32.S b/arch/x86/boot/compressed/head_32.S
+index c5b56ed..42cb93f 100644
+--- a/arch/x86/boot/compressed/head_32.S
++++ b/arch/x86/boot/compressed/head_32.S
+@@ -50,13 +50,6 @@ ENTRY(efi_pe_entry)
+ 	pushl	%eax
+ 	pushl	%esi
+ 	pushl	%ecx
+-
+-	call	reloc
+-reloc:
+-	popl	%ecx
+-	subl	reloc, %ecx
+-	movl	%ecx, BP_code32_start(%eax)
+-
+ 	sub	$0x4, %esp
+ 
+ ENTRY(efi_stub_entry)
+@@ -70,7 +63,12 @@ ENTRY(efi_stub_entry)
+ 	hlt
+ 	jmp	1b
+ 2:
+-	movl	BP_code32_start(%esi), %eax
++	call	3f
++3:
++	popl	%eax
++	subl	$3b, %eax
++	subl	BP_pref_address(%esi), %eax
++	add	BP_code32_start(%esi), %eax
+ 	leal	preferred_addr(%eax), %eax
+ 	jmp	*%eax
+ 
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index 34bbc09..036d37f 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -217,8 +217,6 @@ ENTRY(efi_pe_entry)
+ 	cmpq	$0,%rax
+ 	je	1f
+ 	mov	%rax, %rdx
+-	leaq	startup_32(%rip), %rax
+-	movl	%eax, BP_code32_start(%rdx)
+ 	popq	%rsi
+ 	popq	%rdi
+ 
+@@ -232,7 +230,12 @@ ENTRY(efi_stub_entry)
+ 	hlt
+ 	jmp	1b
+ 2:
+-	movl	BP_code32_start(%esi), %eax
++	call	3f
++3:
++	popq	%rax
++	subq	$3b, %rax
++	subq	BP_pref_address(%rsi), %rax
++	add	BP_code32_start(%esi), %eax
+ 	leaq	preferred_addr(%rax), %rax
+ 	jmp	*%rax
+ 
+-- 
+1.8.1.4
+
