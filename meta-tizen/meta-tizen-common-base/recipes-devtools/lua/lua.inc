@@ -87,7 +87,7 @@ do_install() {
  install -d -m 0755 ${D}${prefix}/share/lua/5.1
  install -D -m644 ${S}/packaging/macros.lua ${D}${sysconfdir}/rpm/macros.lua
  
- chmod +x ${D}/${prefix}/lib/liblua.so.5.1
+ chmod +x ${D}${prefix}/lib/liblua.so.5.1
  
  ln -s lua5.1 ${D}${prefix}/bin/lua
  

@@ -154,7 +154,7 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/${prefix}/share/help
+ mkdir -p ${D}${prefix}/share/help
  find ${D} -name evolution-data-server-3.11.mo -execdir mv {} evolution-data-server.mo \;
  #find_lang evolution-data-server
  #fdupes ${D}

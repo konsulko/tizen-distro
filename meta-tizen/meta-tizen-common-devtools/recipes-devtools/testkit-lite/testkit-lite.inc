@@ -93,8 +93,8 @@ do_install() {
  mkdir -p ${D}
  
  python setup.py install --prefix=${prefix} --root=${D}
- install -d ${D}/${prefix}/share/testkit-lite
- cp -r xsd ${D}/${prefix}/share/testkit-lite
+ install -d ${D}${prefix}/share/testkit-lite
+ cp -r xsd ${D}${prefix}/share/testkit-lite
  #fdupes ${D}
  pushd ${D}${prefix}/lib/python2.7/site-packages
  

@@ -88,10 +88,10 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  # include
- mkdir -p ${D}/${prefix}/include/ico-util/
- cp -f include/ico_uws.h ${D}/${prefix}/include/ico-util/
- cp -f include/ico_log.h ${D}/${prefix}/include/ico-util/
- cp -f include/ico_dbus_amb_efl.h ${D}/${prefix}/include/ico-util/
+ mkdir -p ${D}${prefix}/include/ico-util/
+ cp -f include/ico_uws.h ${D}${prefix}/include/ico-util/
+ cp -f include/ico_log.h ${D}${prefix}/include/ico-util/
+ cp -f include/ico_dbus_amb_efl.h ${D}${prefix}/include/ico-util/
  # log output
  mkdir -p ${D}/${localstatedir}/log/ico/
  chmod 0777 ${D}/${localstatedir}/log/ico/

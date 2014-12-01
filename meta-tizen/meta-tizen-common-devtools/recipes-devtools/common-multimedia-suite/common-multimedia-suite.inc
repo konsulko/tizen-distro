@@ -97,22 +97,22 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
  # common-multimedia-suite package 
- install -d ${D}/${prefix}/share/tests/common-multimedia-suite
- install -m 0755 common/runtest.sh ${D}/${prefix}/share/tests/common-multimedia-suite
- install -m 0644 common/*.xml ${D}/${prefix}/share/tests/common-multimedia-suite
- install -m 0644 LICENSE ${D}/${prefix}/share/tests/common-multimedia-suite
- cp -r common/TESTDIR ${D}/${prefix}/share/tests/common-multimedia-suite
+ install -d ${D}${prefix}/share/tests/common-multimedia-suite
+ install -m 0755 common/runtest.sh ${D}${prefix}/share/tests/common-multimedia-suite
+ install -m 0644 common/*.xml ${D}${prefix}/share/tests/common-multimedia-suite
+ install -m 0644 LICENSE ${D}${prefix}/share/tests/common-multimedia-suite
+ cp -r common/TESTDIR ${D}${prefix}/share/tests/common-multimedia-suite
  
  # ivi-multimedia-tests package
- install -d ${D}/${prefix}/share/tests/ivi-multimedia-tests/tts-gstreamer-tests
- install -d ${D}/${prefix}/share/tests/ivi-multimedia-tests/tts-pulseaudio-tests
- install -m 0755 ivi/tts-gstreamer-tests/src/* ${D}/${prefix}/share/tests/ivi-multimedia-tests/tts-gstreamer-tests
- install -m 0644 ivi/tts-gstreamer-tests/tests.xml ${D}/${prefix}/share/tests/ivi-multimedia-tests/tts-gstreamer-tests
- install -m 0644 ivi/tts-gstreamer-tests/README ${D}/${prefix}/share/tests/ivi-multimedia-tests/tts-gstreamer-tests
- install -m 0755 ivi/tts-pulseaudio-tests/src/*.sh ${D}/${prefix}/share/tests/ivi-multimedia-tests/tts-pulseaudio-tests
- install -m 0644 ivi/tts-pulseaudio-tests/tests.xml ${D}/${prefix}/share/tests/ivi-multimedia-tests/tts-pulseaudio-tests
- install -m 0644 ivi/tts-pulseaudio-tests/README ${D}/${prefix}/share/tests/ivi-multimedia-tests/tts-pulseaudio-tests
- install -m 0644 LICENSE ${D}/${prefix}/share/tests/ivi-multimedia-tests
+ install -d ${D}${prefix}/share/tests/ivi-multimedia-tests/tts-gstreamer-tests
+ install -d ${D}${prefix}/share/tests/ivi-multimedia-tests/tts-pulseaudio-tests
+ install -m 0755 ivi/tts-gstreamer-tests/src/* ${D}${prefix}/share/tests/ivi-multimedia-tests/tts-gstreamer-tests
+ install -m 0644 ivi/tts-gstreamer-tests/tests.xml ${D}${prefix}/share/tests/ivi-multimedia-tests/tts-gstreamer-tests
+ install -m 0644 ivi/tts-gstreamer-tests/README ${D}${prefix}/share/tests/ivi-multimedia-tests/tts-gstreamer-tests
+ install -m 0755 ivi/tts-pulseaudio-tests/src/*.sh ${D}${prefix}/share/tests/ivi-multimedia-tests/tts-pulseaudio-tests
+ install -m 0644 ivi/tts-pulseaudio-tests/tests.xml ${D}${prefix}/share/tests/ivi-multimedia-tests/tts-pulseaudio-tests
+ install -m 0644 ivi/tts-pulseaudio-tests/README ${D}${prefix}/share/tests/ivi-multimedia-tests/tts-pulseaudio-tests
+ install -m 0644 LICENSE ${D}${prefix}/share/tests/ivi-multimedia-tests
  
  
 }

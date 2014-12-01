@@ -57,10 +57,10 @@ do_install() {
  mkdir -p ${D}
  
  rm -fr ${D}
- mkdir -p ${D}//usr/share/ca-certificates/tizen
- mkdir -p ${D}//usr/share/ca-certificates/wac
- cp -arf certificates/tizen*.pem ${D}//usr/share/ca-certificates/tizen/
- cp -arf certificates/wac*.pem ${D}//usr/share/ca-certificates/wac/
+ mkdir -p ${D}/usr/share/ca-certificates/tizen
+ mkdir -p ${D}/usr/share/ca-certificates/wac
+ cp -arf certificates/tizen*.pem ${D}/usr/share/ca-certificates/tizen/
+ cp -arf certificates/wac*.pem ${D}/usr/share/ca-certificates/wac/
  
  
 }

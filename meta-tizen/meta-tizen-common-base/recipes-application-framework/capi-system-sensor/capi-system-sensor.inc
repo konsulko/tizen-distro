@@ -1,7 +1,7 @@
 DESCRIPTION = "A Sensor library in TIZEN C API"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "framework/system"
-LICENSE = "Apache 2.0"
+LICENSE = "Apache-2.0"
 PV = "0.1.17"
 
 SRC_URI = ""
@@ -58,6 +58,7 @@ do_compile() {
  
  MAJORVER=`echo 0.1.17 | awk 'BEGIN {FS="."}{print $1}'`
  
+ 
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
          -DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
@@ -69,10 +70,10 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
-         ${EXTRA_OECMAKE} . -DFULLVER=0.1.17 -DMAJORVER=${MAJORVER}
+         ${EXTRA_OECMAKE} . -DFULLVER=0.1.17 -DMAJORVER=${MAJORVER} -DVERSION="0.1.17"
  
+ oe_runmake -j16
  
- make -j16
  
  
  
@@ -87,7 +88,6 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- rm -rf ${D}
  
    oe_runmake \
          DESTDIR=${D} \
@@ -97,9 +97,6 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- 
- mkdir -p ${D}/usr/share/license
- cp LICENSE ${D}/usr/share/license/capi-system-sensor
  
  
 }
@@ -124,7 +121,6 @@ capi-system-sensor-dev_files = ""
 capi-system-sensor-dev_files += "${prefix}/include/system/sensors.h"
 capi-system-sensor-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 capi-system-sensor-dev_files += "${prefix}/lib/libcapi-system-sensor.so"
-capi-system-sensor-dev_files += "/usr/share/license/capi-system-sensor"
 MANIFESTFILES_${PN}-dev = "capi-system-sensor.manifest"
 
 capi-system-sensor_files = ""

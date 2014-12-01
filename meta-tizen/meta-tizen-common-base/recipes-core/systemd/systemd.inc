@@ -142,7 +142,7 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --disable-kdbus --enable-compat-libs --enable-bootchart --disable-sysusers --disable-firstboot --disable-timesyncd --disable-resolved --disable-networkd --libexecdir=${prefix}/lib --docdir=${prefix}/share/doc/packages/systemd --disable-static --with-sysvinit-path= --with-sysvrcnd-path= --with-smack-run-label=System --with-rootprefix=/ --with-rootlibdir=//lib cc_cv_CFLAGS__flto=no"
+EXTRA_OECONF += " --disable-kdbus --enable-compat-libs --enable-bootchart --disable-sysusers --disable-firstboot --disable-timesyncd --disable-resolved --disable-networkd --libexecdir=${prefix}/lib --docdir=${prefix}/share/doc/packages/systemd --disable-static --with-sysvinit-path= --with-sysvrcnd-path= --with-smack-run-label=System --with-rootprefix=/ --with-rootlibdir=/lib cc_cv_CFLAGS__flto=no"
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -171,14 +171,14 @@ do_install() {
 EOF
  
  # udev links
- mkdir -p ${D}/${prefix}/sbin
+ mkdir -p ${D}${prefix}/sbin
  ln -sf ../bin/udevadm ${D}${prefix}/sbin/udevadm
  mkdir -p ${D}${prefix}/lib/firmware/updates
  
  # Create SysV compatibility symlinks. systemctl/systemd are smart
  # enough to detect in which way they are called.
- ln -sf //lib/systemd/systemd ${D}${prefix}/sbin/init
- ln -sf //lib/systemd/systemd ${D}${prefix}/bin/systemd
+ ln -sf /lib/systemd/systemd ${D}${prefix}/sbin/init
+ ln -sf /lib/systemd/systemd ${D}${prefix}/bin/systemd
  ln -sf ../bin/systemctl ${D}${prefix}/sbin/reboot
  ln -sf ../bin/systemctl ${D}${prefix}/sbin/halt
  ln -sf ../bin/systemctl ${D}${prefix}/sbin/poweroff
@@ -207,7 +207,7 @@ EOF
  mkdir -p ${D}${systemd_unitdir}/system/syslog.target.wants
  
  # Make sure the user generators dir exists too
- mkdir -p ${D}//lib/systemd/system-generators
+ mkdir -p ${D}/lib/systemd/system-generators
  mkdir -p ${D}${prefix}/lib/systemd/user-generators
  
  # Create new-style configuration files so that we can ghost-own them
@@ -218,12 +218,12 @@ EOF
  touch ${D}${sysconfdir}/machine-info
  touch ${D}${sysconfdir}/timezone
  
- mkdir -p ${D}//lib/systemd/system-preset/
- mkdir -p ${D}//lib/systemd/user-preset/
+ mkdir -p ${D}/lib/systemd/system-preset/
+ mkdir -p ${D}/lib/systemd/user-preset/
  
  # Make sure the shutdown/sleep drop-in dirs exist
- mkdir -p ${D}//lib/systemd/system-shutdown/
- mkdir -p ${D}//lib/systemd/system-sleep/
+ mkdir -p ${D}/lib/systemd/system-shutdown/
+ mkdir -p ${D}/lib/systemd/system-sleep/
  
  # Make sure the NTP units dir exists
  mkdir -p ${D}${prefix}/lib/systemd/ntp-units.d/
@@ -240,9 +240,9 @@ EOF
  
  install -m644 ${S}/packaging/pamconsole-tmp.conf ${D}${prefix}/lib/tmpfiles.d/
  
- rm -rf ${D}/${prefix}/lib/systemd/user/default.target
+ rm -rf ${D}${prefix}/lib/systemd/user/default.target
  
- rm -rf ${D}/${prefix}/share/doc/packages/systemd
+ rm -rf ${D}${prefix}/share/doc/packages/systemd
  
  # Move macros to the proper location for Tizen
  mkdir -p ${D}${sysconfdir}/rpm
@@ -254,8 +254,8 @@ EOF
  rm -fr ${D}${localstatedir}
  
  # Exclude ELF binaries
- rm -f ${D}///lib/systemd/system-generators/systemd-debug-generator
- rm -f ${D}/${prefix}/lib/systemd/system-generators/systemd-hibernate-resume-generator
+ rm -f ${D}/lib/systemd/system-generators/systemd-debug-generator
+ rm -f ${D}${prefix}/lib/systemd/system-generators/systemd-hibernate-resume-generator
  
  # end of install
  

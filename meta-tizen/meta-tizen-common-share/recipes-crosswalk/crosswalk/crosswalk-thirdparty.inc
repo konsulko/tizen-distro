@@ -174,9 +174,9 @@ do_install() {
  mkdir -p ${D}
  
  
- mkdir  -p ${D}/${prefix}/share/crosswalk-thirdparty/
+ mkdir  -p ${D}${prefix}/share/crosswalk-thirdparty/
  tar -zcvf out.tgz src/out
- cp -ar out.tgz ${D}/${prefix}/share/crosswalk-thirdparty/
+ cp -ar out.tgz ${D}${prefix}/share/crosswalk-thirdparty/
  
  
 }

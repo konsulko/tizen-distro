@@ -184,7 +184,7 @@ do_install() {
  cp lib/*.el ${D}${prefix}/share/festival/
  install -D lib/etc/unknown_Linux/audsp ${D}${prefix}/lib/festival/audsp
  # install libs
- install -D src/lib/libFestival.so  ${D}/${prefix}/lib/libFestival.so
+ install -D src/lib/libFestival.so  ${D}${prefix}/lib/libFestival.so
  # install includes
  mkdir -p ${D}${prefix}/include/
  install -m 644 src/include/*.h ${D}${prefix}/include/

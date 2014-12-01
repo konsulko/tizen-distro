@@ -134,7 +134,7 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/${prefix}/share/download-provider
+ mkdir -p ${D}${prefix}/share/download-provider
  mkdir -p ${D}${systemd_unitdir}/system/graphical.target.wants
  mkdir -p ${D}${systemd_unitdir}/system/sockets.target.wants
  ln -s ../download-provider.service ${D}${systemd_unitdir}/system/graphical.target.wants/

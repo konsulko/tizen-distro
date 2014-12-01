@@ -63,10 +63,10 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- install -d ${D}/${prefix}/share/tests/common-crosswalk-suite
- install -m 0755 common/runtest.sh ${D}/${prefix}/share/tests/common-crosswalk-suite
- install -m 0644 common/*.xml ${D}/${prefix}/share/tests/common-crosswalk-suite
- cp -r common/TESTDIR ${D}/${prefix}/share/tests/common-crosswalk-suite
+ install -d ${D}${prefix}/share/tests/common-crosswalk-suite
+ install -m 0755 common/runtest.sh ${D}${prefix}/share/tests/common-crosswalk-suite
+ install -m 0644 common/*.xml ${D}${prefix}/share/tests/common-crosswalk-suite
+ cp -r common/TESTDIR ${D}${prefix}/share/tests/common-crosswalk-suite
  
  
  

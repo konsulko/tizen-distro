@@ -116,9 +116,9 @@ do_install() {
  ln -sf gpg2 ${D}${prefix}/bin/gpg
  ln -sf gpgv2 ${D}${prefix}/bin/gpgv
  
- rm -rf ${D}/${prefix}/share/locale/en@{bold,}quot
- rm -rf ${D}/${prefix}/share/locale/en@{bold,}quot
- rm -fr ${D}/${prefix}/share/doc
+ rm -rf ${D}${prefix}/share/locale/en@{bold,}quot
+ rm -rf ${D}${prefix}/share/locale/en@{bold,}quot
+ rm -fr ${D}${prefix}/share/doc
  
  #find_lang gnupg2
  

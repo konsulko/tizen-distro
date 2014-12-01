@@ -63,11 +63,11 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- install -d ${D}/${prefix}/share/tests/common/common-graphics-suite
- install -m 0755 runtest ${D}/${prefix}/share/tests/common/common-graphics-suite
- install -m 0644 *.xml ${D}/${prefix}/share/tests/common/common-graphics-suite
- install -m 0644 LICENSE ${D}/${prefix}/share/tests/common/common-graphics-suite
- cp -r TESTDIR ${D}/${prefix}/share/tests/common/common-graphics-suite
+ install -d ${D}${prefix}/share/tests/common/common-graphics-suite
+ install -m 0755 runtest ${D}${prefix}/share/tests/common/common-graphics-suite
+ install -m 0644 *.xml ${D}${prefix}/share/tests/common/common-graphics-suite
+ install -m 0644 LICENSE ${D}${prefix}/share/tests/common/common-graphics-suite
+ cp -r TESTDIR ${D}${prefix}/share/tests/common/common-graphics-suite
  
  
  

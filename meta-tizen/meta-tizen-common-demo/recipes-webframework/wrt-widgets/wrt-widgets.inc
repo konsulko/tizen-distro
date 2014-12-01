@@ -64,15 +64,15 @@ do_install() {
  mkdir -p ${D}
  
  
- mkdir -p ${D}/${prefix}/bin
- cp install_widgets.sh ${D}/${prefix}/bin
- cp prepare_widgets.sh ${D}/${prefix}/bin
+ mkdir -p ${D}${prefix}/bin
+ cp install_widgets.sh ${D}${prefix}/bin
+ cp prepare_widgets.sh ${D}${prefix}/bin
  
- mkdir -p  ${D}/${prefix}/share/widget_demo
- cp -r apps/*.wgt ${D}/${prefix}/share/widget_demo/
- #cp -r apps/*.png ${D}/${prefix}/share/widget_demo/
- #cp -r apps/*.desktop ${D}/${prefix}/share/widget_demo/
- cp install.conf ${D}/${prefix}/share/widget_demo/
+ mkdir -p  ${D}${prefix}/share/widget_demo
+ cp -r apps/*.wgt ${D}${prefix}/share/widget_demo/
+ #cp -r apps/*.png ${D}${prefix}/share/widget_demo/
+ #cp -r apps/*.desktop ${D}${prefix}/share/widget_demo/
+ cp install.conf ${D}${prefix}/share/widget_demo/
  
  # install xwalk preinstall service in user session
  mkdir -p ${D}${prefix}/lib/systemd/user

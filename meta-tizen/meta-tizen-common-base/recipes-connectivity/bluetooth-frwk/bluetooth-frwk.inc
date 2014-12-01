@@ -30,6 +30,7 @@ PROVIDES += "bluetooth-frwk-service"
 
 RDEPENDS = ""
 #RDEPENDS of bluetooth-frwk-core (${PN}-core)
+RDEPENDS_${PN}-core += "connman"
 RDEPENDS_${PN}-core += "bluetooth-frwk"
 
 #RDEPENDS of bluetooth-frwk-dev (${PN}-dev)

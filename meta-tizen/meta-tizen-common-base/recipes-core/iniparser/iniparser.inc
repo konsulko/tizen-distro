@@ -65,14 +65,14 @@ do_install() {
  mkdir -p ${D}
  
  
- mkdir -p ${D}/${prefix}/lib
- install -m 755 libiniparser.so.0 ${D}/${prefix}/lib
- ln -s libiniparser.so.0 ${D}/${prefix}/lib/libiniparser.so
- mkdir -p ${D}/${prefix}/include
- install -m 644 src/*.h ${D}/${prefix}/include
- install -m 644 src/*.h ${D}/${prefix}/include
- mkdir -p ${D}/${prefix}/lib/pkgconfig
- cat > ${D}/${prefix}/lib/pkgconfig/iniparser.pc <<EOF
+ mkdir -p ${D}${prefix}/lib
+ install -m 755 libiniparser.so.0 ${D}${prefix}/lib
+ ln -s libiniparser.so.0 ${D}${prefix}/lib/libiniparser.so
+ mkdir -p ${D}${prefix}/include
+ install -m 644 src/*.h ${D}${prefix}/include
+ install -m 644 src/*.h ${D}${prefix}/include
+ mkdir -p ${D}${prefix}/lib/pkgconfig
+ cat > ${D}${prefix}/lib/pkgconfig/iniparser.pc <<EOF
  prefix = ${prefix}
  exec_prefix = ${prefix}
  libdir = ${prefix}/lib

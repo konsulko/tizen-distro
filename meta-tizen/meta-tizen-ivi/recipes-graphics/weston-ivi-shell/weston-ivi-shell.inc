@@ -135,21 +135,21 @@ do_install() {
  mv ${D}${prefix}/bin/weston-fullscreen ${D}${prefix}/bin/ivi
  mv ${D}${prefix}/bin/weston-terminal ${D}${prefix}/bin/ivi
  
- install -d ${D}/${prefix}/share/weston-ivi-shell/protocol/
+ install -d ${D}${prefix}/share/weston-ivi-shell/protocol/
  
  install -m 644 protocol/*.xml \
-     ${D}/${prefix}/share/weston-ivi-shell/protocol/
+     ${D}${prefix}/share/weston-ivi-shell/protocol/
  
  install -m 644 protocol/*.h \
-     ${D}/${prefix}/share/weston-ivi-shell/protocol/
+     ${D}${prefix}/share/weston-ivi-shell/protocol/
  
  install -m 644 protocol/*.c \
-     ${D}/${prefix}/share/weston-ivi-shell/protocol/
+     ${D}${prefix}/share/weston-ivi-shell/protocol/
  
  mkdir -p ${D}${sysconfdir}/xdg/weston
  install -m 0644 ${S}/packaging/weston.ini ${D}${sysconfdir}/xdg/weston
- install -d ${D}/${prefix}/share/weston/
- cp -rfva data/* ${D}/${prefix}/share/weston/
+ install -d ${D}${prefix}/share/weston/
+ cp -rfva data/* ${D}${prefix}/share/weston/
  
  
  

@@ -77,7 +77,7 @@ do_install() {
  
  install -d ${D}${prefix}/lib/systemd/user/weston.target.wants
  install -m 644 weston.service ${D}${prefix}/lib/systemd/user/weston.service
- ln -sf ../weston.service ${D}/${prefix}/lib/systemd/user/weston.target.wants/
+ ln -sf ../weston.service ${D}${prefix}/lib/systemd/user/weston.target.wants/
  
  mkdir -p ${D}${sysconfdir}/profile.d/
  install -m 0644 weston.sh ${D}${sysconfdir}/profile.d/

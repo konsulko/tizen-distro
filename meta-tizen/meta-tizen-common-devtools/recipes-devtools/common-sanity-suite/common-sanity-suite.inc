@@ -63,11 +63,11 @@ do_install() {
  mkdir -p ${D}
  
  ## common-sanity-suite
- install -d ${D}/${prefix}/share/tests/common/common-sanity-suite
- install -m 0755 runtest ${D}/${prefix}/share/tests/common/common-sanity-suite
- install -m 644 *.xml ${D}/${prefix}/share/tests/common/common-sanity-suite
- install -m 0644 LICENSE ${D}/${prefix}/share/tests/common/common-sanity-suite
- cp -r TESTDIR ${D}/${prefix}/share/tests/common/common-sanity-suite
+ install -d ${D}${prefix}/share/tests/common/common-sanity-suite
+ install -m 0755 runtest ${D}${prefix}/share/tests/common/common-sanity-suite
+ install -m 644 *.xml ${D}${prefix}/share/tests/common/common-sanity-suite
+ install -m 0644 LICENSE ${D}${prefix}/share/tests/common/common-sanity-suite
+ cp -r TESTDIR ${D}${prefix}/share/tests/common/common-sanity-suite
  
  
  

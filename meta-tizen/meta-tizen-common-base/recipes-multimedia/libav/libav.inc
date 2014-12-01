@@ -172,12 +172,12 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/${prefix}/share/license
- cp -rf ${WORKDIR}/libav-9.8/COPYING.LGPLv2.1 ${D}/${prefix}/share/license/libavcodec
- cp -rf ${WORKDIR}/libav-9.8/COPYING.LGPLv2.1 ${D}/${prefix}/share/license/libavformat
- cp -rf ${WORKDIR}/libav-9.8/COPYING.LGPLv2.1 ${D}/${prefix}/share/license/libavutil
- cp -rf ${WORKDIR}/libav-9.8/COPYING.LGPLv2.1 ${D}/${prefix}/share/license/libavfilter
- cp -rf ${WORKDIR}/libav-9.8/COPYING.LGPLv2.1 ${D}/${prefix}/share/license/libswscale
+ mkdir -p ${D}${prefix}/share/license
+ cp -rf ${WORKDIR}/libav-9.8/COPYING.LGPLv2.1 ${D}${prefix}/share/license/libavcodec
+ cp -rf ${WORKDIR}/libav-9.8/COPYING.LGPLv2.1 ${D}${prefix}/share/license/libavformat
+ cp -rf ${WORKDIR}/libav-9.8/COPYING.LGPLv2.1 ${D}${prefix}/share/license/libavutil
+ cp -rf ${WORKDIR}/libav-9.8/COPYING.LGPLv2.1 ${D}${prefix}/share/license/libavfilter
+ cp -rf ${WORKDIR}/libav-9.8/COPYING.LGPLv2.1 ${D}${prefix}/share/license/libswscale
  
  
 }

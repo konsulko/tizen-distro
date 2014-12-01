@@ -61,9 +61,9 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- install -d ${D}/${prefix}/bin
- install -m 0755 src/common-suite-launcher ${D}/${prefix}/bin
- install -m 0755 src/result-format ${D}/${prefix}/bin
+ install -d ${D}${prefix}/bin
+ install -m 0755 src/common-suite-launcher ${D}${prefix}/bin
+ install -m 0755 src/result-format ${D}${prefix}/bin
  
  
  

@@ -109,36 +109,36 @@ do_install() {
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
  
- install -d ${D}/${prefix}/include/genivi-shell/
- install -d ${D}/${prefix}/lib/pkgconfig/
- install -d ${D}/${prefix}/share/genivi-shell/protocol/
+ install -d ${D}${prefix}/include/genivi-shell/
+ install -d ${D}${prefix}/lib/pkgconfig/
+ install -d ${D}${prefix}/share/genivi-shell/protocol/
  
- install -m 644 protocol/ivi-application.xml ${D}/${prefix}/share/genivi-shell/protocol/
- install -m 644 protocol/ivi-controller.xml ${D}/${prefix}/share/genivi-shell/protocol/
+ install -m 644 protocol/ivi-application.xml ${D}${prefix}/share/genivi-shell/protocol/
+ install -m 644 protocol/ivi-controller.xml ${D}${prefix}/share/genivi-shell/protocol/
  
  install -m 644 protocol/ivi-application-server-protocol.h \
-     ${D}/${prefix}/share/genivi-shell/protocol/
+     ${D}${prefix}/share/genivi-shell/protocol/
  
  install -m 644 protocol/ivi-application-protocol.c \
-     ${D}/${prefix}/share/genivi-shell/protocol/
+     ${D}${prefix}/share/genivi-shell/protocol/
  
  install -m 644 protocol/ivi-application-client-protocol.h \
-     ${D}/${prefix}/include/genivi-shell/
+     ${D}${prefix}/include/genivi-shell/
  
  install -m 644 protocol/ivi-controller-server-protocol.h \
-     ${D}/${prefix}/share/genivi-shell/protocol/
+     ${D}${prefix}/share/genivi-shell/protocol/
  
  install -m 644 protocol/ivi-controller-protocol.c \
-     ${D}/${prefix}/share/genivi-shell/protocol/
+     ${D}${prefix}/share/genivi-shell/protocol/
  
  install -m 644 protocol/ivi-controller-client-protocol.h \
-     ${D}/${prefix}/include/genivi-shell/
+     ${D}${prefix}/include/genivi-shell/
  
  install -m 644 protocol/libivi-extension-protocol.a \
-     ${D}/${prefix}/lib/
+     ${D}${prefix}/lib/
  
  install -m 644  ivi-extension-protocol.pc \
-     ${D}/${prefix}/lib/pkgconfig/
+     ${D}${prefix}/lib/pkgconfig/
  
  
 }

@@ -96,7 +96,7 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/${prefix}/share/license
+ mkdir -p ${D}${prefix}/share/license
  
  
 }
