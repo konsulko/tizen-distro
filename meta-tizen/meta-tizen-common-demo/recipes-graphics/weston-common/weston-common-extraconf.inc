@@ -2,8 +2,6 @@ FILESEXTRAPATHS_append := "${THISDIR}/weston-common"
 
 SRC_URI += "file://0001-Yocto-correct-paths-to-ln-and-chmod.patch"
 SRC_URI += "file://0002-Add-a-script-to-export-UID.patch"
-SRC_URI += "file://0003-Automatically-restart-display-manager.patch"
-SRC_URI += "file://0004-Modifications-for-yocto-build.patch"
 
 DEPENDS += "config-tizen-common"
 RDEPENDS_${PN} += "config-tizen-common"
@@ -26,10 +24,9 @@ do_install_append() {
     ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5002.service
     ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5003.service
     ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-9999.service
-    ln -sf ../user-session@.service ${D}/lib/systemd/system/graphical.target.wants/user-session@5001.service
-    ln -sf ../user-session@.service ${D}/lib/systemd/system/graphical.target.wants/user-session@5002.service
-    ln -sf ../user-session@.service ${D}/lib/systemd/system/graphical.target.wants/user-session@5003.service
-    ln -sf ../user-session@.service ${D}/lib/systemd/system/graphical.target.wants/user-session@9999.service
+
+    mkdir -p ${D}${systemd_unitdir}/system/multi-user.target.wants
+    ln -sf ../systemd-udev-settle.service ${D}${systemd_unitdir}/system/multi-user.target.wants/systemd-udev-settle.service
 }
 
 pkg_preinst_${PN}() {
