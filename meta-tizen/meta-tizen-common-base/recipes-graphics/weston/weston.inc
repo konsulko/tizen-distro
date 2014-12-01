@@ -141,8 +141,6 @@ do_install() {
  install -m 755 weston-fullscreen ${D}${prefix}/bin
  
  
- install -d ${D}${prefix}/lib/systemd/user
- install -m 644 ${S}/packaging/weston.target ${D}${prefix}/lib/systemd/user/weston.target
  # The weston.service unit file must be provided by the weston-startup
  # virtual package, i.e. "Provide: weston-startup".  The weston-startup
  # virtual package requirement is intended to force Tizen profile
@@ -183,7 +181,6 @@ weston_files += "${prefix}/lib/weston/headless-backend.so"
 weston_files += "${prefix}/lib/weston/wayland-backend.so"
 weston_files += "${prefix}/lib/weston/gl-renderer.so"
 weston_files += "${prefix}/share/weston"
-weston_files += "${prefix}/lib/systemd/user/weston.target"
 MANIFESTFILES_${PN} = "weston.manifest"
 
 weston-clients_files = ""

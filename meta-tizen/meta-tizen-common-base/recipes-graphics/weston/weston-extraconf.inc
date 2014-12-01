@@ -24,6 +24,8 @@ EXTRA_OECONF += "   \
 
 EXTRA_OECONF += "   --disable-rdp-compositor "
                     
+EXTRA_OECONF += "   --disable-dbus"
+
 do_configure_prepend() {
     sed -i 's/PKG_CHECK_MODULES(WAYLAND_SCANNER, wayland-scanner)//' configure.ac
 }
@@ -31,11 +33,9 @@ do_configure_prepend() {
 pkg_preinst_${PN}() {
 }
 
-FILES_${PN} += "${prefix}/lib/weston/weston-keyboard"
-FILES_${PN} += "${prefix}/lib/weston/weston-desktop-shell"
+export libexecdir="${prefix}/libexec"
+
 FILES_${PN} += "${prefix}/lib/weston/cms-static.so"
-FILES_${PN} += "${prefix}/lib/weston/weston-screenshooter"
-FILES_${PN} += "${prefix}/lib/weston/weston-simple-im"
 
 FILES_${PN} += "${prefix}/bin/weston-scaler"
 FILES_${PN} += "${prefix}/bin/weston-stacking"
