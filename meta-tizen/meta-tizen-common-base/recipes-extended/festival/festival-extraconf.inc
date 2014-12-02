@@ -5,9 +5,10 @@ SRC_URI += "file://remove_doc.patch"
 INSANE_SKIP_${PN} = "dev-deps"
 
 do_prep_prepend() {
- pushd ${S}/../
+ CIRDIR=$(pwd)
+ cd ${S}/../
  ln -sf ${S} ${PN}-${PV}
- popd
+ cd ${CIRDIR}
 }
 
 do_install_prepend() {

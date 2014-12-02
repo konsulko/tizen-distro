@@ -2,7 +2,7 @@ DESCRIPTION = "Resource policy framework"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "System/Service"
 LICENSE = "BSD-3-Clause"
-PV = "0.0.59"
+PV = "0.0.67"
 
 SRC_URI = ""
 
@@ -249,20 +249,20 @@ do_install() {
  
  # Generate list of linkedin plugins (depends on the configuration).
  outdir="`pwd`"
- pushd ${D} >& /dev/null && \
+ cd ${D} 
  find ./${prefix}/lib -name libmurphy-plugin-*.so* | \
- sed 's#^./*#/#g' > $outdir/filelist.plugins-base && \
- popd >& /dev/null
+ sed 's#^./*#/#g' > $outdir/filelist.plugins-base 
+ cd $(outdir)
  echo "Found the following linked-in plugin files:"
  cat $outdir/filelist.plugins-base | sed 's/^/    /g'
  
  # Generate list of header files, filtering ones that go to subpackages.
  outdir="`pwd`"
- pushd ${D} >& /dev/null && \
+ cd ${D}
  find ./${prefix}/include/murphy | \
  grep -E -v '((pulse)|(ecore)|(glib)|(qt))-glue' | \
- sed 's#^./*#/#g' > $outdir/filelist.devel-includes && \
- popd >& /dev/null
+ sed 's#^./*#/#g' > $outdir/filelist.devel-includes 
+ cd $(outdir)
  
  # Replace the default sample/test config files with the packaging ones.
  rm -f ${D}${sysconfdir}/murphy/*
@@ -279,11 +279,9 @@ do_install() {
  cp packaging.in/murphyd.conf ${D}/usr/lib/tmpfiles.d
  
  # Copy the systemd files in place.
- mkdir -p ${D}${systemd_unitdir}/system
- cp packaging.in/murphyd.service ${D}${systemd_unitdir}/system
- # cp packaging.in/ico-homescreen.service %{buildroot}%{_unitdir_user}
- # cp packaging.in/murphy-wait-for-launchpad-ready.path \
- #     %{buildroot}%{_unitdir_user}
+ #mkdir -p %{buildroot}%{_unitdir}
+ mkdir -p ${D}${prefix}/lib/systemd/user
+ cp packaging.in/murphyd.service ${D}${prefix}/lib/systemd/user
  
  mkdir -p ${D}${sysconfdir}/dbus-1/system.d
  sed "s/@TZ_SYS_USER_GROUP@/users/g" \
@@ -309,7 +307,7 @@ pkg_postinst_${PN}() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    /bin/systemctl enable murphyd.service
+    /bin/systemctl --user enable --global murphyd.service
     setcap 'cap_net_admin=+ep' $D${prefix}/bin/murphyd
     ldconfig
 
@@ -346,18 +344,6 @@ pkg_postinst_${PN}() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    # prevent system controller from starting
-    # rm -f %{_unitdir_user}/weston.target.wants/ico-uxf-wait-launchpad-ready.path
-    # instead launch just ico-homescreen
-    # rm -f %{_unitdir_user}/weston.target.wants/murphy-wait-for-launchpad-ready.path
-    # ln -s %{_unitdir_user}/murphy-wait-for-launchpad-ready.path \
-    #     %{_unitdir_user}/weston.target.wants/murphy-wait-for-launchpad-ready.path
-
-}
-
-pkg_postinst_${PN}() {
-    #!/bin/sh -e
-
     ldconfig
 
 }
@@ -366,18 +352,6 @@ pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     ldconfig
-
-}
-
-pkg_postrm_${PN}() {
-    #!/bin/sh -e
-
-    #if [ "$1" = "0" ]; then
-    # rm -f %{_unitdir_user}/weston.target.wants/murphy-wait-for-launchpad-ready.path
-    # if [ -f %{_unitdir_user}/ico-uxf-wait-launchpad-ready.path ]; then
-    #     ln -sf %{_unitdir_user}/ico-uxf-wait-launchpad-ready.path \
-    #         %{_unitdir_user}/weston.target.wants/ico-uxf-wait-launchpad-ready.path
-    #fi
 
 }
 
@@ -385,7 +359,7 @@ pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     if [ "$1" = "0" ]; then
-        systemctl disable murphyd.service
+    systemctl --user disable --global murphyd.service
     fi
     ldconfig
 
@@ -507,7 +481,7 @@ murphy-doc_files += "${prefix}/share/doc/murphy/README"
 murphy_files = ""
 murphy_files += "${prefix}/bin/murphyd"
 murphy_files += "${sysconfdir}/murphy"
-murphy_files += "${systemd_unitdir}/system/murphyd.service"
+murphy_files += "${prefix}/lib/systemd/user/murphyd.service"
 murphy_files += "/usr/lib/tmpfiles.d/murphyd.conf"
 murphy_files += "${prefix}/sbin/asm-bridge"
 murphy_files += "${sysconfdir}/dbus-1/system.d"
@@ -536,6 +510,7 @@ murphy-tests_files = ""
 murphy-tests_files += "${prefix}/bin/resource-client"
 murphy-tests_files += "${prefix}/bin/resource-api-test"
 murphy-tests_files += "${prefix}/bin/resource-api-fuzz"
+murphy-tests_files += "${prefix}/bin/resource-context-create"
 murphy-tests_files += "${prefix}/bin/test-domain-controller"
 murphy-tests_files += "${prefix}/bin/murphy-console"
 MANIFESTFILES_${PN}-tests = "murphy.manifest"

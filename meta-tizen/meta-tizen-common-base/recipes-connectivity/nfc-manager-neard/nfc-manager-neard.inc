@@ -1,7 +1,7 @@
 DESCRIPTION = "NFC framework manager"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Network & Connectivity/NFC"
-LICENSE = "Flora"
+LICENSE = "Apache-2.0"
 PV = "0.1.6"
 
 SRC_URI = ""
@@ -45,6 +45,7 @@ DEPENDS = ""
 DEPENDS += "pkgmgr"
 DEPENDS += "security-server"
 DEPENDS += "aul"
+DEPENDS += "capi-network-bluetooth"
 DEPENDS += "dlog"
 DEPENDS += "curl"
 inherit tizen_cmake
@@ -54,7 +55,6 @@ inherit pkgconfig
 DEPENDS += "capi-media-wav-player"
 DEPENDS += "glib-2.0"
 DEPENDS += "system-server"
-DEPENDS += "bluetooth-frwk"
 inherit pythonnative
 DEPENDS += "libsvi"
 DEPENDS += "tizen-platform-config"
@@ -74,7 +74,6 @@ do_prep() {
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
  cp ${S}/packaging/nfc-manager-neard.manifest .
- 
  
  
 }

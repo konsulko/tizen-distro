@@ -77,7 +77,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- 
+ #empty
  
  
  
@@ -96,11 +96,12 @@ do_install() {
  install -d ${D}${prefix}/share/testkit-lite
  cp -r xsd ${D}${prefix}/share/testkit-lite
  #fdupes ${D}
- pushd ${D}${prefix}/lib/python2.7/site-packages
+ CURDIR=$(pwd)
+ cd  ${D}${prefix}/lib/python2.7/site-packages
  
  find . -name '*.pyc' -exec rm -f {} \; 
  python -c "import sys, os, compileall; br='${D}'; compileall.compile_dir(sys.argv[1], ddir=br and (sys.argv[1][len(os.path.abspath(br)):]+'/') or None)" . 
- popd
+ cd ${CURDIR}
  
  
  

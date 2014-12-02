@@ -8,8 +8,8 @@ do_compile() {
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
 
 
- CFLAGS="$CFLAGS -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" -D_MM_PROJECT_FLOATER" \
- LDFLAGS+=" -Wl,--rpath=${prefix}/lib -Wl,--hash-style=both -Wl,--as-needed " \
+ CFLAGS="$CFLAGS -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" -D_MM_PROJECT_FLOATER" 
+ LDFLAGS="${LDFLAGS} -Wl,--rpath=${prefix}/lib -Wl,--hash-style=both -Wl,--as-needed " 
 
    autotools_do_configure --build=${TARGET_SYS} --host=${HOST_SYS} \
          --target=x86_64-tizen-linux \

@@ -191,14 +191,15 @@ do_install() {
    find ${D} -regex ".*\.a$" | xargs rm -f --
  #find_lang pulseaudio
  
- pushd ${D}${sysconfdir}/pulse/filter
+ CURDIR=$(pwd)
+ cd ${D}${sysconfdir}/pulse/filter
  ln -sf filter_8000_44100.dat filter_11025_44100.dat
  ln -sf filter_8000_44100.dat filter_12000_44100.dat
  ln -sf filter_8000_44100.dat filter_16000_44100.dat
  ln -sf filter_8000_44100.dat filter_22050_44100.dat
  ln -sf filter_8000_44100.dat filter_24000_44100.dat
  ln -sf filter_8000_44100.dat filter_32000_44100.dat
- popd
+ cd ${CURDIR}
  
  rm -rf  ${D}${sysconfdir}/xdg/autostart/pulseaudio-kde.desktop
  rm -rf  ${D}${prefix}/bin/start-pulseaudio-kde
@@ -246,7 +247,7 @@ pkg_postinst_libpulse() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    /usr/sbin/setcap cap_sys_nice+ep /usr/bin/pulseaudio
+    setcap cap_sys_nice+ep /usr/bin/pulseaudio
 
 }
 
@@ -281,7 +282,7 @@ pkg_postrm_${PN}() {
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    /usr/sbin/setcap -r /usr/bin/pulseaudio
+    setcap -r /usr/bin/pulseaudio
     #lang_package
 
 }

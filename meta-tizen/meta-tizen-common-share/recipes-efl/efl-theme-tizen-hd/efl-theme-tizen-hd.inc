@@ -49,10 +49,10 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- export CFLAGS+=" --fPIC"
- export LDFLAGS+=" -Wl,--hash-style=both -Wl,--as-needed -Wl,--rpath=/usr/lib"
+ export CFLAGS="${CFLAGS} --fPIC"
+ export LDFLAGS="${LDFLAGS} -Wl,--hash-style=both -Wl,--as-needed -Wl,--rpath=${prefix}/lib"
  
- make -j16
+ oe_runmake -j16
  
  
  
@@ -78,9 +78,9 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- mkdir -p ${D}/usr/share/license
- cp ${WORKDIR}/git/LICENSE ${D}/usr/share/license/efl-theme-tizen-hd
- cp ${D}/usr/share/elementary/themes/tizen-HD-dark.edj ${D}/usr/share/elementary/themes/tizen-hd.edj
+ mkdir -p ${D}${prefix}/share/license
+ cp ${WORKDIR}/git/LICENSE ${D}${prefix}/share/license/efl-theme-tizen-hd
+ cp ${D}${prefix}/share/elementary/themes/tizen-HD-dark.edj ${D}${prefix}/share/elementary/themes/tizen-hd.edj
  
  
 }
@@ -96,7 +96,7 @@ efl-theme-tizen-hd_files = ""
 efl-theme-tizen-hd_files += "${prefix}/share/elementary/themes/tizen-HD-dark.edj"
 efl-theme-tizen-hd_files += "${prefix}/share/elementary/themes/tizen-HD-light.edj"
 efl-theme-tizen-hd_files += "${prefix}/share/elementary/themes/tizen-hd.edj"
-efl-theme-tizen-hd_files += "/usr/share/license/efl-theme-tizen-hd"
+efl-theme-tizen-hd_files += "${prefix}/share/license/efl-theme-tizen-hd"
 MANIFESTFILES_${PN} = "efl-theme-tizen-hd.manifest"
 
 FILES_efl-theme-tizen-dev = "${efl-theme-tizen-dev_files}"

@@ -2,7 +2,7 @@ DESCRIPTION = "Virtual Keyboard Application"
 HOMEPAGE = "http://github.com/etrunko/weekeyboard"
 SECTION = "Graphics & UI Framework/Libraries"
 LICENSE = "Apache-2.0"
-PV = "0.0.2"
+PV = "0.0.3"
 
 SRC_URI = ""
 
@@ -65,7 +65,7 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --disable-ibus"
+EXTRA_OECONF += ""
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -95,6 +95,7 @@ PACKAGES += " weekeyboard "
 weekeyboard_files = ""
 weekeyboard_files += "${prefix}/bin/weekeyboard"
 weekeyboard_files += "${prefix}/share/weekeyboard/*.edj"
+weekeyboard_files += "${prefix}/share/X11/xkb/symbols/wkb"
 MANIFESTFILES_${PN} = "weekeyboard.manifest"
 
 FILES_${PN} = "${weekeyboard_files}"

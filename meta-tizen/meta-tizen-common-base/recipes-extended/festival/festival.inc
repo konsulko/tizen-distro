@@ -33,21 +33,25 @@ inherit pkgconfig
 do_prep() {
  cd ${S}
  #extracte source 1
- pushd ${S}/../
+ CURDIR=$(pwd)
+ cd ${S}/../
  tar -zxf ${S}/packaging/speech_tools-2.1-release.tar.gz
- popd
+ cd ${CURDIR}
  #extracte source 2
- pushd ${S}/../
+ CURDIR=$(pwd)
+ cd ${S}/../
  tar -zxf ${S}/packaging/festlex_CMU.tar.gz
- popd
+ cd ${CURDIR}
  #extracte source 3
- pushd ${S}/../
+ CURDIR=$(pwd)
+ cd ${S}/../
  tar -zxf ${S}/packaging/festvox_kallpc16k.tar.gz
- popd
+ cd ${CURDIR}
  #extracte source 4
- pushd ${S}/../
+ CURDIR=$(pwd)
+ cd ${S}/../
  tar -zxf ${S}/packaging/festlex_POSLEX.tar.gz
- popd
+ cd ${CURDIR}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q -b 1 -b 2 -b 3 -b 4
  mv ../festival/lib/* lib/

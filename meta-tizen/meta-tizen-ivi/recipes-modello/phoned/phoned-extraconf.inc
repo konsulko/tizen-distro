@@ -7,7 +7,7 @@ do_compile() {
  
  
  
- export LDFLAGS+=" -Wl,--rpath="${prefix}/lib/wrt-plugins" -Wl,--as-needed "
+ export LDFLAGS="${LDFLAGS} -Wl,--rpath="${prefix}/lib/wrt-plugins" -Wl,--as-needed "
  
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \

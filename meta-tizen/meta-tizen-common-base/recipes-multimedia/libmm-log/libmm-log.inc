@@ -1,6 +1,6 @@
 DESCRIPTION = "Multimedia Framework LOG Lib"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "Multimedia/Media Service"
+SECTION = "Multimedia/Multimedia Framework"
 LICENSE = "Apache-2.0"
 PV = "0.1.5"
 
@@ -49,7 +49,7 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  export CFLAGS+=" -DUSE_DLOG"
+  CFLAGS="$CFLAGS -DUSE_DLOG"; export CFLAGS
   ./autogen.sh
   
   autotools_do_configure

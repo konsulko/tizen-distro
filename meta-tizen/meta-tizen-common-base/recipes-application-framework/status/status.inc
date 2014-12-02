@@ -1,6 +1,6 @@
-DESCRIPTION = "status library"
+DESCRIPTION = "Status library"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "TBD"
+SECTION = "Applications/Core Applications"
 LICENSE = "Apache-2.0"
 PV = "0.0.1"
 
@@ -32,6 +32,7 @@ DEPENDS = ""
 #DEPENDS of status
 inherit tizen_cmake
 DEPENDS += "dbus"
+DEPENDS += "tizen-platform-config"
 DEPENDS += "aul"
 DEPENDS += "dlog"
 inherit pkgconfig
@@ -59,7 +60,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- export LDFLAGS+="-Wl,--rpath=${prefix}/lib -Wl,--as-needed"
+ export LDFLAGS="${LDFLAGS} -Wl,--rpath=${prefix}/lib -Wl,--as-needed"
  
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
@@ -73,7 +74,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} .
- make -j16
+ oe_runmake -j16
  
  
  
@@ -97,9 +98,8 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- 
- mkdir -p ${D}/usr/share/license
- cp -f LICENSE ${D}/usr/share/license/status
+ mkdir -p ${D}${prefix}/share/license
+ cp -f LICENSE ${D}${prefix}/share/license/status
  
  
  
@@ -108,15 +108,16 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
+    users_gid=$(getent group users | cut -f3 -d':')
     init_vconf()
     {
-        vconftool set -t int memory/private/libstatus/music/state 0 -i -g 5000
-        vconftool set -t int memory/private/libstatus/radio/state 0 -i -g 5000
-        vconftool set -t int memory/private/libstatus/vr/state 0 -i -g 5000
-        vconftool set -t int memory/private/libstatus/music/pid -1 -i -g 5000
-        vconftool set -t int memory/private/libstatus/radio/pid -1 -i -g 5000
-        vconftool set -t int memory/private/libstatus/vr/pid -1 -i -g 5000
-        vconftool set -t string memory/private/libstatus/message "" -i -g 5000
+        vconftool set -t int memory/private/libstatus/music/state 0 -i -g $users_gid
+        vconftool set -t int memory/private/libstatus/radio/state 0 -i -g $users_gid
+        vconftool set -t int memory/private/libstatus/vr/state 0 -i -g $users_gid
+        vconftool set -t int memory/private/libstatus/music/pid -1 -i -g $users_gid
+        vconftool set -t int memory/private/libstatus/radio/pid -1 -i -g $users_gid
+        vconftool set -t int memory/private/libstatus/vr/pid -1 -i -g $users_gid
+        vconftool set -t string memory/private/libstatus/message "" -i -g $users_gid
     }
     [ "x$D" == "x" ] && ldconfig
     init_vconf
@@ -135,7 +136,7 @@ PACKAGES += " status-dev "
 
 status_files = ""
 status_files += "${prefix}/lib/*.so*"
-status_files += "/usr/share/license/status"
+status_files += "${prefix}/share/license/status"
 MANIFESTFILES_${PN} = "status.manifest"
 
 status-dev_files = ""

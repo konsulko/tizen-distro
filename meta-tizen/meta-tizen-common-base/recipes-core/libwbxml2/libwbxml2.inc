@@ -67,10 +67,9 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- BUILD_SRC=$(pwd)
- 
- mkdir -p build
- pushd build
+ mkdir build
+ CURDIR=$(pwd)
+ cd build
  CFLAGS="$CFLAGS" \
  CXXFLAGS="$CFLAGS" \
  
@@ -88,9 +87,9 @@ do_compile() {
          ${EXTRA_OECMAKE} \
          -DCMAKE_BUILD_TYPE=None \
          -DENABLE_INSTALL_DOC:BOOL=OFF \
-         ${BUILD_SRC}
- oe_runmake -j16 VERBOSE=1
- popd
+          ${WORKDIR}/libwbxml-0.11.2
+ make -j16 VERBOSE=1
+ cd ${CURDIR}
  
  
  
@@ -105,7 +104,8 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- pushd build
+ CURDIR=$(pwd)
+ cd build
  
    oe_runmake \
          DESTDIR=${D} \
@@ -115,7 +115,7 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- popd
+ cd ${CURDIR}
  
  
 }

@@ -54,8 +54,8 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- export CFLAGS+=" -fpie -fvisibility=hidden"
- export LDFLAGS+=" -Wl,--rpath=/usr/lib -Wl,--as-needed -Wl,--unresolved-symbols=ignore-in-shared-libs -pie"
+ export CFLAGS="${CFLAGS} -fpie -fvisibility=hidden"
+ export LDFLAGS="${LDFLAGS} -Wl,--rpath=/usr/lib -Wl,--as-needed -Wl,--unresolved-symbols=ignore-in-shared-libs -pie"
  
  
    cmake \
@@ -70,7 +70,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} . -DCMAKE_INSTALL_PREFIX=${prefix}
- make -j16
+ oe_runmake -j16
  
  
  

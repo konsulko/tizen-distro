@@ -43,6 +43,7 @@ DEPENDS += "libmm-log"
 inherit pkgconfig
 DEPENDS += "glib-2.0"
 DEPENDS += "libmm-ta"
+DEPENDS += "tizen-platform-config"
 
 do_prep() {
  cd ${S}
@@ -66,9 +67,8 @@ do_compile() {
   unset DISPLAY
   LD_AS_NEEDED=1; export LD_AS_NEEDED ;
   
-  ./autogen.sh
-  
-  CFLAGS="$CFLAGS -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" -D_MM_PROJECT_FLOATER"   LDFLAGS+="-Wl,--rpath=${prefix}/lib -Wl,--hash-style=both -Wl,--as-needed"   
+  mkdir -p m4
+  CFLAGS="$CFLAGS -DEXPORT_API=\"__attribute__((visibility(\\\"default\\\")))\" -D_MM_PROJECT_FLOATER"   LDFLAGS="$LDFLAGS -Wl,--rpath=${prefix}/lib -Wl,--hash-style=both -Wl,--as-needed"   
   autotools_do_configure
   oe_runmake -j16
   

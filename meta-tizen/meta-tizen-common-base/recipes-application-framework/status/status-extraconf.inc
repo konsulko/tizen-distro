@@ -7,7 +7,7 @@ do_compile() {
  unset DISPLAY
 
 
- export LDFLAGS+=" -Wl,--rpath=${prefix}/lib -Wl,--as-needed "
+ export LDFLAGS="${LDFLAGS} -Wl,--rpath=${prefix}/lib -Wl,--as-needed "
 
 
    cmake \

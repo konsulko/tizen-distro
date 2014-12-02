@@ -89,8 +89,8 @@ do_compile() {
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
- export CFLAGS+="   -Wall -g -fvisibility=hidden -fPIC"
- export LDFLAGS+=" -Wl,--rpath=${prefix}/lib -Wl,--as-needed -Wl,--unresolved-symbols=ignore-in-shared-libs"
+ export CFLAGS="${CFLAGS}   -Wall -g -fvisibility=hidden -fPIC"
+ export LDFLAGS="${LDFLAGS} -Wl,--rpath=${prefix}/lib -Wl,--as-needed -Wl,--unresolved-symbols=ignore-in-shared-libs"
  
  
    cmake \
@@ -110,7 +110,7 @@ do_compile() {
   -DLIBNOTIFY_SUPPORT=Off \
   -DLIBNOTIFICATION_SUPPORT=On
  
- make
+ oe_runmake
  
  
  
@@ -158,6 +158,12 @@ pkg_postinst_${PN}() {
     vconftool set -tf string memory/bluetooth/sco_headset_name "" -g 6520 -i
     vconftool set -tf int memory/bluetooth/device "0" -g 6520 -i
     vconftool set -tf int memory/bluetooth/btsco "0" -g 6520 -i
+    # set 'User' smack label to vconf keys in order to allow bt-service to access them.
+    chsmack -a 'User' $D${prefix}/kdb/db/bluetooth/status
+    chsmack -a 'User' $D${prefix}/kdb/file/private/bt-service/flight_mode_deactivated
+    chsmack -a 'User' $D${prefix}/kdb/memory_init/memory/bluetooth/sco_headset_name
+    chsmack -a 'User' $D${prefix}/kdb/memory_init/memory/bluetooth/device
+    chsmack -a 'User' $D${prefix}/kdb/memory_init/memory/bluetooth/btsco
 
 }
 

@@ -58,7 +58,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- export LDFLAGS+=" -Wl,--rpath=${prefix}/lib -Wl,--as-needed -Wl,--hash-style=both"
+ export LDFLAGS="${LDFLAGS} -Wl,--rpath=${prefix}/lib -Wl,--as-needed -Wl,--hash-style=both"
  
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
