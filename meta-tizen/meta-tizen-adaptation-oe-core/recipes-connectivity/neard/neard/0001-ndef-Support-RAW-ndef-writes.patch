@@ -1,0 +1,145 @@
+From 947a28f4000b4638316f30f88f124d87fbdda218 Mon Sep 17 00:00:00 2001
+From: Samuel Ortiz <sameo@linux.intel.com>
+Date: Thu, 25 Oct 2012 18:58:06 +0200
+Subject: [PATCH 1/5] ndef: Support RAW ndef writes
+
+Change-Id: I21a341b2482556458e381b4a3033ef3e9313194c
+---
+ doc/tag-api.txt |  2 ++
+ src/ndef.c      | 61 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ test/test-tag   | 13 ++++++++++++
+ 3 files changed, 76 insertions(+)
+
+diff --git a/doc/tag-api.txt b/doc/tag-api.txt
+index 303438b..768c75f 100644
+--- a/doc/tag-api.txt
++++ b/doc/tag-api.txt
+@@ -13,6 +13,8 @@ Method		void Write(dict attributes)
+ 			record type and is described by the Record properties.
+ 			For example, one would add a type, a Language, an
+ 			Encoding and a Representation for a text record.
++			To push raw NDEF, one should use the NDEF key and use
++			an array of bytes for the NDEF stream.
+ 
+ 			Possible Errors: org.neard.Error.PermissionDenied
+ 					 org.neard.Error.InvalidArguments
+diff --git a/src/ndef.c b/src/ndef.c
+index e8f950e..4427f08 100644
+--- a/src/ndef.c
++++ b/src/ndef.c
+@@ -3618,6 +3618,64 @@ static struct near_ndef_message *build_mime_record(DBusMessage *msg)
+ 	return NULL;
+ }
+ 
++static struct near_ndef_message * build_raw_ndef(DBusMessage *msg)
++{
++	DBusMessageIter iter, arr_iter;
++	struct near_ndef_message *ndef;
++
++	DBG("");
++
++	ndef = NULL;
++
++	dbus_message_iter_init(msg, &iter);
++	dbus_message_iter_recurse(&iter, &arr_iter);
++
++	while (dbus_message_iter_get_arg_type(&arr_iter) !=
++					DBUS_TYPE_INVALID) {
++		const char *key;
++		DBusMessageIter ent_iter;
++		DBusMessageIter var_iter;
++
++		dbus_message_iter_recurse(&arr_iter, &ent_iter);
++		dbus_message_iter_get_basic(&ent_iter, &key);
++		dbus_message_iter_next(&ent_iter);
++		dbus_message_iter_recurse(&ent_iter, &var_iter);
++
++		switch (dbus_message_iter_get_arg_type(&var_iter)) {
++		case DBUS_TYPE_ARRAY:
++			if (g_strcmp0(key, "NDEF") == 0) {
++				DBusMessageIter array;
++				uint8_t *data;
++				int data_size;
++
++				dbus_message_iter_recurse(&var_iter, &array);
++				dbus_message_iter_get_fixed_array(&array,
++								&data,
++								&data_size);
++
++				ndef = g_try_malloc0(data_size);
++				if (ndef == NULL)
++					break;
++
++				ndef->data = g_try_malloc0(data_size);
++				if (ndef->data == NULL) {
++					g_free(ndef);
++					break;
++				}
++
++				ndef->length = data_size;
++				memcpy(ndef->data, data, data_size);
++			}
++
++			break;
++		}
++
++		dbus_message_iter_next(&arr_iter);
++	}
++
++	return ndef;
++}
++
+ struct near_ndef_message *__ndef_build_from_message(DBusMessage *msg)
+ {
+ 	DBusMessageIter iter;
+@@ -3672,6 +3730,9 @@ struct near_ndef_message *__ndef_build_from_message(DBusMessage *msg)
+ 			} else if (g_strcmp0(value, "MIME") == 0) {
+ 				ndef = build_mime_record(msg);
+ 				break;
++			} else if (g_strcmp0(value, "Raw") == 0) {
++				ndef = build_raw_ndef(msg);
++				break;
+ 			} else {
+ 				near_error("%s not supported", value);
+ 				ndef = NULL;
+diff --git a/test/test-tag b/test/test-tag
+index 3d2c226..935ab6f 100755
+--- a/test/test-tag
++++ b/test/test-tag
+@@ -28,6 +28,7 @@ def usage():
+ 	print "		   Type is MIME, parameters are wifi_wsc <ssid> <passphrase>"
+ 	print "		If type is MIME, and WiFi AP is open network"
+ 	print "		   Type is MIME, parameters are wifi_wsc <ssid>"
++	print "		If type is RAW, parameters are Raw <NDEF_file>"
+ 	print "e.g. < %s /org/neard/nfc0/tag0 Text UTF-8 en-US hello,NFC! >" % (sys.argv[0])
+ 	print "e.g. < %s /org/neard/nfc0/tag0 URI http://www.nfc-forum.com >" % (sys.argv[0])
+ 	print "e.g. < %s /org/neard/nfc0/tag0 SmartPoster http://www.nfc-forum.com >" % (sys.argv[0])
+@@ -35,6 +36,7 @@ def usage():
+ 	print "e.g. < %s /org/neard/nfc0/tag0 E-Mail test@test.com >" % (sys.argv[0])
+ 	print "e.g. < %s /org/neard/nfc0/tag0 MIME wifi_wsc YourAPname passphrase >" % (sys.argv[0])
+ 	print "e.g. < %s /org/neard/nfc0/tag0 MIME wifi_wsc YourAPname >" % (sys.argv[0])
++	print "e.g. < %s /org/neard/nfc0/tag0 Raw <NDEF_file> >" % (sys.argv[0])
+ 
+ 
+ 	sys.exit(1)
+@@ -129,6 +131,17 @@ if (sys.argv[1] == "write"):
+ 				"MIME" : "application/vnd.wfa.wsc",
+ 				"SSID" : sys.argv[5],
+ 				"Passphrase" : sys.argv[6] }))
++
++	elif sys.argv[3] in ["Raw"]:
++		ndef = file(sys.argv[4]).read().rsplit(' ')
++		ndef_stream = bytearray()
++
++		for b in ndef:
++			ndef_stream.append(int(b, 16))
++
++		tag.Write(({ "Type" : "Raw",
++				"NDEF" : dbus.ByteArray(ndef_stream) }))
++
+ 	else:
+ 		usage()
+ 
+-- 
+1.8.1.4
+

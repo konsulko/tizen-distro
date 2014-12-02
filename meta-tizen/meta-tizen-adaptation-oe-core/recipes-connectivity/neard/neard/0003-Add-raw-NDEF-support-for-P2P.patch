@@ -1,0 +1,94 @@
+From cef95e13567c55fac4c9cf816928705d1b8b233f Mon Sep 17 00:00:00 2001
+From: Arron Wang <arron.wang@intel.com>
+Date: Mon, 29 Sep 2014 16:44:46 +0800
+Subject: [PATCH 3/5] Add raw NDEF support for P2P
+
+Change-Id: I7ab5cd5eea7b0e60b9980f15a7ba15def86ced0e
+---
+ src/device.c     | 31 +++++++++++++++++++++++++++++++
+ test/test-device |  8 ++++++--
+ 2 files changed, 37 insertions(+), 2 deletions(-)
+
+diff --git a/src/device.c b/src/device.c
+index a6598e0..303e787 100644
+--- a/src/device.c
++++ b/src/device.c
+@@ -173,6 +173,8 @@ static char *sn_from_message(DBusMessage *msg)
+ 				return NEAR_DEVICE_SN_HANDOVER;
+ 			else if (g_strcmp0(value, "MIME") == 0)
+ 				return NEAR_DEVICE_SN_SNEP;
++			else if (g_strcmp0(value, "Raw") == 0)
++				return NEAR_DEVICE_SN_SNEP;
+ 			else
+ 				return NULL;
+ 
+@@ -246,9 +248,38 @@ static gboolean property_get_adapter(const GDBusPropertyTable *property,
+ 
+ }
+ 
++static DBusMessage *dump_raw_ndef(DBusConnection *conn,
++				DBusMessage *msg, void *data)
++{
++	struct near_device *device = data;
++	DBusMessage *reply;
++	DBusMessageIter iter, array;
++
++	DBG("");
++
++	reply = dbus_message_new_method_return(msg);
++	if (reply == NULL)
++		return NULL;
++
++	dbus_message_iter_init_append(reply, &iter);
++
++	dbus_message_iter_open_container(&iter, DBUS_TYPE_ARRAY,
++						DBUS_TYPE_BYTE_AS_STRING,
++						&array);
++
++	__near_ndef_append_records(&array, device->records);
++
++	dbus_message_iter_close_container(&iter, &array);
++
++	return reply;
++}
++
+ static const GDBusMethodTable device_methods[] = {
+ 	{ GDBUS_ASYNC_METHOD("Push", GDBUS_ARGS({"attributes", "a{sv}"}),
+ 							NULL, push_ndef) },
++	{ GDBUS_METHOD("DumpRawNDEF",
++				NULL, GDBUS_ARGS({"NDEF", "ay"}),
++				dump_raw_ndef) },
+ 	{ },
+ };
+ 
+diff --git a/test/test-device b/test/test-device
+index a4923fb..226408f 100755
+--- a/test/test-device
++++ b/test/test-device
+@@ -6,10 +6,10 @@ import neardutils
+ 
+ bus = dbus.SystemBus()
+ 
+-def extract_list(list):
++def extract_ndef(list):
+ 	val = "["
+ 	for i in list:
+-		val += " " + str(i)
++		val += " 0x%x" % i
+ 	val += " ]"
+ 	return val
+ 
+@@ -73,6 +73,10 @@ if (sys.argv[1] == "dump"):
+ 	else:
+ 		neardutils.dump_all_records(sys.argv[2])
+ 
++		device = neardutils.find_device(sys.argv[2])
++		raw_ndef = device.DumpRawNDEF()
++		print "        Raw NDEF = %s" % (extract_ndef(raw_ndef))
++
+ 		sys.exit(0)
+ 
+ if (sys.argv[1] == "push"):
+-- 
+1.8.1.4
+

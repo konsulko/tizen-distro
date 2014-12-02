@@ -1,0 +1,206 @@
+From ff0e49b9b9ceaca5e39139b8013bd779909f8bdb Mon Sep 17 00:00:00 2001
+From: Arron Wang <arron.wang@intel.com>
+Date: Mon, 8 Jul 2013 17:04:26 +0800
+Subject: [PATCH 5/5] Add packaging directory
+
+Change-Id: I5704e7f54c2162b644eaa12aa508d4bf127145eb
+---
+ packaging/neard.changes  |  30 ++++++++++++++
+ packaging/neard.manifest |   5 +++
+ packaging/neard.service  |  12 ++++++
+ packaging/neard.spec     | 101 +++++++++++++++++++++++++++++++++++++++++++++++
+ src/main.conf            |   2 +-
+ 5 files changed, 149 insertions(+), 1 deletion(-)
+ create mode 100644 packaging/neard.changes
+ create mode 100644 packaging/neard.manifest
+ create mode 100644 packaging/neard.service
+ create mode 100644 packaging/neard.spec
+
+diff --git a/packaging/neard.changes b/packaging/neard.changes
+new file mode 100644
+index 0000000..198bfe3
+--- /dev/null
++++ b/packaging/neard.changes
+@@ -0,0 +1,30 @@
++* Tue Sep 30 14:05:35 CST 2014 Arron <arron.wang@intel.com> - 0.14
++- Upgrade to version 0.14
++
++* Mon Jul  8 17:02:59 CST 2013 Arron <arron.wang@intel.com> - 0.12
++- rebase to version 0.12
++
++* Tue Sep 11 2012 arron.wang <arron.wang@intel.com> submit/2.0_beta/20120831.083207@3ecb862
++- Update License Info
++
++* Tue Aug 28 2012 Arron < arron.wang@intel.com> - 0.6
++- Upgrade to version 0.6
++
++* Mon Aug  6 10:39:42 CST 2012 Arron <arron.wang@intel.com>
++- Add systemd support
++
++* Fri Aug 03 2012 Anas Nashif <anas.nashif@intel.com> a7864dd
++- fix runtime requirements
++
++* Tue Jul 31 09:22:14 CST 2012 Arron <arron.wang@intel.com> - 0.5
++- Upgrade to version 0.5
++
++* Tue Apr 24 2012 Arron <arron.wang@intel.com> - 0.2.26
++- Upgrade to latest version
++
++* Fri Apr 20 2012 Arron <arron.wang@intel.com> - 0.1.64
++- Add building require for kernel-adaptation-bb-devel to fix the building error
++
++* Fri Mar 30 2012 Arron <arron.wang@intel.com> - 0.1.64
++- Init package for neard
++
+diff --git a/packaging/neard.manifest b/packaging/neard.manifest
+new file mode 100644
+index 0000000..017d22d
+--- /dev/null
++++ b/packaging/neard.manifest
+@@ -0,0 +1,5 @@
++<manifest>
++ <request>
++    <domain name="_"/>
++ </request>
++</manifest>
+diff --git a/packaging/neard.service b/packaging/neard.service
+new file mode 100644
+index 0000000..1d4ac96
+--- /dev/null
++++ b/packaging/neard.service
+@@ -0,0 +1,12 @@
++[Unit]
++Description=NFC Manager Daemon
++Requires=nfc-manager-neard.service
++Before=network.target nfc-manager-neard.service
++
++[Service]
++Type=dbus
++BusName=org.neard
++ExecStart=/usr/libexec/nfc/neard -n
++
++[Install]
++WantedBy=multi-user.target
+diff --git a/packaging/neard.spec b/packaging/neard.spec
+new file mode 100644
+index 0000000..e5c2abd
+--- /dev/null
++++ b/packaging/neard.spec
+@@ -0,0 +1,101 @@
++Name:       neard
++Summary:    Near Field Communication Manager
++Version:    0.14
++Release:    1
++Group:      Connectivity/NFC
++License:    GPL-2.0
++URL:        http://git.kernel.org/pub/scm/network/nfc/neard.git
++Source0:    http://www.kernel.org/pub/linux/network/nfc/neard-%{version}.tar.bz2
++Source1:    neard.service
++Source1001: neard.manifest
++BuildRequires:  pkgconfig(glib-2.0)
++BuildRequires:  pkgconfig(dbus-1)
++BuildRequires:  pkgconfig(libnl-3.0)
++
++Requires:   libnl3
++Requires(post):   systemd
++Requires(preun):  systemd
++Requires(postun): systemd
++
++%description
++Near Field Communication Manager
++
++
++
++%package devel
++Summary:    Development files for NFC Manager
++Requires:   %{name} = %{version}-%{release}
++
++%description devel
++neard-devel contains development files for use with neard.
++
++%package test
++Summary:    Test Scripts for NFC Manager
++Requires:   %{name} = %{version}-%{release}
++Requires:   dbus-python
++Requires:   pygobject
++
++%description test
++Scripts for testing neard and its functionality
++
++%prep
++%setup -q
++cp %{SOURCE1001} .
++
++%build
++./bootstrap
++%configure \
++		--enable-debug \
++		--prefix=/usr \
++		--sysconfdir=/etc \
++		--enable-nfctype1=builtin \
++		--enable-nfctype2=builtin \
++		--enable-nfctype3=builtin \
++		--enable-nfctype4=builtin \
++		--enable-p2p=builtin \
++		--enable-test
++
++make %{?jobs:-j%jobs}
++
++%install
++%make_install
++
++# Systemd service file
++install -d %{buildroot}%{_unitdir}
++install -m 644 %{S:1} %{buildroot}%{_unitdir}/neard.service
++install -d %{buildroot}%{_unitdir}/network.target.wants/
++ln -s ../neard.service %{buildroot}%{_unitdir}/network.target.wants/neard.service
++
++
++mkdir -p %{buildroot}%{_sysconfdir}/neard
++cp src/main.conf %{buildroot}%{_sysconfdir}/neard/main.conf
++
++%post
++systemctl daemon-reload
++systemctl restart neard.service
++
++%preun
++systemctl stop neard.service
++
++%postun
++systemctl daemon-reload
++
++%files
++%manifest %{name}.manifest
++%license COPYING
++%{_mandir}/man*/*
++%{_libexecdir}/nfc/neard
++%config %{_sysconfdir}/neard/main.conf
++%config %{_sysconfdir}/dbus-1/system.d/org.neard.conf
++%{_unitdir}/neard.service
++%{_unitdir}/network.target.wants/neard.service
++
++%files devel
++%manifest %{name}.manifest
++%{_includedir}/near/*.h
++%{_libdir}/pkgconfig/*.pc
++
++%files test
++%manifest %{name}.manifest
++%defattr(-,root,root,-)
++%{_libdir}/neard/test/*
+diff --git a/src/main.conf b/src/main.conf
+index 70c2697..053c0f8 100644
+--- a/src/main.conf
++++ b/src/main.conf
+@@ -4,7 +4,7 @@
+ # Constant polling will automatically trigger a new
+ # polling loop whenever a tag or a device is no longer
+ # in the RF field.
+-ConstantPoll = true
++ConstantPoll = false
+ 
+ # Automatically turn an adapter on when being discovered.
+ # Default value is false.
+-- 
+1.8.1.4
+

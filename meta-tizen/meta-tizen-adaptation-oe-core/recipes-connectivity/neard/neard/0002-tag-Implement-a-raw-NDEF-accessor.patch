@@ -1,0 +1,100 @@
+From ebc4849a0c25ebdbd4aa71e130754ee2668f365c Mon Sep 17 00:00:00 2001
+From: Arron Wang <arron.wang@intel.com>
+Date: Mon, 29 Sep 2014 14:23:55 +0800
+Subject: [PATCH 2/5] tag: Implement a raw NDEF accessor
+
+Change-Id: Id7fab24395d45502e8cdde573c40f2bd99348e27
+---
+ doc/tag-api.txt |  3 +++
+ src/tag.c       | 29 +++++++++++++++++++++++++++++
+ test/test-tag   |  8 ++++++--
+ 3 files changed, 38 insertions(+), 2 deletions(-)
+
+diff --git a/doc/tag-api.txt b/doc/tag-api.txt
+index 768c75f..6feb90d 100644
+--- a/doc/tag-api.txt
++++ b/doc/tag-api.txt
+@@ -20,6 +20,9 @@ Method		void Write(dict attributes)
+ 					 org.neard.Error.InvalidArguments
+ 					 org.neard.Error.InProgress
+ 
++		array{byte} GetRawNDEF()
++
++			Return the tag's NDEF as a raw bytes stream.
+ 
+ Properties	string Type [readonly]
+ 
+diff --git a/src/tag.c b/src/tag.c
+index 146a87a..dd9dfe3 100644
+--- a/src/tag.c
++++ b/src/tag.c
+@@ -461,9 +461,38 @@ fail:
+ 	return __near_error_failed(msg, ENOMEM);
+ }
+ 
++static DBusMessage *get_raw_ndef(DBusConnection *conn,
++				DBusMessage *msg, void *data)
++{
++	struct near_tag *tag = data;
++	DBusMessage *reply;
++	DBusMessageIter iter, array;
++
++	DBG("");
++
++	reply = dbus_message_new_method_return(msg);
++	if (reply == NULL)
++		return NULL;
++
++	dbus_message_iter_init_append(reply, &iter);
++
++	dbus_message_iter_open_container(&iter, DBUS_TYPE_ARRAY,
++						DBUS_TYPE_BYTE_AS_STRING,
++						&array);
++
++	__near_ndef_append_records(&array, tag->records);
++
++	dbus_message_iter_close_container(&iter, &array);
++
++	return reply;
++}
++
+ static const GDBusMethodTable tag_methods[] = {
+ 	{ GDBUS_ASYNC_METHOD("Write", GDBUS_ARGS({"attributes", "a{sv}"}),
+ 							NULL, write_ndef) },
++	{ GDBUS_METHOD("GetRawNDEF",
++				NULL, GDBUS_ARGS({"NDEF", "ay"}),
++				get_raw_ndef) },
+ 	{ },
+ };
+ 
+diff --git a/test/test-tag b/test/test-tag
+index 935ab6f..36593ab 100755
+--- a/test/test-tag
++++ b/test/test-tag
+@@ -6,10 +6,10 @@ import neardutils
+ 
+ bus = dbus.SystemBus()
+ 
+-def extract_list(list):
++def extract_ndef(list):
+ 	val = "["
+ 	for i in list:
+-		val += " " + str(i)
++		val += " 0x%x" % i
+ 	val += " ]"
+ 	return val
+ 
+@@ -86,6 +86,10 @@ if (sys.argv[1] == "dump"):
+ 	else:
+ 		neardutils.dump_all_records(sys.argv[2])
+ 
++		tag = neardutils.find_tag(sys.argv[2])
++		raw_ndef = tag.GetRawNDEF()
++		print "        Raw NDEF = %s" % (extract_ndef(raw_ndef))
++
+ 		sys.exit(0)
+ 
+ if (sys.argv[1] == "write"):
+-- 
+1.8.1.4
+
