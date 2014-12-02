@@ -1,0 +1,65 @@
+From 7923d6ca6ccb144a5b036b03a015a182c3622a92 Mon Sep 17 00:00:00 2001
+From: Zhang zhengguang <zhengguang.zhang@intel.com>
+Date: Fri, 4 Jul 2014 13:50:49 +0800
+Subject: [PATCH 04/32] Set manifest request domain to floor
+
+---
+ packaging/connman.manifest | 5 +++++
+ packaging/connman.spec     | 5 +++++
+ 2 files changed, 10 insertions(+)
+ create mode 100644 packaging/connman.manifest
+
+diff --git a/packaging/connman.manifest b/packaging/connman.manifest
+new file mode 100644
+index 0000000..017d22d
+--- /dev/null
++++ b/packaging/connman.manifest
+@@ -0,0 +1,5 @@
++<manifest>
++ <request>
++    <domain name="_"/>
++ </request>
++</manifest>
+diff --git a/packaging/connman.spec b/packaging/connman.spec
+index 7da9ddd..c43deaa 100644
+--- a/packaging/connman.spec
++++ b/packaging/connman.spec
+@@ -6,6 +6,7 @@ Summary:        Connection Manager
+ Url:            http://connman.net
+ Group:          Network & Connectivity/Connection Management
+ Source0:        %{name}-%{version}.tar.gz
++Source1001:     connman.manifest
+ BuildRequires: 	systemd
+ BuildRequires:  pkgconfig(dbus-1)
+ BuildRequires:  pkgconfig(glib-2.0)
+@@ -39,6 +40,7 @@ Header files and development files for connman.
+ 
+ %prep
+ %setup -q
++cp %{SOURCE1001} .
+ 
+ %build
+ CFLAGS+=" -DTIZEN_EXT"
+@@ -79,6 +81,7 @@ systemctl daemon-reload
+ %docs_package
+ 
+ %files
++%manifest %{name}.manifest
+ %license COPYING
+ %{_sbindir}/*
+ %config %{_sysconfdir}/connman/main.conf
+@@ -88,9 +91,11 @@ systemctl daemon-reload
+ %{_unitdir}/multi-user.target.wants/connman.service
+ 
+ %files test
++%manifest %{name}.manifest
+ %{_libdir}/%{name}/test/*
+ 
+ %files devel
++%manifest %{name}.manifest
+ %{_includedir}/connman/*.h
+ %{_libdir}/pkgconfig/*.pc
+ 
+-- 
+1.8.1.4
+

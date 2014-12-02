@@ -1,0 +1,32 @@
+From ee0652fae6fc8615408e0937f3f61ebd28f9c42c Mon Sep 17 00:00:00 2001
+From: Zhang zhengguang <zhengguang.zhang@intel.com>
+Date: Tue, 25 Mar 2014 14:16:52 +0800
+Subject: [PATCH 15/32] Tizen: Unify bluetooth tethering enable logic
+
+In bluez 4.x plugin, when bluetooth tethering is enabled,
+set_tethering() returns 0, while in bluez 5.x plugin,
+it returns -EINPROGRESS, which is not compatiable for
+ConnMan to handle both of them, this patch makes bluez
+5.x tethering enable logic consistent with bluez 4.x.
+
+Change-Id: I618efd32b5f123fe9bdb58d10adb29c67a87796f
+---
+ plugins/bluetooth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plugins/bluetooth.c b/plugins/bluetooth.c
+index 82217d0..28df406 100644
+--- a/plugins/bluetooth.c
++++ b/plugins/bluetooth.c
+@@ -880,7 +880,7 @@ static int bluetooth_tech_set_tethering(struct connman_technology *technology,
+ 	if (i == 0)
+ 		return -ENODEV;
+ 
+-       return -EINPROGRESS;
++	return 0;
+ }
+ 
+ static struct connman_technology_driver tech_driver = {
+-- 
+1.8.1.4
+

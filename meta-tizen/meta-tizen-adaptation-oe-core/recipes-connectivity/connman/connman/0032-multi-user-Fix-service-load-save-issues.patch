@@ -1,0 +1,109 @@
+From 7d48e7bfd2d9d371766ddb36bb3da99111dd3935 Mon Sep 17 00:00:00 2001
+From: Zhang zhengguang <zhengguang.zhang@intel.com>
+Date: Fri, 21 Nov 2014 16:34:11 +0800
+Subject: [PATCH 32/32] multi-user: Fix service load/save issues
+
+Refine service load/save to be multi-user complicant.
+
+Change-Id: Icc8a0507826f4cae72319191e4fdbebe548434fc
+---
+ src/service.c | 47 +++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 39 insertions(+), 8 deletions(-)
+
+diff --git a/src/service.c b/src/service.c
+index 5eca970..86dffaf 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -484,6 +484,23 @@ int __connman_service_load_modifiable(struct connman_service *service)
+ 	return 0;
+ }
+ 
++static int service_load_passphrase(struct connman_service *service)
++{
++	GKeyFile *keyfile;
++	gchar *str;
++
++	keyfile = connman_storage_load_service(service->identifier);
++	if (!keyfile)
++		return -EIO;
++
++	str = g_key_file_get_string(keyfile,
++				service->identifier, "Passphrase", NULL);
++	if (str)
++		service->passphrase = str;
++
++	return 0;
++}
++
+ static int service_load(struct connman_service *service)
+ {
+ 	GKeyFile *keyfile;
+@@ -659,7 +676,8 @@ static int service_load(struct connman_service *service)
+ 	service->hidden_service = g_key_file_get_boolean(keyfile,
+ 					service->identifier, "Hidden", NULL);
+ 
+-	service->user.favorite_user = g_key_file_get_integer(keyfile,
++	if (g_key_file_has_key(keyfile, service->identifier, "UID", NULL))
++		service->user.favorite_user = g_key_file_get_integer(keyfile,
+ 					service->identifier, "UID", NULL);
+ done:
+ 	g_key_file_free(keyfile);
+@@ -706,8 +724,12 @@ static int service_save(struct connman_service *service)
+ 			const unsigned char *ssid;
+ 			unsigned int ssid_len = 0;
+ 
+-			g_key_file_set_integer(keyfile, service->identifier,
+-				"UID", service->user.favorite_user);
++			if (service->user.favorite_user == USER_NONE)
++				g_key_file_remove_key(keyfile, service->identifier,
++							"UID", NULL);
++			else
++				g_key_file_set_integer(keyfile, service->identifier,
++							"UID", service->user.favorite_user);
+ 
+ 			ssid = connman_network_get_blob(service->network,
+ 							"WiFi.SSID", &ssid_len);
+@@ -764,12 +786,14 @@ static int service_save(struct connman_service *service)
+ 		g_free(str);
+ 	}
+ 
+-	if (service->passphrase && strlen(service->passphrase) > 0)
+-		g_key_file_set_string(keyfile, service->identifier,
++	if (service->user.current_user == service->user.favorite_user) {
++		if (service->passphrase && strlen(service->passphrase) > 0)
++			g_key_file_set_string(keyfile, service->identifier,
+ 					"Passphrase", service->passphrase);
+-	else
+-		g_key_file_remove_key(keyfile, service->identifier,
+-							"Passphrase", NULL);
++		else
++			g_key_file_remove_key(keyfile, service->identifier,
++					"Passphrase", NULL);
++	}
+ 
+ 	if (service->ipconfig_ipv4)
+ 		__connman_ipconfig_save(service->ipconfig_ipv4, keyfile,
+@@ -4125,6 +4149,11 @@ static DBusMessage *connect_service(DBusConnection *conn,
+ 			service->request_passphrase_input = true;
+ 
+ 		service->user.current_user = uid;
++
++		if (!service->passphrase && uid == service->user.favorite_user) {
++			DBG("Now load this favorite user's passphrase.");
++			service_load_passphrase(service);
++		}
+ 	}
+ 
+ 	index = __connman_service_get_index(service);
+@@ -4232,6 +4261,8 @@ bool __connman_service_remove(struct connman_service *service)
+ 
+ 	service->error = CONNMAN_SERVICE_ERROR_UNKNOWN;
+ 
++	service->user.favorite_user = USER_NONE;
++
+ 	__connman_service_set_favorite(service, false);
+ 
+ 	__connman_ipconfig_ipv6_reset_privacy(service->ipconfig_ipv6);
+-- 
+1.8.1.4
+

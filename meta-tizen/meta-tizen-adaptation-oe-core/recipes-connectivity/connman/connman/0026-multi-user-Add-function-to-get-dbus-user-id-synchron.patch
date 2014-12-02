@@ -1,0 +1,66 @@
+From 113ccd0ca92ab8fe8a6e6c2db190cbcbeebe912d Mon Sep 17 00:00:00 2001
+From: Zhang zhengguang <zhengguang.zhang@intel.com>
+Date: Sat, 11 Oct 2014 15:06:14 +0800
+Subject: [PATCH 26/32] multi-user: Add function to get dbus user id
+ synchronously
+
+Change-Id: Ic41643e5f8b6e1a28ce00e0456d961fe2de7a7fb
+---
+ include/dbus.h |  4 ++++
+ src/dbus.c     | 25 +++++++++++++++++++++++++
+ 2 files changed, 29 insertions(+)
+
+diff --git a/include/dbus.h b/include/dbus.h
+index 26f94d6..3087fe4 100644
+--- a/include/dbus.h
++++ b/include/dbus.h
+@@ -180,6 +180,10 @@ int connman_dbus_get_connection_unix_user(DBusConnection *connection,
+                                connman_dbus_get_connection_unix_user_cb_t func,
+                                void *user_data);
+ 
++int connman_dbus_get_connection_unix_user_sync(DBusConnection *connection,
++				const char *bus_name,
++				unsigned int *user_id);
++
+ typedef void (* connman_dbus_get_context_cb_t) (const unsigned char *context,
+ 						void *user_data, int err);
+ 
+diff --git a/src/dbus.c b/src/dbus.c
+index d80a46c..260cec6 100644
+--- a/src/dbus.c
++++ b/src/dbus.c
+@@ -524,6 +524,31 @@ err:
+ 	return err;
+ }
+ 
++int connman_dbus_get_connection_unix_user_sync(DBusConnection *connection,
++						const char *bus_name,
++						unsigned int *user_id)
++{
++	unsigned long uid;
++	DBusError err;
++
++	dbus_error_init(&err);
++
++	uid = dbus_bus_get_unix_user(connection, bus_name, &err);
++
++	if (uid == (unsigned long)-1) {
++		DBG("Can not get unix user ID!");
++		if (dbus_error_is_set(&err)) {
++			DBG("%s", err.message);
++			dbus_error_free(&err);
++		}
++		return -1;
++	}
++
++	*user_id = (unsigned int)uid;
++
++	return 0;
++}
++
+ static unsigned char *parse_context(DBusMessage *msg)
+ {
+ 	DBusMessageIter iter, array;
+-- 
+1.8.1.4
+

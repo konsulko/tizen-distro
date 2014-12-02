@@ -1,0 +1,45 @@
+From 9235632fd02062efa3a1af7eb1957fdd364f4a8c Mon Sep 17 00:00:00 2001
+From: Zhang zhengguang <zhengguang.zhang@intel.com>
+Date: Fri, 17 Oct 2014 11:21:37 +0800
+Subject: [PATCH 29/32] multi-user: Add multi-user support in manager
+
+Use case:
+
+Given 2 users: UserA and UserB
+
+If UserA is connected to a wifi service, then UserB is not allowed
+to turn on offline mode.
+
+Change-Id: I54b108beb580a805c7fa2d3ae9dac192b836ba77
+---
+ src/manager.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/src/manager.c b/src/manager.c
+index d15ce20..bd52f39 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -102,6 +102,20 @@ static DBusMessage *set_property(DBusConnection *conn,
+ 
+ 		dbus_message_iter_get_basic(&value, &offlinemode);
+ 
++		if (offlinemode) {
++			uid_t uid;
++			if (connman_dbus_get_connection_unix_user_sync(conn,
++						dbus_message_get_sender(msg),
++						&uid) < 0) {
++				DBG("Can not get unix user id!");
++				return __connman_error_permission_denied(msg);
++			}
++
++			if (!__connman_service_is_user_allowed(CONNMAN_SERVICE_TYPE_WIFI, uid)) {
++				DBG("Not allow this user to turn on offlinemode now!");
++				return __connman_error_permission_denied(msg);
++			}
++		}
+ 		__connman_technology_set_offlinemode(offlinemode);
+ 	} else if (g_str_equal(name, "SessionMode")) {
+ 
+-- 
+1.8.1.4
+

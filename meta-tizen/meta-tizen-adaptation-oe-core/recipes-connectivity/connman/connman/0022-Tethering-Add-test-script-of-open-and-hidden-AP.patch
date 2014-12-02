@@ -1,0 +1,86 @@
+From 395d388931d37b6760d7b9f59a5710dfe42662c7 Mon Sep 17 00:00:00 2001
+From: Chengyi Zhao <chengyi1.zhao@archermind.com>
+Date: Thu, 11 Jul 2013 10:29:38 +0800
+Subject: [PATCH 22/32] Tethering: Add test script of open and hidden AP
+
+Change-Id: I8dbeaeba5848c8a8739422a93786b2ca6ed31b21
+---
+ test/enable-tethering | 34 +++++++++++++++++++++++++++-------
+ 1 file changed, 27 insertions(+), 7 deletions(-)
+ mode change 100755 => 100644 test/enable-tethering
+
+diff --git a/test/enable-tethering b/test/enable-tethering
+old mode 100755
+new mode 100644
+index cbcd4e7..674b3c9
+--- a/test/enable-tethering
++++ b/test/enable-tethering
+@@ -3,8 +3,17 @@
+ import sys
+ import dbus
+ 
+-if (len(sys.argv) >= 3 and len(sys.argv) != 4 and sys.argv[1] == "wifi"):
+-	print "Usage: %s wifi [SSID] [passphrase]" % (sys.argv[0])
++if (len(sys.argv) >= 2 and len(sys.argv) < 4 and sys.argv[1] == "wifi"):
++	print "Usage: %s wifi [SSID] [passphrase] [hidden]" % (sys.argv[0])
++	print "Example:"
++	print "Create the open system access point:"
++	print "%s wifi abcd \"\"" % (sys.argv[0])
++	print "Create the security access point:"
++	print "%s wifi abcd 123456789" % (sys.argv[0])
++	print "Create the hidden access point:"
++	print "%s wifi abcd 123456789 hidden" % (sys.argv[0])
++	print "Create the open and hidden access point:"
++	print "%s wifi abcd \"\" hidden" % (sys.argv[0])
+ 	sys.exit(1)
+ elif (len(sys.argv) < 2):
+ 	print "Usage: %s type" % (sys.argv[0])
+@@ -15,7 +24,7 @@ bus = dbus.SystemBus()
+ manager = dbus.Interface(bus.get_object('net.connman', "/"),
+ 					'net.connman.Manager')
+ 
+-def technology_enable_tethering(path, tech_type, ssid, psk):
++def technology_enable_tethering(path, tech_type, ssid, psk, hidden):
+ 	tech = dbus.Interface(bus.get_object("net.connman", path),
+ 						"net.connman.Technology")
+ 
+@@ -27,9 +36,17 @@ def technology_enable_tethering(path, tech_type, ssid, psk):
+ 				if len(ssid) > 0:
+ 					tech.SetProperty("TetheringIdentifier",
+ 								ssid)
+-				if len(psk) > 0:
+ 					tech.SetProperty("TetheringPassphrase",
+ 								psk)
++				if tech_type == "wifi":
++					if len(hidden) > 0:
++						if hidden == "hidden":
++							tech.SetProperty("Hidden",dbus.Boolean(1))
++						else:
++							tech.SetProperty("Hidden",dbus.Boolean(0))
++					else:
++						tech.SetProperty("Hidden",dbus.Boolean(0))
++
+ 				print "Enabling %s tethering" % tech_type
+ 				tech.SetProperty("Tethering", dbus.Boolean(1))
+ 
+@@ -41,11 +58,14 @@ technologies = manager.GetTechnologies()
+ tech = None
+ 
+ for path,_ in technologies:
+-	if (len(sys.argv) == 4):
++	if (len(sys.argv) == 5):
++		tech = technology_enable_tethering(path,
++					sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
++	elif (len(sys.argv) == 4):
+ 		tech = technology_enable_tethering(path,
+-					sys.argv[1], sys.argv[2], sys.argv[3])
++					sys.argv[1], sys.argv[2], sys.argv[3], "")
+ 	else:
+-		tech = technology_enable_tethering(path, sys.argv[1], "", "")
++		tech = technology_enable_tethering(path, sys.argv[1], "", "", "")
+ 
+ 	if tech != None:
+ 		break;
+-- 
+1.8.1.4
+

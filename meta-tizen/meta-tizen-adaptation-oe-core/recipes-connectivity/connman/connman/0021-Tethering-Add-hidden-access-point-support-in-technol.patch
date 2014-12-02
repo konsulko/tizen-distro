@@ -1,0 +1,275 @@
+From cdc3af7c29f82b71c2ce76fb6aa28dd6b3d9e5cd Mon Sep 17 00:00:00 2001
+From: Chengyi Zhao <chengyi1.zhao@archermind.com>
+Date: Thu, 11 Jul 2013 10:00:31 +0800
+Subject: [PATCH 21/32] Tethering: Add hidden access point support in
+ technology
+
+Change-Id: I73fccf5f322ee2597f8f58d5e3d7f60ddeb0a641
+---
+ doc/technology-api.txt     |  5 +++++
+ gsupplicant/gsupplicant.h  |  7 +++++++
+ gsupplicant/supplicant.c   |  4 ++++
+ include/technology.h       |  2 +-
+ plugins/bluetooth.c        |  2 +-
+ plugins/bluetooth_legacy.c |  2 +-
+ plugins/ethernet.c         |  2 +-
+ plugins/gadget.c           |  2 +-
+ plugins/wifi.c             | 13 ++++++++++---
+ src/technology.c           | 33 ++++++++++++++++++++++++++++++++-
+ 10 files changed, 63 insertions(+), 9 deletions(-)
+
+diff --git a/doc/technology-api.txt b/doc/technology-api.txt
+index f97eac0..2fbc876 100644
+--- a/doc/technology-api.txt
++++ b/doc/technology-api.txt
+@@ -97,3 +97,8 @@ Properties	boolean Powered [readwrite]
+ 			This property is only valid for the WiFi technology,
+ 			and is then mapped to the WPA pre-shared key clients
+ 			will have to use in order to establish a connection.
++
++		boolean Hidden [readwrite]
++
++			This option allows to enable or disable the support
++			for the hidden Wi-Fi tethering.
+diff --git a/gsupplicant/gsupplicant.h b/gsupplicant/gsupplicant.h
+index 1fab1ba..c5dad72 100644
+--- a/gsupplicant/gsupplicant.h
++++ b/gsupplicant/gsupplicant.h
+@@ -129,6 +129,12 @@ typedef enum {
+ 	G_SUPPLICANT_PEER_GROUP_FAILED,
+ } GSupplicantPeerState;
+ 
++enum GSupplicantAPHiddenSSID {
++	G_SUPPLICANT_AP_NO_SSID_HIDING,
++	G_SUPPLICANT_AP_HIDDEN_SSID_ZERO_LEN,
++	G_SUPPLICANT_AP_HIDDEN_SSID_ZERO_CONTENTS,
++};
++
+ struct _GSupplicantSSID {
+ 	const void *ssid;
+ 	unsigned int ssid_len;
+@@ -150,6 +156,7 @@ struct _GSupplicantSSID {
+ 	dbus_bool_t use_wps;
+ 	const char *pin_wps;
+ 	const char *bgscan;
++	int ignore_broadcast_ssid;
+ };
+ 
+ typedef struct _GSupplicantSSID GSupplicantSSID;
+diff --git a/gsupplicant/supplicant.c b/gsupplicant/supplicant.c
+index 5ff9b3d..59bf279 100644
+--- a/gsupplicant/supplicant.c
++++ b/gsupplicant/supplicant.c
+@@ -4659,6 +4659,10 @@ static void interface_add_network_params(DBusMessageIter *iter, void *user_data)
+ 					DBUS_TYPE_BYTE, &ssid->ssid,
+ 						ssid->ssid_len);
+ 
++	supplicant_dbus_dict_append_basic(&dict, "ignore_broadcast_ssid",
++					DBUS_TYPE_INT32,
++					&ssid->ignore_broadcast_ssid);
++
+ 	supplicant_dbus_dict_close(iter, &dict);
+ }
+ 
+diff --git a/include/technology.h b/include/technology.h
+index b13d4ec..8efe9e7 100644
+--- a/include/technology.h
++++ b/include/technology.h
+@@ -63,7 +63,7 @@ struct connman_technology_driver {
+ 								int index);
+ 	int (*set_tethering) (struct connman_technology *technology,
+ 				const char *identifier, const char *passphrase,
+-				const char *bridge, bool enabled);
++				const char *bridge, bool enabled, bool hidden);
+ 	int (*set_regdom) (struct connman_technology *technology,
+ 						const char *alpha2);
+ };
+diff --git a/plugins/bluetooth.c b/plugins/bluetooth.c
+index 28df406..f8abeac 100644
+--- a/plugins/bluetooth.c
++++ b/plugins/bluetooth.c
+@@ -854,7 +854,7 @@ static void bluetooth_tech_remove(struct connman_technology *technology)
+ 
+ static int bluetooth_tech_set_tethering(struct connman_technology *technology,
+ 		const char *identifier, const char *passphrase,
+-		const char *bridge, bool enabled)
++		const char *bridge, bool enabled, bool hidden)
+ {
+ 	GHashTableIter hash_iter;
+ 	gpointer key, value;
+diff --git a/plugins/bluetooth_legacy.c b/plugins/bluetooth_legacy.c
+index 2d7a9e0..a9ff574 100644
+--- a/plugins/bluetooth_legacy.c
++++ b/plugins/bluetooth_legacy.c
+@@ -1234,7 +1234,7 @@ static void disable_nap(gpointer key, gpointer value, gpointer user_data)
+ 
+ static int tech_set_tethering(struct connman_technology *technology,
+ 				const char *identifier, const char *passphrase,
+-				const char *bridge, bool enabled)
++				const char *bridge, bool enabled, bool hidden)
+ {
+ 	struct tethering_info info = {
+ 		.technology	= technology,
+diff --git a/plugins/ethernet.c b/plugins/ethernet.c
+index b8e52ce..4e71346 100644
+--- a/plugins/ethernet.c
++++ b/plugins/ethernet.c
+@@ -309,7 +309,7 @@ static void eth_tech_disable_tethering(struct connman_technology *technology,
+ 
+ static int eth_tech_set_tethering(struct connman_technology *technology,
+ 				const char *identifier, const char *passphrase,
+-				const char *bridge, bool enabled)
++				const char *bridge, bool enabled, bool hidden)
+ {
+ 	if (!connman_technology_is_tethering_allowed(
+ 			CONNMAN_SERVICE_TYPE_ETHERNET))
+diff --git a/plugins/gadget.c b/plugins/gadget.c
+index 94f6648..97807d8 100644
+--- a/plugins/gadget.c
++++ b/plugins/gadget.c
+@@ -291,7 +291,7 @@ static void gadget_tech_disable_tethering(struct connman_technology *technology,
+ 
+ static int gadget_tech_set_tethering(struct connman_technology *technology,
+ 				const char *identifier, const char *passphrase,
+-				const char *bridge, bool enabled)
++				const char *bridge, bool enabled, bool hidden)
+ {
+ 	DBG("bridge %s enabled %d", bridge, enabled);
+ 
+diff --git a/plugins/wifi.c b/plugins/wifi.c
+index b5bc3ba..21f9912 100644
+--- a/plugins/wifi.c
++++ b/plugins/wifi.c
+@@ -2927,7 +2927,8 @@ struct wifi_tethering_info {
+ 	GSupplicantSSID *ssid;
+ };
+ 
+-static GSupplicantSSID *ssid_ap_init(const char *ssid, const char *passphrase)
++static GSupplicantSSID *ssid_ap_init(const char *ssid,
++		const char *passphrase, bool hidden)
+ {
+ 	GSupplicantSSID *ap;
+ 
+@@ -2952,6 +2953,12 @@ static GSupplicantSSID *ssid_ap_init(const char *ssid, const char *passphrase)
+ 	       ap->passphrase = passphrase;
+ 	}
+ 
++	if (hidden)
++		ap->ignore_broadcast_ssid =
++				G_SUPPLICANT_AP_HIDDEN_SSID_ZERO_CONTENTS;
++	else
++		ap->ignore_broadcast_ssid = G_SUPPLICANT_AP_NO_SSID_HIDING;
++
+ 	return ap;
+ }
+ 
+@@ -3032,7 +3039,7 @@ static void sta_remove_callback(int result,
+ 
+ static int tech_set_tethering(struct connman_technology *technology,
+ 				const char *identifier, const char *passphrase,
+-				const char *bridge, bool enabled)
++				const char *bridge, bool enabled, bool hidden)
+ {
+ 	GList *list;
+ 	GSupplicantInterface *interface;
+@@ -3085,7 +3092,7 @@ static int tech_set_tethering(struct connman_technology *technology,
+ 		info->wifi = wifi;
+ 		info->technology = technology;
+ 		info->wifi->bridge = bridge;
+-		info->ssid = ssid_ap_init(identifier, passphrase);
++		info->ssid = ssid_ap_init(identifier, passphrase, hidden);
+ 		if (!info->ssid) {
+ 			g_free(info);
+ 			continue;
+diff --git a/src/technology.c b/src/technology.c
+index be66c3a..679c779 100644
+--- a/src/technology.c
++++ b/src/technology.c
+@@ -66,6 +66,7 @@ struct connman_technology {
+ 					      */
+ 	char *tethering_ident;
+ 	char *tethering_passphrase;
++	bool tethering_hidden;
+ 
+ 	bool enable_persistent; /* Save the tech state */
+ 
+@@ -177,6 +178,9 @@ static void technology_save(struct connman_technology *technology)
+ 	g_key_file_set_boolean(keyfile, identifier, "Tethering",
+ 				technology->tethering_persistent);
+ 
++	g_key_file_set_boolean(keyfile, identifier, "Hidden",
++				technology->tethering_hidden);
++
+ 	if (technology->tethering_ident)
+ 		g_key_file_set_string(keyfile, identifier,
+ 					"Tethering.Identifier",
+@@ -233,9 +237,11 @@ static int set_tethering(struct connman_technology *technology,
+ 	int err;
+ 	const char *ident, *passphrase, *bridge;
+ 	GSList *tech_drivers;
++	bool hidden;
+ 
+ 	ident = technology->tethering_ident;
+ 	passphrase = technology->tethering_passphrase;
++	hidden = technology->tethering_hidden;
+ 
+ 	__sync_synchronize();
+ 	if (!technology->enabled)
+@@ -256,7 +262,7 @@ static int set_tethering(struct connman_technology *technology,
+ 			continue;
+ 
+ 		err = driver->set_tethering(technology, ident, passphrase,
+-				bridge, enabled);
++				bridge, enabled, hidden);
+ 
+ 		if (result == -EINPROGRESS)
+ 			continue;
+@@ -523,6 +529,11 @@ static void append_properties(DBusMessageIter *iter,
+ 					DBUS_TYPE_STRING,
+ 					&technology->tethering_passphrase);
+ 
++	val = technology->tethering_hidden;
++	connman_dbus_dict_append_basic(&dict, "Hidden",
++					DBUS_TYPE_BOOLEAN,
++					&val);
++
+ 	connman_dbus_dict_close(iter, &dict);
+ }
+ 
+@@ -936,6 +947,25 @@ static DBusMessage *set_property(DBusConnection *conn,
+ 						&technology->tethering_passphrase);
+ 			}
+ 		}
++	} else if (g_str_equal(name, "Hidden")) {
++		dbus_bool_t hidden;
++
++		if (type != DBUS_TYPE_BOOLEAN)
++			return __connman_error_invalid_arguments(msg);
++
++		dbus_message_iter_get_basic(&value, &hidden);
++
++		if (technology->type != CONNMAN_SERVICE_TYPE_WIFI)
++			return __connman_error_not_supported(msg);
++
++		technology->tethering_hidden = hidden;
++		technology_save(technology);
++
++		connman_dbus_property_changed_basic(technology->path,
++					CONNMAN_TECHNOLOGY_INTERFACE,
++					"Hidden",
++					DBUS_TYPE_BOOLEAN,
++					&hidden);
+ 	} else if (g_str_equal(name, "Powered")) {
+ 		dbus_bool_t enable;
+ 
+@@ -1204,6 +1234,7 @@ static struct connman_technology *technology_get(enum connman_service_type type)
+ 
+ 	technology->refcount = 1;
+ 	technology->type = type;
++	technology->tethering_hidden = FALSE;
+ 	technology->path = g_strdup_printf("%s/technology/%s",
+ 							CONNMAN_PATH, str);
+ 	if (type == CONNMAN_SERVICE_TYPE_P2P) {
+-- 
+1.8.1.4
+

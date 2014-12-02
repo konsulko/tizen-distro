@@ -1,0 +1,41 @@
+From cdc8865c44bb77e9b7fa664a3669f84f7305718d Mon Sep 17 00:00:00 2001
+From: Zhang zhengguang <zhengguang.zhang@intel.com>
+Date: Fri, 4 Jul 2014 14:12:08 +0800
+Subject: [PATCH 03/32] Add systemd service to manager ConnMan NTP
+
+---
+ packaging/40-connman-ntp.list |  1 +
+ packaging/connman-ntp.service | 13 +++++++++++++
+ 2 files changed, 14 insertions(+)
+ create mode 100644 packaging/40-connman-ntp.list
+ create mode 100644 packaging/connman-ntp.service
+
+diff --git a/packaging/40-connman-ntp.list b/packaging/40-connman-ntp.list
+new file mode 100644
+index 0000000..9b84282
+--- /dev/null
++++ b/packaging/40-connman-ntp.list
+@@ -0,0 +1 @@
++connman-ntp.service
+diff --git a/packaging/connman-ntp.service b/packaging/connman-ntp.service
+new file mode 100644
+index 0000000..6ca46e2
+--- /dev/null
++++ b/packaging/connman-ntp.service
+@@ -0,0 +1,13 @@
++[Unit]
++Description=Connman NTP service
++Requires=connman.service
++After=connman.service
++
++[Service]
++Type=oneshot
++ExecStart=/bin/bash -c "dbus-send --system --type=method_call --print-reply --dest=net.connman / net.connman.Clock.SetProperty string:'TimeUpdates' variant:string:'auto'"
++ExecStop=/bin/bash -c "dbus-send --system --type=method_call --print-reply --dest=net.connman / net.connman.Clock.SetProperty string:'TimeUpdates' variant:string:'manual'"
++RemainAfterExit=yes
++
++[Install]
++WantedBy=multi-user.target
+-- 
+1.8.1.4
+

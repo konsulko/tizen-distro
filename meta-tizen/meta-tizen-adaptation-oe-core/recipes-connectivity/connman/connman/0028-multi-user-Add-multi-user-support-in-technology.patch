@@ -1,0 +1,46 @@
+From 37cbead2d2cbea4b9bd9f7180caf26a4b653662d Mon Sep 17 00:00:00 2001
+From: Zhang zhengguang <zhengguang.zhang@intel.com>
+Date: Sat, 11 Oct 2014 15:09:09 +0800
+Subject: [PATCH 28/32] multi-user: Add multi-user support in technology
+
+Use case:
+
+Given 2 users: UserA and UserB
+
+If UserA is connected to a wifi service, then UserB is not allowed
+to set wifi technology properties.
+
+Change-Id: Ia783b22bc28e9e487ddfa3a4c249c9d1ea76bde8
+---
+ src/technology.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/src/technology.c b/src/technology.c
+index 679c779..70732f6 100644
+--- a/src/technology.c
++++ b/src/technology.c
+@@ -862,6 +862,21 @@ static DBusMessage *set_property(DBusConnection *conn,
+ 
+ 	DBG("property %s", name);
+ 
++	if (technology->type == CONNMAN_SERVICE_TYPE_WIFI && technology->connected) {
++		uid_t uid;
++		if (connman_dbus_get_connection_unix_user_sync(conn,
++						dbus_message_get_sender(msg),
++						&uid) < 0) {
++			DBG("Can not get unix user id!");
++			return __connman_error_permission_denied(msg);
++		}
++
++		if (!__connman_service_is_user_allowed(CONNMAN_SERVICE_TYPE_WIFI, uid)) {
++			DBG("Not allow this user to operate wifi technology now!");
++			return __connman_error_permission_denied(msg);
++		}
++	}
++
+ 	if (g_str_equal(name, "Tethering")) {
+ 		dbus_bool_t tethering;
+ 		int err;
+-- 
+1.8.1.4
+

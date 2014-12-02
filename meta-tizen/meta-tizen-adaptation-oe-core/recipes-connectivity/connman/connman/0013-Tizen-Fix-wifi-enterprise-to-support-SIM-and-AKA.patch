@@ -1,0 +1,96 @@
+From ede27f8e832d3ce5dc6bf2a8be78f34abddcc885 Mon Sep 17 00:00:00 2001
+From: Arron Wang <arron.wang@intel.com>
+Date: Fri, 12 Oct 2012 10:10:28 +0800
+Subject: [PATCH 13/32] Tizen: Fix wifi enterprise to support SIM and AKA
+
+Revise Wi-Fi enterprise to enable PEAP, TLS, TTLS
+Fix wifi enterprise to support SIM and AKA
+
+Change-Id: Ib9c10615fd0668b2ebca57eac9285bf8a3564427
+---
+ gsupplicant/supplicant.c | 20 ++++++++++++++++++++
+ src/service.c            | 13 ++++++++++++-
+ 2 files changed, 32 insertions(+), 1 deletion(-)
+
+diff --git a/gsupplicant/supplicant.c b/gsupplicant/supplicant.c
+index d2e4a64..58a8c9f 100644
+--- a/gsupplicant/supplicant.c
++++ b/gsupplicant/supplicant.c
+@@ -4392,14 +4392,27 @@ static void add_network_security_eap(DBusMessageIter *dict,
+ {
+ 	char *eap_value;
+ 
++#if defined TIZEN_EXT
++	if (!ssid->eap)
++#else
+ 	if (!ssid->eap || !ssid->identity)
++#endif
+ 		return;
+ 
+ 	if (g_strcmp0(ssid->eap, "tls") == 0) {
+ 		add_network_security_tls(dict, ssid);
+ 	} else if (g_strcmp0(ssid->eap, "peap") == 0 ||
+ 				g_strcmp0(ssid->eap, "ttls") == 0) {
++#if defined TIZEN_EXT
++		if (!ssid->identity)
++			return;
++#endif
+ 		add_network_security_peap(dict, ssid);
++
++#if defined TIZEN_EXT
++	} else if (g_strcmp0(ssid->eap, "sim") == 0 ||
++			g_strcmp0(ssid->eap, "aka") == 0) {
++#endif
+ 	} else
+ 		return;
+ 
+@@ -4408,9 +4421,16 @@ static void add_network_security_eap(DBusMessageIter *dict,
+ 	supplicant_dbus_dict_append_basic(dict, "eap",
+ 						DBUS_TYPE_STRING,
+ 						&eap_value);
++#if defined TIZEN_EXT
++	if (ssid->identity != NULL)
++		supplicant_dbus_dict_append_basic(dict, "identity",
++							DBUS_TYPE_STRING,
++							&ssid->identity);
++#else
+ 	supplicant_dbus_dict_append_basic(dict, "identity",
+ 						DBUS_TYPE_STRING,
+ 						&ssid->identity);
++#endif
+ 
+ 	g_free(eap_value);
+ }
+diff --git a/src/service.c b/src/service.c
+index 8d3c619..99bb35d 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -5912,13 +5912,24 @@ static int service_connect(struct connman_service *service)
+ 			if (!service->eap)
+ 				return -EINVAL;
+ 
++#if defined TIZEN_EXT
++			/*
++			 * never request credentials if using EAP-TLS, EAP-SIM
++			 * or EAP-AKA (EAP-TLS, EAP-SIM and EAP-AKA networks
++			 * need to be fully provisioned)
++			 */
++			if (g_str_equal(service->eap, "tls") ||
++				g_str_equal(service->eap, "sim") ||
++				g_str_equal(service->eap, "aka"))
++				break;
++#else
+ 			/*
+ 			 * never request credentials if using EAP-TLS
+ 			 * (EAP-TLS networks need to be fully provisioned)
+ 			 */
+ 			if (g_str_equal(service->eap, "tls"))
+ 				break;
+-
++#endif
+ 			/*
+ 			 * Return -ENOKEY if either identity or passphrase is
+ 			 * missing. Agent provided credentials can be used as
+-- 
+1.8.1.4
+

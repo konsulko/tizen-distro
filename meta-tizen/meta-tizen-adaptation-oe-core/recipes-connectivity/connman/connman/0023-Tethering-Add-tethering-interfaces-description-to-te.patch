@@ -1,0 +1,37 @@
+From 5eb028f4bdf85b35d8003f36ee95b15e48aa3fbc Mon Sep 17 00:00:00 2001
+From: Chengyi Zhao <chengyi1.zhao@archermind.com>
+Date: Fri, 26 Jul 2013 14:58:32 +0800
+Subject: [PATCH 23/32] Tethering: Add tethering interfaces description to
+ technology-api.txt
+
+Change-Id: I59768258d5f2515311ed3dad5db91618b1c459ec
+---
+ doc/technology-api.txt | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/doc/technology-api.txt b/doc/technology-api.txt
+index 2fbc876..14245eb 100644
+--- a/doc/technology-api.txt
++++ b/doc/technology-api.txt
+@@ -45,6 +45,18 @@ Signals		PropertyChanged(string name, variant value)
+ 			This signal indicates a changed value of the given
+ 			property.
+ 
++		DhcpConnected(string aptype, string ipaddr,
++					string macaddr, string hostname)
++
++			This signal indicates a station information that
++			has connected to the AP(Access Point).
++
++		DhcpLeaseDeleted(string aptype, string ipaddr,
++					string macaddr, string hostname)
++
++			This signal indicates a station information that
++			has disconnected to the AP(Access Point).
++
+ Properties	boolean Powered [readwrite]
+ 
+ 			Boolean representing the power state of the
+-- 
+1.8.1.4
+

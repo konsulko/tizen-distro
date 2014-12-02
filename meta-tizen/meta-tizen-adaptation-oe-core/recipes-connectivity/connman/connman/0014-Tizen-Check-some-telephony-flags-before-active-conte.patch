@@ -1,0 +1,50 @@
+From 1eb2741818fb2d2ec09ab055c8e4d1df1f2fb481 Mon Sep 17 00:00:00 2001
+From: "guoqiang.liu" <guoqiang.liu@archermind.com>
+Date: Fri, 27 Dec 2013 14:22:52 +0800
+Subject: [PATCH 14/32] Tizen: Check some telephony flags before active context
+
+Telephony active maybe fail if data_allowed or ps_attached is false,
+so check it before actived.
+
+When data_allowed is false, if connman starts to auto connect 3G
+service, it will result in 3G service auto connected fail, which
+leads to it will not be auto connected next time.
+
+Change-Id: Ibdd9c34fee7a612c1788a364c69550c4f7e79123
+Signed-off-by: guoqiang.liu <guoqiang.liu@archermind.com>
+---
+ plugins/telephony.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/plugins/telephony.c b/plugins/telephony.c
+index 63e7f6e..ea0bf65 100644
+--- a/plugins/telephony.c
++++ b/plugins/telephony.c
+@@ -323,6 +323,7 @@ static int __network_connect(struct connman_network *network)
+ {
+ 	struct connman_device *device;
+ 	struct telephony_modem *modem;
++	struct telephony_service *service;
+ 
+ 	DBG("network %p", network);
+ 
+@@ -334,9 +335,16 @@ static int __network_connect(struct connman_network *network)
+ 	if (modem == NULL)
+ 		return -ENODEV;
+ 
++	service = modem->s_service;
++	if (service == NULL)
++		return -ENOLINK;
++
+ 	if (modem->powered == FALSE)
+ 		return -ENOLINK;
+ 
++	if (modem->data_allowed == FALSE || service->ps_attached == FALSE)
++		return -ENOLINK;
++
+ 	return __request_network_activate(network);
+ }
+ 
+-- 
+1.8.1.4
+

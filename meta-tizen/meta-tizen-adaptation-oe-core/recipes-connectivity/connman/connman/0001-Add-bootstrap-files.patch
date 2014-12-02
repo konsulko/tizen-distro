@@ -1,0 +1,55 @@
+From 79fe33b1a73f42592ac98c44b87dc15b52c7d791 Mon Sep 17 00:00:00 2001
+From: Zhang zhengguang <zhengguang.zhang@intel.com>
+Date: Fri, 11 Jul 2014 09:34:05 +0800
+Subject: [PATCH 01/32] Add bootstrap files
+
+Change-Id: Ia3923cb1ff35e7bfbd4e45f13dd18af15ed89f56
+---
+ bootstrap           |  7 +++++++
+ bootstrap-configure | 20 ++++++++++++++++++++
+ 2 files changed, 27 insertions(+)
+ create mode 100755 bootstrap
+ create mode 100755 bootstrap-configure
+
+diff --git a/bootstrap b/bootstrap
+new file mode 100755
+index 0000000..0dd71d9
+--- /dev/null
++++ b/bootstrap
+@@ -0,0 +1,7 @@
++#!/bin/sh
++
++aclocal && \
++    autoheader && \
++        libtoolize --automake --copy --force && \
++	    automake --add-missing --copy && \
++		autoconf
+diff --git a/bootstrap-configure b/bootstrap-configure
+new file mode 100755
+index 0000000..070c676
+--- /dev/null
++++ b/bootstrap-configure
+@@ -0,0 +1,20 @@
++#!/bin/sh
++
++if [ -f config.status ]; then
++	make maintainer-clean
++fi
++
++./bootstrap && \
++    ./configure --enable-maintainer-mode \
++		--enable-debug \
++		--prefix=/usr \
++		--mandir=/usr/share/man \
++		--localstatedir=/var \
++		--sysconfdir=/etc \
++		--disable-datafiles \
++		--enable-openconnect=builtin \
++		--enable-openvpn=builtin \
++		--enable-vpnc=builtin \
++		--enable-session-policy-local=builtin \
++		--enable-nmcompat \
++		--enable-polkit $*
+-- 
+1.8.1.4
+

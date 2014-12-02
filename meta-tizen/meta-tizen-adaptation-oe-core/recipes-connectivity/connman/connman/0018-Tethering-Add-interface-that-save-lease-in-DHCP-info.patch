@@ -1,0 +1,277 @@
+From 5bd77bc62bc47d5752a9060cb887883a9d1b9844 Mon Sep 17 00:00:00 2001
+From: Chengyi Zhao <chengyi1.zhao@archermind.com>
+Date: Wed, 10 Jul 2013 19:17:02 +0800
+Subject: [PATCH 18/32] Tethering: Add interface that save lease in DHCP
+ information
+
+Change-Id: Ia09c875954d8a20a3e6c39f87076780d8a6582e4
+---
+ gdhcp/client.c | 65 ----------------------------------------------------------
+ gdhcp/common.c | 65 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ gdhcp/common.h |  1 +
+ gdhcp/gdhcp.h  |  5 +++++
+ gdhcp/server.c | 29 +++++++++++++++++++++++++-
+ 5 files changed, 99 insertions(+), 66 deletions(-)
+
+diff --git a/gdhcp/client.c b/gdhcp/client.c
+index 66c3a90..a72efb4 100644
+--- a/gdhcp/client.c
++++ b/gdhcp/client.c
+@@ -1808,71 +1808,6 @@ static char *get_ip(uint32_t ip)
+ 	return g_strdup(inet_ntoa(addr));
+ }
+ 
+-/* get a rough idea of how long an option will be */
+-static const uint8_t len_of_option_as_string[] = {
+-	[OPTION_IP] = sizeof("255.255.255.255 "),
+-	[OPTION_STRING] = 1,
+-	[OPTION_U8] = sizeof("255 "),
+-	[OPTION_U16] = sizeof("65535 "),
+-	[OPTION_U32] = sizeof("4294967295 "),
+-};
+-
+-static int sprint_nip(char *dest, const char *pre, const uint8_t *ip)
+-{
+-	return sprintf(dest, "%s%u.%u.%u.%u", pre, ip[0], ip[1], ip[2], ip[3]);
+-}
+-
+-/* Create "opt_value1 option_value2 ..." string */
+-static char *malloc_option_value_string(uint8_t *option, GDHCPOptionType type)
+-{
+-	unsigned upper_length;
+-	int len, optlen;
+-	char *dest, *ret;
+-
+-	len = option[OPT_LEN - OPT_DATA];
+-	type &= OPTION_TYPE_MASK;
+-	optlen = dhcp_option_lengths[type];
+-	if (optlen == 0)
+-		return NULL;
+-	upper_length = len_of_option_as_string[type] *
+-			((unsigned)len / (unsigned)optlen);
+-	dest = ret = g_malloc(upper_length + 1);
+-	if (!ret)
+-		return NULL;
+-
+-	while (len >= optlen) {
+-		switch (type) {
+-		case OPTION_IP:
+-			dest += sprint_nip(dest, "", option);
+-			break;
+-		case OPTION_U16: {
+-			uint16_t val_u16 = get_be16(option);
+-			dest += sprintf(dest, "%u", val_u16);
+-			break;
+-		}
+-		case OPTION_U32: {
+-			uint32_t val_u32 = get_be32(option);
+-			dest += sprintf(dest, "%u", val_u32);
+-			break;
+-		}
+-		case OPTION_STRING:
+-			memcpy(dest, option, len);
+-			dest[len] = '\0';
+-			return ret;
+-		default:
+-			break;
+-		}
+-		option += optlen;
+-		len -= optlen;
+-		if (len <= 0)
+-			break;
+-		*dest++ = ' ';
+-		*dest = '\0';
+-	}
+-
+-	return ret;
+-}
+-
+ static GList *get_option_value_list(char *value, GDHCPOptionType type)
+ {
+ 	char *pos = value;
+diff --git a/gdhcp/common.c b/gdhcp/common.c
+index 45278a8..ac6b125 100644
+--- a/gdhcp/common.c
++++ b/gdhcp/common.c
+@@ -144,6 +144,71 @@ int dhcp_end_option(uint8_t *optionptr)
+ 	return i;
+ }
+ 
++/* get a rough idea of how long an option will be */
++static const uint8_t len_of_option_as_string[] = {
++	[OPTION_IP] = sizeof("255.255.255.255 "),
++	[OPTION_STRING] = 1,
++	[OPTION_U8] = sizeof("255 "),
++	[OPTION_U16] = sizeof("65535 "),
++	[OPTION_U32] = sizeof("4294967295 "),
++};
++
++static int sprint_nip(char *dest, const char *pre, const uint8_t *ip)
++{
++	return sprintf(dest, "%s%u.%u.%u.%u", pre, ip[0], ip[1], ip[2], ip[3]);
++}
++
++/* Create "opt_value1 option_value2 ..." string */
++char *malloc_option_value_string(uint8_t *option, GDHCPOptionType type)
++{
++	unsigned upper_length;
++	int len, optlen;
++	char *dest, *ret;
++
++	len = option[OPT_LEN - OPT_DATA];
++	type &= OPTION_TYPE_MASK;
++	optlen = dhcp_option_lengths[type];
++	if (optlen == 0)
++		return NULL;
++	upper_length = len_of_option_as_string[type] *
++			((unsigned)len / (unsigned)optlen);
++	dest = ret = g_malloc(upper_length + 1);
++	if (ret == NULL)
++		return NULL;
++
++	while (len >= optlen) {
++		switch (type) {
++		case OPTION_IP:
++			dest += sprint_nip(dest, "", option);
++			break;
++		case OPTION_U16: {
++			uint16_t val_u16 = get_be16(option);
++			dest += sprintf(dest, "%u", val_u16);
++			break;
++		}
++		case OPTION_U32: {
++			uint32_t val_u32 = get_be32(option);
++			dest += sprintf(dest, "%u", val_u32);
++			break;
++		}
++		case OPTION_STRING:
++			memcpy(dest, option, len);
++			dest[len] = '\0';
++			return ret;
++		default:
++			break;
++		}
++		option += optlen;
++		len -= optlen;
++		if (len <= 0)
++			break;
++		*dest++ = ' ';
++		*dest = '\0';
++	}
++
++	return ret;
++}
++
+ uint8_t *dhcpv6_get_option(struct dhcpv6_packet *packet, uint16_t pkt_len,
+ 			int code, uint16_t *option_len, int *option_count)
+ {
+diff --git a/gdhcp/common.h b/gdhcp/common.h
+index c692799..1ab9a7c 100644
+--- a/gdhcp/common.h
++++ b/gdhcp/common.h
+@@ -170,6 +170,7 @@ static const uint8_t dhcp_option_lengths[] = {
+ 	[OPTION_U32]	= 4,
+ };
+ 
++char *malloc_option_value_string(uint8_t *option, GDHCPOptionType type);
+ uint8_t *dhcp_get_option(struct dhcp_packet *packet, int code);
+ uint8_t *dhcpv6_get_option(struct dhcpv6_packet *packet, uint16_t pkt_len,
+ 			int code, uint16_t *option_len, int *option_count);
+diff --git a/gdhcp/gdhcp.h b/gdhcp/gdhcp.h
+index f3e47bf..f4ef292 100644
+--- a/gdhcp/gdhcp.h
++++ b/gdhcp/gdhcp.h
+@@ -205,6 +205,9 @@ struct _GDHCPServer;
+ 
+ typedef struct _GDHCPServer GDHCPServer;
+ 
++typedef void (*GDHCPSaveACKLeaseFunc) (char *hostname,
++			unsigned char *mac, unsigned int nip);
++
+ GDHCPServer *g_dhcp_server_new(GDHCPType type,
+ 		int ifindex, GDHCPServerError *error);
+ int g_dhcp_server_start(GDHCPServer *server);
+@@ -223,6 +226,8 @@ void g_dhcp_server_set_lease_time(GDHCPServer *dhcp_server,
+ 						unsigned int lease_time);
+ void g_dhcp_server_set_save_lease(GDHCPServer *dhcp_server,
+ 				GDHCPSaveLeaseFunc func, gpointer user_data);
++void g_dhcp_server_set_save_ack_lease(GDHCPServer *dhcp_server,
++				GDHCPSaveACKLeaseFunc func, gpointer user_data);
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/gdhcp/server.c b/gdhcp/server.c
+index aa40488..0171b5f 100644
+--- a/gdhcp/server.c
++++ b/gdhcp/server.c
+@@ -65,6 +65,7 @@ struct _GDHCPServer {
+ 	GHashTable *nip_lease_hash;
+ 	GHashTable *option_hash; /* Options send to client */
+ 	GDHCPSaveLeaseFunc save_lease_func;
++	GDHCPSaveACKLeaseFunc save_ack_lease_func;
+ 	GDHCPDebugFunc debug_func;
+ 	gpointer debug_data;
+ };
+@@ -398,6 +399,7 @@ GDHCPServer *g_dhcp_server_new(GDHCPType type,
+ 	dhcp_server->listener_watch = -1;
+ 	dhcp_server->listener_channel = NULL;
+ 	dhcp_server->save_lease_func = NULL;
++	dhcp_server->save_ack_lease_func = NULL;
+ 	dhcp_server->debug_func = NULL;
+ 	dhcp_server->debug_data = NULL;
+ 
+@@ -646,9 +648,12 @@ static gboolean listener_event(GIOChannel *channel, GIOCondition condition,
+ 	struct dhcp_packet packet;
+ 	struct dhcp_lease *lease;
+ 	uint32_t requested_nip = 0;
+-	uint8_t type, *server_id_option, *request_ip_option;
++	uint8_t type, *server_id_option, *request_ip_option, *host_name;
+ 	int re;
+ 
++	GDHCPOptionType option_type;
++	char *option_value;
++
+ 	if (condition & (G_IO_NVAL | G_IO_ERR | G_IO_HUP)) {
+ 		dhcp_server->listener_watch = 0;
+ 		return FALSE;
+@@ -693,8 +698,21 @@ static gboolean listener_event(GIOChannel *channel, GIOCondition condition,
+ 
+ 		if (lease && requested_nip == lease->lease_nip) {
+ 			debug(dhcp_server, "Sending ACK");
++
++			host_name = dhcp_get_option(&packet, DHCP_HOST_NAME);
++			option_type = dhcp_get_code_type(DHCP_HOST_NAME);
++			option_value = malloc_option_value_string(host_name,
++								option_type);
+ 			send_ACK(dhcp_server, &packet,
+ 				lease->lease_nip);
++
++			if (dhcp_server->save_ack_lease_func)
++				dhcp_server->save_ack_lease_func(
++							option_value,
++							lease->lease_mac,
++							lease->lease_nip);
++			g_free(option_value);
++
+ 			break;
+ 		}
+ 
+@@ -814,6 +832,15 @@ void g_dhcp_server_set_save_lease(GDHCPServer *dhcp_server,
+ 	dhcp_server->save_lease_func = func;
+ }
+ 
++void g_dhcp_server_set_save_ack_lease(GDHCPServer *dhcp_server,
++				GDHCPSaveACKLeaseFunc func, gpointer user_data)
++{
++	if (dhcp_server == NULL)
++		return;
++
++	dhcp_server->save_ack_lease_func = func;
++}
++
+ GDHCPServer *g_dhcp_server_ref(GDHCPServer *dhcp_server)
+ {
+ 	if (!dhcp_server)
+-- 
+1.8.1.4
+

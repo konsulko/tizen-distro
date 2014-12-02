@@ -1,0 +1,99 @@
+From 763bd791fc3a52dc6381b18da246b7c0656861fd Mon Sep 17 00:00:00 2001
+From: Chengyi Zhao <chengyi1.zhao@archermind.com>
+Date: Wed, 10 Jul 2013 15:37:50 +0800
+Subject: [PATCH 16/32] Tethering: Add handling for wpa_supplicant
+ authorized/deauthorized signals
+
+Change-Id: Iff022e257ee9d2c5227585bf0b84e726914cc62b
+---
+ gsupplicant/gsupplicant.h |  2 ++
+ gsupplicant/supplicant.c  | 53 +++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 55 insertions(+)
+
+diff --git a/gsupplicant/gsupplicant.h b/gsupplicant/gsupplicant.h
+index 27826dc..1fab1ba 100644
+--- a/gsupplicant/gsupplicant.h
++++ b/gsupplicant/gsupplicant.h
+@@ -359,6 +359,8 @@ struct _GSupplicantCallbacks {
+ 	void (*network_removed) (GSupplicantNetwork *network);
+ 	void (*network_changed) (GSupplicantNetwork *network,
+ 					const char *property);
++	void (*add_station) (const char *mac);
++	void (*remove_station) (const char *mac);
+ 	void (*peer_found) (GSupplicantPeer *peer);
+ 	void (*peer_lost) (GSupplicantPeer *peer);
+ 	void (*peer_changed) (GSupplicantPeer *peer,
+diff --git a/gsupplicant/supplicant.c b/gsupplicant/supplicant.c
+index 58a8c9f..5ff9b3d 100644
+--- a/gsupplicant/supplicant.c
++++ b/gsupplicant/supplicant.c
+@@ -2609,6 +2609,56 @@ static void signal_wps_event(const char *path, DBusMessageIter *iter)
+ 	supplicant_dbus_property_foreach(iter, wps_event_args, interface);
+ }
+ 
++static void signal_station_connected(const char *path, DBusMessageIter *iter)
++{
++	GSupplicantInterface *interface;
++	const char *sta_mac = NULL;
++
++	SUPPLICANT_DBG("path %s %s", path, SUPPLICANT_PATH);
++
++	if (callbacks_pointer->add_station == NULL)
++		return;
++
++	if (g_strcmp0(path, "/") == 0)
++		return;
++
++	interface = g_hash_table_lookup(interface_table, path);
++	if (interface == NULL)
++		return;
++
++	dbus_message_iter_get_basic(iter, &sta_mac);
++	if (sta_mac == NULL)
++		return;
++
++	SUPPLICANT_DBG("New station %s connected", sta_mac);
++	callbacks_pointer->add_station(sta_mac);
++}
++
++static void signal_station_disconnected(const char *path, DBusMessageIter *iter)
++{
++	GSupplicantInterface *interface;
++	const char *sta_mac = NULL;
++
++	SUPPLICANT_DBG("path %s %s", path, SUPPLICANT_PATH);
++
++	if (callbacks_pointer->remove_station == NULL)
++		return;
++
++	if (g_strcmp0(path, "/") == 0)
++		return;
++
++	interface = g_hash_table_lookup(interface_table, path);
++	if (interface == NULL)
++		return;
++
++	dbus_message_iter_get_basic(iter, &sta_mac);
++	if (sta_mac == NULL)
++		return;
++
++	SUPPLICANT_DBG("Station %s disconnected", sta_mac);
++	callbacks_pointer->remove_station(sta_mac);
++}
++
+ static void create_peer_identifier(GSupplicantPeer *peer)
+ {
+ 	const unsigned char test[ETH_ALEN] = {};
+@@ -3171,6 +3221,9 @@ static struct {
+ 	{ SUPPLICANT_INTERFACE ".Interface.WPS", "Credentials", signal_wps_credentials },
+ 	{ SUPPLICANT_INTERFACE ".Interface.WPS", "Event",       signal_wps_event       },
+ 
++	{ SUPPLICANT_INTERFACE".Interface", "StaAuthorized", signal_station_connected      },
++	{ SUPPLICANT_INTERFACE".Interface", "StaDeauthorized", signal_station_disconnected },
++
+ 	{ SUPPLICANT_INTERFACE ".Interface.P2PDevice", "DeviceFound", signal_peer_found },
+ 	{ SUPPLICANT_INTERFACE ".Interface.P2PDevice", "DeviceLost",  signal_peer_lost  },
+ 
+-- 
+1.8.1.4
+

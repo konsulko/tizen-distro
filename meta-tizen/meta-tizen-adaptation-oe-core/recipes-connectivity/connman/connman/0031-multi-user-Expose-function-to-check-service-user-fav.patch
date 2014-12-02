@@ -1,0 +1,81 @@
+From 9d476728838e2442d349adb679147581a963f8e9 Mon Sep 17 00:00:00 2001
+From: Zhang zhengguang <zhengguang.zhang@intel.com>
+Date: Wed, 19 Nov 2014 09:50:45 +0800
+Subject: [PATCH 31/32] multi-user: Expose function to check service user
+ favorite
+
+Expose the function to check whether the service is favorite
+to the current user.
+
+Change-Id: Ib232f16c652ec94ef2e10b199a638a98554a1066
+---
+ doc/service-api.txt |  7 +++++++
+ src/service.c       | 27 +++++++++++++++++++++++++++
+ 2 files changed, 34 insertions(+)
+
+diff --git a/doc/service-api.txt b/doc/service-api.txt
+index 74c8345..0238d22 100644
+--- a/doc/service-api.txt
++++ b/doc/service-api.txt
+@@ -122,6 +122,13 @@ Methods		dict GetProperties()  [deprecated]
+ 
+ 			Possible Errors: None
+ 
++		boolean GetUserFavorite() [experimental]
++
++			This function is used to check whether this service
++			is favorite to the current user.
++
++			Possible Errors: None
++
+ Signals		PropertyChanged(string name, variant value)
+ 
+ 			This signal indicates a changed value of the given
+diff --git a/src/service.c b/src/service.c
+index 55cf02c..5eca970 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -4472,6 +4472,30 @@ static DBusMessage *reset_counters(DBusConnection *conn,
+ 	return g_dbus_create_reply(msg, DBUS_TYPE_INVALID);
+ }
+ 
++static DBusMessage *get_user_favorite(DBusConnection *conn,
++					DBusMessage *msg, void *user_data)
++{
++	DBusMessage *reply;
++	uid_t uid = USER_NONE;
++	dbus_bool_t user_favorite = false;
++	struct connman_service *service = user_data;
++
++	connman_dbus_get_connection_unix_user_sync(conn,
++					dbus_message_get_sender(msg),
++					&uid);
++	if (uid == USER_ROOT)
++		user_favorite = service->favorite;
++	else if (uid != USER_NONE && uid == service->user.favorite_user) {
++		DBG("The service is favorite to this user!");
++		user_favorite = true;
++	}
++
++	reply = g_dbus_create_reply(msg, DBUS_TYPE_INVALID);
++	dbus_message_append_args(reply, DBUS_TYPE_BOOLEAN,
++				&user_favorite, DBUS_TYPE_INVALID);
++	return reply;
++}
++
+ static struct _services_notify {
+ 	int id;
+ 	GHashTable *add;
+@@ -4613,6 +4637,9 @@ static const GDBusMethodTable service_methods[] = {
+ 			GDBUS_ARGS({ "service", "o" }), NULL,
+ 			move_after) },
+ 	{ GDBUS_METHOD("ResetCounters", NULL, NULL, reset_counters) },
++	{ GDBUS_METHOD("GetUserFavorite",
++			NULL, GDBUS_ARGS({ "value", "v" }),
++			get_user_favorite) },
+ 	{ },
+ };
+ 
+-- 
+1.8.1.4
+

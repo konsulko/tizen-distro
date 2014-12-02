@@ -1,0 +1,106 @@
+From 96469b8ff2cd0e7dc77b7974c431f1dd97981356 Mon Sep 17 00:00:00 2001
+From: Zhang zhengguang <zhengguang.zhang@intel.com>
+Date: Sat, 11 Oct 2014 16:46:50 +0800
+Subject: [PATCH 30/32] multi-user: Add multi-user support for auto connect
+ service
+
+Use case:
+
+For wifi auto connect mechamnism, only when the user who owns the
+wifi service login, the service is allowed to be auto connected.
+
+Change-Id: I99135117facafda41532e0280c89194b27baac16
+---
+ src/service.c | 62 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 62 insertions(+)
+
+diff --git a/src/service.c b/src/service.c
+index a1124ae..55cf02c 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -30,6 +30,8 @@
+ #include <gdbus.h>
+ #include <ctype.h>
+ #include <stdint.h>
++#include <pwd.h>
++#include <utmpx.h>
+ 
+ #include <connman/storage.h>
+ #include <connman/setting.h>
+@@ -379,6 +381,61 @@ connman_service_is_user_allowed(struct connman_service *service, uid_t uid)
+ 	return true;
+ }
+ 
++static GList *connman_service_get_login_users()
++{
++	struct utmpx *utmp;
++	struct passwd *pwd;
++	GList *user_list = NULL;
++
++	setutxent();
++
++	while ((utmp = getutxent()) != NULL) {
++		if (utmp->ut_user != USER_ROOT && utmp->ut_type != USER_PROCESS)
++			continue;
++
++		pwd = getpwnam(utmp->ut_user);
++
++		if (!g_list_find(user_list, GUINT_TO_POINTER(pwd->pw_uid)))
++			user_list = g_list_append(user_list,
++						GUINT_TO_POINTER(pwd->pw_uid));
++
++		DBG("User Name: %s, UID: %d", utmp->ut_user, pwd->pw_uid);
++	}
++
++	endutxent();
++
++	return user_list;
++}
++
++static bool is_service_owner_user_login(struct connman_service *service)
++{
++	GList *list, *user_list;
++	bool ret = false;
++
++	/* Here we only care about wifi service */
++	if (service->type != CONNMAN_SERVICE_TYPE_WIFI)
++		return true;
++
++	user_list = connman_service_get_login_users();
++
++	DBG("service favorite user id is: %d", service->user.favorite_user);
++
++	for (list = user_list; list; list = list->next) {
++		uid_t uid = GPOINTER_TO_UINT(list->data);
++
++		DBG("login user id is %d", uid);
++
++		if (service->user.favorite_user == uid) {
++			ret = true;
++			break;
++		}
++	}
++
++	g_list_free(user_list);
++
++	return ret;
++}
++
+ int __connman_service_load_modifiable(struct connman_service *service)
+ {
+ 	GKeyFile *keyfile;
+@@ -3800,6 +3857,11 @@ static bool auto_connect_service(GList *services,
+ 			continue;
+ 		}
+ 
++		if (!is_service_owner_user_login(service)) {
++			DBG("favorite user not login, wifi auto connect denied");
++			continue;
++		}
++
+ 		DBG("service %p %s %s", service, service->name,
+ 			(preferred) ? "preferred" : reason2string(reason));
+ 
+-- 
+1.8.1.4
+

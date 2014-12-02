@@ -1,0 +1,104 @@
+From 2bbc2b500806c808f54b459615ea4daddef1cf4e Mon Sep 17 00:00:00 2001
+From: Arron Wang <arron.wang@intel.com>
+Date: Tue, 9 Oct 2012 16:20:45 +0800
+Subject: [PATCH 11/32] Tizen: Export network proxy API for telephony plugin
+
+Telephony plug-in requires manual PROXY setting function
+Telephony stack provides proxy address (3G profile).
+
+Change-Id: Iaa02f59465a687961c303667ee09051b419507d2
+---
+ include/network.h |  3 +++
+ src/connman.h     |  4 ++++
+ src/network.c     | 18 ++++++++++++++++++
+ src/service.c     | 16 ++++++++++++++++
+ 4 files changed, 41 insertions(+)
+
+diff --git a/include/network.h b/include/network.h
+index 180f2a2..e433c22 100644
+--- a/include/network.h
++++ b/include/network.h
+@@ -131,6 +131,9 @@ unsigned int connman_network_get_maxrate(struct connman_network *network);
+ int connman_network_set_enc_mode(struct connman_network *network,
+ 				const char *encryption_mode);
+ const char *connman_network_get_enc_mode(struct connman_network *network);
++
++int connman_network_set_proxy(struct connman_network *network,
++                               const char *proxies);
+ #endif
+ 
+ int connman_network_set_name(struct connman_network *network,
+diff --git a/src/connman.h b/src/connman.h
+index da01215..4d78eab 100644
+--- a/src/connman.h
++++ b/src/connman.h
+@@ -756,6 +756,10 @@ void __connman_service_timeserver_changed(struct connman_service *service,
+ 		GSList *ts_list);
+ void __connman_service_set_pac(struct connman_service *service,
+ 					const char *pac);
++#if defined TIZEN_EXT
++void __connman_service_set_proxy(struct connman_service *service,
++                                       const char *proxies);
++#endif
+ bool __connman_service_is_hidden(struct connman_service *service);
+ bool __connman_service_is_split_routing(struct connman_service *service);
+ bool __connman_service_index_is_split_routing(int index);
+diff --git a/src/network.c b/src/network.c
+index c40a079..8c9fdcb 100644
+--- a/src/network.c
++++ b/src/network.c
+@@ -1808,6 +1808,24 @@ const char *connman_network_get_enc_mode(struct connman_network *network)
+ 	return (const char *)network->wifi.encryption_mode;
+ }
+ 
++int connman_network_set_proxy(struct connman_network *network,
++				const char *proxies)
++{
++	struct connman_service *service;
++
++	DBG("network %p proxies %s", network, proxies);
++
++	service = connman_service_lookup_from_network(network);
++	if (service == NULL)
++		return -EINVAL;
++
++	__connman_service_set_proxy(service, proxies);
++
++	connman_service_set_proxy_method(service,
++				CONNMAN_SERVICE_PROXY_METHOD_MANUAL);
++
++	return 0;
++}
+ #endif
+ 
+ int connman_network_set_nameservers(struct connman_network *network,
+diff --git a/src/service.c b/src/service.c
+index d3b219f..8d3c619 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -2806,6 +2806,22 @@ void __connman_service_set_pac(struct connman_service *service,
+ 	proxy_changed(service);
+ }
+ 
++#if defined TIZEN_EXT
++void __connman_service_set_proxy(struct connman_service *service,
++                                       const char *proxies)
++{
++       char **proxies_array = NULL;
++
++       g_strfreev(service->proxies);
++       service->proxies = NULL;
++
++       if (proxies != NULL)
++               proxies_array = g_strsplit(proxies, " ", 0);
++
++       service->proxies = proxies_array;
++}
++#endif
++
+ void __connman_service_set_identity(struct connman_service *service,
+ 					const char *identity)
+ {
+-- 
+1.8.1.4
+

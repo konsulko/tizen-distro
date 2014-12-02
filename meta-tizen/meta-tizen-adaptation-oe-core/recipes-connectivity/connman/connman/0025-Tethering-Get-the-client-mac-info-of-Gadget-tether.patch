@@ -1,0 +1,154 @@
+From 58bd810c3a61593a3c7494f843fc5dfc1d411769 Mon Sep 17 00:00:00 2001
+From: "guoqiang.liu" <guoqiang.liu@archermind.com>
+Date: Wed, 25 Sep 2013 16:36:21 +0800
+Subject: [PATCH 25/32] Tethering: Get the client mac info of Gadget tether
+
+Change-Id: Icfa6cd683c659e6728060d6201b90109c63fe56d
+---
+ plugins/gadget.c | 87 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 87 insertions(+)
+
+diff --git a/plugins/gadget.c b/plugins/gadget.c
+index 97807d8..6bc37a7 100644
+--- a/plugins/gadget.c
++++ b/plugins/gadget.c
+@@ -25,6 +25,8 @@
+ 
+ #include <errno.h>
+ #include <net/if.h>
++#include <stdio.h>
++#include <string.h>
+ 
+ #ifndef IFF_LOWER_UP
+ #define IFF_LOWER_UP	0x10000
+@@ -226,6 +228,71 @@ static struct connman_device_driver gadget_dev_driver = {
+ };
+ 
+ static GList *cdc_interface_list = NULL;
++static GHashTable *cdc_mac_hash = NULL;
++
++static void add_station(int index)
++{
++	char *path, line[128] = {'\0'};
++	char *ifname = connman_inet_ifname(index);
++	char *mac;
++	FILE *f;
++
++	if (ifname == NULL)
++		return;
++
++	path = g_strdup_printf("/sys/class/usb_mode/%s/f_rndis/ethaddr",
++					ifname);
++
++	f = fopen(path, "re");
++
++	g_free(ifname);
++	g_free(path);
++
++	if (f == NULL)
++		return;
++
++	if (fgets(line, sizeof(line), f) == NULL) {
++		fclose(f);
++		return;
++	}
++
++	fclose(f);
++
++	mac = g_ascii_strdown(line, strlen(line) - 1);
++	DBG("Add station %s in Technology %d", mac,
++						CONNMAN_SERVICE_TYPE_GADGET);
++
++	g_hash_table_insert(cdc_mac_hash, GINT_TO_POINTER(index),
++				mac);
++
++	connman_technology_tethering_add_station(CONNMAN_SERVICE_TYPE_GADGET,
++				mac);
++}
++
++static void remove_station(int index)
++{
++	char *mac;
++	mac = g_hash_table_lookup(cdc_mac_hash, GINT_TO_POINTER(index));
++	if (mac == NULL)
++		return;
++
++	connman_technology_tethering_remove_station(mac);
++
++	g_hash_table_remove(cdc_mac_hash, GINT_TO_POINTER(index));
++}
++
++static gboolean remove_all_station(gpointer key, gpointer value, gpointer user_data)
++{
++	char *mac;
++	mac = value;
++	if (mac == NULL)
++		return TRUE;
++
++	connman_technology_tethering_remove_station(mac);
++
++	return TRUE;
++}
++
+ 
+ static void gadget_tech_add_interface(struct connman_technology *technology,
+ 			int index, const char *name, const char *ident)
+@@ -246,6 +313,8 @@ static void gadget_tech_remove_interface(struct connman_technology *technology,
+ 
+ 	cdc_interface_list = g_list_remove(cdc_interface_list,
+ 					GINT_TO_POINTER((int) index));
++
++	remove_station(index);
+ }
+ 
+ static void gadget_tech_enable_tethering(struct connman_technology *technology,
+@@ -270,6 +339,8 @@ static void gadget_tech_enable_tethering(struct connman_technology *technology,
+ 		connman_inet_ifup(index);
+ 
+ 		connman_inet_add_to_bridge(index, bridge);
++
++		add_station(index);
+ 	}
+ }
+ 
+@@ -283,6 +354,8 @@ static void gadget_tech_disable_tethering(struct connman_technology *technology,
+ 
+ 		connman_inet_remove_from_bridge(index, bridge);
+ 
++		remove_station(index);
++
+ 		connman_inet_ifdown(index);
+ 
+ 		connman_technology_tethering_notify(technology, false);
+@@ -305,14 +378,28 @@ static int gadget_tech_set_tethering(struct connman_technology *technology,
+ 
+ static int gadget_tech_probe(struct connman_technology *technology)
+ {
++	DBG("tech probe %p", technology);
++
++	cdc_mac_hash = g_hash_table_new_full(g_direct_hash,
++					 g_direct_equal, NULL, g_free);
++
+ 	return 0;
+ }
+ 
+ static void gadget_tech_remove(struct connman_technology *technology)
+ {
++	DBG("tech remove %p", technology);
++
+ 	g_list_free(cdc_interface_list);
+ 
+ 	cdc_interface_list = NULL;
++
++	if (cdc_mac_hash) {
++		g_hash_table_foreach_remove(cdc_mac_hash, remove_all_station,
++						NULL);
++		g_hash_table_destroy(cdc_mac_hash);
++		cdc_mac_hash = NULL;
++	}
+ }
+ 
+ static struct connman_technology_driver gadget_tech_driver = {
+-- 
+1.8.1.4
+

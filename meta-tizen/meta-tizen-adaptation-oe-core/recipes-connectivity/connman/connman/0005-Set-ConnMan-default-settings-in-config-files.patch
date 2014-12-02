@@ -1,0 +1,66 @@
+From 85053773dfe482c81ca1ac87dc6baf2ff6b29df0 Mon Sep 17 00:00:00 2001
+From: Zhang zhengguang <zhengguang.zhang@intel.com>
+Date: Fri, 4 Jul 2014 14:49:18 +0800
+Subject: [PATCH 05/32] Set ConnMan default settings in config files
+
+---
+ src/connman.service.in | 3 ++-
+ src/main.conf          | 4 ++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/connman.service.in b/src/connman.service.in
+index 7b6195e..67d051d 100644
+--- a/src/connman.service.in
++++ b/src/connman.service.in
+@@ -5,10 +5,11 @@ After=dbus.socket
+ Before=remote-fs.target
+ 
+ [Service]
++EnvironmentFile=-/etc/sysconfig/connman
+ Type=dbus
+ BusName=net.connman
+ Restart=on-failure
+-ExecStart=@prefix@/sbin/connmand -n
++ExecStart=@prefix@/sbin/connmand -n $OPTIONS
+ StandardOutput=null
+ 
+ [Install]
+diff --git a/src/main.conf b/src/main.conf
+index 93c7a50..c979553 100644
+--- a/src/main.conf
++++ b/src/main.conf
+@@ -19,6 +19,7 @@
+ # the scan list is empty. In that case, a simple backoff
+ # mechanism starting from 10s up to 5 minutes will run.
+ # BackgroundScanning = true
++BackgroundScanning = false
+ 
+ # List of Fallback timeservers separated by ",".
+ # These timeservers are used for NTP sync when there are
+@@ -26,6 +27,7 @@
+ # These can contain mixed combination of fully qualified
+ # domain names, IPv4 and IPv6 addresses.
+ # FallbackTimeservers =
++FallbackTimeservers = pool.ntp.org
+ 
+ # List of fallback nameservers separated by "," used if no
+ # nameservers are otherwise provided by the service. The
+@@ -52,6 +54,7 @@
+ # the default route when compared to either a non-preferred
+ # type or a preferred type further down in the list.
+ # PreferredTechnologies =
++PreferredTechnologies = ethernet,wifi
+ 
+ # List of blacklisted network interfaces separated by ",".
+ # Found interfaces will be compared to the list and will
+@@ -59,6 +62,7 @@
+ # match any of the list entries. Default value is
+ # vmnet,vboxnet,virbr,ifb.
+ # NetworkInterfaceBlacklist = vmnet,vboxnet,virbr,ifb
++NetworkInterfaceBlacklist = vmnet,vboxnet,virbr
+ 
+ # Allow connman to change the system hostname. This can
+ # happen for example if we receive DHCP hostname option.
+-- 
+1.8.1.4
+

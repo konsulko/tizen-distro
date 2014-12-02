@@ -1,0 +1,26 @@
+From 8b828d775adb413be2e02a5377d83af9ecb979ed Mon Sep 17 00:00:00 2001
+From: Zhang zhengguang <zhengguang.zhang@intel.com>
+Date: Tue, 19 Aug 2014 09:41:09 +0800
+Subject: [PATCH 08/32] Add connmanctl to the built rpm
+
+Change-Id: I84fb13ea9224985ad9e15b5c3c5f616bcf7431a4
+---
+ Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index a574170..76863cf 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -237,7 +237,7 @@ script_LTLIBRARIES =
+ include Makefile.plugins
+ 
+ if CLIENT
+-noinst_PROGRAMS += client/connmanctl
++sbin_PROGRAMS += client/connmanctl
+ 
+ noinst_MANUAL_PAGES = doc/connmanctl.1
+ 
+-- 
+1.8.1.4
+

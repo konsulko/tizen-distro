@@ -1,0 +1,283 @@
+From 98894f533f23fe532a4449ddaafaa69d39441980 Mon Sep 17 00:00:00 2001
+From: Arron Wang <arron.wang@intel.com>
+Date: Mon, 24 Sep 2012 14:18:07 +0800
+Subject: [PATCH 09/32] Tizen: Export more wifi info in ConnMan network API
+
+Network client requires additional wifi specific info
+
+Export the BSSID property
+Export the MaxRate property
+Export the detailed info for encryption mode(mixed,aes,tkip,wep,none)
+
+Export the connman_network get/set method for bssid, maxrate,
+encryption_mode property
+
+Change-Id: Ic5744978282e49cb2f70165aaadc7822dc718dfb
+---
+ gsupplicant/gsupplicant.h | 10 +++++++
+ gsupplicant/supplicant.c  | 49 +++++++++++++++++++++++++++++++
+ include/network.h         | 17 +++++++++++
+ plugins/wifi.c            | 25 +++++++++++++++-
+ src/network.c             | 73 +++++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 173 insertions(+), 1 deletion(-)
+
+diff --git a/gsupplicant/gsupplicant.h b/gsupplicant/gsupplicant.h
+index e49aaa6..27826dc 100644
+--- a/gsupplicant/gsupplicant.h
++++ b/gsupplicant/gsupplicant.h
+@@ -336,6 +336,16 @@ GSupplicantInterface *g_supplicant_peer_get_group_interface(GSupplicantPeer *pee
+ bool g_supplicant_peer_is_client(GSupplicantPeer *peer);
+ bool g_supplicant_peer_has_requested_connection(GSupplicantPeer *peer);
+ 
++#if defined TIZEN_EXT
++/*
++* Description: Network client requires additional wifi specific info
++*/
++const unsigned char *g_supplicant_network_get_bssid(
++						GSupplicantNetwork *network);
++unsigned int g_supplicant_network_get_maxrate(GSupplicantNetwork *network);
++const char *g_supplicant_network_get_enc_mode(GSupplicantNetwork *network);
++#endif
++
+ struct _GSupplicantCallbacks {
+ 	void (*system_ready) (void);
+ 	void (*system_killed) (void);
+diff --git a/gsupplicant/supplicant.c b/gsupplicant/supplicant.c
+index 909a617..d2e4a64 100644
+--- a/gsupplicant/supplicant.c
++++ b/gsupplicant/supplicant.c
+@@ -1169,6 +1169,55 @@ bool g_supplicant_peer_has_requested_connection(GSupplicantPeer *peer)
+ 	return peer->connection_requested;
+ }
+ 
++#if defined TIZEN_EXT
++/*
++ * Description: Network client requires additional wifi specific info
++ */
++const unsigned char *g_supplicant_network_get_bssid(GSupplicantNetwork *network)
++{
++	if (network == NULL || network->best_bss == NULL)
++		return NULL;
++
++	return (const unsigned char *)network->best_bss->bssid;
++}
++
++unsigned int g_supplicant_network_get_maxrate(GSupplicantNetwork *network)
++{
++	if (network == NULL || network->best_bss == NULL)
++		return 0;
++
++	return network->best_bss->maxrate;
++}
++
++const char *g_supplicant_network_get_enc_mode(GSupplicantNetwork *network)
++{
++	if (network == NULL || network->best_bss == NULL)
++		return NULL;
++
++	if (network->best_bss->security == G_SUPPLICANT_SECURITY_PSK ||
++	    network->best_bss->security == G_SUPPLICANT_SECURITY_IEEE8021X) {
++		unsigned int pairwise;
++
++		pairwise = network->best_bss->rsn_pairwise |
++				network->best_bss->wpa_pairwise;
++
++		if ((pairwise & G_SUPPLICANT_PAIRWISE_CCMP) &&
++		    (pairwise & G_SUPPLICANT_PAIRWISE_TKIP))
++			return "mixed";
++		else if (pairwise & G_SUPPLICANT_PAIRWISE_CCMP)
++			return "aes";
++		else if (pairwise & G_SUPPLICANT_PAIRWISE_TKIP)
++			return "tkip";
++
++	} else if (network->best_bss->security == G_SUPPLICANT_SECURITY_WEP)
++		return "wep";
++	else if (network->best_bss->security == G_SUPPLICANT_SECURITY_NONE)
++		return "none";
++
++	return NULL;
++}
++#endif
++
+ static void merge_network(GSupplicantNetwork *network)
+ {
+ 	GString *str;
+diff --git a/include/network.h b/include/network.h
+index d772699..180f2a2 100644
+--- a/include/network.h
++++ b/include/network.h
+@@ -116,6 +116,23 @@ int connman_network_set_nameservers(struct connman_network *network,
+ 				const char *nameservers);
+ int connman_network_set_domain(struct connman_network *network,
+ 			             const char *domain);
++#if defined TIZEN_EXT
++/*
++ * Description: Network client requires additional wifi specific info
++ */
++int connman_network_set_bssid(struct connman_network *network,
++				const unsigned char *bssid);
++unsigned char *connman_network_get_bssid(struct connman_network *network);
++
++int connman_network_set_maxrate(struct connman_network *network,
++				unsigned int maxrate);
++unsigned int connman_network_get_maxrate(struct connman_network *network);
++
++int connman_network_set_enc_mode(struct connman_network *network,
++				const char *encryption_mode);
++const char *connman_network_get_enc_mode(struct connman_network *network);
++#endif
++
+ int connman_network_set_name(struct connman_network *network,
+ 							const char *name);
+ int connman_network_set_strength(struct connman_network *network,
+diff --git a/plugins/wifi.c b/plugins/wifi.c
+index 5f2ebf1..69a0e23 100644
+--- a/plugins/wifi.c
++++ b/plugins/wifi.c
+@@ -2602,7 +2602,14 @@ static void network_added(GSupplicantNetwork *supplicant_network)
+ 
+ 	connman_network_set_frequency(network,
+ 			g_supplicant_network_get_frequency(supplicant_network));
+-
++#if defined TIZEN_EXT
++	connman_network_set_bssid(network,
++			g_supplicant_network_get_bssid(supplicant_network));
++	connman_network_set_maxrate(network,
++			g_supplicant_network_get_maxrate(supplicant_network));
++	connman_network_set_enc_mode(network,
++			g_supplicant_network_get_enc_mode(supplicant_network));
++#endif
+ 	connman_network_set_available(network, true);
+ 	connman_network_set_string(network, "WiFi.Mode", mode);
+ 
+@@ -2658,6 +2665,12 @@ static void network_changed(GSupplicantNetwork *network, const char *property)
+ 	const char *name, *identifier;
+ 	struct connman_network *connman_network;
+ 
++#if defined TIZEN_EXT
++	const unsigned char *bssid;
++	unsigned int maxrate;
++	uint16_t frequency;
++#endif
++
+ 	interface = g_supplicant_network_get_interface(network);
+ 	wifi = g_supplicant_interface_get_data(interface);
+ 	identifier = g_supplicant_network_get_identifier(network);
+@@ -2677,6 +2690,16 @@ static void network_changed(GSupplicantNetwork *network, const char *property)
+ 					calculate_strength(network));
+ 	       connman_network_update(connman_network);
+ 	}
++
++#if defined TIZEN_EXT
++	bssid = g_supplicant_network_get_bssid(network);
++	maxrate = g_supplicant_network_get_maxrate(network);
++	frequency = g_supplicant_network_get_frequency(network);
++
++	connman_network_set_bssid(connman_network, bssid);
++	connman_network_set_maxrate(connman_network, maxrate);
++	connman_network_set_frequency(connman_network, frequency);
++#endif
+ }
+ 
+ static void apply_peer_services(GSupplicantPeer *peer,
+diff --git a/src/network.c b/src/network.c
+index b388995..c40a079 100644
+--- a/src/network.c
++++ b/src/network.c
+@@ -41,6 +41,11 @@
+  */
+ #define RS_REFRESH_TIMEOUT	3
+ 
++#if defined TIZEN_EXT
++#define WIFI_ENCYPTION_MODE_LEN_MAX 6
++#define WIFI_BSSID_LEN_MAX 6
++#endif
++
+ static GSList *network_list = NULL;
+ static GSList *driver_list = NULL;
+ 
+@@ -87,6 +92,11 @@ struct connman_network {
+ 		bool wps;
+ 		bool use_wps;
+ 		char *pin_wps;
++#if defined TIZEN_EXT
++		char encryption_mode[WIFI_ENCYPTION_MODE_LEN_MAX];
++		unsigned char bssid[WIFI_BSSID_LEN_MAX];
++		unsigned int maxrate;
++#endif
+ 	} wifi;
+ 
+ };
+@@ -1737,6 +1747,69 @@ int connman_network_set_ipaddress(struct connman_network *network,
+ 	return 0;
+ }
+ 
++#if defined TIZEN_EXT
++/*
++ * Description: Network client requires additional wifi specific info
++ */
++int connman_network_set_bssid(struct connman_network *network,
++				const unsigned char *bssid)
++{
++	int i = 0;
++
++	if (bssid == NULL)
++		return -EINVAL;
++
++	DBG("network %p bssid %02x:%02x:%02x:%02x:%02x:%02x", network,
++			bssid[0], bssid[1], bssid[2],
++			bssid[3], bssid[4], bssid[5]);
++
++	for (;i < WIFI_BSSID_LEN_MAX;i++)
++		network->wifi.bssid[i] = bssid[i];
++
++	return 0;
++}
++
++unsigned char *connman_network_get_bssid(struct connman_network *network)
++{
++	return (unsigned char *)network->wifi.bssid;
++}
++
++int connman_network_set_maxrate(struct connman_network *network,
++				unsigned int maxrate)
++{
++	DBG("network %p maxrate %d", network, maxrate);
++
++	network->wifi.maxrate = maxrate;
++
++	return 0;
++}
++
++unsigned int connman_network_get_maxrate(struct connman_network *network)
++{
++	return network->wifi.maxrate;
++}
++
++int connman_network_set_enc_mode(struct connman_network *network,
++				const char *encryption_mode)
++{
++	if (encryption_mode == NULL)
++		return -EINVAL;
++
++	DBG("network %p encryption mode %s", network, encryption_mode);
++
++	g_strlcpy(network->wifi.encryption_mode, encryption_mode,
++					WIFI_ENCYPTION_MODE_LEN_MAX);
++
++	return 0;
++}
++
++const char *connman_network_get_enc_mode(struct connman_network *network)
++{
++	return (const char *)network->wifi.encryption_mode;
++}
++
++#endif
++
+ int connman_network_set_nameservers(struct connman_network *network,
+ 				const char *nameservers)
+ {
+-- 
+1.8.1.4
+
