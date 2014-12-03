@@ -9,9 +9,9 @@ RDEPENDS_${PN} += "config-tizen-common"
 inherit useradd
 
 USERADD_PACKAGES = "${PN}"
-GROUPADD_PARAM_${PN} += "--system -o display;"
-GROUPADD_PARAM_${PN} += "--system -o input;"
-GROUPADD_PARAM_${PN} += "--system -o weston-launch"
+GROUPADD_PARAM_${PN} += "--system  display;"
+GROUPADD_PARAM_${PN} += "--system  input;"
+GROUPADD_PARAM_${PN} += "--system  weston-launch"
 
 do_install_append() {
     install -m 755 uid.sh ${D}/etc/profile.d
