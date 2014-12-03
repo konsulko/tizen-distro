@@ -54,7 +54,7 @@ pkg_postinst_${PN} () {
     grep -q display-manager.path $SERVICE_PATH || sed -i 's@systemd-logind.service@systemd-logind.service display-manager.path@g' $SERVICE_PATH
 }
 
-weston-common_files += "${prefix}/lib/systemd/user/default.target.requires/weston-user.service"
+weston-common_files += "${prefix}/lib/systemd/user/default.target.requires/weston-user.service/*"
 weston-common_files += "/home/*"
 
 FILES_${PN} += "/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5001.service"
