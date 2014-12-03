@@ -186,7 +186,7 @@ do_install() {
  cp lib/*.ngrambin ${D}${prefix}/share/festival/
  cp lib/*.gram ${D}${prefix}/share/festival/
  cp lib/*.el ${D}${prefix}/share/festival/
- install -D lib/etc/unknown_Linux/audsp ${D}${prefix}/lib/festival/audsp
+ install -D lib/etc/unknown*/audsp ${D}${prefix}/lib/festival/audsp
  # install libs
  install -D src/lib/libFestival.so  ${D}${prefix}/lib/libFestival.so
  # install includes
