@@ -1,0 +1,35 @@
+# LAYER_CONF_VERSION is increased each time build/conf/bblayers.conf
+# changes incompatibly
+LCONF_VERSION = "5"
+
+BBPATH = "${TOPDIR}"
+BBFILES ?= ""
+
+BBLAYERS ?= " \
+  ##OEROOT##/meta \
+  ##OEROOT##/meta-openembedded/meta-oe \
+  ##OEROOT##/meta-openembedded/meta-multimedia \
+  ##OEROOT##/meta-openembedded/meta-ruby \
+  ##OEROOT##/meta-openembedded/meta-systemd \
+  ##OEROOT##/meta-openembedded/meta-gnome \
+  ##OEROOT##/meta-tizen/meta-tizen-adaptation/meta \
+  ##OEROOT##/meta-tizen/meta-tizen-adaptation/meta-oe \
+  ##OEROOT##/meta-tizen/meta-tizen-common-base \
+  ##OEROOT##/meta-tizen/meta-tizen-common-share \
+  ##OEROOT##/meta-tizen/meta-tizen-common-devtools \
+  ##OEROOT##/meta-tizen/meta-tizen-common-demo \
+  ##OEROOT##/meta-tizen/meta-tizen-ivi \
+  "
+
+BBLAYERS_NON_REMOVABLE ?= " \
+  ##OEROOT##/meta \
+  ##OEROOT##/meta-openembedded/meta-oe \
+  ##OEROOT##/meta-openembedded/meta-multimedia \
+  ##OEROOT##/meta-openembedded/meta-ruby \
+  ##OEROOT##/meta-openembedded/meta-systemd \
+  ##OEROOT##/meta-openembedded/meta-gnome \
+  ##OEROOT##/meta-tizen/meta-tizen-adaptation-oe-core \
+  ##OEROOT##/meta-tizen/meta-tizen-adaptation-meta-oe \
+  ##OEROOT##/meta-tizen/meta-tizen-common-base \
+  "
+
