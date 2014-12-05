@@ -1,3 +1,7 @@
+do_compile_prepend_class-native() {
+    export LD_LIBS="${LDFLAGS}"
+}
+
 do_install_append_class-native() {
     # Create empty .chk files for the NSS libraries at build time. They could
     # be regenerated at target's boot time.
