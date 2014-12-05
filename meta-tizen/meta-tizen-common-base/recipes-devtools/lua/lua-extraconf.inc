@@ -2,6 +2,8 @@ INSANE_SKIP_${PN}-dev = "staticdev"
 
 EXTRA_OEMAKE = "'CC=${CC} -fPIC' 'MYCFLAGS=${CFLAGS} -DLUA_USE_LINUX -fPIC' MYLDFLAGS='${LDFLAGS}'"
 
+inherit gettext
+
 do_compile() {
     cd ${S}
     LANG=C
