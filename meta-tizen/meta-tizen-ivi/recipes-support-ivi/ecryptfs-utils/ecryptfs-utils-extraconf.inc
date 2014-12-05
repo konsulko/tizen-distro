@@ -1,3 +1,5 @@
+DEPENDS += "python"
+
 do_configure_prepend() {
     # Remove unknown macro in configure.ac
     sed -i 's@^AM_GLIB_GNU_GETTEXT@@' configure.ac
@@ -9,6 +11,7 @@ do_compile_prepend() {
     export STAGING_LIBDIR=${STAGING_LIBDIR}
     export STAGING_INCDIR=${STAGING_INCDIR}
 }
+
 
 # Bypass a QA issue regarding symnlinks.
 # A better solution would be to  create a libecryptfs-python-dev package containing the symlinks.
