@@ -1,0 +1,32 @@
+From 513e054f29ce0b72883e3aa060698e98caf49516 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
+Date: Fri, 5 Dec 2014 14:24:27 +0100
+Subject: [PATCH] meta-tizen: Do not generate README from README.html
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+README generation from README.html requires lynx which we don't have
+and don't want to add as a dependency.
+
+Signed-off-by: Kévin THIERRY <kevin.thierry@open.eurogiciel.org>
+---
+ Makefile.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.in b/Makefile.in
+index 0babf0e..7831dfa 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -40,7 +40,7 @@ all install uninstall clean distclean mostlyclean maintainer-clean distprep:
+ 	set -e; for d in $(SUBDIRS); do $(MAKE) -C $$d $@; done
+ 	$(MAKE) $@-here
+ 
+-all-here install-here uninstall-here distprep-here:	README
++all-here install-here uninstall-here distprep-here:
+ 
+ clean-here mostlyclean-here:
+ 		rm -f *~ ./#*# core *.orig *.rej adns-*.tar.gz
+-- 
+1.8.1.4
+

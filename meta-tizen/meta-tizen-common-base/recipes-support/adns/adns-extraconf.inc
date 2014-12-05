@@ -1,4 +1,5 @@
 SRC_URI += "file://0001-Yocto-fix-remove-unknown-configure-functions.patch"
+SRC_URI += "file://0001-Do-not-generate-README-from-README.html.patch"
 
 do_configure_prepend() {
     # Create symlinks to regress/hmacros.i4 and regress/hsyscalls.i4 in root src dir since they are not searched in the regress/ dir.
