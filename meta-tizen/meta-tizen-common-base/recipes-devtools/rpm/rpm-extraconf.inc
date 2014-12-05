@@ -15,7 +15,7 @@ DEPENDS += "acl-native"
 DEPENDS += "lua-native"
 DEPENDS += "python-native"
 DEPENDS_remove = "make"
-
+DEPENDS += "python"
 DEPENDS_append_class-native = " libcap-native"
 DEPENDS_append_class-target = " libcap"
 
