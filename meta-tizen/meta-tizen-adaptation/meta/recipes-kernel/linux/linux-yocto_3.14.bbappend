@@ -38,3 +38,6 @@ DEFCONFIG_arm= "file://defconfig"
 # Setting the KCONFIG_MODE variable prevents it to being set to
 # "--allnoconfig" which disable all kernel options.
 KCONFIG_MODE = "--reconfig"
+
+COMPATIBLE_MACHINE_genericx86 = "genericx86"
+COMPATIBLE_MACHINE_genericx86-64 = "genericx86-64"
