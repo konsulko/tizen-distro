@@ -1,5 +1,8 @@
 SECTION = "Graphics & UI Framework/Hardware Adaptation"
 
+# Enabling gallium-llvm creates a dependency on llvm.
+# meta-openembedded provides that.
+
 PACKAGECONFIG_append = " gallium"
 PACKAGECONFIG_append = " gallium-egl"
 PACKAGECONFIG_append = " gallium-gbm"
