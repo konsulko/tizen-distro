@@ -2,7 +2,7 @@ DESCRIPTION = "Chromium-based app runtime"
 HOMEPAGE = "https://github.com/otcshare/crosswalk"
 SECTION = "Web Framework/Web Run Time"
 LICENSE = "(BSD-3-Clause and LGPL-2.1+)"
-PV = "10.38.222.0"
+PV = "11.39.256.0"
 
 SRC_URI = ""
 
@@ -20,6 +20,7 @@ PROVIDES = ""
 RDEPENDS = ""
 #RDEPENDS of crosswalk-thirdparty (${PN})
 RDEPENDS_${PN} += "ca-certificates-tizen"
+RDEPENDS_${PN} += "ss-server"
 
 
 DEPENDS = ""
@@ -34,6 +35,7 @@ DEPENDS += "nss"
 DEPENDS += "alsa-lib"
 DEPENDS += "elfutils"
 inherit pkgconfig
+DEPENDS += "yasm"
 inherit perlnative
 DEPENDS += "wayland"
 DEPENDS += "which"
@@ -65,10 +67,8 @@ do_prep() {
  cp ${S}/packaging/xwalk-thirdparty.gyp src/xwalk/
  
  
- cat ${S}/packaging/Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch | patch -s  -p0 --fuzz=2
- #patch9
- 
  # The profiles using Wayland (and thus Ozone) do not need this patch.
+ 
  
  
 }
@@ -85,6 +85,7 @@ do_compile() {
  export LANG
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+ 
  
  
  # Stop unconditionally passing -Wall to the compiler. Chromium has its own
@@ -119,12 +120,12 @@ do_compile() {
     ln -s "${BUILDDIR_NAME}" src/out
  fi
  
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_xdg_shell=1"
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1"
  
- # Force gold binary from chroot ld.gold provided by binutils-gold
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1 -Dlinux_use_bundled_binutils=0 -Dlinux_use_bundled_gold=0 "
+ # disable nacl if necessary
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1"
  
- # Linking fails in Tizen Common when fatal ld warnings are enabled. XWALK-1379.
+ # Linking fails when fatal ld warnings are enabled. See XWALK-1379.
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
  
  # For building for arm in OBS, we need :
@@ -136,6 +137,8 @@ do_compile() {
  # So force it.
  
  
+ 
+ 
  # --no-parallel is added because chroot does not mount a /dev/shm, this will
  # cause python multiprocessing.SemLock error.
  export GYP_GENERATORS='ninja'
@@ -144,6 +147,8 @@ do_compile() {
  ${GYP_EXTRA_FLAGS} \
  -Dchromeos=0 \
  -Dclang=0 \
+ -Dlinux_use_bundled_binutils=0 \
+ -Dlinux_use_bundled_gold=0 \
  -Dtizen=1 \
  -Dpython_ver=2.7 \
  -Duse_aura=1 \
@@ -154,7 +159,7 @@ do_compile() {
  -Duse_system_bzip2=1 \
  -Duse_system_libexif=1 \
  -Duse_system_libxml=1 \
- -Duse_system_nspr=1 \
+ -Duse_system_yasm=1 \
  -Dshared_process_mode=1 \
  -Denable_hidpi=1
  
@@ -172,6 +177,7 @@ do_install() {
  unset DISPLAY
  rm -rf ${D}
  mkdir -p ${D}
+ 
  
  
  mkdir  -p ${D}${prefix}/share/crosswalk-thirdparty/

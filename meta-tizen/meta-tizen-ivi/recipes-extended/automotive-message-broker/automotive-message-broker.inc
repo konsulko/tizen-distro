@@ -2,7 +2,7 @@ DESCRIPTION = "Automotive Message Broker is a vehicle network abstraction system
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/Service"
 LICENSE = "LGPL-2.1"
-PV = "0.11.901"
+PV = "0.12.803"
 
 SRC_URI = ""
 
@@ -43,6 +43,10 @@ PROVIDES += "automotive-message-broker-plugins-wheel"
 
 #PROVIDES by automotive-message-broker-plugins-cansim
 PROVIDES += "automotive-message-broker-plugins-cansim"
+
+
+#PROVIDES by automotive-message-broker-xwalk-vehicle-extension
+PROVIDES += "automotive-message-broker-xwalk-vehicle-extension"
 
 
 #PROVIDES by automotive-message-broker-dev
@@ -90,6 +94,10 @@ RDEPENDS_${PN}-plugins-wheel += "automotive-message-broker"
 #RDEPENDS of automotive-message-broker-plugins-cansim (${PN}-plugins-cansim)
 RDEPENDS_${PN}-plugins-cansim += "automotive-message-broker"
 
+#RDEPENDS of automotive-message-broker-xwalk-vehicle-extension (${PN}-xwalk-vehicle-extension)
+RDEPENDS_${PN}-xwalk-vehicle-extension += "crosswalk"
+RDEPENDS_${PN}-xwalk-vehicle-extension += "automotive-message-broker"
+
 #RDEPENDS of automotive-message-broker-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "boost"
 RDEPENDS_${PN}-dev += "util-linux"
@@ -98,6 +106,7 @@ RDEPENDS_${PN}-dev += "automotive-message-broker"
 #RDEPENDS of automotive-message-broker (${PN})
 RDEPENDS_${PN} += "automotive-message-broker-plugins-murphy"
 RDEPENDS_${PN} += "automotive-message-broker-plugins"
+RDEPENDS_${PN} += "dbus-python"
 RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "default-ac-domains"
 
@@ -132,7 +141,7 @@ DEPENDS += "boost"
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n automotive-message-broker-0.11.901
+ #setup -q -n automotive-message-broker-0.12.803
  
  
 }
@@ -163,6 +172,8 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} \
+        -Dxwalk_vehicle_extension=ON \
+        -DXWALK_EXTENSION_PATH=/tizen-extensions-crosswalk \
         -Ddatabase_plugin=ON \
         -Dmurphy_plugin=ON \
         -Dobd2_plugin=ON \
@@ -170,8 +181,8 @@ do_compile() {
         -Dgpsnmea_plugin=ON \
         -Dcangen_plugin=ON \
         -Dcansim_plugin=ON \
-        -Denable_docs=ON \
-        -Dusebluez5=ON
+        -Dusebluez5=ON \
+        -Denable_docs=ON
  
  
  oe_runmake -j16
@@ -239,12 +250,13 @@ pkg_postrm_${PN}() {
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " automotive-message-broker-plugins-cangen "
 PACKAGES += " automotive-message-broker-plugins-common "
+PACKAGES += " automotive-message-broker-dev "
 PACKAGES += " automotive-message-broker-plugins-murphy "
 PACKAGES += " automotive-message-broker-plugins "
 PACKAGES += " automotive-message-broker-plugins-test "
 PACKAGES += " automotive-message-broker-plugins-gpsnmea "
 PACKAGES += " automotive-message-broker-plugins-cansim "
-PACKAGES += " automotive-message-broker-dev "
+PACKAGES += " automotive-message-broker-xwalk-vehicle-extension "
 PACKAGES += " automotive-message-broker "
 PACKAGES += " automotive-message-broker-plugins-database "
 PACKAGES += " automotive-message-broker-plugins-obd2 "
@@ -258,6 +270,12 @@ MANIFESTFILES_${PN}-plugins-cangen = "packaging.in/amb.manifest.plugins"
 automotive-message-broker-plugins-common_files = ""
 automotive-message-broker-plugins-common_files += "${prefix}/lib/libamb-plugins-common.so"
 MANIFESTFILES_${PN}-plugins-common = "packaging.in/amb.manifest.plugins"
+
+automotive-message-broker-dev_files = ""
+automotive-message-broker-dev_files += "${prefix}/include/amb/*.h"
+automotive-message-broker-dev_files += "${prefix}/include/amb/*.hpp"
+automotive-message-broker-dev_files += "${prefix}/lib/pkgconfig/*.pc"
+MANIFESTFILES_${PN}-dev = "packaging.in/amb.manifest.plugins"
 
 automotive-message-broker-plugins-murphy_files = ""
 automotive-message-broker-plugins-murphy_files += "${prefix}/lib/automotive-message-broker/murphysourceplugin.so"
@@ -285,11 +303,10 @@ automotive-message-broker-plugins-cansim_files = ""
 automotive-message-broker-plugins-cansim_files += "${prefix}/lib/automotive-message-broker/cansimplugin.so"
 MANIFESTFILES_${PN}-plugins-cansim = "packaging.in/amb.manifest.plugins"
 
-automotive-message-broker-dev_files = ""
-automotive-message-broker-dev_files += "${prefix}/include/amb/*.h"
-automotive-message-broker-dev_files += "${prefix}/include/amb/*.hpp"
-automotive-message-broker-dev_files += "${prefix}/lib/pkgconfig/*.pc"
-MANIFESTFILES_${PN}-dev = "packaging.in/amb.manifest.plugins"
+automotive-message-broker-xwalk-vehicle-extension_files = ""
+automotive-message-broker-xwalk-vehicle-extension_files += "${prefix}/lib/tizen-extensions-crosswalk/*"
+automotive-message-broker-xwalk-vehicle-extension_files += "${prefix}/share/automotive-message-broker/xwalk/examples/*"
+MANIFESTFILES_${PN}-xwalk-vehicle-extension = "packaging.in/amb.manifest.plugins"
 
 automotive-message-broker_files = ""
 automotive-message-broker_files += "${sysconfdir}/ambd/config"
@@ -328,12 +345,13 @@ MANIFESTFILES_${PN}-doc = "packaging.in/amb.manifest.plugins"
 
 FILES_${PN}-plugins-cangen = "${automotive-message-broker-plugins-cangen_files}"
 FILES_${PN}-plugins-common = "${automotive-message-broker-plugins-common_files}"
+FILES_${PN}-dev = "${automotive-message-broker-dev_files}"
 FILES_${PN}-plugins-murphy = "${automotive-message-broker-plugins-murphy_files}"
 FILES_${PN}-plugins = "${automotive-message-broker-plugins_files}"
 FILES_${PN}-plugins-test = "${automotive-message-broker-plugins-test_files}"
 FILES_${PN}-plugins-gpsnmea = "${automotive-message-broker-plugins-gpsnmea_files}"
 FILES_${PN}-plugins-cansim = "${automotive-message-broker-plugins-cansim_files}"
-FILES_${PN}-dev = "${automotive-message-broker-dev_files}"
+FILES_${PN}-xwalk-vehicle-extension = "${automotive-message-broker-xwalk-vehicle-extension_files}"
 FILES_${PN} = "${automotive-message-broker_files}"
 FILES_${PN}-plugins-database = "${automotive-message-broker-plugins-database_files}"
 FILES_${PN}-plugins-obd2 = "${automotive-message-broker-plugins-obd2_files}"
@@ -342,12 +360,13 @@ FILES_${PN}-doc = "${automotive-message-broker-doc_files}"
 
 PKG_automotive-message-broker-plugins-cangen= "automotive-message-broker-plugins-cangen"
 PKG_automotive-message-broker-plugins-common= "automotive-message-broker-plugins-common"
+PKG_automotive-message-broker-dev= "automotive-message-broker-dev"
 PKG_automotive-message-broker-plugins-murphy= "automotive-message-broker-plugins-murphy"
 PKG_automotive-message-broker-plugins= "automotive-message-broker-plugins"
 PKG_automotive-message-broker-plugins-test= "automotive-message-broker-plugins-test"
 PKG_automotive-message-broker-plugins-gpsnmea= "automotive-message-broker-plugins-gpsnmea"
 PKG_automotive-message-broker-plugins-cansim= "automotive-message-broker-plugins-cansim"
-PKG_automotive-message-broker-dev= "automotive-message-broker-dev"
+PKG_automotive-message-broker-xwalk-vehicle-extension= "automotive-message-broker-xwalk-vehicle-extension"
 PKG_automotive-message-broker= "automotive-message-broker"
 PKG_automotive-message-broker-plugins-database= "automotive-message-broker-plugins-database"
 PKG_automotive-message-broker-plugins-obd2= "automotive-message-broker-plugins-obd2"

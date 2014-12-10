@@ -214,21 +214,18 @@ do_install() {
  chmod 755 ${D}${sysconfdir}/rpm
  mkdir -p ${D}${prefix}/lib/rpm/macros.d
  # remove some nonsense or non-working scripts
- CURDIR=$(pwd)
- cd ${D}${prefix}/lib/rpm/
  for f in rpm2cpio.sh rpm.daily rpmdiff* rpm.log rpm.xinetd freshen.sh u_pkg.sh \
           magic magic.mgc magic.mime* rpmfile *.pl javadeps brp-redhat \
           brp-strip-static-archive vpkg-provides*.sh http.req sql.req tcl.req \
           rpmdb_* brp-sparc64-linux brp-strip-comment-note brp-java-gcjcompile
  do
-     rm -f $f
+     rm -f ${D}${prefix}/lib/rpm/$f
  done
  for i in ${prefix}/share/automake-*/*; do
-   if test -f "$i" && test -f "${i##*/}"; then
-     rm -f "${i##*/}"
+   if test -f "$i" && test -f ${D}${prefix}/lib/rpm/"${i##*/}"; then
+     rm -f ${D}${prefix}/lib/rpm/"${i##*/}"
    fi
  done
- cd ${CURDIR}
  rm -f ${D}${prefix}/lib/*.la
  rm -f ${D}${prefix}/lib/rpm-plugins/*.la
  

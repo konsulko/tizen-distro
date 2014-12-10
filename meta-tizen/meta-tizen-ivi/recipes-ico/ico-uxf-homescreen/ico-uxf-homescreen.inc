@@ -17,13 +17,6 @@ PROVIDES = ""
 PROVIDES += "ico-uxf-homescreen-system-controller-dev"
 
 
-#PROVIDES by ico-uxf-homescreen-system-controller
-PROVIDES += "ico-uxf-homescreen-system-controller"
-# the PROVIDES rules is ignore "system-controller  "
-PROVIDES += "system-controller"
-RPROVIDES_ico-uxf-homescreen-system-controller += "system-controller"
-
-
 #PROVIDES by ico-uxf-homescreen
 
 
@@ -38,19 +31,13 @@ RDEPENDS_${PN}-system-controller-dev += "eina"
 RDEPENDS_${PN}-system-controller-dev += "capi-base-common-dev"
 RDEPENDS_${PN}-system-controller-dev += "ecore"
 
-#RDEPENDS of ico-uxf-homescreen-system-controller (${PN}-system-controller)
-RDEPENDS_${PN}-system-controller += "genivi-shell"
-RDEPENDS_${PN}-system-controller += "ico-uxf-utilities"
-RDEPENDS_${PN}-system-controller += "ico-uxf-homescreen"
-RDEPENDS_${PN}-system-controller += "weston-ivi-shell"
-RDEPENDS_${PN}-system-controller += "weston"
-RDEPENDS_${PN}-system-controller += "ico-uxf-weston-plugin"
-
 #RDEPENDS of ico-uxf-homescreen (${PN})
 RDEPENDS_${PN} += "genivi-shell"
 RDEPENDS_${PN} += "ico-uxf-utilities"
+RDEPENDS_${PN} += "pkgmgr"
 RDEPENDS_${PN} += "weston-ivi-shell"
 RDEPENDS_${PN} += "weston"
+RDEPENDS_${PN} += "ail"
 RDEPENDS_${PN} += "system-controller"
 RDEPENDS_${PN} += "ico-uxf-weston-plugin"
 
@@ -181,7 +168,6 @@ pkg_postrm_${PN}() {
     rm -f $D${prefix}/share/applications/org.tizen.ico.homescreen.desktop
     rm -f $D${prefix}/share/applications/org.tizen.ico.statusbar.desktop
     rm -f $D${prefix}/share/applications/org.tizen.ico.onscreen.desktop
-    rm -f $D${prefix}/share/applications/org.tizen.ico.system-controller.desktop
     pkg_initdb
     ail_initdb
 
@@ -189,7 +175,6 @@ pkg_postrm_${PN}() {
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " ico-uxf-homescreen-system-controller-dev "
-PACKAGES += " ico-uxf-homescreen-system-controller "
 PACKAGES += " ico-uxf-homescreen "
 
 ico-uxf-homescreen-system-controller-dev_files = ""
@@ -198,32 +183,16 @@ ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/i
 ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_common.h"
 ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_error.h"
 ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_inputctl.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_msg.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_msg_cmd_def.h"
 ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_private.h"
 ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_privilege.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_public.h"
+ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_sysdef.h"
 ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_type.h"
 ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_userctl.h"
 ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-appfw/ico_syc_winctl.h"
-ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoBlockParser.h"
-ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoEvent.h"
-ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoEventInfo.h"
-ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoFinalState.h"
-ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoHistoryState.h"
-ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoState.h"
-ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoStateAction.h"
-ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoStateCore.h"
-ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoStateMachine.h"
-ico-uxf-homescreen-system-controller-dev_files += "${prefix}/include/ico-state-machine/CicoStateMachineCreator.h"
 MANIFESTFILES_${PN}-system-controller-dev = "ico-uxf-homescreen.manifest"
-
-ico-uxf-homescreen-system-controller_files = ""
-ico-uxf-homescreen-system-controller_files += "${prefix}/share/packages/org.tizen.ico.system-controller.xml"
-ico-uxf-homescreen-system-controller_files += "${prefix}/lib/systemd/user/ico-uxf-wait-launchpad-ready.path"
-ico-uxf-homescreen-system-controller_files += "${prefix}/lib/systemd/user/weston.target.wants/ico-uxf-wait-launchpad-ready.path"
-ico-uxf-homescreen-system-controller_files += "${prefix}/lib/systemd/user/ico-system-controller.service"
-ico-uxf-homescreen-system-controller_files += "${prefix}/apps/org.tizen.ico.system-controller/bin"
-ico-uxf-homescreen-system-controller_files += "/home/app/ico/defaultApps.info"
-ico-uxf-homescreen-system-controller_files += "/home/app/ico"
-MANIFESTFILES_${PN}-system-controller = "ico-uxf-homescreen.manifest"
 
 ico-uxf-homescreen_files = ""
 ico-uxf-homescreen_files += "${prefix}/apps/org.tizen.ico.homescreen"
@@ -233,7 +202,6 @@ ico-uxf-homescreen_files += "${prefix}/share/packages/org.tizen.ico.homescreen.x
 ico-uxf-homescreen_files += "${prefix}/share/packages/org.tizen.ico.statusbar.xml"
 ico-uxf-homescreen_files += "${prefix}/share/packages/org.tizen.ico.onscreen.xml"
 ico-uxf-homescreen_files += "${prefix}/lib/libico-appfw.*"
-ico-uxf-homescreen_files += "${prefix}/lib/libico-state-machine.*"
 ico-uxf-homescreen_files += "${prefix}/bin/ico_clear_screen"
 ico-uxf-homescreen_files += "${prefix}/bin/ico_change_loginuser"
 ico-uxf-homescreen_files += "${prefix}/bin/ico_del_notification"
@@ -247,11 +215,9 @@ ico-uxf-homescreen_files += "${prefix}/apps/org.tizen.ico.system-controller/res/
 MANIFESTFILES_${PN} = "ico-uxf-homescreen.manifest"
 
 FILES_${PN}-system-controller-dev = "${ico-uxf-homescreen-system-controller-dev_files}"
-FILES_${PN}-system-controller = "${ico-uxf-homescreen-system-controller_files}"
 FILES_${PN} = "${ico-uxf-homescreen_files}"
 
 PKG_ico-uxf-homescreen-system-controller-dev= "ico-uxf-homescreen-system-controller-dev"
-PKG_ico-uxf-homescreen-system-controller= "ico-uxf-homescreen-system-controller"
 PKG_ico-uxf-homescreen= "ico-uxf-homescreen"
 
 require ico-uxf-homescreen-extraconf.inc

@@ -47,7 +47,6 @@ DEPENDS = ""
 DEPENDS += "libmm-fileinfo"
 inherit tizen_cmake
 DEPENDS += "drm-client"
-DEPENDS += "evas"
 DEPENDS += "tizen-platform-config"
 inherit pkgconfig
 DEPENDS += "dlog"
@@ -55,8 +54,8 @@ DEPENDS += "aul"
 DEPENDS += "libexif"
 DEPENDS += "libmm-utility"
 DEPENDS += "media-server"
+DEPENDS += "gdk-pixbuf"
 DEPENDS += "heynoti"
-DEPENDS += "ecore"
 DEPENDS += "vconf"
 
 do_prep() {

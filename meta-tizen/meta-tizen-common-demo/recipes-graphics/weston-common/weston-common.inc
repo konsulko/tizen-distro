@@ -23,6 +23,10 @@ RPROVIDES_weston-common += "weston-startup"
 PROVIDES += "weston-common-config"
 
 
+#PROVIDES by weston-common-qa-plugin
+PROVIDES += "weston-common-qa-plugin"
+
+
 #PROVIDES by weston-common-tz-launcher
 PROVIDES += "weston-common-tz-launcher"
 
@@ -175,9 +179,6 @@ pkg_preinst_${PN}() {
     # setup display manager service
     mkdir -p $D${systemd_unitdir}/system/graphical.target.wants/
     ln -sf ../display-manager.path  $D${systemd_unitdir}/system/graphical.target.wants/
-    # setup display manager access (inside user session)
-    mkdir -p $D${prefix}/lib/systemd/user/default.target.requires/
-    ln -sf ../weston-user.service  $D${prefix}/lib/systemd/user/default.target.requires/
 
 }
 
@@ -185,19 +186,30 @@ pkg_postrm_${PN}() {
     #!/bin/sh -e
 
     rm -f $D${systemd_unitdir}/system/graphical.target.wants/display-manager.path
-    rm -f $D${prefix}/lib/systemd/user/default.target.requires/weston-user.service
 
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " weston-common-tz-launcher "
-PACKAGES += " weston-common "
 PACKAGES += " weston-common-config "
+PACKAGES += " weston-common-qa-plugin "
+PACKAGES += " weston-common "
 
 weston-common-tz-launcher_files = ""
 weston-common-tz-launcher_files += "${prefix}/bin/tz-launcher"
 weston-common-tz-launcher_files += "${prefix}/bin/wl-pre"
 MANIFESTFILES_${PN}-tz-launcher = "weston-common.manifest"
+
+weston-common-config_files = ""
+weston-common-config_files += "${sysconfdir}/xdg/weston/weston.ini"
+CONFFILES_${PN}-config = ""
+CONFFILES_${PN}-config += "${sysconfdir}/xdg/weston/weston.ini"
+MANIFESTFILES_${PN}-config = "weston-common.manifest"
+
+weston-common-qa-plugin_files = ""
+weston-common-qa-plugin_files += "${prefix}/bin/weston-qa-client"
+weston-common-qa-plugin_files += "${prefix}/lib/weston/qa-plugin.so"
+MANIFESTFILES_${PN}-qa-plugin = "weston-common.manifest"
 
 weston-common_files = ""
 weston-common_files += "${systemd_unitdir}/system/display-manager-run.service"
@@ -215,19 +227,15 @@ CONFFILES_${PN} += "${sysconfdir}/profile.d/*"
 CONFFILES_${PN} += "${sysconfdir}/udev/rules.d/*"
 MANIFESTFILES_${PN} = "weston-common.manifest"
 
-weston-common-config_files = ""
-weston-common-config_files += "${sysconfdir}/xdg/weston/weston.ini"
-CONFFILES_${PN}-config = ""
-CONFFILES_${PN}-config += "${sysconfdir}/xdg/weston/weston.ini"
-MANIFESTFILES_${PN}-config = "weston-common.manifest"
-
 FILES_${PN}-tz-launcher = "${weston-common-tz-launcher_files}"
-FILES_${PN} = "${weston-common_files}"
 FILES_${PN}-config = "${weston-common-config_files}"
+FILES_${PN}-qa-plugin = "${weston-common-qa-plugin_files}"
+FILES_${PN} = "${weston-common_files}"
 
 PKG_weston-common-tz-launcher= "weston-common-tz-launcher"
-PKG_weston-common= "weston-common"
 PKG_weston-common-config= "weston-common-config"
+PKG_weston-common-qa-plugin= "weston-common-qa-plugin"
+PKG_weston-common= "weston-common"
 
 require weston-common-extraconf.inc
 

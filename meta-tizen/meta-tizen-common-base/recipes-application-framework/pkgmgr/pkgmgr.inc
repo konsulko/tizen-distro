@@ -69,6 +69,7 @@ inherit gettext
 DEPENDS += "unzip"
 inherit tizen_cmake
 DEPENDS += "iniparser"
+DEPENDS += "notification"
 DEPENDS += "dbus"
 inherit pkgconfig
 DEPENDS += "dlog"
@@ -180,6 +181,7 @@ pkg_postinst_${PN}() {
     # For pkgmgr-install:
     # Update mime database to support package mime types
     update-mime-database $D${prefix}/share/mime
+    chsmack -a '*' $D${prefix}/share/packages
 
 }
 
@@ -226,11 +228,16 @@ pkgmgr_files += "${sysconfdir}/package-manager/backendlib"
 pkgmgr_files += "${sysconfdir}/opt/upgrade"
 pkgmgr_files += "${sysconfdir}/opt/upgrade/pkgmgr.patch.sh"
 pkgmgr_files += "${prefix}/bin/pkgcmd"
+pkgmgr_files += "${prefix}/bin/pkg_createdb"
+pkgmgr_files += "${prefix}/bin/pkg_createdb_user"
+pkgmgr_files += "${prefix}/bin/pkg_syncdb"
+pkgmgr_files += "${prefix}/bin/pkg_syncdb_user"
 pkgmgr_files += "${prefix}/bin/pkg_initdb"
+pkgmgr_files += "${prefix}/bin/pkg_initdb_user"
 pkgmgr_files += "${prefix}/bin/pkg_getsize"
 pkgmgr_files += "${prefix}/bin/pkginfo"
 pkgmgr_files += "${prefix}/bin/pkgmgr-install"
-pkgmgr_files += "${prefix}/share/packages"
+pkgmgr_files += "%dir ${prefix}/share/packages"
 pkgmgr_files += "${prefix}/share/packages/org.tizen.pkgmgr-install.xml"
 pkgmgr_files += "${prefix}/share/mime/packages/mime.wac.xml"
 pkgmgr_files += "${prefix}/share/mime/packages/mime.tpk.xml"
@@ -239,7 +246,6 @@ DIRFILES_${PN} = ""
 DIRFILES_${PN} += "${sysconfdir}/package-manager/backend"
 DIRFILES_${PN} += "${sysconfdir}/package-manager/backendlib"
 DIRFILES_${PN} += "${sysconfdir}/opt/upgrade"
-DIRFILES_${PN} += "${prefix}/share/packages"
 
 pkgmgr-server_files = ""
 pkgmgr-server_files += "${prefix}/share/dbus-1/system-services/org.tizen.slp.pkgmgr.service"

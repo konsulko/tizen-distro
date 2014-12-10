@@ -20,17 +20,23 @@ SRC_URI += " file://0002-Add-_DBUS_GNUC_WARN_UNUSED_RESULT-similar-to-GLib-s.pat
              file://0013-Enforce-smack-policy-from-conf-file.patch \
            "
 
+SRC_URI += " file://dbus.sh"
+
 DEPENDS += "smack"
 
 do_install_append() {
 	mkdir -p ${D}${prefix}/lib/systemd/user
 	install -m 0644 ${WORKDIR}/dbus-user.service ${D}${prefix}/lib/systemd/user/dbus.service
 	install -m 0644 ${WORKDIR}/dbus-user.socket ${D}${prefix}/lib/systemd/user/dbus.socket
+	mkdir -p ${D}/etc/profile.d
+	install -m 0755 ${WORKDIR}/dbus.sh ${D}/etc/profile.d/dbus.sh
 }
 
 FILES_${PN} += "${prefix}/lib/systemd/user/dbus.service \
                ${prefix}/lib/systemd/user/dbus.socket \
               "
+
+FILES_${PN} += "/etc/profile.d/dbus.sh"
 
 EXTRA_OECONF += " --enable-smack "
 

@@ -2,7 +2,7 @@ DESCRIPTION = "Python bindings for D-Bus"
 HOMEPAGE = "http://www.freedesktop.org/wiki/Software/DBusBindings/"
 SECTION = "System/Libraries"
 LICENSE = "MIT"
-PV = "1.1.1"
+PV = "1.2.0"
 
 SRC_URI = ""
 
@@ -40,7 +40,7 @@ DEPENDS += "dbus-glib"
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q 
+ #setup -q
  cp ${S}/packaging/dbus-python.manifest .
  
  
@@ -63,7 +63,6 @@ do_compile() {
   
   autotools_do_configure
   oe_runmake -j16
-  
   
   
   
@@ -94,7 +93,7 @@ do_install() {
    rm -rf ${D}${infodir} 
    rm -rf ${D}${prefix}/share/doc/packages 
    rm -rf ${D}${prefix}/share/doc/dbus-python 
-   rm -rf ${D}${prefix}/share/doc/dbus-python-1.1.1 
+   rm -rf ${D}${prefix}/share/doc/dbus-python-1.2.0 
    rm -rf ${D}${prefix}/share/gtk-doc 
    rm -rf ${D}${prefix}/share/doc 
    rm -rf ${D}${prefix}/share/man 

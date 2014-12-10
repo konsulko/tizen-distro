@@ -39,6 +39,7 @@ do_prep() {
  cp ${S}/packaging/bundle.manifest .
  
  
+ 
 }
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
@@ -67,7 +68,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} .
- oe_runmake -j16
+ make -j16
  
  
  
@@ -91,6 +92,8 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
+ 
+ mkdir -p ${D}/usr/share/license
  
  
 }

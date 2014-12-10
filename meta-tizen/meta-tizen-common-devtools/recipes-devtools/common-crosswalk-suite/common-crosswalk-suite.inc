@@ -2,7 +2,7 @@ DESCRIPTION = "Crosswalk suite for Tizen Common"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Development/Testing"
 LICENSE = "GPL-2.0"
-PV = "1.0.0"
+PV = "1.1"
 
 SRC_URI = ""
 
@@ -63,10 +63,10 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
- install -d ${D}${prefix}/share/tests/common-crosswalk-suite
- install -m 0755 common/runtest.sh ${D}${prefix}/share/tests/common-crosswalk-suite
- install -m 0644 common/*.xml ${D}${prefix}/share/tests/common-crosswalk-suite
- cp -r common/TESTDIR ${D}${prefix}/share/tests/common-crosswalk-suite
+ install -d ${D}${prefix}/share/tests/common/common-crosswalk-suite
+ install -m 0755 runtest ${D}${prefix}/share/tests/common/common-crosswalk-suite
+ install -m 0644 *.xml ${D}${prefix}/share/tests/common/common-crosswalk-suite
+ cp -r TESTDIR ${D}${prefix}/share/tests/common/common-crosswalk-suite
  
  
  
@@ -76,7 +76,7 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " common-crosswalk-suite "
 
 common-crosswalk-suite_files = ""
-common-crosswalk-suite_files += "${prefix}/share/tests/common-crosswalk-suite"
+common-crosswalk-suite_files += "${prefix}/share/tests/common/common-crosswalk-suite"
 MANIFESTFILES_${PN} = "common-crosswalk-suite.manifest"
 
 FILES_${PN} = "${common-crosswalk-suite_files}"

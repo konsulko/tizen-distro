@@ -153,11 +153,11 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     [ "x$D" == "x" ] && ldconfig
-    vconftool set -tf int db/bluetooth/status "0" -g 6520
-    vconftool set -tf int file/private/bt-service/flight_mode_deactivated "0" -g 6520 -i
-    vconftool set -tf string memory/bluetooth/sco_headset_name "" -g 6520 -i
-    vconftool set -tf int memory/bluetooth/device "0" -g 6520 -i
-    vconftool set -tf int memory/bluetooth/btsco "0" -g 6520 -i
+    vconftool set -f -t int db/bluetooth/status "0" -g 6520
+    vconftool set -f -t int file/private/bt-service/flight_mode_deactivated "0" -g 6520 -i
+    vconftool set -f -t string memory/bluetooth/sco_headset_name "" -g 6520 -i
+    vconftool set -f -t int memory/bluetooth/device "0" -g 6520 -i
+    vconftool set -f -t int memory/bluetooth/btsco "0" -g 6520 -i
     # set 'User' smack label to vconf keys in order to allow bt-service to access them.
     chsmack -a 'User' $D${prefix}/kdb/db/bluetooth/status
     chsmack -a 'User' $D${prefix}/kdb/file/private/bt-service/flight_mode_deactivated

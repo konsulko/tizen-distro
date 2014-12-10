@@ -142,7 +142,7 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --disable-kdbus --enable-compat-libs --enable-bootchart --disable-sysusers --disable-firstboot --disable-timesyncd --disable-resolved --disable-networkd --libexecdir=${prefix}/lib --docdir=${prefix}/share/doc/packages/systemd --disable-static --with-sysvinit-path= --with-sysvrcnd-path= --with-smack-run-label=System --with-rootprefix=/ --with-rootlibdir=/lib cc_cv_CFLAGS__flto=no"
+EXTRA_OECONF += " --disable-kdbus --enable-compat-libs --enable-bootchart --disable-sysusers --disable-firstboot --disable-timesyncd --disable-resolved --disable-networkd --libexecdir=${prefix}/lib --docdir=${prefix}/share/doc/packages/systemd --disable-static --disable-libcurl --with-sysvinit-path= --with-sysvrcnd-path= --with-smack-run-label=System --with-rootprefix=/ --with-rootlibdir=/lib cc_cv_CFLAGS__flto=no"
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -231,18 +231,24 @@ EOF
  # Install modprobe fragment
  mkdir -p ${D}${sysconfdir}/modprobe.d/
  
- # Enable readahead services
- ln -sf ../systemd-readahead-collect.service ${D}${systemd_unitdir}/system/default.target.wants/
- ln -sf ../systemd-readahead-replay.service ${D}${systemd_unitdir}/system/default.target.wants/
- 
  # Fix the dangling /var/lock -> /run/lock symlink
  install -Dm644 tmpfiles.d/legacy.conf ${D}${prefix}/lib/tmpfiles.d/legacy.conf
  
  install -m644 ${S}/packaging/pamconsole-tmp.conf ${D}${prefix}/lib/tmpfiles.d/
  
- rm -rf ${D}${prefix}/lib/systemd/user/default.target
+ rm -rf ${D}${systemd_unitdir}/system/default.target
+ install -m 755 -d ${D}${systemd_unitdir}/system
+ install -m 644 ${S}/packaging/default.target ${D}${systemd_unitdir}/system/
  
  rm -rf ${D}${prefix}/share/doc/packages/systemd
+ 
+ # Disable some useless services in Tizen
+ rm -rf ${D}${prefix}/lib/systemd/user/sysinit.target.wants/dev-hugepages.mount
+ rm -rf ${D}${prefix}/lib/systemd/user/sysinit.target.wants/sys-fs-fuse-connections.mount
+ rm -rf ${D}${prefix}/lib/systemd/user/sysinit.target.wants/systemd-binfmt.service
+ rm -rf ${D}${prefix}/lib/systemd/user/sysinit.target.wants/systemd-modules-load.service
+ rm -rf ${D}${prefix}/lib/systemd/user/sysinit.target.wants/systemd-ask-password-console.path
+ rm -rf ${D}${prefix}/lib/systemd/user/multi-user.target.wants/systemd-ask-password-wall.path
  
  # Move macros to the proper location for Tizen
  mkdir -p ${D}${sysconfdir}/rpm
@@ -259,15 +265,16 @@ EOF
  
  # end of install
  
+ 
 }
 
 pkg_preinst_${PN}() {
     #!/bin/sh -e
 
-    getent group cdrom >/dev/null 2>&1 || /usr/sbin/groupadd -r -g 11 cdrom >/dev/null 2>&1 || :
-    getent group tape >/dev/null 2>&1 || /usr/sbin/groupadd -r -g 33 tape >/dev/null 2>&1 || :
-    getent group dialout >/dev/null 2>&1 || /usr/sbin/groupadd -r -g 18 dialout >/dev/null 2>&1 || :
-    getent group floppy >/dev/null 2>&1 || /usr/sbin/groupadd -r -g 19 floppy >/dev/null 2>&1 || :
+    getent group cdrom >/dev/null   2>&1 || groupadd -r -g 11 cdrom   >/dev/null 2>&1 || :
+    getent group tape >/dev/null    2>&1 || groupadd -r -g 33 tape    >/dev/null 2>&1 || :
+    getent group dialout >/dev/null 2>&1 || groupadd -r -g 18 dialout >/dev/null 2>&1 || :
+    getent group floppy >/dev/null  2>&1 || groupadd -r -g 19 floppy  >/dev/null 2>&1 || :
     systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
     # Rename configuration files that changed their names
     mv -n $D${sysconfdir}/systemd/systemd-logind.conf $D${sysconfdir}/systemd/logind.conf >/dev/null 2>&1 || :
@@ -306,7 +313,6 @@ pkg_prerm_${PN}() {
                     remote-fs.target \
                     systemd-readahead-replay.service \
                     systemd-readahead-collect.service >/dev/null 2>&1 || :
-            rm -f $D${sysconfdir}/systemd/system/default.target >/dev/null 2>&1 || :
     fi
 
 }
@@ -450,7 +456,7 @@ systemd_files += "${prefix}/lib/systemd/user/paths.target"
 systemd_files += "${prefix}/lib/systemd/user/smartcard.target"
 systemd_files += "${prefix}/lib/systemd/user/timers.target"
 systemd_files += "${prefix}/lib/systemd/user/busnames.target"
-systemd_files += "/lib/systemd/network/80-container-host0.network"
+systemd_files += "${prefix}/lib/systemd/user/default.target"
 systemd_files += "/lib/systemd/network/99-default.link"
 systemd_files += "/lib/systemd/systemd-*"
 systemd_files += "${prefix}/lib/systemd/catalog"

@@ -93,7 +93,7 @@ do_install() {
    install  
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
-   find ${D} -regex ".*\.a$" | xargs rm -f -- DESTDIR=${D}
+   find ${D} -regex ".*\.a$" | xargs rm -f --
  rm -f ${D}${prefix}/lib/*.la
  
  # Install the man pages

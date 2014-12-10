@@ -2,7 +2,7 @@ DESCRIPTION = "Neard Abstraction Library (for Neard v0.7)"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Network & Connectivity/NFC"
 LICENSE = "LGPL-2.0"
-PV = "0.7.0"
+PV = "0.14"
 
 SRC_URI = ""
 
@@ -43,6 +43,8 @@ DEPENDS += "glib-2.0"
 DEPENDS_append_class-native = " libtool"
 DEPENDS_append_class-target = " libtool-cross"
 DEPENDS += "python-xml"
+DEPENDS_append_class-native = " readline-native"
+DEPENDS_append_class-target = " readline-native"
 DEPENDS_append_class-native = " autoconf-native"
 DEPENDS_append_class-target = " autoconf-native"
 DEPENDS += "dbus-glib"
@@ -50,7 +52,7 @@ DEPENDS += "dbus-glib"
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n neardal-0.7.0
+ #setup -q -n neardal-0.14
  cp ${S}/packaging/neardal.manifest .
  
  
@@ -125,7 +127,8 @@ MANIFESTFILES_${PN}-dev = "neardal.manifest"
 neardal_files = ""
 neardal_files += "README AUTHORS"
 neardal_files += "${prefix}/lib/libneardal.so.0"
-neardal_files += "${prefix}/lib/libneardal.so.0.0.1"
+neardal_files += "${prefix}/lib/libneardal.so.0.0.*"
+neardal_files += "${sysconfdir}/dbus-1/system.d/org.neardal.conf"
 MANIFESTFILES_${PN} = "neardal.manifest"
 
 FILES_${PN}-dev = "${neardal-dev_files}"

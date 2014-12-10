@@ -128,12 +128,6 @@ do_install() {
  # install tizen package metadata for weston-terminal
  install -m 0644 ico-app-miscellaneous/terminal.xml ${D}${prefix}/share/packages/
  
- # install browser package metadata for MiniBrowser
- mkdir -p ${D}${prefix}/bin
- install -m 0644 ico-app-miscellaneous/browser.xml ${D}${prefix}/share/packages/
- install -m 0644 ico-app-miscellaneous/browser.png ${D}${prefix}/share/icons/default/small/
- install -m 0755 ico-app-miscellaneous/browser ${D}${prefix}/bin
- 
  # install tizen package metadata for weekeyboard
  install -m 0644 ico-app-miscellaneous/weekeyboard.xml ${D}${prefix}/share/packages/
  
@@ -164,7 +158,6 @@ pkg_postrm_${PN}() {
     [ "x$D" == "x" ] && ldconfig
     rm -f $D${prefix}/share/applications/org.tizen.ico.app-soundsample.desktop
     rm -f $D${prefix}/share/applications/org.tizen.ico.app-vicsample.desktop
-    rm -f $D${prefix}/share/applications/browser.desktop
     rm -f $D${prefix}/share/applications/terminal.desktop
     rm -f $D${prefix}/share/icons/default/small/terminal.png
     # Update the app database.
@@ -189,12 +182,9 @@ ico-uxf-homescreen-sample-apps_files += "${prefix}/apps/org.tizen.ico.app-vicsam
 ico-uxf-homescreen-sample-apps_files += "${prefix}/apps/org.tizen.ico.app-vicsample/res/images/vicinfo_bg.png"
 ico-uxf-homescreen-sample-apps_files += "${prefix}/share/icons/default/small/org.tizen.ico.app-vicsample.png"
 ico-uxf-homescreen-sample-apps_files += "${prefix}/share/packages/org.tizen.ico.app-vicsample.xml"
-ico-uxf-homescreen-sample-apps_files += "${prefix}/bin/browser"
-ico-uxf-homescreen-sample-apps_files += "${prefix}/share/packages/browser.xml"
 ico-uxf-homescreen-sample-apps_files += "${prefix}/share/packages/terminal.xml"
 ico-uxf-homescreen-sample-apps_files += "${prefix}/share/packages/navigator.xml"
 ico-uxf-homescreen-sample-apps_files += "${prefix}/share/packages/weekeyboard.xml"
-ico-uxf-homescreen-sample-apps_files += "${prefix}/share/icons/default/small/browser.png"
 ico-uxf-homescreen-sample-apps_files += "${prefix}/share/icons/default/small/navigator.png"
 MANIFESTFILES_${PN} = "ico-uxf-homescreen-sample-apps.manifest"
 

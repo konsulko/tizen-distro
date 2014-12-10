@@ -21,6 +21,8 @@ COMPATIBLE_MACHINE_valleyisland-64 = "(.*)"
 
 RDEPENDS_${PN} += "libpulsecommon"
 
+DEPENDS += "yasm-native"
+
 do_compile_prepend() {
 
  CC_host="gcc"; export CC_host

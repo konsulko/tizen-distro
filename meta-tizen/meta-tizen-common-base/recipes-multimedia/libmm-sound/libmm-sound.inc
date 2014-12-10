@@ -1,8 +1,8 @@
 DESCRIPTION = "MMSound Package contains client lib and sound_server binary"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "System/Libraries"
+SECTION = "Multimedia/Media Playback"
 LICENSE = "Apache-2.0"
-PV = "0.7.2f"
+PV = "0.7.2g"
 
 SRC_URI = ""
 
@@ -28,6 +28,10 @@ PROVIDES += "libmm-sound-tool"
 PROVIDES += "libmm-sound-sdk-dev"
 
 
+#PROVIDES by sound-server
+PROVIDES += "sound-server"
+
+
 RDEPENDS = ""
 #RDEPENDS of libmm-sound-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "libmm-sound"
@@ -41,6 +45,9 @@ RDEPENDS_${PN}-tool += "libmm-sound"
 #RDEPENDS of libmm-sound (${PN})
 RDEPENDS_${PN} += "glibc"
 RDEPENDS_${PN} += "vconf"
+
+#RDEPENDS of sound-server (sound-server)
+RDEPENDS_sound-server += "libmm-sound"
 
 
 DEPENDS = ""
@@ -111,18 +118,13 @@ do_install() {
    rm -f ${D}${infodir}/dir 
    find ${D} -regex ".*\.la$" | xargs rm -f -- 
    find ${D} -regex ".*\.a$" | xargs rm -f --
- install -d ${D}${prefix}/lib/systemd/system/multi-user.target.wants
- install -m0644 ${S}/packaging/sound-server.service ${D}${prefix}/lib/systemd/system/
- install -m0644 ${S}/packaging/sound-server.path ${D}${prefix}/lib/systemd/system/
- ln -sf ../sound-server.path ${D}${prefix}/lib/systemd/system/multi-user.target.wants/sound-server.path
+ install -d ${D}${systemd_unitdir}/system/multi-user.target.wants
+ install -m0644 ${S}/packaging/sound-server.service ${D}${systemd_unitdir}/system/
+ install -m0644 ${S}/packaging/sound-server.path ${D}${systemd_unitdir}/system/
  
- # FIXME: remove after systemd is in
- mkdir -p ${D}${sysconfdir}/rc.d/rc3.d
- mkdir -p ${D}${sysconfdir}/rc.d/rc4.d
- mkdir -p ${D}${sysconfdir}/rc.d/rc5.d
- ln -sf ${sysconfdir}/rc.d/init.d/soundserver ${D}${sysconfdir}/rc.d/rc3.d/S23soundserver
- ln -sf ${sysconfdir}/rc.d/init.d/soundserver ${D}${sysconfdir}/rc.d/rc4.d/S23soundserver
  
+ mkdir -p ${D}/${systemd_unitdir}/system/multi-user.target.wants 
+ ln -s ../sound-server.path  ${D}/${systemd_unitdir}/system/multi-user.target.wants/sound-server.path  
  
  
 }
@@ -144,6 +146,18 @@ pkg_postinst_${PN}() {
 
 }
 
+pkg_postinst_sound-server() {
+    #!/bin/sh -e
+
+    [ "x$D" == "x" ] && ldconfig
+}
+
+pkg_postrm_sound-server() {
+    #!/bin/sh -e
+
+    [ "x$D" == "x" ] && ldconfig
+}
+
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
@@ -152,9 +166,10 @@ pkg_postrm_${PN}() {
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " libmm-sound-dev "
-PACKAGES += " libmm-sound "
-PACKAGES += " libmm-sound-tool "
 PACKAGES += " libmm-sound-sdk-dev "
+PACKAGES += " libmm-sound-tool "
+PACKAGES += " libmm-sound "
+PACKAGES += " sound-server "
 
 libmm-sound-dev_files = ""
 libmm-sound-dev_files += "${prefix}/lib/libmmfkeysound.so"
@@ -165,45 +180,47 @@ libmm-sound-dev_files += "${prefix}/include/mmf/mm_sound_plugin.h"
 libmm-sound-dev_files += "${prefix}/include/mmf/mm_sound_plugin_hal.h"
 MANIFESTFILES_${PN}-dev = "libmm-sound.manifest"
 
-libmm-sound_files = ""
-libmm-sound_files += "${prefix}/bin/sound_server"
-libmm-sound_files += "${prefix}/lib/libmmfsound.so.*"
-libmm-sound_files += "${prefix}/lib/libmmfsoundcommon.so.*"
-libmm-sound_files += "${prefix}/lib/libmmfkeysound.so.*"
-libmm-sound_files += "${prefix}/lib/libsoundplugintone.so*"
-libmm-sound_files += "${prefix}/lib/libsoundpluginwave.so*"
-libmm-sound_files += "${prefix}/lib/libsoundpluginkeytone.so*"
-libmm-sound_files += "${prefix}/lib/soundplugins/libsoundplugintone.so"
-libmm-sound_files += "${prefix}/lib/soundplugins/libsoundpluginwave.so"
-libmm-sound_files += "${prefix}/lib/soundplugins/libsoundpluginkeytone.so"
-libmm-sound_files += "${sysconfdir}/rc.d/init.d/soundserver"
-libmm-sound_files += "${sysconfdir}/rc.d/rc3.d/S23soundserver"
-libmm-sound_files += "${sysconfdir}/rc.d/rc4.d/S23soundserver"
-libmm-sound_files += "${prefix}/share/sounds/sound-server/*"
-libmm-sound_files += "${prefix}/lib/systemd/system/multi-user.target.wants/sound-server.path"
-libmm-sound_files += "${prefix}/lib/systemd/system/sound-server.service"
-libmm-sound_files += "${prefix}/lib/systemd/system/sound-server.path"
-MANIFESTFILES_${PN} = "libmm-sound.manifest"
-
-libmm-sound-tool_files = ""
-libmm-sound-tool_files += "${prefix}/bin/mm_sound_testsuite"
-MANIFESTFILES_${PN}-tool = "libmm-sound.manifest"
-
 libmm-sound-sdk-dev_files = ""
 libmm-sound-sdk-dev_files += "${prefix}/include/mmf/mm_sound.h"
 libmm-sound-sdk-dev_files += "${prefix}/lib/pkgconfig/mm-keysound.pc"
 libmm-sound-sdk-dev_files += "${prefix}/lib/pkgconfig/mm-sound.pc"
 MANIFESTFILES_${PN}-sdk-dev = "libmm-sound.manifest"
 
+libmm-sound-tool_files = ""
+libmm-sound-tool_files += "${prefix}/bin/mm_sound_testsuite"
+MANIFESTFILES_${PN}-tool = "libmm-sound.manifest"
+
+libmm-sound_files = ""
+libmm-sound_files += "${prefix}/lib/libmmfsound.so.*"
+libmm-sound_files += "${prefix}/lib/libmmfsoundcommon.so.*"
+libmm-sound_files += "${prefix}/lib/libmmfkeysound.so.*"
+MANIFESTFILES_${PN} = "libmm-sound.manifest"
+
+sound-server_files = ""
+sound-server_files += "${prefix}/bin/sound_server"
+sound-server_files += "${prefix}/lib/libsoundplugintone.so*"
+sound-server_files += "${prefix}/lib/libsoundpluginwave.so*"
+sound-server_files += "${prefix}/lib/libsoundpluginkeytone.so*"
+sound-server_files += "${prefix}/lib/soundplugins/libsoundplugintone.so"
+sound-server_files += "${prefix}/lib/soundplugins/libsoundpluginwave.so"
+sound-server_files += "${prefix}/lib/soundplugins/libsoundpluginkeytone.so"
+sound-server_files += "${prefix}/share/sounds/sound-server/*"
+sound-server_files += "${systemd_unitdir}/system/multi-user.target.wants/sound-server.path"
+sound-server_files += "${systemd_unitdir}/system/sound-server.service"
+sound-server_files += "${systemd_unitdir}/system/sound-server.path"
+MANIFESTFILES_sound-server = "libmm-sound.manifest"
+
 FILES_${PN}-dev = "${libmm-sound-dev_files}"
-FILES_${PN} = "${libmm-sound_files}"
-FILES_${PN}-tool = "${libmm-sound-tool_files}"
 FILES_${PN}-sdk-dev = "${libmm-sound-sdk-dev_files}"
+FILES_${PN}-tool = "${libmm-sound-tool_files}"
+FILES_${PN} = "${libmm-sound_files}"
+FILES_sound-server = "${sound-server_files}"
 
 PKG_libmm-sound-dev= "libmm-sound-dev"
-PKG_libmm-sound= "libmm-sound"
-PKG_libmm-sound-tool= "libmm-sound-tool"
 PKG_libmm-sound-sdk-dev= "libmm-sound-sdk-dev"
+PKG_libmm-sound-tool= "libmm-sound-tool"
+PKG_libmm-sound= "libmm-sound"
+PKG_sound-server= "sound-server"
 
 require libmm-sound-extraconf.inc
 

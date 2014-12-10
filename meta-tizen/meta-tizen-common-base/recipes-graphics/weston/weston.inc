@@ -140,7 +140,6 @@ do_install() {
  install -m 755 weston-transformed ${D}${prefix}/bin
  install -m 755 weston-fullscreen ${D}${prefix}/bin
  
- 
  install -d ${D}${prefix}/lib/systemd/user
  install -m 644 ${S}/packaging/weston.target ${D}${prefix}/lib/systemd/user/weston.target
  # The weston.service unit file must be provided by the weston-startup

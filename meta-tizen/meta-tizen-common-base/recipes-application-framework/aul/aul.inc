@@ -20,6 +20,10 @@ PROVIDES = ""
 PROVIDES += "aul-dev"
 
 
+#PROVIDES by aul-test
+PROVIDES += "aul-test"
+
+
 RDEPENDS = ""
 #RDEPENDS of aul (${PN})
 RDEPENDS_${PN} += "glibc"
@@ -27,6 +31,9 @@ RDEPENDS_${PN} += "systemd"
 
 #RDEPENDS of aul-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "aul"
+
+#RDEPENDS of aul-test (${PN}-test)
+RDEPENDS_${PN}-test += "aul"
 
 
 DEPENDS = ""
@@ -124,15 +131,10 @@ do_install() {
  sqlite3 ${D}${prefix}/dbspace/.mida.db < ${D}${prefix}/share/aul/mida_db.sql
  rm -rf ${D}${prefix}/share/aul/mida_db.sql
  
- mkdir -p ${D}${systemd_unitdir}/system/graphical.target.wants
- mkdir -p ${D}${prefix}/lib/systemd/user/default.target.wants
- install -m 0644 ${S}/packaging/launchpad-preload@.service ${D}${systemd_unitdir}/system/launchpad-preload@.service
+ mkdir -p ${D}${systemd_unitdir}/system
+ mkdir -p ${D}${prefix}/lib/systemd/user
  install -m 0644 ${S}/packaging/ac.service ${D}${systemd_unitdir}/system/ac.service
- ln -s ../launchpad-preload@.service ${D}${systemd_unitdir}/system/graphical.target.wants/launchpad-preload@5000.service
- ln -s ../ac.service ${D}${systemd_unitdir}/system/graphical.target.wants/ac.service
- 
  install -m 0644 ${S}/packaging/amd_session_agent.service ${D}${prefix}/lib/systemd/user/amd_session_agent.service
- ln -s ../amd_session_agent.service ${D}${prefix}/lib/systemd/user/default.target.wants/amd_session_agent.service
  
  
 }
@@ -141,9 +143,10 @@ pkg_postinst_${PN}() {
     #!/bin/sh -e
 
     [ "x$D" == "x" ] && ldconfig
+    systemctl enable ac
+    systemctl --global enable amd_session_agent
     systemctl daemon-reload
     if [ $1 == 1 ]; then
-        systemctl restart launchpad-preload@5000.service
         systemctl restart ac.service
     fi
 
@@ -153,8 +156,9 @@ pkg_prerm_${PN}() {
     #!/bin/sh -e
 
     if [ $1 == 0 ]; then
-        systemctl stop launchpad-preload@5000.service
         systemctl stop ac.service
+        systemctl disable ac
+        systemctl --global disable amd_session_agent
     fi
 
 }
@@ -170,32 +174,26 @@ pkg_postrm_${PN}() {
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " aul "
 PACKAGES += " aul-dev "
+PACKAGES += " aul-test "
 
 aul_files = ""
 aul_files += "${prefix}/lib/libaul.so.0"
 aul_files += "${prefix}/lib/libaul.so.0.1.0"
 aul_files += "${sysconfdir}/init.d/launchpad_run"
-aul_files += "${prefix}/bin/aul_service.sh"
-aul_files += "${prefix}/bin/aul_service_test.sh"
 aul_files += "${sysconfdir}/rc.d/rc3.d/S34launchpad_run"
 aul_files += "${sysconfdir}/rc.d/rc4.d/S80launchpad_run"
 aul_files += "%attr(0644,root,users) ${prefix}/dbspace/.mida.db"
 aul_files += "%attr(0644,root,users) ${prefix}/dbspace/.mida.db-journal"
 aul_files += "${prefix}/bin/aul_mime.sh"
 aul_files += "${prefix}/bin/aul_test"
-aul_files += "${prefix}/bin/launch_app"
-aul_files += "${prefix}/bin/open_app"
+aul_files += "${prefix}/bin/app_launcher"
 aul_files += "${prefix}/bin/amd_session_agent"
 aul_files += "${prefix}/share/aul/miregex/*"
 aul_files += "${prefix}/share/aul/service/*"
 aul_files += "${prefix}/share/aul/preload_list.txt"
 aul_files += "${prefix}/share/aul/preexec_list.txt"
-aul_files += "${systemd_unitdir}/system/graphical.target.wants/launchpad-preload@5000.service"
-aul_files += "${systemd_unitdir}/system/graphical.target.wants/ac.service"
-aul_files += "${systemd_unitdir}/system/launchpad-preload@.service"
 aul_files += "${systemd_unitdir}/system/ac.service"
 aul_files += "${prefix}/lib/systemd/user/amd_session_agent.service"
-aul_files += "${prefix}/lib/systemd/user/default.target.wants/amd_session_agent.service"
 aul_files += "${prefix}/bin/amd"
 aul_files += "${prefix}/bin/daemon-manager-release-agent"
 aul_files += "${prefix}/bin/daemon-manager-launch-agent"
@@ -206,11 +204,19 @@ aul-dev_files += "${prefix}/include/aul/*.h"
 aul-dev_files += "${prefix}/lib/*.so"
 aul-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 
+aul-test_files = ""
+aul-test_files += "${prefix}/bin/launch_app"
+aul-test_files += "${prefix}/bin/open_app"
+aul-test_files += "${prefix}/bin/aul_service.sh"
+aul-test_files += "${prefix}/bin/aul_service_test.sh"
+
 FILES_${PN} = "${aul_files}"
 FILES_${PN}-dev = "${aul-dev_files}"
+FILES_${PN}-test = "${aul-test_files}"
 
 PKG_aul= "aul"
 PKG_aul-dev= "aul-dev"
+PKG_aul-test= "aul-test"
 
 require aul-extraconf.inc
 

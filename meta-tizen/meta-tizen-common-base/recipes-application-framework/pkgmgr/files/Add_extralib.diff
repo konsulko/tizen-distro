@@ -12,8 +12,8 @@ index e0a9211..96a28f1 100644
  	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
  ENDFOREACH(flag)
  
--pkg_check_modules(libpkgs REQUIRED dbus-glib-1 dlog ail pkgmgr-parser pkgmgr-info iniparser libtzplatform-config)
-+pkg_check_modules(libpkgs REQUIRED dbus-glib-1 dlog ail pkgmgr-parser pkgmgr-info iniparser libtzplatform-config xdgmime)
+-pkg_check_modules(libpkgs REQUIRED dbus-glib-1 dlog ail pkgmgr-parser pkgmgr-info iniparser libtzplatform-config notification)
++pkg_check_modules(libpkgs REQUIRED dbus-glib-1 dlog ail pkgmgr-parser pkgmgr-info iniparser libtzplatform-config notification xdgmime)
  
  FOREACH(flag ${libpkgs_CFLAGS})
  	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
