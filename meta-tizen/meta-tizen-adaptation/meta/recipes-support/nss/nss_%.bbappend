@@ -1,3 +1,5 @@
+SECTION = "Security/Crypto Libraries"
+
 do_compile_prepend_class-native() {
     export LD_LIBS="${LDFLAGS}"
 }

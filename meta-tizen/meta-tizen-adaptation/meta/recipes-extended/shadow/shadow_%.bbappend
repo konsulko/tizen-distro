@@ -1,3 +1,5 @@
+SECTION = "Base/Configuration"
+
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 # Additional Policy files for PAM from pwdutils

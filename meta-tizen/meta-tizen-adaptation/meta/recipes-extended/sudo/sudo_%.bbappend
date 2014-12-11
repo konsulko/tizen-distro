@@ -1,3 +1,5 @@
+SECTION = "Base/Utilities"
+
 FILESEXTRAPATHS_prepend := "${THISDIR}/sudo:"
 
 SRC_URI += "file://pam.d/sudo"

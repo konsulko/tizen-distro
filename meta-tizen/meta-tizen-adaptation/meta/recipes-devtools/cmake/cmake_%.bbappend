@@ -1,3 +1,5 @@
+SECTION = "Platfrom Development/Tools"
+
 FILESEXTRAPATHS_append := "${THISDIR}/files"
 
 SRC_URI += "file://TizenCommon.cmake"

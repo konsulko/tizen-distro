@@ -1,3 +1,5 @@
+SECTION = "Applications/Multimedia"
+
 FILES_${PN} += "/usr/lib/systemd/system/alsa-state.service"
 FILES_${PN} += "/usr/lib/systemd/system/alsa-store.service"
 FILES_${PN} += "/usr/lib/systemd/system/alsa-restore.service"

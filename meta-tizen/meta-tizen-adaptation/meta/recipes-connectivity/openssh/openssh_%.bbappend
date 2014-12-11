@@ -1,3 +1,5 @@
+SECTION = "System/Network"
+
 FILESEXTRAPATHS_prepend := "${THISDIR}/openssh:"
 
 SRC_URI += "file://pam.d/sshd"
