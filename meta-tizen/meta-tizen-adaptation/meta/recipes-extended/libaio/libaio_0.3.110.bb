@@ -17,6 +17,8 @@ SRC_URI[md5sum] = "2a35602e43778383e2f4907a4ca39ab8"
 SRC_URI[sha256sum] = "e019028e631725729376250e32b473012f7cb68e1f7275bfc1bbcdd0f8745f7e"
 
 EXTRA_OEMAKE =+ "prefix=${prefix} includedir=${includedir} libdir=${libdir}"
+# Need libc for stack-protector's __stack_chk_fail_local() bounce function
+LDFLAGS_append_x86 = " -lc"
 
 do_configure () {
     sed -i 's#LINK_FLAGS=.*#LINK_FLAGS=$(LDFLAGS)#' src/Makefile
@@ -28,5 +30,4 @@ do_install () {
 
 # Added for meta-tizen-adaptation-oe-core
 FILESPATH_append = ":${COREBASE}/meta/recipes-extended/${BPN}/${BPN}"
-
 
