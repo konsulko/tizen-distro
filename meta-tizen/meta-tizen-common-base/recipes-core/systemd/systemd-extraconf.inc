@@ -45,9 +45,9 @@ pkg_preinst_${PN}() {
 
 
 
-systemd-dbg_files += "${systemd_unitdir}/.debug"
+systemd-dbg_files += "/lib/systemd/.debug"
 systemd-dbg_files += "/lib/security/.debug"
-systemd-dbg_files += "${systemd_unitdir}/system-generators/.debug"
+systemd-dbg_files += "/lib/systemd/system-generators/.debug"
 systemd-dbg_files += "/lib/udev/.debug"
 
 FILES_${PN}-dbg += "${systemd-dbg_files}"
