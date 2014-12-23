@@ -1,0 +1,30 @@
+configure.ac: Enable built of gallium pipe-loader shared libraries.
+
+Since mesa 10.3.x disables pipe-loader shared libraries creation it is needed
+to enable in configure.ac.
+
+Signed-off-by: Aníbal Limón <anibal.limon@linux.intel.com>
+
+Upstream-Status: Inappropriate [Configuration]
+
+diff --git a/configure.ac b/configure.ac
+index 1a1c0a9..9b00b5d 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -832,7 +832,7 @@ AM_CONDITIONAL(HAVE_SHARED_GLAPI, test "x$enable_shared_glapi" = xyes)
+ # Build the pipe-drivers as separate libraries/modules.
+ # Do not touch this unless you know what you are doing.
+ # XXX: Expose via configure option ?
+-enable_shared_pipe_drivers=no
++enable_shared_pipe_drivers=yes
+ 
+ dnl
+ dnl Driver specific build directories
+@@ -1996,6 +1996,7 @@ if test -n "$with_gallium_drivers"; then
+         xswrast)
+             HAVE_GALLIUM_SOFTPIPE=yes
+             GALLIUM_DRIVERS_DIRS="$GALLIUM_DRIVERS_DIRS softpipe"
++            gallium_require_drm_loader
+             if test "x$MESA_LLVM" = x1; then
+                 HAVE_GALLIUM_LLVMPIPE=yes
+                 GALLIUM_DRIVERS_DIRS="$GALLIUM_DRIVERS_DIRS llvmpipe"

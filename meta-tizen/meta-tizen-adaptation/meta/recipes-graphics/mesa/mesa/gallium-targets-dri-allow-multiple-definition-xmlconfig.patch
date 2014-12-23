@@ -1,0 +1,30 @@
+src/gallium/targets/dri/Makefile.am: Workaround for fix xmlconfig.c duplicat
+    
+When build with enable_shared_pipe_drivers=yes in configure.ac result in fai
+because xmlconfig.c is compiled in two different static libraries.
+
+Signed-off-by: Aníbal Limón <anibal.limon@linux.intel.com>
+
+Upstream status: Pending
+
+diff --git a/src/gallium/targets/dri/Makefile.am b/src/gallium/targets/dri/Makefile.am
+index 1c33a91..3a8340b 100644
+--- a/src/gallium/targets/dri/Makefile.am
++++ b/src/gallium/targets/dri/Makefile.am
+@@ -53,14 +53,14 @@ gallium_dri_la_LIBADD = \
+ 	$(LIBDRM_LIBS) \
+ 	$(GALLIUM_COMMON_LIB_DEPS)
+ 
+-if HAVE_GALLIUM_STATIC_TARGETS
+-
+ # XXX: Temporary allow duplicated symbols, as the loader pulls in xmlconfig.c
+ # which already provides driParse* and driQuery* amongst others.
+ # Remove this hack as we come up with a cleaner solution.
+ gallium_dri_la_LDFLAGS += \
+ 	-Wl,--allow-multiple-definition
+ 
++if HAVE_GALLIUM_STATIC_TARGETS
++
+ MEGADRIVERS =
+ STATIC_TARGET_CPPFLAGS =
+ STATIC_TARGET_LIB_DEPS = \
