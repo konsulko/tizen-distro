@@ -1,0 +1,68 @@
+From 7f23dd58a4f0a7e4340b6a592af5de62dcd7a292 Mon Sep 17 00:00:00 2001
+From: Xiong Zhang <xiong.y.zhang@intel.com>
+Date: Mon, 9 Jun 2014 10:35:55 +0800
+Subject: [PATCH] meta-tizen: intel: Fix initial MakeCurrent for drawables of multi screens
+
+This patch fix a regression caused by commit 11baad35.
+
+Multi screens share one context. When the first screen call
+intel_prepare_render(), it will set ctx->ViewportInitialized to
+true, so the following screens don't have chance to call intel
+_prepare_render().
+If all screens run following gl command:
+eglMakeCurrent()
+glClearColor()
+glClear()
+eglSwapBuffers()
+The first screen can run above command successfully. But the
+following screen will occur segment fault error on eglSwapBuffers().
+Because when following screens run:
+eglMakeCurrent() won't call intel_prepare_render(); the width and
+height of Draw buffer is zero, this causes glClear() return early
+without calling Driver.Clear(); finaly Draw buffer doesn't have
+bo, so eglSwapBuffers() occur segment fault error.
+
+Change-Id: Ib2513488eaa148d2ebd45a4aa19686aea8eab899
+Signed-off-by: Xiong Zhang <xiong.y.zhang@intel.com>
+---
+ src/mesa/drivers/dri/i965/brw_context.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/src/mesa/drivers/dri/i965/brw_context.c b/src/mesa/drivers/dri/i965/brw_context.c
+index 619f2d5..c819801 100644
+--- a/src/mesa/drivers/dri/i965/brw_context.c
++++ b/src/mesa/drivers/dri/i965/brw_context.c
+@@ -984,6 +984,7 @@ intelMakeCurrent(__DRIcontext * driContextPriv,
+    if (driContextPriv) {
+       struct gl_context *ctx = &brw->ctx;
+       struct gl_framebuffer *fb, *readFb;
++      struct intel_renderbuffer *rb = NULL;
+ 
+       if (driDrawPriv == NULL && driReadPriv == NULL) {
+          fb = _mesa_get_incomplete_framebuffer();
+@@ -991,6 +992,7 @@ intelMakeCurrent(__DRIcontext * driContextPriv,
+       } else {
+          fb = driDrawPriv->driverPrivate;
+          readFb = driReadPriv->driverPrivate;
++	 rb = intel_get_renderbuffer(fb, BUFFER_BACK_LEFT);
+          driContextPriv->dri2.draw_stamp = driDrawPriv->dri2.stamp - 1;
+          driContextPriv->dri2.read_stamp = driReadPriv->dri2.stamp - 1;
+       }
+@@ -1002,10 +1004,10 @@ intelMakeCurrent(__DRIcontext * driContextPriv,
+       intel_gles3_srgb_workaround(brw, fb);
+       intel_gles3_srgb_workaround(brw, readFb);
+ 
+-      /* If the context viewport hasn't been initialized, force a call out to
+-       * the loader to get buffers so we have a drawable size for the initial
+-       * viewport. */
+-      if (!brw->ctx.ViewportInitialized)
++      /* If the context viewport or buffers haven't been initialized, force
++       * a call out to the loader to get buffers so we have a drawable size
++       * for the initial viewport. */
++      if (!brw->ctx.ViewportInitialized || (rb && !rb->mt))
+          intel_prepare_render(brw);
+ 
+       _mesa_make_current(ctx, fb, readFb);
+-- 
+1.8.1.4
+
