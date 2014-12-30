@@ -20,6 +20,10 @@ CORE_IMAGE_BASE_INSTALL += "${WESTONSTARTUP}"
 # Profile specific configuration - default is Tizen common
 CORE_IMAGE_BASE_INSTALL += "${IMAGECONFIG}"
 
+CORE_IMAGE_BASE_INSTALL += "tlm"
+CORE_IMAGE_BASE_INSTALL += "${TLMCONFIG}"
+
+
 CORE_IMAGE_BASE_INSTALL += "mesa-megadriver"
 CORE_IMAGE_BASE_INSTALL += "libegl-gallium"
 CORE_IMAGE_BASE_INSTALL += "libegl-mesa"
@@ -30,8 +34,6 @@ CORE_IMAGE_BASE_INSTALL += "mesa-driver-pipe-vmwgfx"
 CORE_IMAGE_BASE_INSTALL += "mesa-driver-pipe-i915"
 CORE_IMAGE_BASE_INSTALL += "libgles1-mesa"
 CORE_IMAGE_BASE_INSTALL += "libgles2-mesa"
-CORE_IMAGE_BASE_INSTALL += "tlm-config-common"
-CORE_IMAGE_BASE_INSTALL += "tlm"
 CORE_IMAGE_BASE_INSTALL += "gum-utils"
 CORE_IMAGE_BASE_INSTALL += "meta-common"
 CORE_IMAGE_BASE_INSTALL += "pam"
