@@ -13,4 +13,6 @@ do_install_append() {
 RDEPENDS_${PN}_remove_class-native = "systemd-native"
 DEPENDS_remove_class-native = "dlog-native"
 
+RDEPENDS_${PN}-client += "pkgmgr-server"
+
 EXTRA_OECMAKE+="-DCMAKE_AR:PATH=ar"
