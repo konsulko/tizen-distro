@@ -50,7 +50,13 @@ FILES_${PN}-dbg += "${crosswalk-dbg_files}"
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    mkdir -p $D/opt/share/icons/default/small
-    mkdir -p $D/opt/share/packages
+    mkdir -p $D${prefix}/share/icons/default/small
+    mkdir -p $D${prefix}/share/packages
+    mkdir -p $D/etc/package-manager/backendlib
+    mkdir -p $D/etc/package-manager/backend
+    ln -sf ${prefix}/lib/xwalk/libxwalk_backend_lib.so $D/etc/package-manager/backendlib/libxpk.so
+    ln -sf ${prefix}/lib/xwalk/libxwalk_backend_lib.so $D/etc/package-manager/backendlib/libwgt.so
+    ln -sf ${prefix}/lib/xwalk/xwalk_backend $D/etc/package-manager/backend/xpk
+    ln -sf ${prefix}/lib/xwalk/xwalk_backend $D/etc/package-manager/backend/wgt
 
 }
