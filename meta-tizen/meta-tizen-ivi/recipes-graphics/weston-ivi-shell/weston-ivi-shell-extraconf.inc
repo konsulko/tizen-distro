@@ -32,13 +32,6 @@ do_install_append() {
     rm -fr ${D}/usr/lib/weston/gl-renderer.so
     rm -fr ${D}/usr/lib/weston/.debug/gl-renderer.so
     rm -fr ${D}/usr/bin/weston-calibrator
-
-    # Enable a logind session for 'app' user on seat0 (the default seat for
-    # graphical sessions)
-    mkdir -p ${D}/lib/systemd/system/graphical.target.wants
-    ln -sf ../user-session-launch@.service ${D}/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5000.service
-
-    
     rm -fr ${D}${prefix}/bin/weston-scaler
     rm -fr ${D}${prefix}/bin/weston-stacking
     rm -fr ${D}${prefix}/bin/weston-multi-resource
@@ -82,10 +75,21 @@ EOF
     # Use the same over-rides for the native prelaunch daemon
     cp $D/etc/sysconfig/wrt $D/etc/sysconfig/launchpad
 
-    # Add a rule to ensure the app user has permissions to
-    # open the graphics device
-    cat > $D/etc/udev/rules.d/99-dri.rules << EOF
-    SUBSYSTEM=="drm", MODE="0666"
+ # Add a rule to ensure the 'display','genivi' user has permissions to
+ # open the graphics device
+ mkdir -p ${D}${sysconfdir}/udev/rules.d
+ cat >${D}${sysconfdir}/udev/rules.d/99-dri.rules <<'EOF'
+ SUBSYSTEM=="drm", MODE="0660", GROUP="video", SECLABEL{smack}="*"
+EOF
+ 
+ # user 'display' must own /dev/tty7 for weston to start correctly
+ cat >${D}${sysconfdir}/udev/rules.d/99-tty.rules <<'EOF'
+ SUBSYSTEM=="tty", KERNEL=="tty7", OWNER="genivi", SECLABEL{smack}="^"
+EOF
+ 
+ # user 'display' must also be able to access /dev/input/*
+ cat >${D}${sysconfdir}/udev/rules.d/99-input.rules <<'EOF'
+ SUBSYSTEM=="input", MODE="0660", GROUP="input", SECLABEL{smack}="^"
 EOF
     #------------------------------------------
 }
@@ -102,7 +106,7 @@ FILES_${PN} += "${prefix}/lib/weston-ivi-shell/weston-desktop-shell"
 FILES_${PN} += "${prefix}/lib/weston-ivi-shell/weston-screenshooter"
 FILES_${PN} += "${prefix}/lib/weston-ivi-shell/weston-simple-im"
 FILES_${PN} += "${prefix}/lib/weston/cms-static.so"
-FILES_${PN} += "/lib/systemd/system/graphical.target.wants/user-session-launch@seat0-5000.service"
 FILES_${PN} += "${prefix}/bin/weston-calibrator"
+FILES_${PN} += "${sysconfdir}/udev/rules.d/*"
 
 FILES_${PN}-dev += "${prefix}/include/weston/ivi-shell-ext.h"
