@@ -33,7 +33,7 @@ case "$1" in
                 mkdir --parents $XDG_RUNTIME_DIR
                 chmod 0700 $XDG_RUNTIME_DIR
         fi
-        export SHELL=/bin/sh
+
         openvt -s weston
   ;;
 
