@@ -18,6 +18,7 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-tizen/meta-tizen-common-share \
   ##OEROOT##/meta-tizen/meta-tizen-common-devtools \
   ##OEROOT##/meta-tizen/meta-tizen-common-demo \
+  ##OEROOT##/meta-tizen/meta-tizen-ivi \
   "
 
 BBLAYERS_NON_REMOVABLE ?= " \

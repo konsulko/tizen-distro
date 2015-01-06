@@ -6,10 +6,7 @@ LICENSE = "MIT"
 
 DESCRIPTION = "A Tizen IVI image based on Tizen common ."
 
-WESTONSTARTUP = "weston-ivi"
 WESTONINI = "weston-ivi-config"
-IMAGECONFIG = "config-tizen-ivi"
-TLMCONFIG ??= "tlm-config-ivi-singleseat"
 
 CORE_IMAGE_EXTRA_INSTALL += "automotive-message-broker"
 CORE_IMAGE_EXTRA_INSTALL += "efl-theme-tizen-hd"

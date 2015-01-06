@@ -1,0 +1,11 @@
+Tizen images:
+
+  tizen-ivi-core-image
+  tizen-ivi-core-image-dev
+  tizen-ivi-ico-image
+  tizen-ivi-ico-image-dev
+  tizen-ivi-Modello-image
+  tizen-ivi-Modello-image-dev
+
+You can also run generated qemu images with a command like 'runqemu qemux86'
+
