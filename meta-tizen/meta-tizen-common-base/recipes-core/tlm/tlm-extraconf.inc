@@ -47,19 +47,19 @@ do_install() {
  
 }
 
-PACKAGES += " ${PN}-config"
+PACKAGES += " ${PN}-conf"
 PACKAGES += " ${PN}-config-ivi"
 PACKAGES += " ${PN}-config-ivi-singleseat "
 PACKAGES += " ${PN}-config-ivi-multiseat "
 PACKAGES += " ${PN}-config-ivi-vtc1010 "
 
-RDEPENDS_${PN}-config-common += "${PN}-config"
-RDEPENDS_${PN}-config-ivi += "${PN}-config"
+RDEPENDS_${PN}-config-common += "${PN}-conf"
+RDEPENDS_${PN}-config-ivi += "${PN}-conf"
 RDEPENDS_${PN}-config-ivi-singleseat += "${PN}-config-ivi"
 RDEPENDS_${PN}-config-ivi-multiseat += "${PN}-config-ivi"
 RDEPENDS_${PN}-config-ivi-vtc1010 += "${PN}-config-ivi"
 
-FILES_${PN}-config += "${sysconfdir}/session.d/user-session"
+FILES_${PN}-conf += "${sysconfdir}/session.d/user-session"
 FILES_${PN}-config-common_remove = "${sysconfdir}/session.d/*"
 
 FILES_${PN}-config-ivi += "${sysconfdir}/session.d/user-session-ico"
