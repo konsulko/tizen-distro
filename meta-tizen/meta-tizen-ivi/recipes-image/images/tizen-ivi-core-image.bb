@@ -32,3 +32,6 @@ CORE_IMAGE_EXTRA_INSTALL += "weston-ivi-shell"
 
 # Time zone
 CORE_IMAGE_EXTRA_INSTALL += "tzdata"
+
+# gstreamer
+CORE_IMAGE_BASE_INSTALL += "packagegroup-tizen-gstreamer"
