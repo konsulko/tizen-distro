@@ -51,7 +51,7 @@ inherit pkgconfig
 DEPENDS += "udev"
 DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
-DEPENDS += "bluez4"
+DEPENDS += "bluez5"
 DEPENDS += "glib-2.0"
 DEPENDS_append_class-native = " libtool"
 DEPENDS_append_class-target = " libtool-cross"
