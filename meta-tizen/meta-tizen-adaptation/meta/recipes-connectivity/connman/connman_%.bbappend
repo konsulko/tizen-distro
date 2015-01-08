@@ -2,6 +2,7 @@ SECTION = "Network & Connectivity/Connection Management"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+# Tizen specific patches
 SRC_URI += "file://0001-Add-bootstrap-files.patch"
 SRC_URI += "file://0002-Add-package-build-spec-file.patch"
 SRC_URI += "file://0003-Add-systemd-service-to-manager-ConnMan-NTP.patch"
@@ -34,3 +35,8 @@ SRC_URI += "file://0029-multi-user-Add-multi-user-support-in-manager.patch"
 SRC_URI += "file://0030-multi-user-Add-multi-user-support-for-auto-connect-s.patch"
 SRC_URI += "file://0031-multi-user-Expose-function-to-check-service-user-fav.patch"
 SRC_URI += "file://0032-multi-user-Fix-service-load-save-issues.patch"
+
+# Use bluez5 instead of bluez4
+DEPENDS_remove = "bluez4"
+RDEPENDS_${PN}_remove = "bluez4"
+PACKAGECONFIG[bluetooth] = "--enable-bluetooth, --disable-bluetooth, bluez5, bluez5"
