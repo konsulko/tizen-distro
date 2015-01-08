@@ -122,7 +122,7 @@ DEPENDS += "dbus"
 inherit pkgconfig
 DEPENDS += "udev"
 DEPENDS += "glib-2.0"
-DEPENDS += "bluez4"
+DEPENDS += "bluez5"
 DEPENDS += "sbc"
 DEPENDS += "systemd"
 DEPENDS_append_class-native = " libtool"
