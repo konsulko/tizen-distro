@@ -56,8 +56,6 @@ pkg_postinst_${PN} () {
     # home dir must have the same label
     chsmack -a User $D/home/app
 
-    ln -sf weston.target  $D/usr/lib/systemd/user/default.target
-
     # Add over-riding environment to enable the web runtime to
     # run on an IVI image as a different user then the tizen user
     # Some notes on some of the variables:
