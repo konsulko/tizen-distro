@@ -31,19 +31,17 @@ do_install() {
  install -m 755 -d ${D}${sysconfdir}/session.d
 
  
- if ${@bb.utils.contains('IMAGECONFIG','config-tizen-ivi','true','false',d)}; then
+ if ${@bb.utils.contains('DISTRO_FEATURES','tizen-ivi','true','false',d)}; then
   install -m 755 -d ${D}${sysconfdir}/xdg/weston
   install -m 644 data/tizen-ivi/etc/tlm*.conf ${D}${sysconfdir} 
   install -m 755 data/tizen-ivi/etc/session.d/* ${D}${sysconfdir}/session.d/
   install -m 644 data/tizen-ivi/weston-*.ini ${D}${sysconfdir}/xdg/weston/
   install -m 755 -d ${D}${sysconfdir}/udev/rules.d
   install -m 644 data/tizen-ivi/10-multiseat-vtc1010.rules ${D}${sysconfdir}/udev/rules.d/
- fi
- if ${@bb.utils.contains('IMAGECONFIG','config-tizen-common','true','false',d)}; then
+ elif ${@bb.utils.contains('DISTRO_FEATURES','tizen-common','true','false',d)}; then
   install -m 644 data/tizen-common/etc/tlm.conf ${D}${sysconfdir}
   install -m 755 data/tizen-common/etc/session.d/* ${D}${sysconfdir}/session.d/
  fi
- 
  
 }
 
