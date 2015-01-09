@@ -16,4 +16,8 @@ reponame=$3
 # prefix.
 sed -i -e "s#Subject: \[PATCH\] \(.*\)#Subject: \[PATCH\] meta-tizen: \1#" $patchfile
 
-sed -i -e "0,/^Signed-off-by:/s#\(^Signed-off-by:.*\)#\(From meta-tizen rev: $rev\)\n\n\1#" $patchfile
+if grep -q '^Signed-off-by:' $patchfile; then
+    sed -i -e "0,/^Signed-off-by:/s#\(^Signed-off-by:.*\)#\(From meta-tizen rev: $rev\)\n\n\1#" $patchfile
+else
+    sed -i -e "0,/^---$/s#^---\$#\(From meta-tizen rev: $rev\)\n---#" $patchfile
+fi
