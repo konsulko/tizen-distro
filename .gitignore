@@ -9,6 +9,9 @@ sources/
 meta-*/
 !meta-skeleton
 !meta-hob
+!meta-openembedded
+!meta-qt5
+!meta-tizen
 hob-image-*.bb
 *.swp
 *.orig
