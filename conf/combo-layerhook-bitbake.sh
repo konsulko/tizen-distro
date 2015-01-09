@@ -9,5 +9,5 @@ patchfile=$1
 rev=$2
 reponame=$3
 
-sed -i -e "s#Subject: \[PATCH\] \(.*\)#Subject: \[PATCH\] bitbake: \1#" $patchfile
+sed -i -e "0,/^Subject:/s#Subject: \[PATCH\] \(.*\)#Subject: \[PATCH\] bitbake: \1#" $patchfile
 sed -i -e "0,/^Signed-off-by:/s#\(^Signed-off-by:.*\)#\(Bitbake rev: $rev\)\n\n\1#" $patchfile
