@@ -19,27 +19,33 @@ SRC_URI[sha256sum] = "3ff4e5a71116eb862cd14185fcd282850927b8608e3b4186834fd940fb
 
 BINCONFIG = "${bindir}/gpg-error-config"
 
-inherit autotools binconfig-disabled pkgconfig gettext qemu
+inherit autotools binconfig-disabled pkgconfig gettext
 
 do_compile_prepend() {
-	case ${TARGET_ARCH} in
-	    aarch64)	TUPLE=aarch64-unknown-linux-gnu ;;
-	    arm)	TUPLE=arm-unknown-linux-gnueabi ;;
-	    armeb)	TUPLE=arm-unknown-linux-gnueabi ;;
-	    i586)	TUPLE=i486-pc-linux-gnu ;;
-	    mipsel)	TUPLE=mipsel-unknown-linux-gnu ;;
-	    mips64el)	TUPLE=mipsel-unknown-linux-gnu ;;
-	    mips64)	TUPLE=mips-unknown-linux-gnu ;;
-	    mips)	TUPLE=mips-unknown-linux-gnu ;;
-	    powerpc64)	TUPLE=powerpc64-unknown-linux-gnu ;;
-	    powerpc)	TUPLE=powerpc-unknown-linux-gnu ;;
-	    sh4)	TUPLE=sh4-unknown-linux-gnu ;;
-	    x86_64)	TUPLE=x86_64-pc-linux-gnu ;;
-        esac
+	TARGET_FILE=linux-gnu
+	if [ ${TARGET_OS} != "linux" ]; then
+		TARGET_FILE=${TARGET_OS}
+	fi
 
-	cp  ${S}/src/syscfg/lock-obj-pub.$TUPLE.h \
-	    ${S}/src/syscfg/lock-obj-pub.linux-gnu.h
+	case ${TARGET_ARCH} in
+	  aarch64)    TUPLE=aarch64-unknown-linux-gnu ;;
+	  arm)	      TUPLE=arm-unknown-linux-gnueabi ;;
+	  armeb)      TUPLE=arm-unknown-linux-gnueabi ;;
+	  i586)       TUPLE=i486-pc-linux-gnu ;;
+	  mipsel)     TUPLE=mipsel-unknown-linux-gnu ;;
+	  mips64el)   TUPLE=mipsel-unknown-linux-gnu ;;
+	  mips64)     TUPLE=mips-unknown-linux-gnu ;;
+	  mips)       TUPLE=mips-unknown-linux-gnu ;;
+	  powerpc64)  TUPLE=powerpc64-unknown-linux-gnu ;;
+	  powerpc)    TUPLE=powerpc-unknown-linux-gnu ;;
+	  sh4)	      TUPLE=sh4-unknown-linux-gnu ;;
+	  x86_64)     TUPLE=x86_64-pc-linux-gnu ;;
+	esac
+
+	cp ${S}/src/syscfg/lock-obj-pub.$TUPLE.h \
+	  ${S}/src/syscfg/lock-obj-pub.$TARGET_FILE.h
 }
+
 do_install_append() {
 	# we don't have common lisp in OE
 	rm -rf "${D}${datadir}/common-lisp/"
@@ -48,7 +54,3 @@ do_install_append() {
 FILES_${PN}-dev += "${bindir}/gpg-error"
 
 BBCLASSEXTEND = "native"
-
-# Added for meta-tizen-adaptation-oe-core
-FILESPATH_append = ":${COREBASE}/meta/recipes-support/${BPN}/${BPN}"
-
