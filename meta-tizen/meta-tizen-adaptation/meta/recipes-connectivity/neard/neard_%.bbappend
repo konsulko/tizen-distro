@@ -12,3 +12,7 @@ SRC_URI += "file://0005-Add-packaging-directory.patch"
 # Use bluez5 instead of bluez4
 RRECOMMENDS_${PN}_remove = "bluez4"
 RRECOMMENDS_${PN} += "${@bb.utils.contains('DISTRO_FEATURES', 'bluetooth', 'bluez5', '', d)}"
+
+EXTRA_OECONF += "--enable-test"
+
+FILES_${PN}-tests += "${libdir}/${BPN}/test/*"
