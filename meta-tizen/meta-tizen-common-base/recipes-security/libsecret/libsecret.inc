@@ -55,6 +55,8 @@ DEPENDS_append_class-native = " fdupes-native"
 DEPENDS_append_class-target = " fdupes-native"
 DEPENDS += "libgcrypt"
 DEPENDS += "gtk-doc"
+DEPENDS += "libxslt"
+
 
 do_prep() {
  cd ${S}
