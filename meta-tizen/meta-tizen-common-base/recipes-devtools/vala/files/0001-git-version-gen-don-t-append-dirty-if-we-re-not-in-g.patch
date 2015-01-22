@@ -1,7 +1,7 @@
 From 2460d7b79f7e90dcfeebde5e9c53d9b6798a1f3c Mon Sep 17 00:00:00 2001
 From: Martin Jansa <Martin.Jansa@gmail.com>
 Date: Tue, 21 Feb 2012 17:12:50 +0100
-Subject: [PATCH] meta-tizen: git-version-gen: don't append -dirty if we're not in git
+Subject: [PATCH] git-version-gen: don't append -dirty if we're not in git
  repo
 
 * for example if we have some dirty directory and we unpack clean vala tarball in it, then it will append -dirty

@@ -1,7 +1,7 @@
 From f0c66acf9dd638463c05c88c1068b4b902a4404f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
 Date: Tue, 2 Sep 2014 14:15:27 +0200
-Subject: [PATCH] meta-tizen: Update autoconf macros
+Subject: [PATCH] Update autoconf macros
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

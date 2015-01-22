@@ -1,7 +1,7 @@
 From 67ca8748924daf512888e4738c7e205d24b83b2b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
 Date: Mon, 6 Oct 2014 10:24:16 +0200
-Subject: [PATCH] meta-tizen: Ignore arch for RPM 4
+Subject: [PATCH] Ignore arch for RPM 4
 
 ---
  smart/backends/rpm/pm.py | 1 +

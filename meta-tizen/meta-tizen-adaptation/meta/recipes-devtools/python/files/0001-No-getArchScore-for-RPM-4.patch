@@ -1,7 +1,7 @@
 From 2a0fadb980128da9597553fe965d8842786dc2d6 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
 Date: Mon, 6 Oct 2014 10:15:16 +0200
-Subject: [PATCH] meta-tizen: No getArchScore() for RPM 4
+Subject: [PATCH] No getArchScore() for RPM 4
 
 ---
  smart/backends/rpm/base.py | 1 +

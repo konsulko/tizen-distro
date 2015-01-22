@@ -1,7 +1,7 @@
 From 62fd97fbc5c53835baa18f210fca593fc8b5c636 Mon Sep 17 00:00:00 2001
 From: Jianchuan Wang <jianchuan.wang@windriver.com>
 Date: Wed, 15 Oct 2014 07:04:02 +0800
-Subject: [PATCH] meta-tizen: libaio: fix for mips64
+Subject: [PATCH] libaio: fix for mips64
     
 Add mips64 support in the libaio.h
  - add macro PADDED/PADDEDptr/PADDEDul in the mips64 for structure iocb 

@@ -1,7 +1,7 @@
 From 48779d5214c204ba248211ba6adbf250e3114ffb Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
 Date: Thu, 19 Jun 2014 09:03:57 +0200
-Subject: [PATCH] meta-tizen: [PATCH] link to the pthread library
+Subject: [PATCH] [PATCH] link to the pthread library
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

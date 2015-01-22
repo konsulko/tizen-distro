@@ -1,7 +1,7 @@
 From 03aeaccbffa97c9237b57ca067e3da7388862129 Mon Sep 17 00:00:00 2001
 From: Radoslaw Pajak <r.pajak@samsung.com>
 Date: Fri, 8 Nov 2013 13:51:32 +0100
-Subject: [PATCH] meta-tizen: fixed memory freeing if error during listing services
+Subject: [PATCH] fixed memory freeing if error during listing services
 
 Upstream-Status: Backport
 

@@ -1,7 +1,7 @@
 From b8f84bd39485d3977625c9a8b8e8cff5d23be56f Mon Sep 17 00:00:00 2001
 From: Roy Li <rongqing.li@windriver.com>
 Date: Thu, 27 Feb 2014 09:05:02 +0800
-Subject: [PATCH] meta-tizen: dbus: clear guid_from_server if send_negotiate_unix_fd
+Subject: [PATCH] dbus: clear guid_from_server if send_negotiate_unix_fd
  failed
 
 Upstream-Status: Submitted

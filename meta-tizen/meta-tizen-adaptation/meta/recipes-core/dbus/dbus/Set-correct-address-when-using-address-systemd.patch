@@ -1,7 +1,7 @@
 From d728fdc655f17031da3bb129ab2fd17dadf0fe3a Mon Sep 17 00:00:00 2001
 From: Simon Peeters <peeters.simon@gmail.com>
 Date: Sun, 7 Oct 2012 16:59:30 +0200
-Subject: [PATCH] meta-tizen: Set correct address when using --address=systemd:
+Subject: [PATCH] Set correct address when using --address=systemd:
 
 When dbus gets launched through systemd, we need to create an address
 string based on the sockets passed.

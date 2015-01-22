@@ -1,7 +1,7 @@
 From 08d9a48423ff699e20eda48e07d78387f5aecb73 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
 Date: Mon, 7 Jul 2014 14:01:46 +0200
-Subject: [PATCH] meta-tizen: [yocto] Correct libdl linking issue
+Subject: [PATCH] [yocto] Correct libdl linking issue
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

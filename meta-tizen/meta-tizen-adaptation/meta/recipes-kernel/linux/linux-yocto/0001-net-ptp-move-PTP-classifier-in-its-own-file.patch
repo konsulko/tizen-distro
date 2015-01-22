@@ -1,7 +1,7 @@
 From 408eccce32044ee3285a7f6a812723ba3540c3e7 Mon Sep 17 00:00:00 2001
 From: Daniel Borkmann <dborkman@redhat.com>
 Date: Tue, 1 Apr 2014 16:20:23 +0200
-Subject: [PATCH] meta-tizen: net: ptp: move PTP classifier in its own file
+Subject: [PATCH] net: ptp: move PTP classifier in its own file
 
 This commit fixes a build error reported by Fengguang, that is
 triggered when CONFIG_NETWORK_PHY_TIMESTAMPING is not set:

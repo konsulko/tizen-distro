@@ -1,7 +1,7 @@
 From a89241fbcf9ce188e59b7e55f833cd377356b19d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
 Date: Tue, 26 Aug 2014 11:21:52 +0200
-Subject: [PATCH] meta-tizen: Remove dlog for native build
+Subject: [PATCH] Remove dlog for native build
 
 ---
  CMakeLists.txt        | 2 +-

@@ -1,7 +1,7 @@
 From 3f698caea8b6e35f89963e8ad633a9f6ca8f4970 Mon Sep 17 00:00:00 2001
 From: Ronan Le Martret <ronan@fridu.net>
 Date: Tue, 08 Jul 2014 10:40:21 +0200
-Subject: [PATCH] meta-tizen: Add env value SYSROOT for root fs prefix
+Subject: [PATCH] Add env value SYSROOT for root fs prefix
 
 Change-Id: I5c57494317473dcd74c85cbc2bce19a6d68c2739
 Signed-off-by: Ronan Le Martret <ronan@fridu.net>

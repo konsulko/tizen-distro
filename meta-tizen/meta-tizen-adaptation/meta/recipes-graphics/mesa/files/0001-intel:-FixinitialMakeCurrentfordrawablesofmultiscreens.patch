@@ -1,7 +1,7 @@
 From 7f23dd58a4f0a7e4340b6a592af5de62dcd7a292 Mon Sep 17 00:00:00 2001
 From: Xiong Zhang <xiong.y.zhang@intel.com>
 Date: Mon, 9 Jun 2014 10:35:55 +0800
-Subject: [PATCH] meta-tizen: intel: Fix initial MakeCurrent for drawables of multi screens
+Subject: [PATCH] intel: Fix initial MakeCurrent for drawables of multi screens
 
 This patch fix a regression caused by commit 11baad35.
 

@@ -1,7 +1,7 @@
 From 7959e00beeb3590b759aed5e8b473d550e4ea612 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
 Date: Wed, 28 May 2014 16:37:48 +0200
-Subject: [PATCH] meta-tizen: Add a script to export $UID
+Subject: [PATCH] Add a script to export $UID
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

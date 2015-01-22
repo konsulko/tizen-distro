@@ -1,7 +1,7 @@
 From fba91e42f737956fb27ef8ef75955ada9eef0539 Mon Sep 17 00:00:00 2001
 From: Xavier Roche <xavrock.os@gmail.com>
 Date: Fri, 16 May 2014 18:05:01 +0200
-Subject: [PATCH] meta-tizen: Removing TizenCommon macro in packaging
+Subject: [PATCH] Removing TizenCommon macro in packaging
 
 Signed-off-by: Xavier Roche <xavrock.os@gmail.com>
 ---

@@ -1,7 +1,7 @@
 From 9f437cf0ad8f6d2d2f9baf9d252b88ecfbd88721 Mon Sep 17 00:00:00 2001
 From: Xavier Roche <xavier.roche@open.eurogiciel.org>
 Date: Thu, 6 Nov 2014 14:38:21 +0100
-Subject: [PATCH] meta-tizen: temporarily remove liboost check in configure
+Subject: [PATCH] temporarily remove liboost check in configure
 
 Signed-off-by: Xavier Roche <xavier.roche@open.eurogiciel.org>
 ---

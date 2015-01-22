@@ -1,7 +1,7 @@
 From 164d8c6665213c931645578310256da7b1259331 Mon Sep 17 00:00:00 2001
 From: Daniel Borkmann <dborkman@redhat.com>
 Date: Fri, 28 Mar 2014 18:58:22 +0100
-Subject: [PATCH] meta-tizen: net: ptp: do not reimplement PTP/BPF classifier
+Subject: [PATCH] net: ptp: do not reimplement PTP/BPF classifier
 
 There are currently pch_gbe, cpts, and ixp4xx_eth drivers that open-code
 and reimplement a BPF classifier for the PTP protocol. Since all of them

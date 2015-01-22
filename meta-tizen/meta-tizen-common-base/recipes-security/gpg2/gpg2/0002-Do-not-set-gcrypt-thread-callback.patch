@@ -1,7 +1,7 @@
 From 398602cad11b96025552e981f210f93c6ce03218 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
 Date: Tue, 2 Sep 2014 16:04:25 +0200
-Subject: [PATCH] meta-tizen: Do not set gcrypt thread callback
+Subject: [PATCH] Do not set gcrypt thread callback
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

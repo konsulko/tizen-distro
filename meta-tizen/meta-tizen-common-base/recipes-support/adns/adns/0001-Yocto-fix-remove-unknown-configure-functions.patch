@@ -1,7 +1,7 @@
 From 93c8263990e954055ec4ab638530e873460ece63 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
 Date: Fri, 29 Aug 2014 14:38:41 +0200
-Subject: [PATCH] meta-tizen: Yocto fix: remove unknown configure functions
+Subject: [PATCH] Yocto fix: remove unknown configure functions
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

@@ -1,7 +1,7 @@
 From 5105fedd7fa13dadd2d0d864fb77873b83b79a4b Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Thu, 23 Jun 2011 13:52:09 +0200
-Subject: [PATCH] meta-tizen: buildsys: hardcode socketdir to /tmp
+Subject: [PATCH] buildsys: hardcode socketdir to /tmp
 
 the TMPDIR env var isn't always pointing to the right target path
 

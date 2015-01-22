@@ -1,7 +1,7 @@
 From 7d52489471905f42741f99d50474eaa0a4c9698c Mon Sep 17 00:00:00 2001
 From: Imran Zaman <imran.zaman@intel.com>
 Date: Wed, 15 Oct 2014 18:02:48 +0300
-Subject: [PATCH] meta-tizen: Added APIs to support multiseat in wayland
+Subject: [PATCH] Added APIs to support multiseat in wayland
 
 Clients can use name and/or seatname of the outputs
 to select the output(s) as per its need

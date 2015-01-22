@@ -1,7 +1,7 @@
 From 6e44dd396029ed403dceeca5a5e1a60bbb427f74 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
 Date: Tue, 2 Sep 2014 16:20:16 +0200
-Subject: [PATCH] meta-tizen: Remove obsolete function gcry_md_start_debug()
+Subject: [PATCH] Remove obsolete function gcry_md_start_debug()
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

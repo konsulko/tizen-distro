@@ -1,7 +1,7 @@
 From 513e054f29ce0b72883e3aa060698e98caf49516 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?K=C3=A9vin=20THIERRY?= <kevin.thierry@open.eurogiciel.org>
 Date: Fri, 5 Dec 2014 14:24:27 +0100
-Subject: [PATCH] meta-tizen: Do not generate README from README.html
+Subject: [PATCH] Do not generate README from README.html
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
