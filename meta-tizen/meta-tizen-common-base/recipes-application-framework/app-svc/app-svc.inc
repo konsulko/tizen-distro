@@ -84,7 +84,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . \
  -Dwith_wayland=TRUE
  
- make -j16
+ make ${PARALLEL_MAKE}
  
  
  

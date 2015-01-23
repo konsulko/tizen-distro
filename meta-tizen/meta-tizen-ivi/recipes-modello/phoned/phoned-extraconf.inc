@@ -21,7 +21,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          ${EXTRA_OECMAKE} . -DCMAKE_INSTALL_PREFIX=${prefix} -DENABLE_TIME_TRACER="OFF"
  
- make -j16 VERBOSE=1
+ make ${PARALLEL_MAKE} VERBOSE=1
  
  
  

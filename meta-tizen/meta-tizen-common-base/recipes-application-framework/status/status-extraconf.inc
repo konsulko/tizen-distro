@@ -20,7 +20,7 @@ do_compile() {
          -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON .
- make -j16
+ make ${PARALLEL_MAKE}
 
 
 

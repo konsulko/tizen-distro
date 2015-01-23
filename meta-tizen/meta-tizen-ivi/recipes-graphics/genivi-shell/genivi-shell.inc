@@ -84,7 +84,7 @@ do_compile() {
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} .
  
- oe_runmake -j16 V=1
+ oe_runmake ${PARALLEL_MAKE} V=1
  
  
  

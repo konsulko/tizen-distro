@@ -27,5 +27,5 @@ do_compile() {
         --mandir=${mandir} \
         --infodir=${infodir} --disable-static
 
-    make -j16
+    make ${PARALLEL_MAKE}
 }

@@ -11,6 +11,6 @@ do_compile() {
     LD_AS_NEEDED=1; export LD_AS_NEEDED ;
 
     autotools_do_configure
-    oe_runmake -j16
+    oe_runmake ${PARALLEL_MAKE}
 }
 

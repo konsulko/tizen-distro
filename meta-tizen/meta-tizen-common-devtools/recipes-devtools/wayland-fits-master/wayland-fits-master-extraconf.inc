@@ -11,7 +11,7 @@ do_compile() {
   export LDFLAGS="-lboost_system -lboost_filesystem -lboost_thread -lboost_regex -lboost_program_options"
 
   autotools_do_configure
-  make -j16
+  make ${PARALLEL_MAKE}
 
 
 

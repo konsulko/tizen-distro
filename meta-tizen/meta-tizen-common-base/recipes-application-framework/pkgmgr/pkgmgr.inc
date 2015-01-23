@@ -121,7 +121,7 @@ do_compile() {
          ${EXTRA_OECMAKE} . \
      -DX11_SUPPORT=Off
  
- oe_runmake -j16
+ oe_runmake ${PARALLEL_MAKE}
  
  
  

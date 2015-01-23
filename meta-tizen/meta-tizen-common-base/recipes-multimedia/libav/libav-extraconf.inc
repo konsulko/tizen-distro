@@ -66,7 +66,7 @@ do_compile() {
 
     ./configure --prefix=${prefix} --shlibdir=${prefix}/lib --libdir=${prefix}/lib  $CONFIGURE_OPTIONS ${EXTRA_OECONF}
 
-    oe_runmake -j16
+    oe_runmake ${PARALLEL_MAKE}
 }
 
 do_install() {

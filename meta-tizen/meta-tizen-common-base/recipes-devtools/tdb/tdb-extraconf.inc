@@ -16,7 +16,7 @@ do_compile() {
     unset DISPLAY
     LD_AS_NEEDED=1; export LD_AS_NEEDED ;
 
-    oe_runmake -j16
+    oe_runmake ${PARALLEL_MAKE}
 }
 
 PACKAGES += " python-${PN}-dbg "
