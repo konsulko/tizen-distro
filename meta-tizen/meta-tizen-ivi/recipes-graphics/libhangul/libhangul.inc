@@ -57,7 +57,7 @@ do_compile() {
   touch ChangeLog
   
   autotools_do_configure
-  oe_runmake ${PARALLEL_MAKE}
+  oe_runmake -j16
   
   
   

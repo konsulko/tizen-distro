@@ -60,7 +60,7 @@ do_compile() {
   
   
   autotools_do_configure
-  make ${PARALLEL_MAKE}
+  make -j16
   
   
   

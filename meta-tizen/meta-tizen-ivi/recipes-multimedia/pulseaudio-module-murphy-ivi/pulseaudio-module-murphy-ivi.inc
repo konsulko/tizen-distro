@@ -2,7 +2,7 @@ DESCRIPTION = "Pulseaudio module for enforcing policy decisions in the audio dom
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/Resource Policy"
 LICENSE = "LGPL-2.1"
-PV = "0.9.32"
+PV = "0.9.37"
 
 SRC_URI = ""
 

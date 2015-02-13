@@ -2,7 +2,7 @@ DESCRIPTION = "Weston IVI Shell"
 HOMEPAGE = "https://github.com/ntanibata/weston-ivi-shell/"
 SECTION = "Graphics & UI Framework/Wayland Window System"
 LICENSE = "MIT"
-PV = "0.1.7"
+PV = "0.1.9"
 
 SRC_URI = ""
 
@@ -88,7 +88,7 @@ do_compile() {
    
   autotools_do_configure
   
-  oe_runmake ${PARALLEL_MAKE}
+  oe_runmake -j16
   
   
   
@@ -149,7 +149,6 @@ do_install() {
  mkdir -p ${D}${sysconfdir}/xdg/weston
  install -m 0644 ${S}/packaging/weston.ini ${D}${sysconfdir}/xdg/weston
  install -d ${D}${prefix}/share/weston/
- cp -rfva data/* ${D}${prefix}/share/weston/
  
  
  
@@ -164,10 +163,9 @@ PACKAGES += " weston-ivi-shell "
 
 weston-ivi-shell-dev_files = ""
 weston-ivi-shell-dev_files += "${prefix}/include/weston/ivi-layout-export.h"
-weston-ivi-shell-dev_files += "${prefix}/include/weston/ivi-layout.h"
+weston-ivi-shell-dev_files += "${prefix}/include/weston/ivi-layout-private.h"
 weston-ivi-shell-dev_files += "${prefix}/include/weston/ivi-shell.h"
 weston-ivi-shell-dev_files += "${prefix}/include/weston/ivi-shell-ext.h"
-weston-ivi-shell-dev_files += "${prefix}/include/weston/ivi-layout-transition.h"
 weston-ivi-shell-dev_files += "${prefix}/share/weston-ivi-shell/protocol/*"
 MANIFESTFILES_${PN}-dev = "weston-ivi-shell.manifest"
 

@@ -2,6 +2,10 @@ SRC_URI += "file://systemd-user"
 
 inherit useradd
 
+RDEPENDS_${PN}_remove_class-native = "gawk-native glibc-native"
+DEPENDS_remove_class-native = "usbutils-native"
+DEPENDS_remove_class-native = "pciutils-native"
+
 USERADD_PACKAGES = "${PN}"
 GROUPADD_PARAM_${PN} += "--system -g 11 cdrom;"
 GROUPADD_PARAM_${PN} += "--system -g 33 tape;"

@@ -2,7 +2,7 @@ DESCRIPTION = "GENIVI Shell Plugin-in"
 HOMEPAGE = "http://git.projects.genivi.org/wayland-ivi-extension.git"
 SECTION = "Graphics & UI Framework/Wayland Window System"
 LICENSE = "Apache-2.0"
-PV = "0.2.3"
+PV = "0.2.5"
 
 SRC_URI = ""
 
@@ -46,6 +46,27 @@ do_prep() {
  /usr/bin/wayland-scanner code < protocol/ivi-controller.xml \
      > protocol/ivi-controller-protocol.c
  
+ cat ivi-extension-protocol.pc.in \
+     | sed s\#@libdir@\#${prefix}/lib\#g \
+     | sed s\#@includedir@\#${prefix}/include/genivi-shell\#g \
+     | sed s\#@name@\#genivi-shell\#g \
+     | sed s\#@package_version@\#0.2.5\#g \
+     > ivi-extension-protocol.pc
+ 
+ 
+   cmake \
+         -DCMAKE_VERBOSE_MAKEFILE=ON \
+         -DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
+         -DCMAKE_INSTALL_LIBDIR:PATH=${prefix}/lib \
+         -DINCLUDE_INSTALL_DIR:PATH=${prefix}/include \
+         -DLIB_INSTALL_DIR:PATH=${prefix}/lib \
+         -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
+         -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
+         -DCMAKE_SKIP_RPATH:BOOL=ON \
+         -DBUILD_SHARED_LIBS:BOOL=ON \
+         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
+         ${EXTRA_OECMAKE} .
+ 
  
 }
 do_patch_append() {
@@ -63,28 +84,7 @@ do_compile() {
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
  
- cat ivi-extension-protocol.pc.in \
-     | sed s\#@libdir@\#${prefix}/lib\#g \
-     | sed s\#@includedir@\#${prefix}/include/genivi-shell\#g \
-     | sed s\#@name@\#genivi-shell\#g \
-     | sed s\#@package_version@\#0.2.3\#g \
-     > ivi-extension-protocol.pc
- 
- 
-   cmake \
-         -DCMAKE_VERBOSE_MAKEFILE=ON \
-         -DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
-         -DCMAKE_INSTALL_LIBDIR:PATH=${prefix}/lib \
-         -DINCLUDE_INSTALL_DIR:PATH=${prefix}/include \
-         -DLIB_INSTALL_DIR:PATH=${prefix}/lib \
-         -DSYSCONF_INSTALL_DIR:PATH=${sysconfdir} \
-         -DSHARE_INSTALL_PREFIX:PATH=${prefix}/share \
-         -DCMAKE_SKIP_RPATH:BOOL=ON \
-         -DBUILD_SHARED_LIBS:BOOL=ON \
-         -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
-         ${EXTRA_OECMAKE} .
- 
- oe_runmake ${PARALLEL_MAKE} V=1
+ make -j16 V=1
  
  
  
@@ -167,6 +167,7 @@ genivi-shell_files += "${prefix}/lib/libilmClient.so.*"
 genivi-shell_files += "${prefix}/lib/libilmCommon.so.*"
 genivi-shell_files += "${prefix}/lib/libilmControl.so.*"
 genivi-shell_files += "${prefix}/lib/weston/ivi-controller.so"
+genivi-shell_files += "${prefix}/bin/EGLWLInputEventExample"
 MANIFESTFILES_${PN} = "genivi-shell.manifest"
 
 genivi-shell-dev_files = ""

@@ -29,6 +29,7 @@ RPROVIDES_weston-ivi += "weston-startup"
 
 RDEPENDS = ""
 #RDEPENDS of weston-ivi-config-modello (${PN}-config-modello)
+RDEPENDS_${PN}-config-modello += "tlm-config-ivi-singleseat"
 RDEPENDS_${PN}-config-modello += "weekeyboard"
 RDEPENDS_${PN}-config-modello += "sed"
 
@@ -84,7 +85,6 @@ do_install() {
  
  mkdir -p ${D}${sysconfdir}/xdg/weston
  install -m 0644 weston.ini ${D}${sysconfdir}/xdg/weston
- install -m 0644 weston-modello.ini ${D}${sysconfdir}/xdg/weston/weston-modello.ini
  
  
 }
@@ -92,16 +92,14 @@ do_install() {
 pkg_postinst_${PN}() {
     #!/bin/sh -e
 
-    ln -s $D${sysconfdir}/xdg/weston/weston-modello.ini $D${sysconfdir}/xdg/weston/weston.ini
-    sed -i 's/ --current-mode//' $D${prefix}/lib/systemd/user/weston.service
+    sed -i 's/^\(SESSION_CMD\=.*user-session\)/\1-modello/' /etc/tlm-singleseat.conf
 
 }
 
 pkg_postrm_${PN}() {
     #!/bin/sh -e
 
-    rm $D${sysconfdir}/xdg/weston/weston.ini
-    sed -i 's/\(^ExecStart.*\)/\1 --current-mode/' $D${prefix}/lib/systemd/user/weston.service
+    sed -i 's/-modello//' /etc/tlm-singleseat.conf
 
 }
 
@@ -111,9 +109,6 @@ PACKAGES += " weston-ivi-config "
 PACKAGES += " weston-ivi "
 
 weston-ivi-config-modello_files = ""
-weston-ivi-config-modello_files += "${sysconfdir}/xdg/weston/weston-modello.ini"
-CONFFILES_${PN}-config-modello = ""
-CONFFILES_${PN}-config-modello += "${sysconfdir}/xdg/weston/weston-modello.ini"
 MANIFESTFILES_${PN}-config-modello = "weston-ivi.manifest"
 
 weston-ivi-config_files = ""

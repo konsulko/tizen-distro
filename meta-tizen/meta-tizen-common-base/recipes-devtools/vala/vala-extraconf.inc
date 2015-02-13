@@ -22,5 +22,5 @@ vala_files += "${mandir}/man1/valac.1*"
 vala_files += "${mandir}/man1/vala-gen-introspect.1*"
 vala_files += "${mandir}/man1/vapigen.1*"
 
-FILES_${PN}-dbg += "${prefix}/lib/vala-0.24/.debug"
+FILES_${PN}-dbg += "${prefix}/lib/vala-0.26/.debug"
 vala_files += "${prefix}/share/pkgconfig/vapigen.pc"

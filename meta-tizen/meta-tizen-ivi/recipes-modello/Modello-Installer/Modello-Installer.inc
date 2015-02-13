@@ -2,7 +2,7 @@ DESCRIPTION = "Installer for Modello"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/Modello"
 LICENSE = "Apache-2.0"
-PV = "0.0.2"
+PV = "0.0.3"
 
 SRC_URI = ""
 
@@ -48,7 +48,7 @@ DEPENDS = ""
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n Modello-Installer-0.0.2
+ #setup -q -n Modello-Installer-0.0.3
  cp ${S}/packaging/Modello-Installer.manifest .
  
  
@@ -125,7 +125,7 @@ pkg_postinst_${PN}() {
     	echo "Installing $list"
     	su app -c "pkgcmd -q -i -t wgt -p $list"
     done
-    for list2 in $(ls -d $TZ_SYS_HOME/app/.config/xwalk-service/applications/*/)
+    for list2 in $(ls -d $TZ_SYS_HOME/app/apps_rw/xwalk-service/applications/*/)
     do
             su app -c "mkdir -p '$list2/css'"
             su app -c "mkdir -p '$list2/js'"

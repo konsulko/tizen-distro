@@ -2,7 +2,7 @@ DESCRIPTION = "EFL toolkit for small touchscreens"
 HOMEPAGE = "http://trac.enlightenment.org/e/wiki/Elementary"
 SECTION = "Graphics & UI Framework/Development"
 LICENSE = "LGPL-2.1+"
-PV = "1.9.3"
+PV = "1.12.2"
 
 SRC_URI = ""
 
@@ -77,7 +77,7 @@ do_compile() {
    
   autotools_do_configure
   
-  oe_runmake ${PARALLEL_MAKE}
+  oe_runmake -j16
   
   
   
@@ -144,7 +144,8 @@ elementary_files += "${prefix}/share/icons/elementary.png"
 MANIFESTFILES_${PN} = "elementary.manifest"
 
 elementary-dev_files = ""
-elementary-dev_files += "${prefix}/include/elementary-1/*.h"
+elementary-dev_files += "${prefix}/include/elementary-1/*.h*"
+elementary-dev_files += "${prefix}/share/eolian/include/elementary-1/*.eo"
 elementary-dev_files += "${prefix}/lib/*.so"
 elementary-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 elementary-dev_files += "${prefix}/lib/cmake/Elementary/ElementaryConfig.cmake"

@@ -2,7 +2,7 @@ DESCRIPTION = "Weston Plugins for IVI"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/ICO Homescreen"
 LICENSE = "MIT"
-PV = "0.9.22"
+PV = "0.9.23"
 
 SRC_URI = ""
 
@@ -47,7 +47,7 @@ DEPENDS += "pixman"
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n ico-uxf-weston-plugin-0.9.22
+ #setup -q -n ico-uxf-weston-plugin-0.9.23
  
  
 }
@@ -67,7 +67,7 @@ do_compile() {
   
   
   autotools_do_configure
-  oe_runmake ${PARALLEL_MAKE}
+  oe_runmake -j16
   
   
   

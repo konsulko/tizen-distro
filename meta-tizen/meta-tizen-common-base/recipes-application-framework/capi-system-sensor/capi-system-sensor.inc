@@ -1,8 +1,8 @@
 DESCRIPTION = "A Sensor library in TIZEN C API"
 HOMEPAGE = "http://nohomepage.org"
-SECTION = "framework/system"
-LICENSE = "Apache-2.0"
-PV = "0.1.17"
+SECTION = "System/API"
+LICENSE = "Apache 2.0"
+PV = "0.1.0"
 
 SRC_URI = ""
 
@@ -24,6 +24,9 @@ RDEPENDS = ""
 #RDEPENDS of capi-system-sensor-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "capi-system-sensor"
 
+#RDEPENDS of capi-system-sensor (${PN})
+RDEPENDS_${PN} += "glibc"
+
 
 DEPENDS = ""
 #DEPENDS of capi-system-sensor
@@ -32,13 +35,12 @@ inherit tizen_cmake
 inherit pkgconfig
 DEPENDS += "dlog"
 DEPENDS += "capi-base-common"
+DEPENDS += "libsf-common"
 
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
  #setup -q
- cp ${S}/packaging/capi-system-sensor.manifest .
- 
  
  
 }
@@ -56,8 +58,8 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
  
- MAJORVER=`echo 0.1.17 | awk 'BEGIN {FS="."}{print $1}'`
- 
+ cp ${S}/packaging/capi-system-sensor.manifest .
+ MAJORVER=`echo 0.1.0 | awk 'BEGIN {FS="."}{print $1}'`
  
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
@@ -70,10 +72,8 @@ do_compile() {
          -DCMAKE_SKIP_RPATH:BOOL=ON \
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
-         ${EXTRA_OECMAKE} . -DFULLVER=0.1.17 -DMAJORVER=${MAJORVER} -DVERSION="0.1.17"
- 
- oe_runmake ${PARALLEL_MAKE}
- 
+         ${EXTRA_OECMAKE} . -DFULLVER=0.1.0 -DMAJORVER=${MAJORVER}
+ oe_runmake -j1
  
  
  
@@ -88,6 +88,7 @@ do_install() {
  rm -rf ${D}
  mkdir -p ${D}
  
+ rm -rf ${D}
  
    oe_runmake \
          DESTDIR=${D} \
@@ -118,9 +119,9 @@ PACKAGES += " capi-system-sensor-dev "
 PACKAGES += " capi-system-sensor "
 
 capi-system-sensor-dev_files = ""
-capi-system-sensor-dev_files += "${prefix}/include/system/sensors.h"
-capi-system-sensor-dev_files += "${prefix}/lib/pkgconfig/*.pc"
 capi-system-sensor-dev_files += "${prefix}/lib/libcapi-system-sensor.so"
+capi-system-sensor-dev_files += "${prefix}/lib/pkgconfig/*.pc"
+capi-system-sensor-dev_files += "${prefix}/include/sensor/*.h"
 MANIFESTFILES_${PN}-dev = "capi-system-sensor.manifest"
 
 capi-system-sensor_files = ""

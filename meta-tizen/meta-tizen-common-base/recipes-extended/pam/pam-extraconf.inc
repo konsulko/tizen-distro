@@ -21,6 +21,10 @@ RPROVIDES_${PN}-modules-extra += "pam-plugin-rootok"
 RPROVIDES_${PN}-modules-extra += "pam-plugin-keyinit"
 RPROVIDES_${PN}-modules-extra += "pam-plugin-loginuid"
 
+RDEPENDS_${PN}_remove_class-native = "glibc-native"
+DEPENDS_remove_class-native = "net-tools-native"
+DEPENDS_class-target += "glib-2.0"
+
 inherit pkgconfig
 
 EXTRA_OECONF += " --libdir=${base_libdir} \

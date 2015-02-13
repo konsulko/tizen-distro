@@ -1,34 +1,48 @@
+From ada9024b645d9ace606a43b11c28530bc8055806 Mon Sep 17 00:00:00 2001
+From: Xavier Roche <xavrock.os@gmail.com>
+Date: Thu, 12 Feb 2015 09:47:53 +0100
+Subject: [PATCH] Fix time stamp
+
+Signed-off-by: Xavier Roche <xavrock.os@gmail.com>
+---
+ ccode/Makefile.am    | 2 +-
+ codegen/Makefile.am  | 2 +-
+ compiler/Makefile.am | 2 +-
+ gee/Makefile.am      | 2 +-
+ vala/Makefile.am     | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
 diff --git a/ccode/Makefile.am b/ccode/Makefile.am
-index eb25f9d..c687282 100644
+index fd3186a..f999b8c 100644
 --- a/ccode/Makefile.am
 +++ b/ccode/Makefile.am
-@@ -78,7 +78,7 @@ ccodeinclude_HEADERS = \
+@@ -80,7 +80,7 @@ ccodeinclude_HEADERS = \
  	valaccode.h \
  	$(NULL)
  
 -ccode.vapi ccode.vala.stamp: $(libvalaccode_la_VALASOURCES)
 +ccode.vapi : $(libvalaccode_la_VALASOURCES)
- 	$(VALA_V)$(VALAC) $(COVERAGE_VALAFLAGS) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg gobject-2.0 --vapidir $(srcdir)/../gee --pkg gee --pkg config -H valaccode.h --library ccode $^
- 	touch $@
- 
+ 	$(VALA_V)$(VALAC) \
+ 		$(COVERAGE_VALAFLAGS) \
+ 		$(VALAFLAGS) \
 diff --git a/codegen/Makefile.am b/codegen/Makefile.am
-index 33e0c1a..904408f 100644
+index a20e24f..2151c85 100644
 --- a/codegen/Makefile.am
 +++ b/codegen/Makefile.am
-@@ -56,7 +56,7 @@ codegeninclude_HEADERS = \
+@@ -58,7 +58,7 @@ codegeninclude_HEADERS = \
  	valacodegen.h \
  	$(NULL)
  
 -codegen.vapi codegen.vala.stamp: $(libvala_la_VALASOURCES)
 +codegen.vapi : $(libvala_la_VALASOURCES)
- 	$(VALA_V)$(VALAC) $(COVERAGE_VALAFLAGS) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg gobject-2.0 --vapidir $(srcdir)/../gee --pkg gee --vapidir $(srcdir)/../ccode --pkg ccode --vapidir $(srcdir)/../vala --pkg vala -H valacodegen.h --library codegen $^
- 	@touch $@
- 
+ 	$(VALA_V)$(VALAC) \
+ 		$(COVERAGE_VALAFLAGS) \
+ 		$(VALAFLAGS) \
 diff --git a/compiler/Makefile.am b/compiler/Makefile.am
-index d6e7f81..d826240 100644
+index 1a513fa..13b62ae 100644
 --- a/compiler/Makefile.am
 +++ b/compiler/Makefile.am
-@@ -10,7 +10,7 @@ AM_CPPFLAGS = \
+@@ -12,7 +12,7 @@ AM_CPPFLAGS = \
  	-DPACKAGE_DATADIR=\"$(pkgdatadir)\" \
  	$(NULL)
  
@@ -38,28 +52,31 @@ index d6e7f81..d826240 100644
  bin_PROGRAMS = \
  	valac \
 diff --git a/gee/Makefile.am b/gee/Makefile.am
-index f9ac2fc..b959d98 100644
+index db4e75b..a9858b8 100644
 --- a/gee/Makefile.am
 +++ b/gee/Makefile.am
-@@ -35,7 +35,7 @@ geeinclude_HEADERS = \
+@@ -37,7 +37,7 @@ geeinclude_HEADERS = \
  	valagee.h \
  	$(NULL)
  
 -gee.vapi gee.vala.stamp: $(libgee_la_VALASOURCES)
 +gee.vapi : $(libgee_la_VALASOURCES)
- 	$(VALA_V)$(VALAC) $(COVERAGE_VALAFLAGS) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg gobject-2.0 -H valagee.h --library gee $^
- 	@touch $@
- 
+ 	$(VALA_V)$(VALAC) \
+ 		$(COVERAGE_VALAFLAGS) \
+ 		$(VALAFLAGS) \
 diff --git a/vala/Makefile.am b/vala/Makefile.am
-index ee8d410..c1fb67f 100644
+index 54d01bd..bf97d80 100644
 --- a/vala/Makefile.am
 +++ b/vala/Makefile.am
-@@ -172,7 +172,7 @@ valainclude_HEADERS = \
+@@ -174,7 +174,7 @@ valainclude_HEADERS = \
  	vala.h \
  	$(NULL)
  
 -vala.vapi vala.vala.stamp: $(libvalacore_la_VALASOURCES)
 +vala.vapi : $(libvalacore_la_VALASOURCES)
- 	$(VALA_V)$(VALAC) $(COVERAGE_VALAFLAGS) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg gobject-2.0 --vapidir $(srcdir)/../gee --pkg gee --pkg config -H vala.h --library vala $^
- 	@touch $@
- 
+ 	$(VALA_V)$(VALAC) \
+ 		$(COVERAGE_VALAFLAGS) \
+ 		$(VALAFLAGS) \
+-- 
+1.9.1
+

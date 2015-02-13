@@ -1,28 +1,36 @@
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index e0a9211..96a28f1 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -1,4 +1,4 @@
--# 
-+#
- # Copyright (c) 2008 ~ 2010 Samsung Electronics Co., Ltd.
- # All rights reserved
- #
-@@ -37,7 +37,7 @@ FOREACH(flag ${pkgs_CFLAGS})
- 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
- ENDFOREACH(flag)
- 
--pkg_check_modules(libpkgs REQUIRED dbus-glib-1 dlog ail pkgmgr-parser pkgmgr-info iniparser libtzplatform-config notification)
-+pkg_check_modules(libpkgs REQUIRED dbus-glib-1 dlog ail pkgmgr-parser pkgmgr-info iniparser libtzplatform-config notification xdgmime security-server)
- 
- FOREACH(flag ${libpkgs_CFLAGS})
- 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
-@@ -76,7 +76,7 @@ ADD_LIBRARY(${PKGMGR_CLIENT} SHARED ${libpkgmgr-client_SOURCES})
- SET_TARGET_PROPERTIES(${PKGMGR_CLIENT} PROPERTIES SOVERSION ${VERSION_MAJOR})
+From f5f37e425ca8eb3b988c366ea49046219966da3b Mon Sep 17 00:00:00 2001
+From: Xavier Roche <xavrock.os@gmail.com>
+Date: Thu, 12 Feb 2015 14:33:42 +0100
+Subject: [PATCH] Add extra lib
+
+Signed-off-by: Xavier Roche <xavrock.os@gmail.com>
+---
+ client/CMakeLists.txt | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/client/CMakeLists.txt b/client/CMakeLists.txt
+index fe92867..e11c23f 100644
+--- a/client/CMakeLists.txt
++++ b/client/CMakeLists.txt
+@@ -10,7 +10,8 @@ pkg_check_modules(CLIENT_DEPS REQUIRED
+ 		pkgmgr-info
+ 		iniparser
+ 		libtzplatform-config
+-		security-server)
++		security-server
++		xdgmime)
+ FOREACH(CLIENT_FLAGS ${CLIENT_DEPS_CFLAGS})
+ 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CLIENT_FLAGS}")
+ ENDFOREACH(CLIENT_FLAGS)
+@@ -24,7 +25,7 @@ SET_TARGET_PROPERTIES(${PKGMGR_CLIENT} PROPERTIES SOVERSION ${VERSION_MAJOR})
  SET_TARGET_PROPERTIES(${PKGMGR_CLIENT} PROPERTIES VERSION ${VERSION})
- SET_TARGET_PROPERTIES(${PKGMGR_CLIENT} PROPERTIES COMPILE_FLAGS "${libpkgmgr-client_CFLAGS}")
--TARGET_LINK_LIBRARIES(${PKGMGR_CLIENT} pkgmgr_installer_client pkgmgr_installer_status_broadcast_server pkgmgr-info ${libpkgs_LDFLAGS})
-+TARGET_LINK_LIBRARIES(${PKGMGR_CLIENT} pkgmgr_installer_client pkgmgr_installer_status_broadcast_server pkgmgr-info ${libpkgs_LDFLAGS} -ldl)
- ###################################################################################################
+ TARGET_LINK_LIBRARIES(${PKGMGR_CLIENT}
+ 		pkgmgr_installer_client
+-		pkgmgr_installer_status_broadcast_server pkgmgr-info
++		pkgmgr_installer_status_broadcast_server pkgmgr-info -ldl
+ 		${CLIENT_DEPS_LDFLAGS})
  
- ###################################################################################################
+ CONFIGURE_FILE(pkgmgr.pc.in pkgmgr.pc @ONLY)
+-- 
+1.9.1
+

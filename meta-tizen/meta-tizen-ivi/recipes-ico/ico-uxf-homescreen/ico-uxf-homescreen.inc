@@ -2,7 +2,7 @@ DESCRIPTION = "Sample homescreen and system controller"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Automotive/ICO Homescreen"
 LICENSE = "Apache-2.0"
-PV = "0.9.22"
+PV = "0.9.23"
 
 SRC_URI = ""
 
@@ -76,7 +76,7 @@ DEPENDS_append_class-target = " fdupes-native"
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n ico-uxf-homescreen-0.9.22
+ #setup -q -n ico-uxf-homescreen-0.9.23
  cp ${S}/packaging/ico-uxf-homescreen.manifest .
  
  mkdir -p weston
@@ -111,7 +111,7 @@ do_compile() {
   
    
   autotools_do_configure
-  oe_runmake ${PARALLEL_MAKE}
+  oe_runmake -j16
   
   
   
