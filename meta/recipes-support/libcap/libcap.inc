@@ -8,7 +8,8 @@ LIC_FILES_CHKSUM = "file://License;md5=3f84fd6f29d453a56514cb7e4ead25f1"
 DEPENDS = "perl-native-runtime"
 
 SRC_URI = "${DEBIAN_MIRROR}/main/libc/libcap2/${BPN}2_${PV}.orig.tar.gz \
-           file://fix-CAP_LAST_CAP.patch"
+           file://fix-CAP_LAST_CAP.patch \
+           file://libcap.pc"
 
 PR = "r1"
 
@@ -60,8 +61,12 @@ do_install_append() {
 		rmdir ${D}${libdir}
 	fi
 }
-
-FILES_${PN}-dev += "${base_libdir}/*.so"
+do_install_append_class-target() {
+	mkdir -p  ${D}${libdir}/pkgconfig
+	cp ${WORKDIR}/libcap.pc  ${D}${libdir}/pkgconfig
+}
+FILES_${PN}-dev += " ${base_libdir}/*.so "
+FILES_${PN}-dev_append_class-target = " ${libdir}/pkgconfig/libcap.pc "
 
 # pam files
 FILES_${PN} += "${base_libdir}/security/*.so"
