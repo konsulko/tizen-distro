@@ -45,7 +45,7 @@ DEPENDS += "xz"
 DEPENDS += "libinput"
 DEPENDS_append_class-native = " automake-native"
 DEPENDS_append_class-target = " automake-native"
-DEPENDS += "mesa"
+DEPENDS += "virtual/mesa"
 DEPENDS += "systemd"
 inherit pkgconfig
 DEPENDS += "glib-2.0"
@@ -59,7 +59,6 @@ DEPENDS += "pango"
 DEPENDS += "poppler"
 DEPENDS += "virtual/libgles2"
 DEPENDS += "libpam"
-DEPENDS += "virtual/egl"
 DEPENDS += "libxkbcommon"
 DEPENDS += "libjpeg-turbo"
 DEPENDS_append_class-native = " autoconf-native"
@@ -121,7 +120,6 @@ do_install() {
  install -m 755 weston-calibrator ${D}${prefix}/bin
  install -m 755 weston-simple-touch ${D}${prefix}/bin
  install -m 755 weston-simple-shm ${D}${prefix}/bin
- install -m 755 weston-simple-egl ${D}${prefix}/bin
  install -m 755 weston-simple-damage ${D}${prefix}/bin
  install -m 755 weston-nested-client ${D}${prefix}/bin
  install -m 755 weston-nested ${D}${prefix}/bin
@@ -176,7 +174,6 @@ MANIFESTFILES_${PN} = "weston.manifest"
 weston-clients_files = ""
 weston-clients_files += "${prefix}/bin/weston-simple-touch"
 weston-clients_files += "${prefix}/bin/weston-simple-shm"
-weston-clients_files += "${prefix}/bin/weston-simple-egl"
 weston-clients_files += "${prefix}/bin/weston-simple-damage"
 weston-clients_files += "${prefix}/bin/weston-nested-client"
 weston-clients_files += "${prefix}/bin/weston-nested"
