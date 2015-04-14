@@ -37,7 +37,6 @@ RDEPENDS_${PN} += "tlm"
 DEPENDS = ""
 #DEPENDS of weston
 DEPENDS += "mtdev"
-DEPENDS += "cairo"
 DEPENDS += "expat"
 DEPENDS += "udev"
 DEPENDS += "libvpx"
@@ -95,7 +94,7 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --disable-static --disable-setuid-install --enable-simple-clients --enable-clients --disable-libunwind --disable-xwayland --disable-xwayland-test --disable-x11-compositor --disable-rpi-compositor --with-cairo=glesv2 "
+EXTRA_OECONF += " --disable-static --disable-setuid-install --enable-simple-clients --enable-clients --disable-libunwind --disable-xwayland --disable-xwayland-test --disable-x11-compositor --disable-rpi-compositor "
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
@@ -121,8 +120,6 @@ do_install() {
  install -m 755 weston-simple-touch ${D}${prefix}/bin
  install -m 755 weston-simple-shm ${D}${prefix}/bin
  install -m 755 weston-simple-damage ${D}${prefix}/bin
- install -m 755 weston-nested-client ${D}${prefix}/bin
- install -m 755 weston-nested ${D}${prefix}/bin
  install -m 755 weston-flower ${D}${prefix}/bin
  install -m 755 weston-image ${D}${prefix}/bin
  install -m 755 weston-cliptest ${D}${prefix}/bin
@@ -134,7 +131,6 @@ do_install() {
  install -m 755 weston-resizor ${D}${prefix}/bin
  install -m 755 weston-eventdemo ${D}${prefix}/bin
  install -m 755 weston-clickdot ${D}${prefix}/bin
- install -m 755 weston-subsurfaces ${D}${prefix}/bin
  install -m 755 weston-transformed ${D}${prefix}/bin
  install -m 755 weston-fullscreen ${D}${prefix}/bin
  
