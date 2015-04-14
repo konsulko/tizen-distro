@@ -14,4 +14,4 @@ DEPENDS += "binutils-native"
 DEPENDS_remove_class-native = "dlog-native"
 RDEPENDS_${PN}_remove_class-native = "glibc-native"
 
-EXTRA_OECMAKE+="-DCMAKE_STRIP:PATH=strip"
+EXTRA_OECMAKE+="-DCMAKE_STRIP:PATH=${STRIP}"
