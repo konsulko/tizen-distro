@@ -12,8 +12,8 @@ EXTRA_OECONF += "   \
                     --enable-weston-launch \
                     --enable-drm-compositor \
                     --enable-sys-uid \
-                    --disable-egl \
-                    --disable-simple-egl-clients \
+                    --enable-egl \
+                    --enable-simple-egl-clients \
                     --enable-fbdev-compositor \
                     --disable-headless-compositor \
                     --enable-setuid-install \
