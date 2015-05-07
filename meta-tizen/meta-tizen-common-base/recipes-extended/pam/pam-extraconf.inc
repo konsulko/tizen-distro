@@ -23,7 +23,7 @@ RPROVIDES_${PN}-modules-extra += "pam-plugin-loginuid"
 
 RDEPENDS_${PN}_remove_class-native = "glibc-native"
 DEPENDS_remove_class-native = "net-tools-native"
-DEPENDS_class-target += "glib-2.0"
+DEPENDS_append_class-target += "glib-2.0"
 
 inherit pkgconfig
 
