@@ -1,0 +1,26 @@
+From db4ecae189f4c492a37d654ffb74a554427df58d Mon Sep 17 00:00:00 2001
+From: Leon Anavi <leon.anavi@konsulko.com>
+Date: Thu, 7 May 2015 11:47:37 +0300
+Subject: [PATCH] Launch Weston with graphics hardware acceleration for
+ Freescale i.MX6 and Vivante GPU
+
+---
+ display-manager-run.service | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/display-manager-run.service b/display-manager-run.service
+index 9d9fdde..cc6c61e 100644
+--- a/display-manager-run.service
++++ b/display-manager-run.service
+@@ -5,7 +5,7 @@ Description=Weston display daemon
+ User=display
+ WorkingDirectory=/run/%u
+ # FIXME: log files shouldn't be stored in tmpfs directories (can get quite big and have side effects)
+-ExecStart=/bin/sh -c 'backend=drm ; [ -d /dev/dri ] || backend=fbdev ; exec /usr/bin/weston --backend=$backend-backend.so -i0 --log=/run/%u/weston.log'
++ExecStart=/usr/bin/weston --use-gl=0 --use-gal2d=1 -i0 --log=/run/%u/weston.log
+ StandardInput=tty
+ TTYPath=/dev/tty7
+ EnvironmentFile=/etc/sysconfig/weston
+-- 
+2.1.4
+

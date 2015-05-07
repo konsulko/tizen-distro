@@ -62,6 +62,7 @@ export libexecdir="${prefix}/libexec"
 
 FILES_${PN} += "${prefix}/lib/weston/cms-static.so"
 
+FILES_${PN} += "${prefix}/lib/weston/gal2d-renderer.so"
 FILES_${PN} += "${prefix}/bin/weston-scaler"
 FILES_${PN} += "${prefix}/bin/weston-stacking"
 FILES_${PN} += "${prefix}/bin/weston-multi-resource"

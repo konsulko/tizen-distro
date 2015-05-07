@@ -1,3 +1,5 @@
+SRC_URI += "file://0001-Allow-users-to-use-galcore-modules-for-graphics-hard.patch"
+
 FILES_${PN}-dbg += "${prefix}/lib/tlm/plugins/.debug"
 inherit systemd
 SYSTEMD_SERVICE_${PN} = "tlm.service"

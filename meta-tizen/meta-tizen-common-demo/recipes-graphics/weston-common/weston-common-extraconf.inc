@@ -2,6 +2,7 @@ FILESEXTRAPATHS_append := "${THISDIR}/weston-common"
 
 SRC_URI += "file://0001-Yocto-correct-paths-to-ln-and-chmod.patch"
 SRC_URI += "file://0002-Add-a-script-to-export-UID.patch"
+SRC_URI += "file://0003-Launch-Weston-with-graphics-hardware-acceleration-fo.patch"
 
 DEPENDS += "config-tizen-common"
 RDEPENDS_${PN} += "config-tizen-common"
