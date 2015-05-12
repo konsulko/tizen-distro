@@ -2,7 +2,7 @@ DESCRIPTION = "Tethering Framework"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Connectivity/API"
 LICENSE = "Apache-2.0"
-PV = "0.0.16"
+PV = "0.0.15"
 
 SRC_URI = ""
 
