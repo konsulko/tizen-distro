@@ -2,7 +2,7 @@ DESCRIPTION = "Chromium-based app runtime"
 HOMEPAGE = "https://github.com/otcshare/crosswalk"
 SECTION = "Web Framework/Web Run Time"
 LICENSE = "(BSD-3-Clause and LGPL-2.1+)"
-PV = "11.40.277.0"
+PV = "11.39.256.0"
 
 SRC_URI = ""
 
@@ -16,30 +16,14 @@ PROVIDES = ""
 #PROVIDES by crosswalk
 
 
-#PROVIDES by widget-manifest-parser
-PROVIDES += "widget-manifest-parser"
-
-
-#PROVIDES by widget-manifest-parser-dev
-PROVIDES += "widget-manifest-parser-dev"
-
-
 RDEPENDS = ""
 #RDEPENDS of crosswalk (${PN})
 RDEPENDS_${PN} += "ca-certificates-tizen"
 RDEPENDS_${PN} += "ss-server"
 
-#RDEPENDS of widget-manifest-parser (widget-manifest-parser)
-RDEPENDS_widget-manifest-parser += "crosswalk"
-
-#RDEPENDS of widget-manifest-parser-dev (widget-manifest-parser-dev)
-RDEPENDS_widget-manifest-parser-dev += "crosswalk"
-RDEPENDS_widget-manifest-parser-dev += "widget-manifest-parser"
-
 
 DEPENDS = ""
 #DEPENDS of crosswalk
-DEPENDS += "pkgconfig(protobuf)"
 DEPENDS += "cairo"
 DEPENDS += "pkgmgr"
 DEPENDS += "expat"
@@ -58,6 +42,7 @@ DEPENDS += "yasm"
 DEPENDS += "fontconfig"
 DEPENDS += "system-server"
 DEPENDS += "wayland"
+DEPENDS += "tizen-platform-wrapper"
 DEPENDS += "which"
 DEPENDS += "libxml2"
 DEPENDS_append_class-native = " bison-native"
@@ -79,8 +64,9 @@ DEPENDS_append_class-target = " ninja-native"
 DEPENDS += "pango"
 DEPENDS += "vconf"
 DEPENDS += "virtual/egl"
-DEPENDS += "libxkbcommon"
+DEPENDS += "nspr"
 DEPENDS += "dbus"
+DEPENDS += "libxkbcommon"
 DEPENDS += "pulseaudio"
 DEPENDS += "libexif"
 DEPENDS += "ail"
@@ -99,17 +85,14 @@ do_prep() {
  cp ${S}/packaging/crosswalk.xml.in .
  cp ${S}/packaging/crosswalk.png .
  cp ${S}/packaging/changedate.py .
- sed "s/@VERSION@/11.40.277.0/g" crosswalk.xml.in > crosswalk.xml
+ sed "s/@VERSION@/11.39.256.0/g" crosswalk.xml.in > crosswalk.xml
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.in > xwalk
  sed "s|@LIB_INSTALL_DIR@|${prefix}/lib|g" xwalk.service.in > xwalk.service
- 
- # Widget manifest parser devel
- cp src/xwalk/tizen/widget-manifest-parser/widget-manifest-parser.pc.in .
- sed "s|@VERSION@|11.40.277.0|g" widget-manifest-parser.pc.in > widget-manifest-parser.pc
  
  cp -a src/AUTHORS AUTHORS.chromium
  cp -a src/LICENSE LICENSE.chromium
  cp -a src/xwalk/LICENSE LICENSE.xwalk
+ 
  
  # The profiles using Wayland (and thus Ozone) do not need this patch.
  
@@ -131,7 +114,9 @@ do_compile() {
  
  
  mkdir -p src/out
+ if [ -f ${prefix}/share/crosswalk-thirdparty/out.tgz ]; then
  tar -zxvf ${prefix}/share/crosswalk-thirdparty/out.tgz
+ fi
  python ./changedate.py
  
  # Stop unconditionally passing -Wall to the compiler. Chromium has its own
@@ -139,12 +124,12 @@ do_compile() {
  # to be left out (since several pieces are built with -Werror). At least in
  # M39, this is preventing the "rtc_base" target from being built because it
  # does not expect -Wall to be passed to the compiler (see webrtc issue 3307).
- export CXXFLAGS=`echo $CXXFLAGS | sed s,-Wall,,g`
+ export CXXFLAGS="`echo $CXXFLAGS | sed s,-Wall,,g`"
  
  # For ffmpeg on ia32. The original CFLAGS set by the gyp and config files in
  # src/third_party/ffmpeg already pass -O2 -fomit-frame-pointer, but Tizen's
  # CFLAGS end up appending -fno-omit-frame-pointer. See http://crbug.com/37246
- export CFLAGS=`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`
+ export CFLAGS="`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`"
  
  
  # Building the RPM in the GBS chroot fails with errors such as
@@ -168,8 +153,8 @@ do_compile() {
  
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1"
  
- # Force gold binary from chroot ld.gold provided by binutils-gold
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1 -Dlinux_use_bundled_binutils=0 -Dlinux_use_bundled_gold=0 "
+ # disable nacl if necessary
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1"
  
  # Linking fails when fatal ld warnings are enabled. See XWALK-1379.
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
@@ -179,6 +164,9 @@ do_compile() {
  # sysroot variable is automatically set for cross compilation to use arm-sysroot provided by Chromium project
  # sysroot usage is not needed, we need to use arm libraries from the virtualized environment.
  #
+
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Dsysroot= "
+
  # Crosswalk build fails if the fpu selected in the gcc option is different from neon in case of arm7 compilation
  # So force it.
  
@@ -187,6 +175,7 @@ do_compile() {
  # --no-parallel is added because chroot does not mount a /dev/shm, this will
  # cause python multiprocessing.SemLock error.
  export GYP_GENERATORS='ninja'
+ export GYP_DEFINES="$GYP_DEFINES arm_float_abi=hard"
  ./src/xwalk/gyp_xwalk src/xwalk/xwalk.gyp \
  --no-parallel \
  ${GYP_EXTRA_FLAGS} \
@@ -194,7 +183,6 @@ do_compile() {
  -Dclang=0 \
  -Dlinux_use_bundled_binutils=0 \
  -Dlinux_use_bundled_gold=0 \
- -Dlinux_use_gold_flags=1 \
  -Dtizen=1 \
  -Dpython_ver=2.7 \
  -Duse_aura=1 \
@@ -208,11 +196,9 @@ do_compile() {
  -Duse_system_nspr=1 \
  -Duse_system_yasm=1 \
  -Dshared_process_mode=1 \
- -Denable_hidpi=1 \
- -Dwerror= \
- -Dskia_warnings_as_errors=0
+ -Denable_hidpi=1
  
- ninja -j16 -C src/out/Release xwalk xwalk_launcher xwalk_application_tools widget-manifest-parser
+ ninja -j16 -C src/out/Release xwalk xwalk_launcher xwalk_application_tools
  
  
  
@@ -246,15 +232,8 @@ do_install() {
  # PNaCl
  
  # Register xwalk to the package manager.
- install -m 0644 -p -D crosswalk.xml ${D}${prefix}/share/packages/crosswalk.xml
- install -m 0644 -p -D crosswalk.png ${D}${prefix}/share/icons/default/small/crosswalk.png
- 
- # Widget manifest parser devel
- install -m 0664 -p -D src/xwalk/tizen/widget-manifest-parser/widget-manifest-parser.h ${D}${prefix}/include/widget-manifest-parser/widget-manifest-parser.h
- install -m 0664 -p -D widget-manifest-parser.pc ${D}${prefix}/lib/pkgconfig/widget-manifest-parser.pc
- 
- # Widget manifest parser
- install -m 0755 -p -D src/out/Release/lib/libwidget-manifest-parser.so ${D}${prefix}/lib/libwidget-manifest-parser.so
+ install -p -D crosswalk.xml ${D}${prefix}/share/packages/crosswalk.xml
+ install -p -D crosswalk.png ${D}${prefix}/share/icons/default/small/crosswalk.png
  
  
 }
@@ -286,8 +265,6 @@ pkg_prerm_${PN}() {
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " crosswalk "
-PACKAGES += " widget-manifest-parser "
-PACKAGES += " widget-manifest-parser-dev "
 
 crosswalk_files = ""
 crosswalk_files += "${prefix}/bin/xwalkctl"
@@ -305,20 +282,9 @@ crosswalk_files += "/usr/lib/systemd/user/xwalk.service"
 crosswalk_files += "${prefix}/share/xwalk/*"
 MANIFESTFILES_${PN} = "crosswalk.manifest"
 
-widget-manifest-parser_files = ""
-widget-manifest-parser_files += "${prefix}/lib/libwidget-manifest-parser.so"
-
-widget-manifest-parser-dev_files = ""
-widget-manifest-parser-dev_files += "${prefix}/include/widget-manifest-parser/widget-manifest-parser.h"
-widget-manifest-parser-dev_files += "${prefix}/lib/pkgconfig/widget-manifest-parser.pc"
-
 FILES_${PN} = "${crosswalk_files}"
-FILES_widget-manifest-parser = "${widget-manifest-parser_files}"
-FILES_widget-manifest-parser-dev = "${widget-manifest-parser-dev_files}"
 
 PKG_crosswalk= "crosswalk"
-PKG_widget-manifest-parser= "widget-manifest-parser"
-PKG_widget-manifest-parser-dev= "widget-manifest-parser-dev"
 
 require crosswalk-extraconf.inc
 
