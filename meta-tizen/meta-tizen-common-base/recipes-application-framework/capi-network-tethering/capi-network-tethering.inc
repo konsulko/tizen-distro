@@ -2,7 +2,7 @@ DESCRIPTION = "Tethering Framework"
 HOMEPAGE = "http://nohomepage.org"
 SECTION = "Connectivity/API"
 LICENSE = "Apache-2.0"
-PV = "0.0.15"
+PV = "0.0.16"
 
 SRC_URI = ""
 
@@ -70,7 +70,7 @@ do_compile() {
          -DBUILD_SHARED_LIBS:BOOL=ON \
          -DCMAKE_TOOLCHAIN_FILE=${WORKDIR}/toolchain.cmake \
          ${EXTRA_OECMAKE} . -DARCH=i586
- make -j16
+ make ${PARALLEL_MAKE}
  
  
  
