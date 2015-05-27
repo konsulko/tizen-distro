@@ -2,7 +2,7 @@ DESCRIPTION = "Chromium-based app runtime"
 HOMEPAGE = "https://github.com/otcshare/crosswalk"
 SECTION = "Web Framework/Web Run Time"
 LICENSE = "(BSD-3-Clause and LGPL-2.1+)"
-PV = "11.39.256.0"
+PV = "11.40.277.0"
 
 SRC_URI = ""
 
@@ -57,9 +57,6 @@ DEPENDS_append_class-native = " bison-native"
 DEPENDS_append_class-target = " bison-native"
 DEPENDS += "pciutils"
 DEPENDS += "binutils"
-DEPENDS += "openssl"
-DEPENDS += "libgpg-error"
-
 
 do_prep() {
  cd ${S}
@@ -98,6 +95,12 @@ do_compile() {
  # does not expect -Wall to be passed to the compiler (see webrtc issue 3307).
  export CXXFLAGS="`echo $CXXFLAGS | sed s,-Wall,,g`"
  
+ # Do not use -finline-functions: it breaks the build because it causes -Wall to
+ # warn about some conditions that cannot really be reached (ie. variables that
+ # may be used uninitialized while in fact thay cannot be uninitialized). See
+ # TC-2299.
+ export CXXFLAGS="`echo $CXXFLAGS | sed s,-finline-functions,,g`"
+ 
  # For ffmpeg on ia32. The original CFLAGS set by the gyp and config files in
  # src/third_party/ffmpeg already pass -O2 -fomit-frame-pointer, but Tizen's
  # CFLAGS end up appending -fno-omit-frame-pointer. See http://crbug.com/37246
@@ -125,8 +128,8 @@ do_compile() {
  
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1"
  
- # disable nacl if necessary
- GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1"
+ # Force gold binary from chroot ld.gold provided by binutils-gold
+ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=1 -Dlinux_use_bundled_binutils=0 -Dlinux_use_bundled_gold=0 "
  
  # Linking fails when fatal ld warnings are enabled. See XWALK-1379.
  GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
@@ -144,7 +147,6 @@ do_compile() {
  
  
  
- 
  # --no-parallel is added because chroot does not mount a /dev/shm, this will
  # cause python multiprocessing.SemLock error.
  export GYP_GENERATORS='ninja'
@@ -156,6 +158,7 @@ do_compile() {
  -Dclang=0 \
  -Dlinux_use_bundled_binutils=0 \
  -Dlinux_use_bundled_gold=0 \
+ -Dlinux_use_gold_flags=1 \
  -Dtizen=1 \
  -Dpython_ver=2.7 \
  -Duse_aura=1 \
@@ -167,8 +170,9 @@ do_compile() {
  -Duse_system_libexif=1 \
  -Duse_system_libxml=1 \
  -Duse_system_yasm=1 \
- -Dshared_process_mode=1 \
- -Denable_hidpi=1
+ -Denable_hidpi=1 \
+ -Dwerror= \
+ -Dskia_warnings_as_errors=0
  
  ninja -j16 -C src/out/Release xwalk-thirdparty
  
