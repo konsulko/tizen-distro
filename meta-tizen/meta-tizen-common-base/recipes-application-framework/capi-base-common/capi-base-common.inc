@@ -100,6 +100,7 @@ PACKAGES += " capi-base-common "
 capi-base-common-dev_files = ""
 capi-base-common-dev_files += "${prefix}/include/*.h"
 capi-base-common-dev_files += "${prefix}/lib/pkgconfig/capi-base-common.pc"
+capi-base-common-dev_files += "${prefix}/lib/libcapi-base-common.so"
 MANIFESTFILES_${PN}-dev = "capi-base-common.manifest"
 
 capi-base-common_files = ""
