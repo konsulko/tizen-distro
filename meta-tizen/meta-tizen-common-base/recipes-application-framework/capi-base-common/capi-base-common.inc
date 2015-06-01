@@ -51,7 +51,7 @@ do_compile() {
  unset DISPLAY
  LD_AS_NEEDED=1; export LD_AS_NEEDED ;
 
- MAJORVER=`echo ${PV} | awk 'BEGIN {FS="."}{print $1}'`
+ MAJORVER=`echo ${PV} | cut -d. -f1`
  
    cmake \
          -DCMAKE_VERBOSE_MAKEFILE=ON \
