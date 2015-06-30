@@ -10,6 +10,12 @@ DEPENDS += "glibc"
 DEPENDS += "CommonAPI"
 DEPENDS += "CommonAPI-DBus"
 
+RDEPENDS = ""
+RDEPENDS_${PN} = "lightmediascanner"
+RDEPENDS_${PN} = "rygel"
+#dLeyna - DLNA-certified open source solution for Linux
+RDEPENDS_${PN} = "gupnp-dlna"
+
 SRC_URI = "git://git.projects.genivi.org/media-manager.git;branch=master;tag=45e08ce242a6006aaaefaeda236f51c984eaeeb1"
 
 S = "${WORKDIR}/git"
