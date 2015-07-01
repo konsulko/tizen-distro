@@ -23,7 +23,7 @@ PROVIDES += "rygel-dev"
 RDEPENDS = ""
 #RDEPENDS of rygel (${PN})
 RDEPENDS_${PN} += "coreutils"
-RDEPENDS_${PN} += "/usr/bin/pkg_initdb"
+RDEPENDS_${PN} += "pkgmgr"
 
 #RDEPENDS of rygel-dev (${PN}-dev)
 RDEPENDS_${PN}-dev += "rygel"

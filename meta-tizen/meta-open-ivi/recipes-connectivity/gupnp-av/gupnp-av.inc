@@ -22,7 +22,7 @@ PROVIDES += "gupnp-av-dev"
 
 RDEPENDS = ""
 #RDEPENDS of gupnp-av-dev (${PN}-dev)
-RDEPENDS_${PN}-dev += "gupnp-av"
+RDEPENDS_${PN}-dev = ""
 
 #RDEPENDS of gupnp-av (${PN})
 RDEPENDS_${PN} += "glibc"
@@ -60,7 +60,7 @@ do_compile() {
   
   
   autotools_do_configure
-  make -j16
+  oe_runmake
   
   
   
