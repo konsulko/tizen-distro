@@ -10,8 +10,10 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-openembedded/meta-oe \
   ##OEROOT##/meta-openembedded/meta-multimedia \
   ##OEROOT##/meta-openembedded/meta-ruby \
+  ##OEROOT##/meta-openembedded/meta-python \
   ##OEROOT##/meta-openembedded/meta-systemd \
   ##OEROOT##/meta-openembedded/meta-gnome \
+  ##OEROOT##/meta-openembedded/meta-efl \
   ##OEROOT##/meta-tizen/meta-tizen-adaptation/meta \
   ##OEROOT##/meta-tizen/meta-tizen-adaptation/meta-oe \
   ##OEROOT##/meta-tizen/meta-tizen-common-base \
@@ -26,6 +28,7 @@ BBLAYERS_NON_REMOVABLE ?= " \
   ##OEROOT##/meta-openembedded/meta-oe \
   ##OEROOT##/meta-openembedded/meta-multimedia \
   ##OEROOT##/meta-openembedded/meta-ruby \
+  ##OEROOT##/meta-openembedded/meta-python \
   ##OEROOT##/meta-openembedded/meta-systemd \
   ##OEROOT##/meta-openembedded/meta-gnome \
   ##OEROOT##/meta-tizen/meta-tizen-adaptation-oe-core \
