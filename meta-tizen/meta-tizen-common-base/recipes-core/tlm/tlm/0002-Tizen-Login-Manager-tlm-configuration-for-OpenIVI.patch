@@ -1,0 +1,94 @@
+From 0e518509ce6e84c447adfb7cac08c1ccfd0cace6 Mon Sep 17 00:00:00 2001
+From: Leon Anavi <leon.anavi@konsulko.com>
+Date: Mon, 6 Jul 2015 15:50:13 +0300
+Subject: [PATCH] Tizen Login Manager (tlm) configuration for OpenIVI
+
+Signed-off-by: Leon Anavi <leon.anavi@konsulko.com>
+---
+ data/open-ivi/etc/tlm.conf | 74 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 74 insertions(+)
+ create mode 100644 data/open-ivi/etc/tlm.conf
+
+diff --git a/data/open-ivi/etc/tlm.conf b/data/open-ivi/etc/tlm.conf
+new file mode 100644
+index 0000000..5609313
+--- /dev/null
++++ b/data/open-ivi/etc/tlm.conf
+@@ -0,0 +1,74 @@
++#
++# Example configuration for tlm.
++#
++
++#
++# This group contains top-level settings.
++#
++[General]
++#
++# Name of the account plugin to use to manage(add/remove) guest user accounts
++ACCOUNTS_PLUGIN=gumd
++#
++# Auto-login default user
++# Default: off
++AUTO_LOGIN=1
++#
++# Prepare default/guest users before auto-login
++# Default: off
++# PREPARE_DEFAULT=1
++#
++# PAM service file to use
++PAM_SERVICE=tlm-login
++#
++# PAM service file for default user
++DEFAULT_PAM_SERVICE=tlm-default-login
++#
++# Default (guest) username or template to use
++#  %S - seat number
++#  %I - seat id string
++# Default: "guest"
++DEFAULT_USER=guest_%S
++#
++# Session command : The command run after successfull login
++# Default: $SHELL
++# In case shell is not defined in /etc/passwd fallback is "systemd --user"
++#SESSION_CMD=systemd --user
++#
++# Session termination timeout in seconds
++# Default: 10
++#TERMINATE_TIMEOUT=10
++#
++# Setup terminal for session
++# Default: off
++#SETUP_TERMINAL=1
++#
++# Use X11 style sessions
++# Default: off
++#X11_SESSION=1
++#
++# Do not launch anything, let systemd handle it through PAM
++# Default: off
++#PAUSE_SESSION=1
++#
++# Specify session type
++# Default: unspecified
++#SESSION_TYPE=wayland
++#
++NSEATS=5
++#
++#
++# Seat specific settings where the group name is seat id
++[seat0]
++DEFAULT_USER=openivi
++SESSION_CMD=/etc/session.d/user-session
++NWATCH=1
++WATCH0=/run/display/wayland-0.lock
++
++#
++#
++# plugin specific settings.
++#
++#[pluginname]
++#
++
+-- 
+2.1.4
+

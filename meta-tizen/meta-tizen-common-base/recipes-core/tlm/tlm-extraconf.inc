@@ -1,4 +1,5 @@
 SRC_URI += "file://0001-Allow-users-to-use-galcore-modules-for-graphics-hard.patch"
+SRC_URI += "file://0002-Tizen-Login-Manager-tlm-configuration-for-OpenIVI.patch"
 
 FILES_${PN}-dbg += "${prefix}/lib/tlm/plugins/.debug"
 inherit systemd
@@ -40,6 +41,9 @@ do_install() {
   install -m 644 data/tizen-ivi/weston-*.ini ${D}${sysconfdir}/xdg/weston/
   install -m 755 -d ${D}${sysconfdir}/udev/rules.d
   install -m 644 data/tizen-ivi/10-multiseat-vtc1010.rules ${D}${sysconfdir}/udev/rules.d/
+ elif ${@bb.utils.contains('DISTRO_FEATURES','open-ivi','true','false',d)}; then
+  install -m 644 data/open-ivi/etc/tlm.conf ${D}${sysconfdir}
+  install -m 755 data/tizen-common/etc/session.d/* ${D}${sysconfdir}/session.d/
  elif ${@bb.utils.contains('DISTRO_FEATURES','tizen-common','true','false',d)}; then
   install -m 644 data/tizen-common/etc/tlm.conf ${D}${sysconfdir}
   install -m 755 data/tizen-common/etc/session.d/* ${D}${sysconfdir}/session.d/

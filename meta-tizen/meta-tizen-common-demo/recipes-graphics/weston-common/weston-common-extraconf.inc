@@ -31,13 +31,19 @@ pkg_preinst_${PN}() {
 }
 
 pkg_postinst_${PN} () {
-    for user in alice bob carol guest; do
-        for appdir in desktop manifest dbspace; do
-            mkdir -p $D/home/$user/.applications/$appdir
+    if ${@bb.utils.contains('DISTRO_FEATURES','open-ivi','true','false',d)}; then
+        mkdir -p $D/home/openivi/.applications/$appdir
+        find $D/home/openivi/ -type d -exec chsmack -a User {} \;
+        chown -R openivi:users $D/home/openivi/
+    else
+        for user in alice bob carol guest; do
+            for appdir in desktop manifest dbspace; do
+                mkdir -p $D/home/$user/.applications/$appdir
+            done
+            find $D/home/$user/ -type d -exec chsmack -a User {} \;
+            chown -R $user:users $D/home/$user/
         done
-        find $D/home/$user/ -type d -exec chsmack -a User {} \;
-        chown -R $user:users $D/home/$user/
-    done
+    fi
     
     SERVICE_PATH=$D/lib/systemd/system/user-session-launch@.service
     grep -q display-manager.path $SERVICE_PATH || sed -i 's@systemd-logind.service@systemd-logind.service display-manager.path@g' $SERVICE_PATH
