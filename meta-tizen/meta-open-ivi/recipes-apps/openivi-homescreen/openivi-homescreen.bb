@@ -24,7 +24,7 @@ PROVIDES = ""
 
 RDEPENDS = ""
 #RDEPENDS of openivi-homescreen (${PN})
-RDEPENDS_${PN} += "Modello-Common"
+RDEPENDS_${PN} += "openivi-common-app"
 
 
 DEPENDS = ""
@@ -71,9 +71,9 @@ do_install() {
  mkdir -p ${D}
  
  mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
- mkdir -p ${D}${prefix}/share/Modello/Common/icons
+ mkdir -p ${D}${prefix}/share/openivi/Common/icons
  zip -r ${D}/opt/usr/apps/.preinstallWidgets/openivi-homescreen.wgt config.xml manifest.json css icon.png index.html js
- install -m 0644 icon.png ${D}${prefix}/share/Modello/Common/icons
+ install -m 0644 icon.png ${D}${prefix}/share/openivi/Common/icons
  
  mkdir -p ${D}${prefix}/bin
  mkdir -p ${D}${prefix}/lib/systemd/user/weston.target.wants/
@@ -87,8 +87,8 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " openivi-homescreen "
 
 openivi-homescreen_files = ""
-openivi-homescreen_files += "/opt/usr/apps/.preinstallWidgets/Modello-Homescreen.wgt"
-openivi-homescreen_files += "${prefix}/share/Modello/Common/icons/icon.png"
+openivi-homescreen_files += "/opt/usr/apps/.preinstallWidgets/openivi-Homescreen.wgt"
+openivi-homescreen_files += "${prefix}/share/openivi/Common/icons/icon.png"
 openivi-homescreen_files += "${prefix}/lib/systemd/user/DNA_Homescreen.service"
 openivi-homescreen_files += "${prefix}/lib/systemd/user/DNA_Homescreen-launchpad-ready.path"
 openivi-homescreen_files += "${prefix}/bin/DNA_launcher.sh"
