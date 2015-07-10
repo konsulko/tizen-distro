@@ -5,25 +5,60 @@ LICENSE = "Apache-2.0"
 PR = "r0"
 
 PRIORITY = "10"
+
 LIC_FILES_CHKSUM ??= "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 SRC_URI += "git://github.com/konsulko/openivi-homescreen.git;branch=master;tag=caad9d6273cd22ec2f26bf1387b304b2d2ad783f"
 
-DEPENDS = ""
-DEPENDS += "zip"
+BBCLASSEXTEND += " native "
 
 S = "${WORKDIR}/git"
+
+inherit manifest autotools-brokensep
+
+BBCLASSEXTEND = ""
+PROVIDES = ""
+
+#PROVIDES by openivi-homescreen
+
+
+RDEPENDS = ""
+#RDEPENDS of openivi-homescreen (${PN})
+RDEPENDS_${PN} += "Modello-Common"
+
+
+DEPENDS = ""
+#DEPENDS of openivi-homescreen
+DEPENDS += "tizen-platform-config"
+inherit pkgconfig
+DEPENDS += "zip"
+
+do_prep() {
+ cd ${S}
+ chmod -Rf a+rX,u+w,g-w,o-w ${S}
+ #setup -q -n openivi-homescreen-0.0.2
+ #cp ${S}/packaging/openivi-homescreen.manifest .
+ 
+ 
+}
+do_patch_append() {
+    bb.build.exec_func('do_prep', d)
+}
 
 do_configure() {
 }
 
 do_compile() {
- #cd ${S}/git
- #LANG=C
- #export LANG
- #unset DISPLAY
- #LD_AS_NEEDED=1; export LD_AS_NEEDED ;
- oe_runmake
+ cd ${S}
+ LANG=C
+ export LANG
+ unset DISPLAY
+ LD_AS_NEEDED=1; export LD_AS_NEEDED ;
+ 
+ #empty
+ 
+ 
+ 
 }
 
 do_install() {
@@ -34,39 +69,31 @@ do_install() {
  unset DISPLAY
  rm -rf ${D}
  mkdir -p ${D}
-
- mkdir -p ${D}${prefix}/bin
- #cp install_widgets.sh ${D}${prefix}/bin
- #cp prepare_widgets.sh ${D}${prefix}/bin
-
- mkdir -p  ${D}${prefix}/share/openivi_apps
- cp -r *.wgt ${D}${prefix}/share/openivi_apps/
- #cp -r apps/*.png ${D}${prefix}/share/openivi_apps/
- #cp -r apps/*.desktop ${D}${prefix}/share/openivi_apps/
- #cp install.conf ${D}${prefix}/share/openivi_apps/
  
- # install xwalk preinstall service in user session
- #mkdir -p ${D}${prefix}/lib/systemd/user
- #install -m 644 xwalk_widgets_preinstall.service ${D}${prefix}/lib/systemd/user/
+ mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
+ mkdir -p ${D}${prefix}/share/Modello/Common/icons
+ zip -r ${D}/opt/usr/apps/.preinstallWidgets/openivi-homescreen.wgt config.xml manifest.json css icon.png index.html js
+ install -m 0644 icon.png ${D}${prefix}/share/Modello/Common/icons
+ 
+ mkdir -p ${D}${prefix}/bin
+ mkdir -p ${D}${prefix}/lib/systemd/user/weston.target.wants/
+ install -m 755 systemd/DNA_launcher.sh ${D}${prefix}/bin
+ install -m 0644 systemd/DNA_Homescreen-launchpad-ready.path ${D}${prefix}/lib/systemd/user
+ install -m 0644 systemd/DNA_Homescreen.service ${D}${prefix}/lib/systemd/user
+ ln -sf ../DNA_Homescreen-launchpad-ready.path ${D}${prefix}/lib/systemd/user/weston.target.wants/
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " openivi-homescreen "
 
-openivi-Homescreen_files = ""
-openivi-Homescreen_files += "/usr/share/openivi_apps"
-openivi-Homescreen_files += "/usr/share/openivi_apps/OPENIVI001.HomeScreen.wgt"
-openivi-homescreen_files += "/opt/usr/apps/.preinstallWidgets/OPENIVI001.HomeScreen.wgt"
-#openivi-homescreen_files += "${prefix}/share/Modello/Common/icons/Homescreen_icon.png"
-#openivi-homescreen_files += "${prefix}/lib/systemd/user/Modello_Homescreen.service"
-#openivi-homescreen_files += "${prefix}/lib/systemd/user/Modello_Homescreen-launchpad-ready.path"
-#openivi-homescreen_files += "${prefix}/bin/modello_launcher.sh"
-#openivi-homescreen_files += "${prefix}/lib/systemd/user/weston.target.wants"
+openivi-homescreen_files = ""
+openivi-homescreen_files += "/opt/usr/apps/.preinstallWidgets/Modello-Homescreen.wgt"
+openivi-homescreen_files += "${prefix}/share/Modello/Common/icons/icon.png"
+openivi-homescreen_files += "${prefix}/lib/systemd/user/DNA_Homescreen.service"
+openivi-homescreen_files += "${prefix}/lib/systemd/user/DNA_Homescreen-launchpad-ready.path"
+openivi-homescreen_files += "${prefix}/bin/DNA_launcher.sh"
+openivi-homescreen_files += "${prefix}/lib/systemd/user/weston.target.wants"
 
 FILES_${PN} = "${openivi-homescreen_files}"
 
 PKG_openivi-homescreen= "openivi-homescreen"
-
-
-
-
