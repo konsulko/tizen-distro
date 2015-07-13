@@ -32,6 +32,7 @@ DEPENDS = ""
 DEPENDS += "tizen-platform-config"
 inherit pkgconfig
 DEPENDS += "zip"
+DEPENDS += "zip-native"
 
 do_prep() {
  cd ${S}
