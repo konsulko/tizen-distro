@@ -12,4 +12,8 @@ PACKAGES = "\
 RDEPENDS_packagegroups-hmi-apps = " \
                                             openivi-common-app \
                                             openivi-homescreen \
+                                            openivi-browser \
+                                            openivi-maps \
+                                            openivi-dashboard \
+                                            openivi-media-manager-app \
                                             "

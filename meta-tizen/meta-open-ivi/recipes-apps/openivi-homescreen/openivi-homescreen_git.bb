@@ -88,7 +88,7 @@ PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " openivi-homescreen "
 
 openivi-homescreen_files = ""
-openivi-homescreen_files += "/opt/usr/apps/.preinstallWidgets/openivi-Homescreen.wgt"
+openivi-homescreen_files += "/opt/usr/apps/.preinstallWidgets/openivi-homescreen.wgt"
 openivi-homescreen_files += "${prefix}/share/openivi/Common/icons/icon.png"
 openivi-homescreen_files += "${prefix}/lib/systemd/user/DNA_Homescreen.service"
 openivi-homescreen_files += "${prefix}/lib/systemd/user/DNA_Homescreen-launchpad-ready.path"
