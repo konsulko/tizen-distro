@@ -1,0 +1,12 @@
+[Unit]
+Description=Install Open IVI applications
+Before=DNA_Homescreen.service
+
+[Service]
+Type=oneshot
+SmackExecLabel=User
+ExecStart=/usr/share/openivi-installer/openivi-installer-postinst.sh
+ExecStartPost=/bin/rm -f /usr/lib/systemd/system/multi-user.target.wants/openivi-installer-postinst.service
+
+[Install]
+WantedBy=multi-user.target
