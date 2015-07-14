@@ -16,4 +16,5 @@ RDEPENDS_packagegroups-hmi-apps = " \
                                             openivi-maps \
                                             openivi-dashboard \
                                             openivi-media-manager-app \
+                                            openivi-hvac \
                                             "
