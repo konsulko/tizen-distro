@@ -73,7 +73,7 @@ do_install() {
  
  mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
  mkdir -p ${D}${prefix}/share/openivi/Common/icons
- zip -r ${D}/opt/usr/apps/.preinstallWidgets/openivi-homescreen.wgt config.xml manifest.json css icon.png index.html js
+ zip -r ${D}/opt/usr/apps/.preinstallWidgets/openivi-homescreen.wgt config.xml css icon.png index.html js images
  install -m 0644 icon.png ${D}${prefix}/share/openivi/Common/icons
  
  mkdir -p ${D}${prefix}/bin

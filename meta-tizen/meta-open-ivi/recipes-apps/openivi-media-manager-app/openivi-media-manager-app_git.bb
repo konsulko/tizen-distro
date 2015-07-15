@@ -73,7 +73,7 @@ do_install() {
  
  mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
  mkdir -p ${D}${prefix}/share/openivi/Common/icons
- zip -r ${D}/opt/usr/apps/.preinstallWidgets/openivi-media-manager-app.wgt config.xml manifest.json css icon.png index.html js
+ zip -r ${D}/opt/usr/apps/.preinstallWidgets/openivi-media-manager-app.wgt css media-manager-artwork images icon.png index.html setup config.xml js manifest.json
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

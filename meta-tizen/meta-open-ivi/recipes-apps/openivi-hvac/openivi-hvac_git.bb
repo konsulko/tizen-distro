@@ -73,7 +73,7 @@ do_install() {
  
  mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
  mkdir -p ${D}${prefix}/share/openivi/Common/icons
- zip -r ${D}/opt/usr/apps/.preinstallWidgets/openivi-hvac.wgt config.xml manifest.json css icon.png index.html js
+ zip -r ${D}/opt/usr/apps/.preinstallWidgets/openivi-hvac.wgt css icon.png index.html images setup config.xml js manifest.json README.txt
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"

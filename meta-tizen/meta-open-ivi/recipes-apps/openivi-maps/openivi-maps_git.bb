@@ -73,7 +73,7 @@ do_install() {
  
  mkdir -p ${D}/opt/usr/apps/.preinstallWidgets
  mkdir -p ${D}${prefix}/share/openivi/Common/icons
- zip -r ${D}/opt/usr/apps/.preinstallWidgets/openivi-maps.wgt config.xml manifest.json css icon.png index.html js
+ zip -r ${D}/opt/usr/apps/.preinstallWidgets/openivi-maps.wgt config.xml css icon.png index.html js images
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
