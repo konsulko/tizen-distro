@@ -35,6 +35,11 @@ PACKAGES += " openivi-common-app "
 openivi-common-app_files = ""
 openivi-common-app_files += "${prefix}/share/openivi/Common/js"
 openivi-common-app_files += "${prefix}/share/openivi/Common/css"
+openivi-common-app_files += "${prefix}/share/openivi/Common/components"
+openivi-common-app_files += "${prefix}/share/openivi/Common/fonts"
+openivi-common-app_files += "${prefix}/share/openivi/Common/images"
+openivi-common-app_files += "${prefix}/share/openivi/Common/json"
+
 MANIFESTFILES_${PN} = "openivi-common-app.manifest"
 
 FILES_${PN} = "${openivi-common-app_files}"
@@ -42,14 +47,6 @@ FILES_${PN} = "${openivi-common-app_files}"
 PKG_openivi-common-app= "openivi-common-app"
 
 do_prep() {
- cd ${S}
- chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n openivi-common-app-0.0.3
- #cp ${S}/packaging/openivi-common-app.manifest .
-}
-
-do_patch_append() {
-    bb.build.exec_func('do_prep', d)
 }
 
 do_configure() {
@@ -57,24 +54,17 @@ do_configure() {
 
 do_compile() {
  cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
- LD_AS_NEEDED=1; export LD_AS_NEEDED ;
 }
 
 do_install() {
- export RPM_BUILD_ROOT=${D}
- cd ${S}
- LANG=C
- export LANG
- unset DISPLAY
  rm -rf ${D}
  mkdir -p ${D}
  
  mkdir -p ${D}${prefix}/share/openivi/Common/
  cp -r css ${D}${prefix}/share/openivi/Common/
  cp -r js ${D}${prefix}/share/openivi/Common/
- 
- #fdupes ${D}${prefix}/share
+ cp -r components ${D}${prefix}/share/openivi/Common/
+ cp -r fonts ${D}${prefix}/share/openivi/Common/
+ cp -r images ${D}${prefix}/share/openivi/Common/
+ cp -r json ${D}${prefix}/share/openivi/Common/
 }

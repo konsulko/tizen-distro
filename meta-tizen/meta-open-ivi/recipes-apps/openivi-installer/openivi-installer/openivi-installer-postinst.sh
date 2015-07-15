@@ -67,14 +67,7 @@ do
     echo $list2
     su - ${OPENIVI_INSTALL_USER} -c "mkdir -p '$list2/css'"
     su - ${OPENIVI_INSTALL_USER} -c "mkdir -p '$list2/js'"
-    #su - ${OPENIVI_INSTALL_USER} -c "mkdir -p '${OPENIVI_COMMON_DIR}/js/services'"
-    #su - ${OPENIVI_INSTALL_USER} -c "mkdir -p '${OPENIVI_COMMON_DIR}/css'"
-    #su - ${OPENIVI_INSTALL_USER} -c "mkdir -p '${OPENIVI_COMMON_DIR}/icons'"
-    su - ${OPENIVI_INSTALL_USER} -c "cp -fr ${OPENIVI_COMMON_DIR}/js/services '$list2/js/'"
-    su - ${OPENIVI_INSTALL_USER} -c "cp -fr ${OPENIVI_COMMON_DIR}/css/* '$list2/css/'"
-    su - ${OPENIVI_INSTALL_USER} -c "cp -fr ${OPENIVI_COMMON_DIR}/icons '$list2/'"
-
-
+    su - ${OPENIVI_INSTALL_USER} -c "cp -fr ${OPENIVI_COMMON_DIR}/ '$list2/DNA_common'"
 done
 
 rm -f /lib/systemd/system/multi-user.target.wants/openivi-installer-postinst.service
