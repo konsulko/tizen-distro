@@ -1,6 +1,6 @@
 [Unit]
 Description=Install Open IVI applications
-Before=DNA_Homescreen.service
+Before=OPENIVI_Homescreen.service
 
 [Service]
 Type=oneshot

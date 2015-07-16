@@ -8,7 +8,7 @@ PRIORITY = "10"
 
 LIC_FILES_CHKSUM ??= "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRC_URI += "git://github.com/konsulko/openivi-homescreen.git;branch=master;tag=caad9d6273cd22ec2f26bf1387b304b2d2ad783f"
+SRC_URI += "git://github.com/konsulko/openivi-homescreen.git;branch=master;tag=738c8796d5d4c098046f8a1ad3eb52cda6a6a25a"
 
 BBCLASSEXTEND += " native "
 
@@ -37,11 +37,8 @@ DEPENDS += "zip-native"
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
- #setup -q -n openivi-homescreen-0.0.2
- #cp ${S}/packaging/openivi-homescreen.manifest .
- 
- 
 }
+
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
 }
@@ -77,11 +74,11 @@ do_install() {
  install -m 0644 icon.png ${D}${prefix}/share/openivi/Common/icons
  
  mkdir -p ${D}${prefix}/bin
- mkdir -p ${D}${prefix}/lib/systemd/user/weston.target.wants/
- install -m 755 systemd/DNA_launcher.sh ${D}${prefix}/bin
- install -m 0644 systemd/DNA_Homescreen-launchpad-ready.path ${D}${prefix}/lib/systemd/user
- install -m 0644 systemd/DNA_Homescreen.service ${D}${prefix}/lib/systemd/user
- ln -sf ../DNA_Homescreen-launchpad-ready.path ${D}${prefix}/lib/systemd/user/weston.target.wants/
+ mkdir -p ${D}/lib/systemd/system
+ mkdir -p ${D}/etc/systemd/system/multi-user.target.wants/
+ install -m 755 systemd/OPENIVI_launcher.sh ${D}${prefix}/bin
+ install -m 0644 systemd/OPENIVI_Homescreen.service ${D}/lib/systemd/system
+ ln -sf systemd/OPENIVI_Homescreen.service ${D}/etc/systemd/system/multi-user.target.wants/
 }
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
@@ -90,10 +87,9 @@ PACKAGES += " openivi-homescreen "
 openivi-homescreen_files = ""
 openivi-homescreen_files += "/opt/usr/apps/.preinstallWidgets/openivi-homescreen.wgt"
 openivi-homescreen_files += "${prefix}/share/openivi/Common/icons/icon.png"
-openivi-homescreen_files += "${prefix}/lib/systemd/user/DNA_Homescreen.service"
-openivi-homescreen_files += "${prefix}/lib/systemd/user/DNA_Homescreen-launchpad-ready.path"
-openivi-homescreen_files += "${prefix}/bin/DNA_launcher.sh"
-openivi-homescreen_files += "${prefix}/lib/systemd/user/weston.target.wants"
+openivi-homescreen_files += "/lib/systemd/system/OPENIVI_Homescreen.service"
+openivi-homescreen_files += "${prefix}/bin/OPENIVI_launcher.sh"
+openivi-homescreen_files += "/etc/systemd/system/multi-user.target.wants/"
 
 FILES_${PN} = "${openivi-homescreen_files}"
 
