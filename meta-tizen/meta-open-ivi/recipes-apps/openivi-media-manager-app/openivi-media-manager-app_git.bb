@@ -8,7 +8,7 @@ PRIORITY = "10"
 
 LIC_FILES_CHKSUM ??= "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRC_URI += "git://github.com/konsulko/openivi-media-manager-app.git;branch=master;tag=40a83c2ce2d340e7c0b9760eb8259ed90cd9fdc5"
+SRC_URI += "git://github.com/konsulko/openivi-media-manager-app.git;protocol=https;branch=master;tag=40a83c2ce2d340e7c0b9760eb8259ed90cd9fdc5"
 
 BBCLASSEXTEND += " native "
 

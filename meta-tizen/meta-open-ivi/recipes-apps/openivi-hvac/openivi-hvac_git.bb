@@ -8,7 +8,7 @@ PRIORITY = "10"
 
 LIC_FILES_CHKSUM ??= "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRC_URI += "git://github.com/konsulko/openivi-hvac.git;branch=master;tag=f4b7d4da7ae1fe6de5f1bed30b016c1b56ed03ec"
+SRC_URI += "git://github.com/konsulko/openivi-hvac.git;protocol=https;branch=master;tag=f4b7d4da7ae1fe6de5f1bed30b016c1b56ed03ec"
 
 BBCLASSEXTEND += " native "
 
