@@ -8,7 +8,7 @@ PRIORITY = "10"
 
 LIC_FILES_CHKSUM ??= "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
-SRC_URI += "git://github.com/konsulko/openivi-homescreen.git;protocol=https;branch=master;tag=738c8796d5d4c098046f8a1ad3eb52cda6a6a25a"
+SRC_URI += "git://github.com/konsulko/openivi-homescreen.git;protocol=https;branch=master;tag=e4daf6b2b2f0a1d9c55cfa8a028818baf0987cd6"
 
 BBCLASSEXTEND += " native "
 
