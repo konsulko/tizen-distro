@@ -1,0 +1,23 @@
+From da6776f358835b9251d49b827f7d93407df6c228 Mon Sep 17 00:00:00 2001
+From: Leon Anavi <leon.anavi@konsulko.com>
+Date: Sun, 16 Aug 2015 04:12:33 +0300
+Subject: [PATCH] Fix dial-number
+
+Signed-off-by: Leon Anavi <leon.anavi@konsulko.com>
+---
+ test/dial-number | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/test/dial-number b/test/dial-number
+index fe5adad..ee674d9 100755
+--- a/test/dial-number
++++ b/test/dial-number
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python3
++#!/usr/bin/python
+ 
+ import sys
+ import dbus
+-- 
+2.1.4
+

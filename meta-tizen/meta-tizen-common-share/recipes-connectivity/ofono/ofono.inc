@@ -4,7 +4,7 @@ SECTION = "Telephony/Cellular"
 LICENSE = "GPL-2.0"
 PV = "1.15"
 
-SRC_URI = ""
+SRC_URI = "file://0001-Fix-dial-number.patch"
 
 S = "${WORKDIR}/git"
 
@@ -86,7 +86,7 @@ do_compile() {
   
   autotools_do_configure
   
-  make -j16
+  oe_runmake
   
   
   
