@@ -33,6 +33,7 @@ DEPENDS += "tizen-platform-config"
 inherit pkgconfig
 DEPENDS += "zip"
 DEPENDS += "zip-native"
+DEPENDS += "openivi-common-app"
 
 do_prep() {
  cd ${S}
