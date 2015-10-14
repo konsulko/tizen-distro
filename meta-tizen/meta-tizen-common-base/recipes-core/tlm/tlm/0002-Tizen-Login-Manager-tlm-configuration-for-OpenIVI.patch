@@ -72,7 +72,7 @@ index 0000000..5609313
 +# Default: unspecified
 +#SESSION_TYPE=wayland
 +#
-+NSEATS=5
++NSEATS=1
 +#
 +#
 +# Seat specific settings where the group name is seat id
