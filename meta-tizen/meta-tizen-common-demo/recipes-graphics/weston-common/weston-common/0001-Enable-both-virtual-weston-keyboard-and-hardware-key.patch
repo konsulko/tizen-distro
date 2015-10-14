@@ -1,0 +1,28 @@
+From f2c82fe6074ce4d52c0b687e714ee7e3a12d95be Mon Sep 17 00:00:00 2001
+From: Leon Anavi <leon.anavi@konsulko.com>
+Date: Wed, 14 Oct 2015 13:42:08 +0300
+Subject: [PATCH] Enable both virtual weston keyboard and hardware keyboard
+
+Signed-off-by: Leon Anavi <leon.anavi@konsulko.com>
+---
+ weston.ini | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/weston.ini b/weston.ini
+index f622d5e..e4991d8 100644
+--- a/weston.ini
++++ b/weston.ini
+@@ -34,8 +34,8 @@ duration=600
+ path=/usr/libexec/weston-keyboard
+ #path=/bin/weekeyboard
+ 
+-#[keyboard]
+-#keymap_layout=fr
++[keyboard]
++keymap_layout=us
+ #keymap_layout=wkb
+ 
+ #[output]
+-- 
+2.1.4
+
