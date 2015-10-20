@@ -1,0 +1,49 @@
+From f0aaa417484e45aaf0aa2a56f1cdaf59b7a22ad7 Mon Sep 17 00:00:00 2001
+From: Derek Foreman <derekf@osg.samsung.com>
+Date: Mon, 8 Dec 2014 10:48:29 -0600
+Subject: [PATCH] text: Don't crash if a seat has no keyboard
+
+A keyboard might not be present in a seat, so check that before
+dereferencing keyboard related pointers.
+
+Also, use the keyboard pointer we set to shorten the code a little bit.
+
+Signed-off-by: Derek Foreman <derekf@osg.samsung.com>
+Reviewed-by: Jan Arne Petersen <janarne@gmail.com>
+---
+ src/text-backend.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/src/text-backend.c b/src/text-backend.c
+index e50569a..4dc7179 100644
+--- a/src/text-backend.c
++++ b/src/text-backend.c
+@@ -755,15 +755,19 @@ input_method_context_create(struct text_input *model,
+ static void
+ input_method_context_end_keyboard_grab(struct input_method_context *context)
+ {
+-	struct weston_keyboard_grab *grab =
+-		&context->input_method->seat->keyboard->input_method_grab;
+-	struct weston_keyboard *keyboard = grab->keyboard;
++	struct weston_keyboard_grab *grab;
++	struct weston_keyboard *keyboard;
++
++	if (!context->input_method->seat->keyboard)
++		return;
+ 
+-	if (!grab->keyboard)
++	grab = &context->input_method->seat->keyboard->input_method_grab;
++	keyboard = grab->keyboard;
++	if (!keyboard)
+ 		return;
+ 
+-	if (grab->keyboard->grab == grab)
+-		weston_keyboard_end_grab(grab->keyboard);
++	if (keyboard->grab == grab)
++		weston_keyboard_end_grab(keyboard);
+ 
+ 	keyboard->input_method_resource = NULL;
+ }
+-- 
+2.1.4
+

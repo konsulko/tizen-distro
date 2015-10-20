@@ -6,6 +6,7 @@ RDEPENDS_${PN}_remove = "weston-startup"
 SRC_URI += "file://make-lcms-explicitly-configurable.patch"
 SRC_URI += "file://make-libwebp-explicitly-configurable.patch"
 SRC_URI += "file://0001-Add-Vivante-EGL-and-GAL2D-compositor-support.patch"
+SRC_URI += "file://0001-text-Don-t-crash-if-a-seat-has-no-keyboard.patch"
 
 PACKAGECONFIG_append_mx6q = " cairo-glesv2"
 PACKAGECONFIG_append_mx6dl = " cairo-glesv2"
