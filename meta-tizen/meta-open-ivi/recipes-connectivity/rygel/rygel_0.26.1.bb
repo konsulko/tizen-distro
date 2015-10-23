@@ -37,7 +37,7 @@ do_install_append() {
        rm -f ${D}/${libdir}/rygel-${LIBV}/plugins/*.la
 }
 
-FILES_${PN} += "${libdir}/rygel-${LIBV}/engines ${datadir}/dbus-1 ${datadir}/icons"
+FILES_${PN} += "${libdir}/rygel-${LIBV}/engines ${datadir}/dbus-1 ${datadir}/icons ${libdir}/rygel-${LIBV}/plugins/*"
 FILES_${PN}-dbg += "${libdir}/rygel-${LIBV}/engines/.debug ${libdir}/rygel-${LIBV}/plugins/.debug"
 
 PACKAGES += "${PN}-meta"
