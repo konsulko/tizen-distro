@@ -1,0 +1,15 @@
+--- a/src/librygel-core/rygel-recursive-module-loader.c	2015-10-26 12:48:53.557043374 +0200
++++ b/src/librygel-core/rygel-recursive-module-loader.c	2015-10-26 12:50:38.256734448 +0200
+@@ -225,7 +225,11 @@
+ 	} else {
+ 		_tmp3_ = FALSE;
+ 	}
+-	_vala_assert (_tmp3_, "folder != null && this.is_folder (folder)");
++	if (folder == NULL || !rygel_recursive_module_loader_is_folder(self, folder)) {
++		g_warning ( ngettext ("No plugins found in %d second; giving up...", "No plugins found in %d seconds; giving up...", (gulong) 0) , 0);
++		exit (174);
++		return;
++	}
+ 	_tmp7_ = folder;
+ 	rygel_recursive_module_loader_load_modules_from_folder (self, _tmp7_, NULL, NULL);
+ 	_g_object_unref0 (folder);
