@@ -11,3 +11,6 @@ CORE_IMAGE_EXTRA_INSTALL += " ofono ofono-test "
 
 # GENIVI Media Manager
 CORE_IMAGE_EXTRA_INSTALL += "media-manager lightmediascanner rygel rygel-plugin-media-export rygel-plugin-lms"
+
+# Test plan
+CORE_IMAGE_EXTRA_INSTALL += "packagegroup-test-plan"
