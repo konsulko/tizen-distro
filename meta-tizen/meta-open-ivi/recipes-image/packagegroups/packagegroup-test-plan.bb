@@ -13,4 +13,5 @@ RDEPENDS_packagegroup-test-plan = " \
 	alsa-lib alsa-utils alsa-tools \
 	rpm libinput ofono hostapd kernel-module-csr-wifi \
 	perf iperf evtest connman \
+	bonnie++ ppp \
 	"
