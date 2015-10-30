@@ -22,6 +22,7 @@ PACKAGECONFIG ??= " \
     ${@bb.utils.contains('DISTRO_FEATURES', 'directfb', 'directfb', '', d)} \
     orc curl uvch264 neon sndfile \
     hls sbc dash bz2 smoothstreaming \
+    resindvd \
     "
 
 # dash = Dynamic Adaptive Streaming over HTTP
@@ -55,6 +56,7 @@ PACKAGECONFIG[sndfile]         = "--enable-sndfile,--disable-sndfile,libsndfile1
 PACKAGECONFIG[webp]            = "--enable-webp,--disable-webp,libwebp"
 PACKAGECONFIG[rtmp]            = "--enable-rtmp,--disable-rtmp,rtmpdump"
 PACKAGECONFIG[libssh2]         = "--enable-libssh2,--disable-libssh2,libssh2"
+PACKAGECONFIG[resindvd]        = "--enable-resindvd,--disable-resindvd,libdvdnav libdvdread"
 
 # these plugins have not been ported to 1.0 (yet):
 #   directdraw vcd apexsink dc1394 lv2 linsys musepack mythtv
@@ -66,7 +68,7 @@ PACKAGECONFIG[libssh2]         = "--enable-libssh2,--disable-libssh2,libssh2"
 # these plugins have no corresponding library in OE-core or meta-openembedded:
 #   openni2 winks direct3d directdraw directsound winscreencap osx_video
 #   apple_media android_media avc chromaprint daala dts gme gsm kate ladspa mimic
-#   mpeg2enc mplex ofa openjpeg opensles pvr resindvd rtmp soundtouch spandsp spc
+#   mpeg2enc mplex ofa openjpeg opensles pvr rtmp soundtouch spandsp spc
 #   srtp vdpau voaacenc voamrwbenc wasapi zbar
 
 EXTRA_OECONF += " \
@@ -105,7 +107,6 @@ EXTRA_OECONF += " \
     --disable-osx_video \
     --disable-pvr \
     --disable-quicktime \
-    --disable-resindvd \
     --disable-sdl \
     --disable-sdltest \
     --disable-sndio \
