@@ -12,7 +12,7 @@ RDEPENDS_packagegroup-test-plan = " \
 	i2c-tools net-tools usbutils \
 	alsa-lib alsa-utils alsa-tools \
 	rpm libinput ofono hostapd kernel-module-csr-wifi \
-	perf iperf netperf \
+	perf iperf memtester netperf netperf-doc \
 	evtest connman \
 	bonnie++ ppp \
 	"
