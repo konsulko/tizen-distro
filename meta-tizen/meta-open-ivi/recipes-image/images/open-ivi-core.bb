@@ -10,10 +10,16 @@ DESCRIPTION = "Open IVI based on Tizen:Common, GENIVI Media Manager and Automoti
 CORE_IMAGE_EXTRA_INSTALL += " ofono ofono-test "
 
 # GENIVI Media Manager
-CORE_IMAGE_EXTRA_INSTALL += "media-manager lightmediascanner rygel rygel-plugin-media-export rygel-plugin-lms"
+CORE_IMAGE_EXTRA_INSTALL += "\
+			media-manager \
+			lightmediascanner \
+			lightmediascanner-meta \
+			rygel \
+			rygel-plugin-media-export \
+			rygel-plugin-lms \
+			"
 
 # gstreamer
-
 CORE_IMAGE_EXTRA_INSTALL += "\
 			gstreamer1.0 \
 			gstreamer1.0-plugins-imx-meta \
