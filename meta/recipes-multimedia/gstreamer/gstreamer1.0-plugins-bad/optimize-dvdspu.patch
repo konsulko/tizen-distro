@@ -1,0 +1,77 @@
+diff -ruN gst-plugins-bad-1.4.5-old/gst/dvdspu/gstdvdspu-render.c gst-plugins-bad-1.4.5/gst/dvdspu/gstdvdspu-render.c
+--- gst-plugins-bad-1.4.5-old/gst/dvdspu/gstdvdspu-render.c	2014-10-19 14:41:13.000000000 +0300
++++ gst-plugins-bad-1.4.5/gst/dvdspu/gstdvdspu-render.c	2015-11-02 18:33:44.726020099 +0200
+@@ -48,13 +48,16 @@
+ gstspu_blend_comp_buffers (SpuState * state, guint8 * planes[3])
+ {
+   gint16 uv_end;
+-  gint16 left, x;
++  gint16 left;
+   guint8 *out_U;
+   guint8 *out_V;
+   guint32 *in_U;
+   guint32 *in_V;
+-  guint32 *in_A;
++  guint32 *in_A, *in_A_end, *in_A_tmp;
++  guint32 stride_U, stride_V;
+   gint16 comp_last_x = state->comp_right;
++  guint32 run;
++  guint16 inv_A;
+ 
+   if (comp_last_x < state->comp_left)
+     return;                     /* Didn't draw in the comp buffers, nothing to do... */
+@@ -79,21 +82,38 @@
+   uv_end = (comp_last_x + 1) / 2;
+   left = state->comp_left / 2;
+ 
+-  out_U += left * GST_VIDEO_INFO_COMP_PSTRIDE (&state->info, 1);
+-  out_V += left * GST_VIDEO_INFO_COMP_PSTRIDE (&state->info, 2);
+-  for (x = left; x < uv_end; x++) {
+-    guint32 tmp;
+-    /* Each entry in the compositing buffer is 4 summed pixels, so the
+-     * inverse alpha is (4 * 0xff) - in_A[x] */
+-    guint16 inv_A = (4 * 0xff) - in_A[x];
+-
+-    tmp = in_U[x] + inv_A * *out_U;
+-    *out_U = (guint8) (tmp / (4 * 0xff));
+-
+-    tmp = in_V[x] + inv_A * *out_V;
+-    *out_V = (guint8) (tmp / (4 * 0xff));
+-
+-    out_U += GST_VIDEO_INFO_COMP_PSTRIDE (&state->info, 1);
+-    out_V += GST_VIDEO_INFO_COMP_PSTRIDE (&state->info, 2);
++  stride_U = GST_VIDEO_INFO_COMP_PSTRIDE (&state->info, 1);
++  stride_V = GST_VIDEO_INFO_COMP_PSTRIDE (&state->info, 2);
++  out_U += left * stride_U;
++  out_V += left * stride_V;
++
++  in_A_end = &in_A[uv_end];
++  while (in_A < in_A_end) {
++
++    /* transparent run */
++    in_A_tmp = in_A;
++    while (in_A_tmp < in_A_end && *in_A_tmp == 0)
++      in_A_tmp++;
++    if (in_A_tmp > in_A) {
++       run = in_A_tmp - in_A;
++       in_U += run;
++       in_V += run;
++       out_U += stride_U * run;
++       out_V += stride_V * run;
++       in_A = in_A_tmp;
++    }
++
++    /* solid/alpha run */
++    while (in_A < in_A_end && *in_A != 0) {
++      /* Each entry in the compositing buffer is 4 summed pixels, so the
++       * inverse alpha is (4 * 0xff) - in_A[x] */
++      inv_A = (4 * 0xff) - *in_A++;
++      
++      *out_U = (guint8) ((*in_U++ + inv_A * *out_U) / (4 * 0xff));
++      out_U += stride_U;
++      
++      *out_V = (guint8) ((*in_V++ + inv_A * *out_V) / (4 * 0xff));
++      out_V += stride_V;
++    }
+   }
+ }
