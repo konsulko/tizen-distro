@@ -1,0 +1,10 @@
+[Unit]
+Description=Lightmediascanner (LMS)
+
+[Service]
+Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%U/dbus/user_bus_socket
+User=root
+ExecStart=/usr/bin/dbus-launch --auto-syntax /usr/bin/lightmediascannerd --startup-scan --directory=/usr/share/media
+
+[Install]
+WantedBy=multi-user.target
