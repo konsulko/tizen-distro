@@ -1,0 +1,13 @@
+[Unit]
+Description=Rygel
+After=lightmediascanner.service
+Requires=lightmediascanner.service
+
+[Service]
+Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%U/dbus/user_bus_socket
+User=root
+ExecStartPre=/bin/sleep 3
+ExecStart=/usr/bin/dbus-launch --auto-syntax /usr/bin/rygel -c /etc/rygel.conf
+
+[Install]
+WantedBy=multi-user.target
