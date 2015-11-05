@@ -1,0 +1,20 @@
+diff -ruN gst-plugins-bad-1.4.5-old/gst/videoparsers/gstmpegvideoparse.c gst-plugins-bad-1.4.5/gst/videoparsers/gstmpegvideoparse.c
+--- gst-plugins-bad-1.4.5-old/gst/videoparsers/gstmpegvideoparse.c	2014-10-19 14:44:56.000000000 +0300
++++ gst-plugins-bad-1.4.5/gst/videoparsers/gstmpegvideoparse.c	2015-11-05 13:17:27.137831574 +0200
+@@ -771,11 +771,13 @@
+ 
+       if (seqdispext->display_horizontal_size <= width
+           && seqdispext->display_vertical_size <= height) {
++        GST_INFO_OBJECT (mpvparse,
++            "stream has display extension: display_width=%d display_height=%d; but doing nothing",
++            seqdispext->display_horizontal_size, seqdispext->display_vertical_size);
++	/* panto: this is causing crop in the DVD menus when using the h/w decoders
+         width = seqdispext->display_horizontal_size;
+         height = seqdispext->display_vertical_size;
+-        GST_INFO_OBJECT (mpvparse,
+-            "stream has display extension: display_width=%d display_height=%d",
+-            width, height);
++	*/
+       }
+     }
+     gst_caps_set_simple (caps, "width", G_TYPE_INT, width,
