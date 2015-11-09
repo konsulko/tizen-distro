@@ -1,0 +1,13 @@
+diff --git a/src/nfc.c b/src/nfc.c
+index 4d2d3e0..32e834f 100755
+--- a/src/nfc.c
++++ b/src/nfc.c
+@@ -2154,7 +2154,7 @@ int nfc_manager_set_card_emulation_se_type(nfc_se_type_e type,
+ 		nfc_set_card_emulation_completed_cb callback, void *user_data)
+ {
+ 	int ret;
+-	net_nfc_se_type_e se_type;
++	net_nfc_se_type_e se_type = NET_NFC_SE_TYPE_NONE;
+ 	GVariant *parameter;
+ 
+ 	if ((type < NFC_SE_TYPE_DISABLE) || (type > NFC_SE_TYPE_UICC))

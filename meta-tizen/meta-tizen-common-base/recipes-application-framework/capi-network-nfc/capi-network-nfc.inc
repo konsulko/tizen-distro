@@ -5,6 +5,7 @@ LICENSE = "Apache-2.0"
 PV = "0.1.5"
 
 SRC_URI = ""
+SRC_URI += "file://fix-uninitialized-error-nfc.patch"
 
 S = "${WORKDIR}/git"
 
