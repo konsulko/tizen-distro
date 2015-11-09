@@ -1,5 +1,6 @@
 SRC_URI += "file://fix-include-directories-in-CMakeList.txt.patch"
 SRC_URI += "file://fix-include-directories-in-CMakeList_2.patch"
+SRC_URI += "file://fix-uninitialized-error.patch"
 
 SRC_URI_append_class-native = " file://remove-dlog-for-native-build.patch"
 

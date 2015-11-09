@@ -1,0 +1,13 @@
+diff --git a/common/inc/SocketConnection.h b/common/inc/SocketConnection.h
+index d6bd88c..9671ec7 100644
+--- a/common/inc/SocketConnection.h
++++ b/common/inc/SocketConnection.h
+@@ -156,7 +156,7 @@ public:
+ 	template < typename T >
+ 	int  read (std::list<T>& list)
+ 	{
+-		int length;
++		int length = 0;
+ 		int res = read(length);
+ 		TryReturn(res == PRIV_MGR_ERROR_SUCCESS, res, , "read : %d", res);
+ 
