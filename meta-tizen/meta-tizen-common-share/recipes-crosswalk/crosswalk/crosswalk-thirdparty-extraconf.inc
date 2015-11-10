@@ -8,6 +8,10 @@ SRC_URI += "\
             "
 SRC_URI += "file://fix-crosbuild.patch"
 SRC_URI += "file://fix-egl-version.patch"
+SRC_URI += "file://fix-uninitialized-error-glyf.patch"
+SRC_URI += "file://fix-uninitialized-error-woff2.patch"
+SRC_URI += "file://fix-uninitialized-error-name.patch"
+SRC_URI += "file://fix-uninitialized-error-VDMXParser.patch"
 
 # This comes from the chromium recipe:
 # http://layers.openembedded.org/layerindex/recipe/4969/

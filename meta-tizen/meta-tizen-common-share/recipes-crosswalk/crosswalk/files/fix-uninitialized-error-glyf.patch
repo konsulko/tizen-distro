@@ -1,0 +1,17 @@
+diff --git a/src/third_party/ots/src/glyf.cc b/src/third_party/ots/src/glyf.cc
+index ee2898f..1ba4f91 100644
+--- a/src/third_party/ots/src/glyf.cc
++++ b/src/third_party/ots/src/glyf.cc
+@@ -214,7 +214,11 @@ bool ots_glyf_parse(OpenTypeFile *file, const uint8_t *data, size_t length) {
+     }
+ 
+     table.set_offset(gly_offset);
+-    int16_t num_contours, xmin, ymin, xmax, ymax;
++    int16_t num_contours = 0;
++    int16_t xmin = 0;
++    int16_t ymin = 0;
++    int16_t xmax = 0;
++    int16_t ymax = 0;
+     if (!table.ReadS16(&num_contours) ||
+         !table.ReadS16(&xmin) ||
+         !table.ReadS16(&ymin) ||

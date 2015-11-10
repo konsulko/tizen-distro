@@ -1,0 +1,13 @@
+diff --git a/src/third_party/WebKit/Source/platform/fonts/VDMXParser.cpp b/src/third_party/WebKit/Source/platform/fonts/VDMXParser.cpp
+index 13dc4bf..10be9a2 100644
+--- a/src/third_party/WebKit/Source/platform/fonts/VDMXParser.cpp
++++ b/src/third_party/WebKit/Source/platform/fonts/VDMXParser.cpp
+@@ -125,7 +125,7 @@ bool parseVDMX(int* yMax, int* yMin,
+ 
+     // We ignore the version. Future tables should be backwards compatible with
+     // this layout.
+-    uint16_t numRatios;
++    uint16_t numRatios = 0;
+     if (!buf.skip(4) || !buf.readU16(&numRatios))
+         return false;
+ 
