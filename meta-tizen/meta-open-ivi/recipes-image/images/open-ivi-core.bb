@@ -17,6 +17,10 @@ CORE_IMAGE_EXTRA_INSTALL += "\
 			rygel \
 			rygel-plugin-media-export \
 			rygel-plugin-lms \
+			dleyna-core \
+			dleyna-connector-dbus \
+			dleyna-server\
+			dleyna-renderer \
 			"
 
 # gstreamer
