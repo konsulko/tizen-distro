@@ -17,7 +17,7 @@ SRCREV_media-manager = "45e08ce242a6006aaaefaeda236f51c984eaeeb1"
 SRCREV_media-manager-interfaces = "f0510129f8ac4fa48e7164dbb81ae9d0a922b9c4"
 SRCREV_FORMAT = "media-manager"
 SRC_URI = "git://git.projects.genivi.org/media-manager.git;name=media-manager \
-           git://git.projects.genivi.org/media-manager-interfaces.git;name=media-manager-interfaces;destsuffix=git/src/interfaces \
+           git://git.projects.genivi.org/media-manager-interfaces.git;name=media-manager-interfaces;destsuffix=git/interfaces \
           "
 
 S = "${WORKDIR}/git"
