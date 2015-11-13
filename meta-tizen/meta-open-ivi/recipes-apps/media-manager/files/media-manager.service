@@ -1,0 +1,12 @@
+[Unit]
+Description=Rygel
+After=session-bus.service lightmediascanner.service rygel.service 
+Requires=session-bus.service lightmediascanner.service rygel.service
+
+[Service]
+Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/tmp/session-bus
+User=root
+ExecStart=/usr/bin/media-manager
+
+[Install]
+WantedBy=multi-user.target
