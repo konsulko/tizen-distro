@@ -1,0 +1,9 @@
+[Unit]
+Description=DBus Session Message Bus
+After=dbus.service
+
+[Service]
+ExecStart=/usr/bin/dbus-daemon --session --nofork --address=unix:path=/tmp/session-bus
+
+[Install]
+WantedBy=multi-user.target
