@@ -11,7 +11,10 @@ CONF_VERSION="1"
 #MACHINE ?= "genericx86"
 #
 # This sets the default machine to be qemux86 if no other machine is selected:
-MACHINE ??= "genericx86-64"
+#MACHINE ??= "genericx86-64"
+#
+# Default to the Michelle 2+ platform
+MACHINE = "michelle2p"
 
 #
 # Parallelism Options
@@ -22,7 +25,7 @@ MACHINE ??= "genericx86-64"
 #BB_NUMBER_THREADS ?= "4"
 #
 # Default to setting automatically based on cpu count
-#BB_NUMBER_THREADS ?= "${@oe.utils.cpu_count()}"
+BB_NUMBER_THREADS ?= "${@oe.utils.cpu_count()}"
 #
 # The second option controls how many processes make should run in parallel when
 # running compile tasks:
@@ -30,7 +33,7 @@ MACHINE ??= "genericx86-64"
 #PARALLEL_MAKE ?= "-j 4"
 #
 # Default to setting automatically based on cpu count
-#PARALLEL_MAKE ?= "-j ${@oe.utils.cpu_count()}"
+PARALLEL_MAKE ?= "-j ${@oe.utils.cpu_count()}"
 #
 # For a quad-core machine, BB_NUMBER_THREADS = "4", PARALLEL_MAKE = "-j 4" would
 # be appropriate for example.
@@ -74,3 +77,36 @@ MACHINE ??= "genericx86-64"
 # when the disk space reduces 50M (or the amount of inode reduces 5k).
 #BB_DISKMON_WARNINTERVAL = "50M,5K"
 #
+
+# Make sure we have the correct kernel version for Michelle 2+
+PREFERRED_VERSION_linux-michelle2p ?= "3.14.28"
+
+# Configure additional parts of the software correctly
+PACKAGE_CLASSES ?= "package_rpm"
+ACCEPT_FSL_EULA = "1"
+LICENSE_FLAGS_WHITELIST = "commercial non-commercial"
+DISTRO_FEATURES_remove = "x11"
+
+# Ensure that we use RPM version 4.x
+PREFERRED_VERSION_rpm = "4.11.0.1"
+PREFERRED_VERSION_rpm-native = "4.11.0.1"
+RPMROOTFSDEPENDS_remove = "rpmresolve-native:do_populate_sysroot"
+
+# Ensure that we do use systemd
+DISTRO_FEATURES_append = " systemd"
+VIRTUAL-RUNTIME_init_manager = "systemd"
+DISTRO_FEATURES_BACKFILL_CONSIDERED = "sysvinit"
+VIRTUAL-RUNTIME_initscripts = ""
+MACHINE_FEATURES_remove = "irda"
+
+# Configure gstreamer for maximum support
+COMMERCIAL_AUDIO_PLUGINS ?= " \
+gst-plugins-ugly-mad \
+gst-plugins-ugly-mpegaudioparse \
+gst-fsl-plugin \
+"
+COMMERCIAL_VIDEO_PLUGINS ?= " \
+gst-plugins-ugly-mpeg2dec \
+gst-plugins-ugly-mpegstream \
+gst-plugins-bad-mpegvideoparse \
+"
