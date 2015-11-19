@@ -122,6 +122,3 @@ FILES_${PN}-dev = "${CommonAPI-DBus-dev_files}"
 
 PKG_libCommonAPI-DBus= "libCommonAPI-DBus"
 PKG_CommonAPI-DBus-dev= "CommonAPI-DBus-dev"
-
-require CommonAPI-DBus-extraconf.inc
-
