@@ -21,6 +21,7 @@ CORE_IMAGE_EXTRA_INSTALL += "\
 			dleyna-connector-dbus \
 			dleyna-server\
 			dleyna-renderer \
+                        media-manager-extension \
 			"
 
 # gstreamer
