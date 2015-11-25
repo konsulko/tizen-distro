@@ -117,6 +117,3 @@ FILES_${PN}-dev = "${CommonAPI-dev_files}"
 
 PKG_libCommonAPI= "libCommonAPI"
 PKG_CommonAPI-dev= "CommonAPI-dev"
-
-require CommonAPI-extraconf.inc
-
