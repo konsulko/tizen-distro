@@ -95,7 +95,7 @@ do_compile() {
   
   
 }
-EXTRA_OECONF += " --disable-static --disable-setuid-install --enable-simple-clients --enable-clients --disable-libunwind --disable-xwayland --disable-xwayland-test --disable-x11-compositor --disable-rpi-compositor "
+EXTRA_OECONF += " --disable-static --disable-setuid-install --enable-simple-clients --enable-clients --disable-libunwind --disable-xwayland --disable-xwayland-test --disable-x11-compositor --disable-rpi-compositor --disable-libinput-backend "
 
 do_install() {
  export RPM_BUILD_ROOT=${D}
