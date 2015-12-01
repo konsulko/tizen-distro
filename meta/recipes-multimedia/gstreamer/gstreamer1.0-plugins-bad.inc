@@ -7,7 +7,8 @@ DEPENDS += "gstreamer1.0-plugins-base bzip2 libpng jpeg"
 S = "${WORKDIR}/gst-plugins-bad-${PV}"
 
 SRC_URI += "file://configure-allow-to-disable-libssh2.patch \
-           "
+	    file://disable-wayland-scanner-check.patch \
+            "
 
 inherit gettext
 

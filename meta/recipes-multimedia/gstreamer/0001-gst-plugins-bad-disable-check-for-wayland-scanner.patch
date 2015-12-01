@@ -1,0 +1,51 @@
+From 1d26278dd0902da2c87177727e1c019f12de056d Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Date: Tue, 1 Dec 2015 23:00:04 +0200
+Subject: [PATCH] gst-plugins-bad: disable check for wayland scanner
+
+This test is wrong for cross-compiling, since the scanner is a
+native tool. Disabling the check allows us to build the wayland
+plugin (although it doesn't work).
+
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ .../gstreamer/gstreamer1.0-plugins-bad.inc                   |  3 ++-
+ .../disable-wayland-scanner-check.patch                      | 12 ++++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+ create mode 100644 meta/recipes-multimedia/gstreamer/gstreamer1.0-plugins-bad/disable-wayland-scanner-check.patch
+
+diff --git a/meta/recipes-multimedia/gstreamer/gstreamer1.0-plugins-bad.inc b/meta/recipes-multimedia/gstreamer/gstreamer1.0-plugins-bad.inc
+index 49f5575..5386da6 100644
+--- a/meta/recipes-multimedia/gstreamer/gstreamer1.0-plugins-bad.inc
++++ b/meta/recipes-multimedia/gstreamer/gstreamer1.0-plugins-bad.inc
+@@ -7,7 +7,8 @@ DEPENDS += "gstreamer1.0-plugins-base bzip2 libpng jpeg"
+ S = "${WORKDIR}/gst-plugins-bad-${PV}"
+ 
+ SRC_URI += "file://configure-allow-to-disable-libssh2.patch \
+-           "
++	    file://disable-wayland-scanner-check.patch \
++            "
+ 
+ inherit gettext
+ 
+diff --git a/meta/recipes-multimedia/gstreamer/gstreamer1.0-plugins-bad/disable-wayland-scanner-check.patch b/meta/recipes-multimedia/gstreamer/gstreamer1.0-plugins-bad/disable-wayland-scanner-check.patch
+new file mode 100644
+index 0000000..fd2db53
+--- /dev/null
++++ b/meta/recipes-multimedia/gstreamer/gstreamer1.0-plugins-bad/disable-wayland-scanner-check.patch
+@@ -0,0 +1,12 @@
++diff -ruN gst-plugins-bad-1.4.5-orig/configure.ac gst-plugins-bad-1.4.5/configure.ac
++--- gst-plugins-bad-1.4.5-orig/configure.ac	2015-11-13 16:54:06.573553133 +0200
+++++ gst-plugins-bad-1.4.5/configure.ac	2015-11-13 16:58:17.085548765 +0200
++@@ -1971,7 +1971,7 @@
++ dnl **** Wayland ****
++ translit(dnm, m, l) AM_CONDITIONAL(USE_WAYLAND, true)
++ AG_GST_CHECK_FEATURE(WAYLAND, [wayland sink], wayland , [
++-  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.4.0 wayland-scanner, [
+++  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.4.0, [
++     HAVE_WAYLAND="yes" ], [ HAVE_WAYLAND="no"
++   ])
++ ])
+-- 
+1.9.1
+
