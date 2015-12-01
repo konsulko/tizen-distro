@@ -2,7 +2,7 @@ DESCRIPTION = "Open Source Telephony"
 HOMEPAGE = "http://ofono.org"
 SECTION = "Telephony/Cellular"
 LICENSE = "GPL-2.0"
-PV = "1.15"
+PV = "1.16"
 
 SRC_URI = "file://0001-Fix-dial-number.patch"
 

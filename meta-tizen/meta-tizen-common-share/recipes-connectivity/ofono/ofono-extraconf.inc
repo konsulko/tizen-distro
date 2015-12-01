@@ -25,3 +25,11 @@ do_install() {
  
  
 }
+
+do_install_append() {
+ # Because python3-dbus module is currently not there, just use
+ # python 2.x in the ofono test scripts
+ for PYTHSCRIPT in `grep -rIl ${bindir}/python3 ${D}${libdir}/${PN}`; do
+  sed -i -e '1s|^#!.*|#!/usr/bin/env python|' $PYTHSCRIPT
+ done
+}
