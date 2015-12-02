@@ -26,4 +26,6 @@ do_install() {
   install -m 0644 ${WORKDIR}/supervisor.conf ${D}${sysconfdir}/dbus-1
 }
 
+FILES_${PN} += "${D}${system_unitdir}/system/slip.service"
+FILES_${PN} += "${D}${system_unitdir}/system/supervisor.service"
 FILES_${PN} += "${D}${sysconfdir}/dbus-1/supervisor.conf"
