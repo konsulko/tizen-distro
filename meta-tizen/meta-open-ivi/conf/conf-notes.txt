@@ -3,5 +3,9 @@ Tizen images:
   open-ivi-core
   open-ivi-hmi
 
+Other images:
+
+  michelle2p-audio-board
+
 You can also run generated qemu images with a command like 'runqemu qemux86'
 
