@@ -21,7 +21,7 @@ index 7b6195e..67d051d 100644
  BusName=net.connman
  Restart=on-failure
 -ExecStart=@prefix@/sbin/connmand -n
-+ExecStart=@prefix@/sbin/connmand -n $OPTIONS
++ExecStart=@prefix@/sbin/connmand -I sl0 -n $OPTIONS
  StandardOutput=null
  
  [Install]
