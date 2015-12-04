@@ -62,7 +62,7 @@ export SYSROOT = "${IMAGE_ROOTFS}"
 # Set root password to "root"
 ROOTFS_POSTPROCESS_COMMAND += "set_root_passwd;"
 set_root_passwd() {
-   sed 's%^root:[^:]*:%root:wYNffsf6sozwE:%' \
+   sed 's%^root:[^:]*:%root::%' \
        < ${IMAGE_ROOTFS}/etc/shadow \
        > ${IMAGE_ROOTFS}/etc/shadow.new;
    mv ${IMAGE_ROOTFS}/etc/shadow.new ${IMAGE_ROOTFS}/etc/shadow ;
