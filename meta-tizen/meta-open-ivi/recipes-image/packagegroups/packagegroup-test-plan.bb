@@ -15,4 +15,5 @@ RDEPENDS_packagegroup-test-plan = " \
 	perf iperf memtester netperf netperf-doc \
 	evtest connman \
 	bonnie++ ppp \
+	lsof \
 	"
