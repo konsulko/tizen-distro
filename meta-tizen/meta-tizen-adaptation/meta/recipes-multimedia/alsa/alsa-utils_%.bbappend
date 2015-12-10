@@ -8,3 +8,5 @@ PACKAGECONFIG[udev] = "--with-udev-rules-dir=/lib/udev/rules.d,,udev"
 
 # Not enabled in Tizen, also fails to build.
 EXTRA_OECONF_append = " --disable-nls"
+
+RDEPENDS_${PN} += " ncurses ncurses-terminfo-base "
