@@ -16,4 +16,5 @@ RDEPENDS_packagegroup-test-plan = " \
 	evtest connman \
 	bonnie++ ppp \
 	lsof \
+	vim \
 	"
