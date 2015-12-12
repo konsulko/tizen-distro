@@ -8,14 +8,14 @@ inherit autotools pkgconfig
 
 GSTREAMER_1_0_DEBUG ?= "--disable-debug"
 GSTREAMER_1_0_GIT_BRANCH ?= "master"
-EXTRA_OECONF = "--disable-valgrind ${GSTREAMER_1_0_DEBUG} --disable-examples "
+EXTRA_OECONF = "--disable-valgrind ${GSTREAMER_1_0_DEBUG} --disable-examples --disable-orc"
 
 acpaths = "-I ${S}/common/m4 -I ${S}/m4"
 
 LIBV = "1.0"
 require gst-plugins-package.inc
 
-PACKAGECONFIG[orc] = "--enable-orc,--disable-orc,orc"
+# PACKAGECONFIG[orc] = "--enable-orc,--disable-orc,orc"
 
 PACKAGES_DYNAMIC = "^${PN}-.*"
 
