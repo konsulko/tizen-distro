@@ -8,7 +8,8 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=a6f89e2100d9b6cdffcea4f398e37343 \
 
 S = "${WORKDIR}/git"
 
-SRCREV = "fd0123800c8c1cf1468c0fa5d592ad0d0d8b4140"
+# SRCREV = "fd0123800c8c1cf1468c0fa5d592ad0d0d8b4140"
+SRCREV = "${AUTOREV}"
 
 do_configure_prepend() {
 	cd ${S}
