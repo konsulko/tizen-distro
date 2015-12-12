@@ -9,13 +9,22 @@ Extension."
 HOMEPAGE = "http://cairographics.org"
 BUGTRACKER = "http://bugs.freedesktop.org"
 SECTION = "libs"
-LICENSE = "MPL-1 & LGPLv2.1"
+
+LICENSE = "MPL-1 & LGPLv2.1 & GPLv3+"
+LICENSE_${PN} = "MPL-1 & LGPLv2.1"
+LICENSE_${PN}-dev = "MPL-1 & LGPLv2.1"
+LICENSE_${PN}-gobject = "MPL-1 & LGPLv2.1"
+LICENSE_${PN}-script-interpreter = "MPL-1 & LGPLv2.1"
+LICENSE_${PN}-perf-utils = "GPLv3+"
+
 X11DEPENDS = "virtual/libx11 libsm libxrender libxext"
 DEPENDS = "libpng fontconfig pixman glib-2.0 zlib"
 
-PACKAGECONFIG ??= "${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'x11', '', d)} \
+PACKAGECONFIG ??= "${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'x11 xcb', '', d)} \
            ${@bb.utils.contains('DISTRO_FEATURES', 'directfb', 'directfb', '', d)}"
-PACKAGECONFIG[x11] = "--with-x=yes,--without-x,${X11DEPENDS}"
+
+PACKAGECONFIG[x11] = "--with-x=yes -enable-xlib,--with-x=no --disable-xlib,${X11DEPENDS}"
+PACKAGECONFIG[xcb] = "--enable-xcb,--disable-xcb,libxcb"
 PACKAGECONFIG[directfb] = "--enable-directfb=yes,,directfb"
 PACKAGECONFIG[valgrind] = "--enable-valgrind=yes,--disable-valgrind,valgrind"
 PACKAGECONFIG[egl] = "--enable-egl=yes,--disable-egl,virtual/egl"
@@ -35,5 +44,3 @@ export ac_cv_lib_bfd_bfd_openr="no"
 export ac_cv_lib_lzo2_lzo2a_decompress="no"
 
 BBCLASSEXTEND = "native"
-
-CFLAGS += "-ffat-lto-objects"
