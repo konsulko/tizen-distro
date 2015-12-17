@@ -19,5 +19,5 @@ RDEPENDS_packagegroup-test-plan = " \
 	vim \
 	michelle2p-dbus-examples \
 	lsof \
-	vim \
+	vim vim-vimrc \
 	"
