@@ -9,4 +9,4 @@ DESCRIPTION = "Open IVI based on Tizen:Common without Crosswalk"
 # Time zone
 CORE_IMAGE_EXTRA_INSTALL += "tzdata"
 
-require recipes-image/images/open-ivi.inc
+require recipes-image/images/open-ivi-minimal.inc

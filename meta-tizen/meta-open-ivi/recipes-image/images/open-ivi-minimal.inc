@@ -22,5 +22,22 @@ CORE_IMAGE_EXTRA_INSTALL += "\
 			gstreamer1.0-meta-debug \
 			"
 
+#pulseaudio
+CORE_IMAGE_EXTRA_INSTALL += "\
+			pulseaudio \
+			pulseaudio-config \
+			pulseaudio-module-augment-properties \
+			pulseaudio-module-bluetooth \
+			pulseaudio-module-combine-sink \
+			pulseaudio-module-dbus-protocol \
+			pulseaudio-module-dev \
+			pulseaudio-module-filter \
+			pulseaudio-module-null-source \
+			pulseaudio-module-raop \
+			pulseaudio-module-switch-on-connect \
+			pulseaudio-utils \
+			pulseaudio-vala-bindings \
+			"
+
 # Test plan
 CORE_IMAGE_EXTRA_INSTALL += "packagegroup-test-plan"

@@ -6,7 +6,7 @@ LICENSE = "MIT"
 
 DESCRIPTION = "Open IVI based on Tizen:Common, GENIVI Media Manager and Automotive Grade Linux application suite."
 
-require recipes-image/images/open-ivi.inc
+require recipes-image/images/open-ivi-minimal.inc
 
 # GENIVI Media Manager
 CORE_IMAGE_EXTRA_INSTALL += "\
