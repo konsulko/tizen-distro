@@ -17,4 +17,5 @@ RDEPENDS_packagegroup-test-plan = " \
 	bonnie++ ppp \
 	lsof \
 	vim vim-vimrc \
+	gpsd gps-utils gpsd-gpsctl gpsd-conf \
 	"
