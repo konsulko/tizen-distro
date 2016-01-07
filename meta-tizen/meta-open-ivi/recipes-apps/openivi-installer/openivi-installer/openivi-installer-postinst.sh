@@ -2,7 +2,8 @@
 
 source /etc/tizen-platform.conf
 
-export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/5010/dbus/user_bus_socket"
+USERID=`id -u`
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$USERID/dbus/user_bus_socket"
 
 export OPENIVI_INSTALL_USER="openivi"
 export OPENIVI_COMMON_DIR="/usr/share/openivi/Common"
