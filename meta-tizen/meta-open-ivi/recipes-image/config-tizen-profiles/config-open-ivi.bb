@@ -11,5 +11,4 @@ USERADD_PACKAGES = "${PN}"
 GROUPADD_PARAM_${PN} = "-g 191 display; -g 100 users; -g 1004 input; -g 190 systemd-journal; -g 54 lock; --system -g 192 weston-launch"
 
 USERADD_PARAM_${PN} = "  -d /run/display -m -u 115  -g display -G users,input,tty,display,video,weston-launch  -s /bin/sh display; "
-USERADD_PARAM_${PN} += " -d /home/openivi  -m -u 5010 -g users   -G users,display         -r -s /bin/sh openivi; "
-USERADD_PARAM_${PN} += " -d /home/guest  -m -u 9999 -g users   -G users,display         -r -s /bin/sh guest "
+USERADD_PARAM_${PN} += " -d /home/openivi  -m -u 5010 -g users   -G users,display         -r -s /bin/sh openivi "
