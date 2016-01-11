@@ -19,4 +19,5 @@ RDEPENDS_packagegroup-test-plan = " \
 	michelle2p-dbus-examples \
 	lsof \
 	vim vim-vimrc \
+	gpsd gps-utils gpsd-gpsctl gpsd-conf \
 	"

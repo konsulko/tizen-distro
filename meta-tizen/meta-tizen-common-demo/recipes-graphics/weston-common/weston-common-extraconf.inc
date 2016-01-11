@@ -5,8 +5,16 @@ SRC_URI += "file://0002-Add-a-script-to-export-UID.patch"
 SRC_URI += "file://0003-Launch-Weston-with-graphics-hardware-acceleration-fo.patch"
 SRC_URI += "file://0001-Enable-both-virtual-weston-keyboard-and-hardware-key.patch"
 
-DEPENDS += "config-tizen-common"
-RDEPENDS_${PN} += "config-tizen-common"
+# Dynamically adjust DEPENDS and RDEPENDS depending on the distro features
+python __anonymous() {
+	pn = d.getVar('PN', True)
+	if bb.utils.contains ('DISTRO_FEATURES', 'open-ivi', True, False, d):
+		d.appendVar("DEPENDS", " config-open-ivi")
+		d.appendVar("RDEPENDS_" + pn, " config-open-ivi")
+	else:
+		d.appendVar("DEPENDS", " config-tizen-common")
+		d.appendVar("RDEPENDS_" + pn, " config-tizen-common")
+}
 
 inherit useradd
 
