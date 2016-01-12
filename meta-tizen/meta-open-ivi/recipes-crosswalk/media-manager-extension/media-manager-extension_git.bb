@@ -21,7 +21,7 @@ S = "${WORKDIR}/git"
 inherit pkgconfig tizen_cmake
 
 do_compile() {
- mkdir ${S}/build
+ mkdir -p ${S}/build
  cd ${S}/build
  LANG=C; export LANG;
  unset DISPLAY
@@ -50,8 +50,6 @@ do_install() {
          BINDIR=${prefix}/bin \
          SBINDIR=${prefix}/sbin
 }
-
-FILES_${PN} = "/usr/lib/tizen-extensions-crosswalk/libmediamanager.so"
 
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " media-manager-extension "
