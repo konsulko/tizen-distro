@@ -29,7 +29,7 @@ mediamanager_file += "${prefix}/etc/udev/rules.d/10-media-manager-usb-mount-rule
 
 do_configure() {
  cd ${S}
- mkdir build
+ mkdir -p build
 }
 
 do_compile() {
