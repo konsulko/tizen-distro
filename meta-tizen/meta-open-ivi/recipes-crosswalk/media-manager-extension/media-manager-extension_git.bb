@@ -59,4 +59,11 @@ media-manager-extension_files += "${prefix}/lib/tizen-extensions-crosswalk/libme
 
 FILES_${PN} = "${media-manager-extension_files}"
 
+FILES_${PN}-dbg = "${prefix}/lib/tizen-extensions-crosswalk/.debug"
+FILES_${PN}-dbg += "${prefix}/lib/tizen-extensions-crosswalk/.debug/libmediamanager.so"
+FILES_${PN}-dbg += "${prefix}/src"
+FILES_${PN}-dbg += "${prefix}/src/debug/"
+FILES_${PN}-dbg += "${prefix}/src/debug/media-manager-extension"
+FILES_${PN}-dbg += "${prefix}/src/debug/media-manager-extension/*"
+
 PKG_media-manager-extension= "media-manager-extension"
