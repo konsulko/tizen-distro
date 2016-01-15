@@ -57,8 +57,6 @@ do_compile() {
 }
 
 do_install() {
-# install -d ${D}${bindir}
-# install -m 0755 cameracapture ${D}${bindir}
  export RPM_BUILD_ROOT=${D}/build
  cd ${S}/build
  LANG=C; export LANG;
