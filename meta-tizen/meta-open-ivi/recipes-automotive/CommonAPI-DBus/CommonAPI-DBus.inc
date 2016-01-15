@@ -39,6 +39,8 @@ DEPENDS += "dbus"
 inherit pkgconfig
 DEPENDS += "glib-2.0"
 
+CXXFLAGS_append += "-DDBUS_PATCH_ENABLED"
+
 do_prep() {
  cd ${S}
  chmod -Rf a+rX,u+w,g-w,o-w ${S}
@@ -46,11 +48,9 @@ do_prep() {
  
  
 }
+
 do_patch_append() {
     bb.build.exec_func('do_prep', d)
-}
-
-do_configure() {
 }
 
 do_compile() {
@@ -63,11 +63,9 @@ do_compile() {
   autoreconf -i
   
   autotools_do_configure
-  oe_runmake -j16
-  
-  
-  
+  oe_runmake
 }
+
 EXTRA_OECONF += " "
 
 do_install() {
