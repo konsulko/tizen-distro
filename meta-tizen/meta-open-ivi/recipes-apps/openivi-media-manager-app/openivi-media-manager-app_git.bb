@@ -85,4 +85,10 @@ openivi-media-manager-app_files += "/opt/usr/apps/.preinstallWidgets/openivi-med
 
 FILES_${PN} = "${openivi-media-manager-app_files}"
 
-PKG_openivi-media-manager-app= "openivi-media-manager-app"
+PKG_openivi-media-manager-app = "openivi-media-manager-app"
+
+FILES_${PN}-dbg = "/usr"
+FILES_${PN}-dbg += "/usr/share"
+FILES_${PN}-dbg += "/usr/share/openivi"
+FILES_${PN}-dbg += "/usr/share/openivi/Common"
+FILES_${PN}-dbg += "/usr/share/openivi/Common/icons"
