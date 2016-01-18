@@ -10,7 +10,7 @@ PACKAGES = "\
 
 # HMI apps
 RDEPENDS_packagegroups-hmi-apps = " \
-                                            openivi-installer-xwalk \
+                                            openivi-installer \
                                             openivi-common-app \
                                             openivi-homescreen \
                                             openivi-browser \
