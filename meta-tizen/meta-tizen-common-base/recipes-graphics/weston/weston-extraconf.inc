@@ -5,7 +5,16 @@ RDEPENDS_${PN}_remove = "weston-startup"
 
 SRC_URI += "file://make-lcms-explicitly-configurable.patch"
 SRC_URI += "file://make-libwebp-explicitly-configurable.patch"
-SRC_URI += "file://0001-Add-Vivante-EGL-and-GAL2D-compositor-support.patch"
+# SRC_URI += "file://0001-Add-Vivante-EGL-and-GAL2D-compositor-support.patch"
+SRC_URI += " \
+    file://0001-ENGR00314805-1-Add-Vivante-EGL-support.patch \
+    file://0002-ENGR00314805-2-Add-Vivante-GAL2D-support.patch \
+    file://0003-ENGR00319247-Distorted-line-and-shadow-if-use-2d-com.patch \
+    file://0004-ENGR00320243-Enable-GAL2D-compositor-in-SoloLite.patch \
+    file://0005-ENGR00321030-Change-GAL2D-compositor-to-be-default-i.patch \
+    file://0006-MGS-389-Fix-for-wrong-FPS-throttling-when-multibuffe.patch \
+    file://0007-MGS-391-Weston-Performance-Optimisation-for-single-b.patch \
+"
 SRC_URI += "file://0001-text-Don-t-crash-if-a-seat-has-no-keyboard.patch"
 
 PACKAGECONFIG_append_mx6q = " cairo-glesv2"
