@@ -1,5 +1,7 @@
 SUMMARY = "A general-purpose utility library"
 DESCRIPTION = "GLib is a general-purpose utility library, which provides many useful data types, macros, type conversions, string utilities, file utilities, a main loop abstraction, and so on."
+HOMEPAGE = "https://developer.gnome.org/glib/"
+
 # pcre is under BSD;
 # docs/reference/COPYING is with a 'public domai'-like license!
 LICENSE = "LGPLv2+ & BSD & PD"
@@ -15,10 +17,10 @@ SECTION = "libs"
 
 BBCLASSEXTEND = "native nativesdk"
 
-DEPENDS = "glib-2.0-native virtual/libiconv libffi zlib"
-DEPENDS_append_class-target = "${@bb.utils.contains('DISTRO_FEATURES', 'ptest', ' dbus', '', d)}"
+DEPENDS = "virtual/libiconv libffi zlib"
+DEPENDS_append = " ${@bb.utils.contains('PTEST_ENABLED', '1', ' glib-2.0-native dbus', '', d)}"
 DEPENDS_class-native = "pkgconfig-native gettext-native libffi-native zlib-native"
-DEPENDS_class-nativesdk = "nativesdk-libtool nativesdk-gettext nativesdk-libffi nativesdk-zlib ${BPN}-native"
+DEPENDS_class-nativesdk = "nativesdk-libtool nativesdk-gettext nativesdk-libffi nativesdk-zlib"
 
 PACKAGES =+ "${PN}-utils ${PN}-bash-completion ${PN}-codegen"
 
