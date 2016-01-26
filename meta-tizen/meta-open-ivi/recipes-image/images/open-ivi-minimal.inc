@@ -41,3 +41,6 @@ CORE_IMAGE_EXTRA_INSTALL += "\
 
 # Test plan
 CORE_IMAGE_EXTRA_INSTALL += "packagegroup-test-plan"
+
+# Michelle 2 Plus support
+CORE_IMAGE_EXTRA_INSTALL += "packagegroup-michelle2p"
