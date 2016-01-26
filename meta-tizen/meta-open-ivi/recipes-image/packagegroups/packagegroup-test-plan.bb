@@ -16,6 +16,6 @@ RDEPENDS_packagegroup-test-plan = " \
 	evtest connman \
 	bonnie++ ppp \
 	lsof \
-	vim vim-vimrc \
+	vim vim-vimrc vim-syntax \
 	gpsd gps-utils gpsd-gpsctl gpsd-conf \
 	"
