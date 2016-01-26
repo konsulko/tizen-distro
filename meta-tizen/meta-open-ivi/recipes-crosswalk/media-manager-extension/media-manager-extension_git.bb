@@ -21,7 +21,7 @@ S = "${WORKDIR}/git"
 inherit pkgconfig tizen_cmake
 
 do_compile() {
- mkdir ${S}/build
+ mkdir -p ${S}/build
  cd ${S}/build
  LANG=C; export LANG;
  unset DISPLAY
@@ -51,8 +51,6 @@ do_install() {
          SBINDIR=${prefix}/sbin
 }
 
-FILES_${PN} = "/usr/lib/tizen-extensions-crosswalk/libmediamanager.so"
-
 PACKAGES = "${PN}-dbg ${PN}-doc ${PN}-locale"
 PACKAGES += " media-manager-extension "
 
@@ -60,5 +58,12 @@ media-manager-extension_files = ""
 media-manager-extension_files += "${prefix}/lib/tizen-extensions-crosswalk/libmediamanager.so"
 
 FILES_${PN} = "${media-manager-extension_files}"
+
+FILES_${PN}-dbg = "${prefix}/lib/tizen-extensions-crosswalk/.debug"
+FILES_${PN}-dbg += "${prefix}/lib/tizen-extensions-crosswalk/.debug/libmediamanager.so"
+FILES_${PN}-dbg += "${prefix}/src"
+FILES_${PN}-dbg += "${prefix}/src/debug/"
+FILES_${PN}-dbg += "${prefix}/src/debug/media-manager-extension"
+FILES_${PN}-dbg += "${prefix}/src/debug/media-manager-extension/*"
 
 PKG_media-manager-extension= "media-manager-extension"

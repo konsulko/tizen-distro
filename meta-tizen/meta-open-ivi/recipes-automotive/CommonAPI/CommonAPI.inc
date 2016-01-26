@@ -59,10 +59,7 @@ do_compile() {
   
   autotools_do_configure
   
-  make -j16
-  
-  
-  
+  oe_runmake
 }
 EXTRA_OECONF += ""
 
