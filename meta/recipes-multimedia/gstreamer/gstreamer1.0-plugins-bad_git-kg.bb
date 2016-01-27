@@ -26,3 +26,5 @@ do_configure_prepend() {
 	cd ${B}
 }
 
+# Fix failures when DEBUG_BUILD is 1
+CFLAGS += "-Wno-extra -Wno-error=unused-but-set-parameter -Wno-error=unused-but-set-variable"
