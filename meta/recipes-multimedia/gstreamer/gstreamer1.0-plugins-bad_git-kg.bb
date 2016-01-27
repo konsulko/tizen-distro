@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=73a5855a8119deb017f5f13cf327095d \
 
 S = "${WORKDIR}/git"
 
-SRC_URI = "git://git@bitbucket.org/pantoniou/gst-plugins-bad.git;protocol=ssh;branch=kg-master-work"
+SRC_URI = "git://git@bitbucket.org/konsulko/gst-plugins-bad.git;protocol=ssh;branch=kg-master-work"
 SRCREV = "${AUTOREV}"
 
 PACKAGECONFIG[bluez] = "--enable-bluez,--disable-bluez,bluez4"

@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=c54ce9345727175ff66d17b67ff51f58 \
                     file://COPYING.LIB;md5=6762ed442b3822387a51c92d928ead0d \
                    "
 
-SRC_URI = "git://git@bitbucket.org/pantoniou/gst-plugins-base.git;protocol=ssh;branch=master"
+SRC_URI = "git://git@bitbucket.org/konsulko/gst-plugins-base.git;protocol=ssh;branch=master"
 SRCREV = "${AUTOREV}"
 
 S = "${WORKDIR}/git"
