@@ -1,0 +1,15 @@
+[Unit]
+Description=Supervisory controller bus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=forking
+PIDFile=/var/run/dbus/svc-pid
+ExecStartPre=/sbin/ifconfig sl0 10.0.0.1
+ExecStartPre=/sbin/route add 10.0.0.2 sl0
+ExecStart=/usr/bin/dbus-daemon --fork \
+ --config-file=/etc/dbus-1/supervisor.conf
+
+[Install]
+WantedBy=multi-user.target

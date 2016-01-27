@@ -9,14 +9,8 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=73a5855a8119deb017f5f13cf327095d \
 
 S = "${WORKDIR}/git"
 
-SRC_URI += "file://0001-resindvd-seek-Fallback-to-time-seek-if-sector-fails.patch \
-	    file://0002-wayland-Implement-navigation-interface-overlay.patch \
-	    file://0003-dvdspu-optimize-dvdspu.patch \
-	    file://fix-wrong-parse-of-dvd-menus.patch"
-
-# SRCREV = "6e5db57d2446a753aaa76bee268e1f95600b14ce"
-# SRCREV = "${AUTOREV}"
-SRCREV = "04a5eee15efcbca0b7210773c360c50963a26458"
+SRC_URI = "git://git@bitbucket.org/konsulko/gst-plugins-bad.git;protocol=ssh;branch=kg-master-work"
+SRCREV = "${AUTOREV}"
 
 PACKAGECONFIG[bluez] = "--enable-bluez,--disable-bluez,bluez4"
 PACKAGECONFIG[sbc] = "--enable-sbc,--disable-sbc,sbc"

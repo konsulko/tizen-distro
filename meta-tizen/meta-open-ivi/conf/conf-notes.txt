@@ -1,7 +1,8 @@
-Tizen images:
+Audio board (STM32) image:
 
-  open-ivi-core
+  michelle2p-audio-board
+
+CPU board (i.MX6 U-Boot and Linux) images:
+
   open-ivi-hmi
-
-You can also run generated qemu images with a command like 'runqemu qemux86'
 

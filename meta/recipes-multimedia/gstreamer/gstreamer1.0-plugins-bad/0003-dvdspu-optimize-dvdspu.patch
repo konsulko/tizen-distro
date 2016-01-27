@@ -1,7 +1,7 @@
 From 034838cc011f7c2e4d20a54e43c6a07bcf633b80 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Mon, 9 Nov 2015 21:19:37 +0200
-Subject: dvdspu: optimize dvdspu
+Subject: [PATCH 3/3] dvdspu: optimize dvdspu
 
 The blend method is pretty un-optimized; split in runs and handle the
 special cases of transparency efficiently.

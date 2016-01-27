@@ -1,0 +1,2027 @@
+From 4c52d3fb59aaadc4168637d84628371fde24b93a Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Date: Thu, 26 Nov 2015 19:14:50 +0200
+Subject: [PATCH 2/3] wayland: Implement navigation interface & overlay
+
+Implement navigation interface full and make the overlay interface
+work. Also add support for xdg and fullscreen.
+
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ ext/wayland/Makefile.am          |  20 +-
+ ext/wayland/fullscreen-shell.xml | 206 +++++++++++++
+ ext/wayland/gstwaylandsink.c     |  87 +++++-
+ ext/wayland/gstwaylandsink.h     |   3 +
+ ext/wayland/wldisplay.c          | 448 +++++++++++++++++++++++++++-
+ ext/wayland/wldisplay.h          |  20 ++
+ ext/wayland/wlwindow.c           | 218 ++++++++++----
+ ext/wayland/wlwindow.h           |   7 +-
+ ext/wayland/xdg-shell.xml        | 616 +++++++++++++++++++++++++++++++++++++++
+ 9 files changed, 1560 insertions(+), 65 deletions(-)
+ create mode 100644 ext/wayland/fullscreen-shell.xml
+ create mode 100644 ext/wayland/xdg-shell.xml
+
+diff --git a/ext/wayland/Makefile.am b/ext/wayland/Makefile.am
+index c742bfc..163f160 100644
+--- a/ext/wayland/Makefile.am
++++ b/ext/wayland/Makefile.am
+@@ -7,7 +7,9 @@ libgstwaylandsink_la_SOURCES =  \
+ 	wldisplay.c \
+ 	wlwindow.c \
+ 	wlvideoformat.c \
+-	scaler-protocol.c
++	scaler-protocol.c \
++	xdg-shell-protocol.c \
++	fullscreen-shell-protocol.c
+ 
+ libgstwaylandsink_la_CFLAGS = $(GST_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
+                                $(WAYLAND_CFLAGS) $(GST_PLUGINS_BAD_CFLAGS)
+@@ -27,10 +29,14 @@ noinst_HEADERS = \
+ 	wldisplay.h \
+ 	wlwindow.h \
+ 	wlvideoformat.h \
+-	scaler-client-protocol.h
++	scaler-client-protocol.h \
++	xdg-shell-client-protocol.h \
++	fullscreen-shell-client-protocol.h
+ 
+-EXTRA_DIST = scaler.xml
+-CLEANFILES = scaler-protocol.c scaler-client-protocol.h
++EXTRA_DIST = scaler.xml xdg-shell.xml fullscreen-shell.xml
++CLEANFILES = scaler-protocol.c scaler-client-protocol.h \
++	     xdg-shell-protocol.c xdg-shell-client-protocol.h \
++	     fullscreen-shell-protocol.c fullscreen-shell-client-protocol.h
+ 
+ %-protocol.c : %.xml
+ 	$(wayland_scanner) code < $< > $@
+@@ -38,12 +44,12 @@ CLEANFILES = scaler-protocol.c scaler-client-protocol.h
+ %-client-protocol.h : %.xml
+ 	$(wayland_scanner) client-header < $< > $@
+ 
+-gstwaylandsink.c: scaler-client-protocol.h
++gstwaylandsink.c: scaler-client-protocol.h xdg-shell-client-protocol.h fullscreen-shell-client-protocol.h
+ 
+ wlshmallocator.c: scaler-client-protocol.h
+ 
+ wlbuffer.c: scaler-client-protocol.h
+ 
+-wldisplay.c: scaler-client-protocol.h
++wldisplay.c: scaler-client-protocol.h xdg-shell-client-protocol.h fullscreen-shell-client-protocol.h
+ 
+-wlwindow.c: scaler-client-protocol.h
++wlwindow.c: scaler-client-protocol.h xdg-shell-client-protocol.h fullscreen-shell-client-protocol.h
+diff --git a/ext/wayland/fullscreen-shell.xml b/ext/wayland/fullscreen-shell.xml
+new file mode 100644
+index 0000000..e2b994b
+--- /dev/null
++++ b/ext/wayland/fullscreen-shell.xml
+@@ -0,0 +1,206 @@
++<protocol name="fullscreen_shell">
++  <interface name="_wl_fullscreen_shell" version="1">
++    <description summary="Displays a single surface per output">
++      Displays a single surface per output.
++
++      This interface provides a mechanism for a single client to display
++      simple full-screen surfaces.  While there technically may be multiple
++      clients bound to this interface, only one of those clients should be
++      shown at a time.
++
++      To present a surface, the client uses either the present_surface or
++      present_surface_for_mode requests.  Presenting a surface takes effect
++      on the next wl_surface.commit.  See the individual requests for
++      details about scaling and mode switches.
++
++      The client can have at most one surface per output at any time.
++      Requesting a surface be presented on an output that already has a
++      surface replaces the previously presented surface.  Presenting a null
++      surface removes its content and effectively disables the output.
++      Exactly what happens when an output is "disabled" is
++      compositor-specific.  The same surface may be presented on multiple
++      outputs simultaneously.
++
++      Once a surface is presented on an output, it stays on that output
++      until either the client removes it or the compositor destroys the
++      output.  This way, the client can update the output's contents by
++      simply attaching a new buffer.
++    </description>
++
++    <request name="release" type="destructor">
++      <description summary="release the wl_fullscreen_shell interface">
++	Release the binding from the wl_fullscreen_shell interface
++
++	This destroys the server-side object and frees this binding.  If
++	the client binds to wl_fullscreen_shell multiple times, it may wish
++	to free some of those bindings.
++      </description>
++    </request>
++
++    <enum name="capability">
++      <description summary="capabilities advertised by the compositor">
++	Various capabilities that can be advertised by the compositor.  They
++	are advertised one-at-a-time when the wl_fullscreen_shell interface is
++	bound.  See the wl_fullscreen_shell.capability event for more details.
++
++	ARBITRARY_MODE:
++	This is a hint to the client that indicates that the compositor is
++	capable of setting practically any mode on its outputs.  If this
++	capability is provided, wl_fullscreen_shell.present_surface_for_mode
++	will almost never fail and clients should feel free to set whatever
++	mode they like.  If the compositor does not advertise this, it may
++	still support some modes that are not advertised through wl_global.mode
++	but it is less likely.
++
++	CURSOR_PLANE:
++	This is a hint to the client that indicates that the compositor can
++	handle a cursor surface from the client without actually compositing.
++	This may be because of a hardware cursor plane or some other mechanism.
++	If the compositor does not advertise this capability then setting
++	wl_pointer.cursor may degrade performance or be ignored entirely.  If
++	CURSOR_PLANE is not advertised, it is recommended that the client draw
++	its own cursor and set wl_pointer.cursor(NULL).
++      </description>
++      <entry name="arbitrary_modes" value="1" summary="compositor is capable of almost any output mode"/>
++      <entry name="cursor_plane" value="2" summary="compositor has a separate cursor plane"/>
++    </enum>
++
++    <event name="capability">
++      <description summary="advertises a capability of the compositor">
++	Advertises a single capability of the compositor.
++
++	When the wl_fullscreen_shell interface is bound, this event is emitted
++	once for each capability advertised.  Valid capabilities are given by
++	the wl_fullscreen_shell.capability enum.  If clients want to take
++	advantage of any of these capabilities, they should use a
++	wl_display.sync request immediately after binding to ensure that they
++	receive all the capability events.
++      </description>
++      <arg name="capabilty" type="uint"/>
++    </event>
++
++    <enum name="present_method">
++      <description summary="different method to set the surface fullscreen">
++	Hints to indicate to the compositor how to deal with a conflict
++	between the dimensions of the surface and the dimensions of the
++	output. The compositor is free to ignore this parameter.
++      </description>
++      <entry name="default" value="0" summary="no preference, apply default policy"/>
++      <entry name="center" value="1" summary="center the surface on the output"/>
++      <entry name="zoom" value="2" summary="scale the surface, preserving aspect ratio, to the largest size that will fit on the output" />
++      <entry name="zoom_crop" value="3" summary="scale the surface, preserving aspect ratio, to fully fill the output cropping if needed" />
++      <entry name="stretch" value="4" summary="scale the surface to the size of the output ignoring aspect ratio" />
++    </enum>
++
++    <request name="present_surface">
++      <description summary="present surface for display">
++	Present a surface on the given output.
++
++	If the output is null, the compositor will present the surface on
++	whatever display (or displays) it thinks best.  In particular, this
++	may replace any or all surfaces currently presented so it should
++	not be used in combination with placing surfaces on specific
++	outputs.
++
++	The method parameter is a hint to the compositor for how the surface
++	is to be presented.  In particular, it tells the compositor how to
++	handle a size mismatch between the presented surface and the
++	output.  The compositor is free to ignore this parameter.
++
++	The "zoom", "zoom_crop", and "stretch" methods imply a scaling
++	operation on the surface.  This will override any kind of output
++	scaling, so the buffer_scale property of the surface is effectively
++	ignored.
++      </description>
++      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
++      <arg name="method" type="uint"/>
++      <arg name="output" type="object" interface="wl_output" allow-null="true"/>
++    </request>
++
++    <request name="present_surface_for_mode">
++      <description summary="present surface for display at a particular mode">
++	Presents a surface on the given output for a particular mode.
++
++	If the current size of the output differs from that of the surface,
++	the compositor will attempt to change the size of the output to
++	match the surface.  The result of the mode-switch operation will be
++	returned via the provided wl_fullscreen_shell_mode_feedback object.
++
++	If the current output mode matches the one requested or if the
++	compositor successfully switches the mode to match the surface,
++	then the mode_successful event will be sent and the output will
++	contain the contents of the given surface.  If the compositor
++	cannot match the output size to the surface size, the mode_failed
++	will be sent and the output will contain the contents of the
++	previously presented surface (if any).  If another surface is
++	presented on the given output before either of these has a chance
++	to happen, the present_cancelled event will be sent.
++
++	Due to race conditions and other issues unknown to the client, no
++	mode-switch operation is guaranteed to succeed.  However, if the
++	mode is one advertised by wl_output.mode or if the compositor
++	advertises the ARBITRARY_MODES capability, then the client should
++	expect that the mode-switch operation will usually succeed.
++
++	If the size of the presented surface changes, the resulting output
++	is undefined.  The compositor may attempt to change the output mode
++	to compensate.  However, there is no guarantee that a suitable mode
++	will be found and the client has no way to be notified of success
++	or failure.
++
++	The framerate parameter specifies the desired framerate for the
++	output in mHz.  The compositor is free to ignore this parameter.  A
++	value of 0 indicates that the client has no preference.
++
++	If the value of wl_output.scale differs from wl_surface.buffer_scale,
++	then the compositor may choose a mode that matches either the buffer
++	size or the surface size.  In either case, the surface will fill the
++	output.
++      </description>
++      <arg name="surface" type="object" interface="wl_surface"/>
++      <arg name="output" type="object" interface="wl_output"/>
++      <arg name="framerate" type="int"/>
++      <arg name="feedback" type="new_id" interface="_wl_fullscreen_shell_mode_feedback"/>
++    </request>
++
++    <enum name="error">
++      <description summary="wl_fullscreen_shell error values">
++	These errors can be emitted in response to wl_fullscreen_shell requests
++      </description>
++      <entry name="invalid_method" value="0" summary="present_method is not known"/>
++    </enum>
++  </interface>
++
++  <interface name="_wl_fullscreen_shell_mode_feedback" version="1">
++    <event name="mode_successful">
++      <description summary="mode switch succeeded">
++	This event indicates that the attempted mode switch operation was
++	successful.  A surface of the size requested in the mode switch
++	will fill the output without scaling.
++
++	Upon receiving this event, the client should destroy the
++	wl_fullscreen_shell_mode_feedback object.
++      </description>
++    </event>
++    <event name="mode_failed">
++      <description summary="mode switch failed">
++	This event indicates that the attempted mode switch operation
++	failed. This may be because the requested output mode is not
++	possible or it may mean that the compositor does not want to allow it.
++
++	Upon receiving this event, the client should destroy the
++	wl_fullscreen_shell_mode_feedback object.
++      </description>
++    </event>
++    <event name="present_cancelled">
++      <description summary="mode switch cancelled">
++	This event indicates that the attempted mode switch operation was
++	cancelled.  Most likely this is because the client requested a
++	second mode switch before the first one completed.
++
++	Upon receiving this event, the client should destroy the
++	wl_fullscreen_shell_mode_feedback object.
++      </description>
++    </event>
++  </interface>
++</protocol>
+diff --git a/ext/wayland/gstwaylandsink.c b/ext/wayland/gstwaylandsink.c
+index 1952776..68b9ef6 100644
+--- a/ext/wayland/gstwaylandsink.c
++++ b/ext/wayland/gstwaylandsink.c
+@@ -48,6 +48,7 @@
+ 
+ #include <gst/wayland/wayland.h>
+ #include <gst/video/videooverlay.h>
++#include <gst/video/navigation.h>
+ 
+ /* signals */
+ enum
+@@ -60,7 +61,8 @@ enum
+ enum
+ {
+   PROP_0,
+-  PROP_DISPLAY
++  PROP_DISPLAY,
++  PROP_FULLSCREEN,
+ };
+ 
+ GST_DEBUG_CATEGORY (gstwayland_debug);
+@@ -105,6 +107,11 @@ static void gst_wayland_sink_set_render_rectangle (GstVideoOverlay * overlay,
+     gint x, gint y, gint w, gint h);
+ static void gst_wayland_sink_expose (GstVideoOverlay * overlay);
+ 
++/* Navigation interface */
++static void gst_wayland_sink_navigation_init (GstNavigationInterface * iface);
++static void gst_wayland_sink_navigation_send_event(GstNavigation *navigation,
++		GstStructure *structure);
++
+ /* WaylandVideo interface */
+ static void gst_wayland_sink_waylandvideo_init (GstWaylandVideoInterface *
+     iface);
+@@ -116,7 +123,10 @@ G_DEFINE_TYPE_WITH_CODE (GstWaylandSink, gst_wayland_sink, GST_TYPE_VIDEO_SINK,
+     G_IMPLEMENT_INTERFACE (GST_TYPE_VIDEO_OVERLAY,
+         gst_wayland_sink_videooverlay_init)
+     G_IMPLEMENT_INTERFACE (GST_TYPE_WAYLAND_VIDEO,
+-        gst_wayland_sink_waylandvideo_init));
++        gst_wayland_sink_waylandvideo_init)
++    G_IMPLEMENT_INTERFACE (GST_TYPE_NAVIGATION,
++	gst_wayland_sink_navigation_init)
++)
+ 
+ static void
+ gst_wayland_sink_class_init (GstWaylandSinkClass * klass)
+@@ -158,6 +168,12 @@ gst_wayland_sink_class_init (GstWaylandSinkClass * klass)
+       g_param_spec_string ("display", "Wayland Display name", "Wayland "
+           "display name to connect to, if not supplied via the GstContext",
+           NULL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
++
++  g_object_class_install_property (gobject_class, PROP_FULLSCREEN,
++      g_param_spec_boolean ("fullscreen", "Fullscreen mode", "Whether or "
++          "not to set the created window to fullscreen mode "
++          "(ignored if application provides a window handle)",
++	  FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+ }
+ 
+ static void
+@@ -165,6 +181,8 @@ gst_wayland_sink_init (GstWaylandSink * sink)
+ {
+   g_mutex_init (&sink->display_lock);
+   g_mutex_init (&sink->render_lock);
++
++  sink->fullscreen = FALSE;
+ }
+ 
+ static void
+@@ -179,6 +197,11 @@ gst_wayland_sink_get_property (GObject * object,
+       g_value_set_string (value, sink->display_name);
+       GST_OBJECT_UNLOCK (sink);
+       break;
++    case PROP_FULLSCREEN:
++      GST_OBJECT_LOCK (sink);
++      g_value_set_boolean (value, sink->fullscreen);
++      GST_OBJECT_UNLOCK (sink);
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+       break;
+@@ -190,6 +213,7 @@ gst_wayland_sink_set_property (GObject * object,
+     guint prop_id, const GValue * value, GParamSpec * pspec)
+ {
+   GstWaylandSink *sink = GST_WAYLAND_SINK (object);
++  gboolean curr;
+ 
+   switch (prop_id) {
+     case PROP_DISPLAY:
+@@ -197,6 +221,14 @@ gst_wayland_sink_set_property (GObject * object,
+       sink->display_name = g_value_dup_string (value);
+       GST_OBJECT_UNLOCK (sink);
+       break;
++    case PROP_FULLSCREEN:
++      curr = g_value_get_boolean (value);
++      GST_OBJECT_LOCK (sink);
++      if (sink->fullscreen != curr) {
++        sink->fullscreen = curr;
++      }
++      GST_OBJECT_UNLOCK (sink);
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+       break;
+@@ -245,6 +277,8 @@ gst_wayland_sink_set_display_from_context (GstWaylandSink * sink,
+         ("Failed to use the external wayland display: '%s'", error->message));
+     g_error_free (error);
+   }
++
++  gst_wl_display_set_sink(sink->display, sink, &sink->display_lock);
+ }
+ 
+ static gboolean
+@@ -291,6 +325,7 @@ gst_wayland_sink_find_display (GstWaylandSink * sink)
+           g_error_free (error);
+           ret = FALSE;
+         }
++        gst_wl_display_set_sink(sink->display, sink, &sink->display_lock);
+       }
+     }
+   }
+@@ -590,7 +625,8 @@ gst_wayland_sink_render (GstBaseSink * bsink, GstBuffer * buffer)
+     if (!sink->window) {
+       /* if we were not provided a window, create one ourselves */
+       sink->window =
+-          gst_wl_window_new_toplevel (sink->display, &sink->video_info);
++          gst_wl_window_new_toplevel (sink->display, &sink->video_info,
++			  sink->fullscreen);
+     }
+   }
+ 
+@@ -800,6 +836,51 @@ gst_wayland_sink_waylandvideo_init (GstWaylandVideoInterface * iface)
+ }
+ 
+ static void
++gst_wayland_sink_navigation_send_event(GstNavigation *navigation,
++		GstStructure *structure)
++{
++  GstWaylandSink *sink = GST_WAYLAND_SINK (navigation);
++  GstEvent *event = NULL;
++  GstWlWindow *window = sink->window;
++  gdouble x, y, xscale = 1.0, yscale = 1.0;
++
++  /* pointer coordinates present? convert */
++  if (window &&
++      gst_structure_get_double (structure, "pointer_x", &x) &&
++      gst_structure_get_double (structure, "pointer_y", &y) ) {
++
++    /* now adjust for the render_rectangle that might have borders */
++    x -= window->video_render_rectangle.x - window->render_rectangle.x;
++    y -= window->video_render_rectangle.y - window->render_rectangle.y;
++
++    if (x >= 0 && x < window->surface_width && y >= 0 && y < window->surface_height) {
++      xscale = (gdouble)sink->video_info.width / (gdouble)window->surface_width;
++      yscale = (gdouble)sink->video_info.height / (gdouble)window->surface_height;
++
++      x *= xscale;
++      y *= yscale;
++
++      gst_structure_set (structure, "pointer_x", G_TYPE_DOUBLE, x, NULL);
++      gst_structure_set (structure, "pointer_y", G_TYPE_DOUBLE, y, NULL);
++    }
++
++  }
++
++  event = gst_event_new_navigation (structure);
++  if (event) {
++    gst_event_ref (event);
++    gst_pad_push_event (GST_VIDEO_SINK_PAD(sink), event);
++    gst_event_unref (event);
++  }
++}
++
++static void
++gst_wayland_sink_navigation_init (GstNavigationInterface * iface)
++{
++  iface->send_event = gst_wayland_sink_navigation_send_event;
++}
++
++static void
+ gst_wayland_sink_begin_geometry_change (GstWaylandVideo * video)
+ {
+   GstWaylandSink *sink = GST_WAYLAND_SINK (video);
+diff --git a/ext/wayland/gstwaylandsink.h b/ext/wayland/gstwaylandsink.h
+index afbed40..ba7f02c 100644
+--- a/ext/wayland/gstwaylandsink.h
++++ b/ext/wayland/gstwaylandsink.h
+@@ -65,6 +65,9 @@ struct _GstWaylandSink
+   gboolean redraw_pending;
+   GMutex render_lock;
+   GstBuffer *last_buffer;
++
++  gboolean fullscreen;
++  gboolean overlay;
+ };
+ 
+ struct _GstWaylandSinkClass
+diff --git a/ext/wayland/wldisplay.c b/ext/wayland/wldisplay.c
+index 616ded3..20f168d 100644
+--- a/ext/wayland/wldisplay.c
++++ b/ext/wayland/wldisplay.c
+@@ -22,10 +22,31 @@
+ #include <config.h>
+ #endif
+ 
++#include <gst/wayland/wayland.h>
++#include <gst/video/videooverlay.h>
++#include <gst/video/navigation.h>
++
++#include <errno.h>
++#include <stdio.h>
++
++#include <linux/input.h>
++
+ #include "wldisplay.h"
+ #include "wlbuffer.h"
+ 
+-#include <errno.h>
++#include "gstwaylandsink.h"
++
++#ifndef WL_KEYBOARD_RELEASE_SINCE_VERSION
++#define WL_KEYBOARD_RELEASE_SINCE_VERSION 3
++#endif
++
++#ifndef WL_POINTER_RELEASE_SINCE_VERSION
++#define WL_POINTER_RELEASE_SINCE_VERSION 3
++#endif
++
++#ifndef WL_TOUCH_RELEASE_SINCE_VERSION
++#define WL_TOUCH_RELEASE_SINCE_VERSION 3
++#endif
+ 
+ GST_DEBUG_CATEGORY_EXTERN (gstwayland_debug);
+ #define GST_CAT_DEFAULT gstwayland_debug
+@@ -77,6 +98,9 @@ gst_wl_display_finalize (GObject * gobject)
+   if (self->shm)
+     wl_shm_destroy (self->shm);
+ 
++  if (self->xdg_shell)
++    xdg_shell_destroy(self->xdg_shell);
++
+   if (self->shell)
+     wl_shell_destroy (self->shell);
+ 
+@@ -144,6 +168,404 @@ static const struct wl_shm_listener shm_listener = {
+ };
+ 
+ static void
++pointer_handle_enter(void *data, struct wl_pointer *pointer,
++                     uint32_t serial, struct wl_surface *surface,
++                     wl_fixed_t sx, wl_fixed_t sy)
++{
++  GstWlDisplay *self = data;
++  GstWaylandSink *sink = self->sink;
++  GstNavigation *navigation;
++  int x, y;
++
++  if (!sink)
++    return;
++  if (sink->window && gst_wl_window_is_overlay(sink->window))
++    return;
++
++  self->sx = sx;
++  self->sy = sy;
++
++  x = wl_fixed_to_int(sx);
++  y = wl_fixed_to_int(sy);
++
++  /* nothing to do without a sink */
++  if (!sink)
++    return;
++
++  navigation = GST_NAVIGATION(self->sink);
++  if (!navigation)
++    return;
++
++  if (self->sink_lock)
++    g_mutex_lock(self->sink_lock);
++
++  gst_navigation_send_mouse_event (navigation, "mouse-move", 0, x, y);
++
++  if (self->sink_lock)
++    g_mutex_unlock(self->sink_lock);
++}
++
++static void
++pointer_handle_leave(void *data, struct wl_pointer *pointer,
++                     uint32_t serial, struct wl_surface *surface)
++{
++  GstWlDisplay *self = data;
++  GstWaylandSink *sink = self->sink;
++
++  if (!sink)
++    return;
++  if (sink->window && gst_wl_window_is_overlay(sink->window))
++    return;
++}
++
++static void
++pointer_handle_motion(void *data, struct wl_pointer *pointer,
++                      uint32_t time, wl_fixed_t sx, wl_fixed_t sy)
++{
++  GstWlDisplay *self = data;
++  GstWaylandSink *sink = self->sink;
++  GstNavigation *navigation;
++  int x, y;
++
++  if (!sink)
++    return;
++  if (sink->window && gst_wl_window_is_overlay(sink->window))
++    return;
++
++  self->sx = sx;
++  self->sy = sy;
++
++  x = wl_fixed_to_int(sx);
++  y = wl_fixed_to_int(sy);
++
++  /* nothing to do without a sink */
++  if (!sink)
++    return;
++
++  navigation = GST_NAVIGATION(self->sink);
++  if (!navigation)
++    return;
++
++  if (self->sink_lock)
++    g_mutex_lock(self->sink_lock);
++
++  gst_navigation_send_mouse_event (navigation, "mouse-move", 0, x, y);
++
++  if (self->sink_lock)
++    g_mutex_unlock(self->sink_lock);
++}
++
++static void
++pointer_handle_button(void *data, struct wl_pointer *wl_pointer,
++                      uint32_t serial, uint32_t time, uint32_t button,
++                      uint32_t state)
++{
++  GstWlDisplay *self = data;
++  GstWaylandSink *sink = self->sink;
++  GstNavigation *navigation;
++  const char *what;
++  int x, y;
++
++  if (!sink)
++    return;
++  if (sink->window && gst_wl_window_is_overlay(sink->window))
++    return;
++
++  x = wl_fixed_to_int(self->sx);
++  y = wl_fixed_to_int(self->sy);
++
++  if (state == WL_POINTER_BUTTON_STATE_PRESSED)
++    what = "mouse-button-press";
++  else if (state == WL_POINTER_BUTTON_STATE_RELEASED)
++    what = "mouse-button-release";
++  else
++    return; /* we don't know what to do with it */
++
++  /* completely hacky way */
++  if (button == BTN_LEFT)
++    button = 1;
++  else if (button == BTN_RIGHT)
++    button = 2;
++  else
++    button = 3;
++
++  /* nothing to do without a sink */
++  if (!sink)
++    return;
++
++  navigation = GST_NAVIGATION(self->sink);
++  if (!navigation)
++    return;
++
++  if (self->sink_lock)
++    g_mutex_lock(self->sink_lock);
++
++  gst_navigation_send_mouse_event (navigation, what, button, x, y);
++
++  if (self->sink_lock)
++    g_mutex_unlock(self->sink_lock);
++}
++
++static void
++pointer_handle_axis(void *data, struct wl_pointer *wl_pointer,
++                    uint32_t time, uint32_t axis, wl_fixed_t value)
++{
++  GstWlDisplay *self = data;
++  GstWaylandSink *sink = self->sink;
++
++  if (!sink)
++    return;
++  if (sink->window && gst_wl_window_is_overlay(sink->window))
++    return;
++  /* TODO Add axis handling */
++}
++
++static const struct wl_pointer_listener pointer_listener = {
++    pointer_handle_enter,
++    pointer_handle_leave,
++    pointer_handle_motion,
++    pointer_handle_button,
++    pointer_handle_axis,
++};
++
++static void
++keyboard_handle_keymap(void *data, struct wl_keyboard *keyboard,
++                       uint32_t format, int fd, uint32_t size)
++{
++  GstWlDisplay *self = data;
++  GstWaylandSink *sink = self->sink;
++
++  if (!sink)
++    return;
++  if (sink->window && gst_wl_window_is_overlay(sink->window))
++    return;
++  /* TODO Add keymap handling */
++}
++
++static void
++keyboard_handle_enter(void *data, struct wl_keyboard *keyboard,
++                      uint32_t serial, struct wl_surface *surface,
++                      struct wl_array *keys)
++{
++  GstWlDisplay *self = data;
++  GstWaylandSink *sink = self->sink;
++
++  if (!sink)
++    return;
++  if (sink->window && gst_wl_window_is_overlay(sink->window))
++    return;
++  /* TODO Add enter handling */
++}
++
++static void
++keyboard_handle_leave(void *data, struct wl_keyboard *keyboard,
++                      uint32_t serial, struct wl_surface *surface)
++{
++  GstWlDisplay *self = data;
++  GstWaylandSink *sink = self->sink;
++
++  if (!sink)
++    return;
++  if (sink->window && gst_wl_window_is_overlay(sink->window))
++    return;
++  /* TODO Add leave handling */
++}
++
++struct input_map {
++	uint32_t key;
++	const char *what;
++};
++
++static const struct input_map keyboard_input_map[] = {
++	{ .key = KEY_LEFT,	.what = "Left"		},
++	{ .key = KEY_RIGHT,	.what = "Right"		},
++	{ .key = KEY_UP,	.what = "Up"		},
++	{ .key = KEY_DOWN,	.what = "Down"		},
++	{ .key = KEY_ENTER,	.what = "Return"	},
++	{ .key = KEY_A,		.what = "a"		},
++	{ .key = KEY_B,		.what = "b"		},
++	{ .key = KEY_C,		.what = "c"		},
++	{ .key = KEY_D,		.what = "d"		},
++	{ .key = KEY_E,		.what = "e"		},
++	{ .key = KEY_F,		.what = "f"		},
++	{ .key = KEY_G,		.what = "g"		},
++	{ .key = KEY_H,		.what = "h"		},
++	{ .key = KEY_I,		.what = "i"		},
++	{ .key = KEY_J,		.what = "j"		},
++	{ .key = KEY_K,		.what = "k"		},
++	{ .key = KEY_L,		.what = "l"		},
++	{ .key = KEY_M,		.what = "m"		},
++	{ .key = KEY_N,		.what = "n"		},
++	{ .key = KEY_O,		.what = "o"		},
++	{ .key = KEY_P,		.what = "p"		},
++	{ .key = KEY_Q,		.what = "q"		},
++	{ .key = KEY_R,		.what = "r"		},
++	{ .key = KEY_S,		.what = "s"		},
++	{ .key = KEY_T,		.what = "t"		},
++	{ .key = KEY_U,		.what = "u"		},
++	{ .key = KEY_V,		.what = "v"		},
++	{ .key = KEY_W,		.what = "w"		},
++	{ .key = KEY_X,		.what = "x"		},
++	{ .key = KEY_Y,		.what = "y"		},
++	{ .key = KEY_Z,		.what = "z"		},
++	{ .key = KEY_0,		.what = "0"		},
++	{ .key = KEY_1,		.what = "1"		},
++	{ .key = KEY_2,		.what = "2"		},
++	{ .key = KEY_3,		.what = "3"		},
++	{ .key = KEY_4,		.what = "4"		},
++	{ .key = KEY_5,		.what = "5"		},
++	{ .key = KEY_6,		.what = "6"		},
++	{ .key = KEY_7,		.what = "7"		},
++	{ .key = KEY_8,		.what = "8"		},
++	{ .key = KEY_9,		.what = "9"		},
++	{ .key = KEY_COMMA,	.what = "comma"		},
++	{ .key = KEY_DOT,	.what = "period"	},
++	{ .key = KEY_LEFTBRACE,	.what = "bracketleft"	},
++	{ .key = KEY_RIGHTBRACE,.what = "bracketright"	},
++};
++
++static void
++keyboard_handle_key(void *data, struct wl_keyboard *keyboard,
++                    uint32_t serial, uint32_t time, uint32_t key,
++                    uint32_t state)
++{
++  GstWlDisplay *self = data;
++  GstWaylandSink *sink = self->sink;
++  GstNavigation *navigation;
++  const char *kind, *what;
++  const struct input_map *map;
++  int i, cnt;
++
++  /* no sink, nothing to do */
++  if (!sink)
++    return;
++
++  /* check now for xdg keys */
++  if (sink->window) {
++    if (gst_wl_window_is_overlay(sink->window))
++      return;
++    switch (key) {
++    case KEY_F11:
++      /* we can toggle fullscreen only with xdg shell */
++      if (!self->xdg_shell || !sink->window->xdg_surface)
++        break;
++      if (state != WL_KEYBOARD_KEY_STATE_PRESSED)
++        break;
++
++      if (sink->fullscreen) {
++        xdg_surface_unset_fullscreen (sink->window->xdg_surface);
++	sink->fullscreen = FALSE;
++      } else {
++        xdg_surface_set_fullscreen (sink->window->xdg_surface, NULL);
++	sink->fullscreen = TRUE;
++      }
++      key = 0;
++      break;
++    }
++  }
++
++  /* if key was consumed, just return */
++  if (!key)
++    return;
++
++  navigation = GST_NAVIGATION(self->sink);
++  if (!navigation)
++    return;
++
++  kind = (state == WL_KEYBOARD_KEY_STATE_PRESSED) ? "key-press" : "key-release";
++
++  if (self->sink_lock)
++    g_mutex_lock(self->sink_lock);
++
++  /* find map to navigation string */
++  what = NULL;
++  cnt = sizeof(keyboard_input_map)/sizeof(keyboard_input_map[0]);
++  for (i = 0; i < cnt; i++) {
++    map = &keyboard_input_map[i];
++    if (map->key == key) {
++      what = map->what;
++      break;
++    }
++  }
++
++  gst_navigation_send_key_event(navigation, kind, what);
++
++  if (self->sink_lock)
++    g_mutex_unlock(self->sink_lock);
++}
++
++static void
++keyboard_handle_modifiers(void *data, struct wl_keyboard *keyboard,
++                          uint32_t serial, uint32_t mods_depressed,
++                          uint32_t mods_latched, uint32_t mods_locked,
++                          uint32_t group)
++{
++  GstWlDisplay *self = data;
++
++  (void)self;
++  /* TODO handle modifiers */
++}
++
++static const struct wl_keyboard_listener keyboard_listener = {
++    keyboard_handle_keymap,
++    keyboard_handle_enter,
++    keyboard_handle_leave,
++    keyboard_handle_key,
++    keyboard_handle_modifiers,
++};
++
++static void
++seat_handle_capabilities(void *data, struct wl_seat *seat,
++                         enum wl_seat_capability caps)
++{
++  GstWlDisplay *self = data;
++
++  if ((caps & WL_SEAT_CAPABILITY_POINTER) && !self->pointer) {
++    self->pointer = wl_seat_get_pointer(seat);
++    wl_pointer_add_listener(self->pointer, &pointer_listener, self);
++  } else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && self->pointer) {
++    if (self->seat_version >= WL_POINTER_RELEASE_SINCE_VERSION)
++      wl_pointer_release(self->pointer);
++    else
++      wl_pointer_destroy(self->pointer);
++    self->pointer = NULL;
++  }
++
++  if ((caps & WL_SEAT_CAPABILITY_KEYBOARD) && !self->keyboard) {
++    self->keyboard = wl_seat_get_keyboard(seat);
++    wl_keyboard_add_listener(self->keyboard, &keyboard_listener, self);
++  } else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD) && self->keyboard) {
++    if (self->seat_version >= WL_KEYBOARD_RELEASE_SINCE_VERSION)
++      wl_keyboard_release(self->keyboard);
++    else
++      wl_keyboard_destroy(self->keyboard);
++    self->keyboard = NULL;
++  }
++}
++
++static void
++seat_handle_name(void *data, struct wl_seat *seat,
++		 const char *name)
++{
++	/* TODO save seat name */
++}
++
++static const struct wl_seat_listener seat_listener = {
++  seat_handle_capabilities,
++  seat_handle_name
++};
++
++static void
++xdg_shell_ping(void *data, struct xdg_shell *xdg_shell, uint32_t serial)
++{
++  xdg_shell_pong(xdg_shell, serial);
++}
++
++static const struct xdg_shell_listener xdg_shell_listener = {
++  xdg_shell_ping,
++};
++
++static void
+ registry_handle_global (void *data, struct wl_registry *registry,
+     uint32_t id, const char *interface, uint32_t version)
+ {
+@@ -162,6 +584,14 @@ registry_handle_global (void *data, struct wl_registry *registry,
+     wl_shm_add_listener (self->shm, &shm_listener, self);
+   } else if (g_strcmp0 (interface, "wl_scaler") == 0) {
+     self->scaler = wl_registry_bind (registry, id, &wl_scaler_interface, 2);
++  } else if (g_strcmp0 (interface, "wl_seat") == 0) {
++    self->seat = wl_registry_bind (registry, id, &wl_seat_interface, 1);
++    wl_seat_add_listener(self->seat, &seat_listener, self);
++    self->seat_version = version;
++  } else if (g_strcmp0 (interface, "xdg_shell") == 0) {
++    self->xdg_shell = wl_registry_bind (registry, id, &xdg_shell_interface, 1);
++    xdg_shell_add_listener(self->xdg_shell, &xdg_shell_listener, self);
++    xdg_shell_use_unstable_version(self->xdg_shell, 5);	/* use version 5 */
+   }
+ }
+ 
+@@ -266,6 +696,11 @@ gst_wl_display_new_existing (struct wl_display * display,
+   VERIFY_INTERFACE_EXISTS (shell, "wl_shell");
+   VERIFY_INTERFACE_EXISTS (shm, "wl_shm");
+   VERIFY_INTERFACE_EXISTS (scaler, "wl_scaler");
++  VERIFY_INTERFACE_EXISTS (seat, "wl_seat");
++
++  /* xdg shell is optional (but preferred) */
++  if (!self->xdg_shell)
++    GST_WARNING_OBJECT (self, "Could not bind to xdg_shell; continuing with wl_shell");
+ 
+ #undef VERIFY_INTERFACE_EXISTS
+ 
+@@ -303,3 +738,14 @@ gst_wl_display_unregister_buffer (GstWlDisplay * self, gpointer buf)
+     g_hash_table_remove (self->buffers, buf);
+   g_mutex_unlock (&self->buffers_mutex);
+ }
++
++void
++gst_wl_display_set_sink(GstWlDisplay * self, GstWaylandSink * sink, GMutex *lock)
++{
++  if (self->sink)
++    gst_object_unref(self->sink);
++  self->sink = sink;
++  if (sink)
++    gst_object_ref(self->sink);
++  self->sink_lock = lock;
++}
+diff --git a/ext/wayland/wldisplay.h b/ext/wayland/wldisplay.h
+index e9df749..3b6894b 100644
+--- a/ext/wayland/wldisplay.h
++++ b/ext/wayland/wldisplay.h
+@@ -22,8 +22,11 @@
+ #define __GST_WL_DISPLAY_H__
+ 
+ #include <gst/gst.h>
++#include <gst/video/navigation.h>
+ #include <wayland-client.h>
+ #include "scaler-client-protocol.h"
++#include "xdg-shell-client-protocol.h"
++#include "fullscreen-shell-client-protocol.h"
+ 
+ G_BEGIN_DECLS
+ 
+@@ -37,6 +40,8 @@ G_BEGIN_DECLS
+ typedef struct _GstWlDisplay GstWlDisplay;
+ typedef struct _GstWlDisplayClass GstWlDisplayClass;
+ 
++typedef struct _GstWaylandSink GstWaylandSink;
++
+ struct _GstWlDisplay
+ {
+   GObject parent_instance;
+@@ -52,8 +57,16 @@ struct _GstWlDisplay
+   struct wl_shell *shell;
+   struct wl_shm *shm;
+   struct wl_scaler *scaler;
++  struct wl_seat *seat;
++  uint32_t seat_version;
++  struct wl_pointer *pointer;
++  struct wl_keyboard *keyboard;
++  struct wl_touch *touch;
++  struct wl_list touch_point_list;
+   GArray *shm_formats;
+ 
++  struct xdg_shell *xdg_shell;
++
+   /* private */
+   gboolean own_display;
+   GThread *thread;
+@@ -62,6 +75,11 @@ struct _GstWlDisplay
+   GMutex buffers_mutex;
+   GHashTable *buffers;
+   gboolean shutting_down;
++
++  /* navigation */
++  wl_fixed_t sx, sy;
++  GstWaylandSink *sink;
++  GMutex *sink_lock;
+ };
+ 
+ struct _GstWlDisplayClass
+@@ -79,6 +97,8 @@ GstWlDisplay *gst_wl_display_new_existing (struct wl_display * display,
+ void gst_wl_display_register_buffer (GstWlDisplay * self, gpointer buf);
+ void gst_wl_display_unregister_buffer (GstWlDisplay * self, gpointer buf);
+ 
++void gst_wl_display_set_sink(GstWlDisplay * self, GstWaylandSink * sink, GMutex * lock);
++
+ G_END_DECLS
+ 
+ #endif /* __GST_WL_DISPLAY_H__ */
+diff --git a/ext/wayland/wlwindow.c b/ext/wayland/wlwindow.c
+index a964335..b8a6ecd 100644
+--- a/ext/wayland/wlwindow.c
++++ b/ext/wayland/wlwindow.c
+@@ -46,6 +46,9 @@ static void
+ handle_configure (void *data, struct wl_shell_surface *shell_surface,
+     uint32_t edges, int32_t width, int32_t height)
+ {
++  GstWlWindow *window = data;
++
++  gst_wl_window_set_render_rectangle (window, 0, 0, width, height);
+ }
+ 
+ static void
+@@ -60,6 +63,46 @@ static const struct wl_shell_surface_listener shell_surface_listener = {
+ };
+ 
+ static void
++handle_xdg_surface_configure(void *data, struct xdg_surface *surface,
++                         int32_t width, int32_t height,
++                         struct wl_array *states, uint32_t serial)
++{
++  GstWlWindow *window = data;
++  uint32_t *p, state;
++
++  /* TODO different handling? */
++  wl_array_for_each(p, states) {
++    state = *p;
++    switch (state) {
++    case XDG_SURFACE_STATE_MAXIMIZED:
++      break;
++    case XDG_SURFACE_STATE_FULLSCREEN:
++      break;
++    case XDG_SURFACE_STATE_RESIZING:
++      break;
++    case XDG_SURFACE_STATE_ACTIVATED:
++      break;
++    }
++  }
++
++  if (width > 0 && height > 0)
++    gst_wl_window_set_render_rectangle (window, 0, 0, width, height);
++
++  xdg_surface_ack_configure(surface, serial);
++}
++
++static void
++handle_xdg_surface_delete(void *data, struct xdg_surface *xdg_surface)
++{
++  /* TODO: handle delete */
++}
++
++static const struct xdg_surface_listener xdg_surface_listener = {
++  handle_xdg_surface_configure,
++  handle_xdg_surface_delete,
++};
++
++static void
+ gst_wl_window_class_init (GstWlWindowClass * klass)
+ {
+   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+@@ -80,6 +123,10 @@ gst_wl_window_finalize (GObject * gobject)
+     wl_shell_surface_destroy (self->shell_surface);
+   }
+ 
++  if (self->xdg_surface) {
++    xdg_surface_destroy (self->xdg_surface);
++  }
++
+   wl_viewport_destroy (self->video_viewport);
+   wl_subsurface_destroy (self->video_subsurface);
+   wl_surface_destroy (self->video_surface);
+@@ -96,7 +143,7 @@ gst_wl_window_finalize (GObject * gobject)
+ }
+ 
+ static GstWlWindow *
+-gst_wl_window_new_internal (GstWlDisplay * display)
++gst_wl_window_new_internal (GstWlDisplay * display, struct wl_surface *parent)
+ {
+   GstWlWindow *window;
+   GstVideoInfo info;
+@@ -108,13 +155,21 @@ gst_wl_window_new_internal (GstWlDisplay * display)
+ 
+   window = g_object_new (GST_TYPE_WL_WINDOW, NULL);
+   window->display = g_object_ref (display);
++  window->parent = parent;
+ 
+   window->area_surface = wl_compositor_create_surface (display->compositor);
+-  window->video_surface = wl_compositor_create_surface (display->compositor);
+-
+   wl_proxy_set_queue ((struct wl_proxy *) window->area_surface, display->queue);
+-  wl_proxy_set_queue ((struct wl_proxy *) window->video_surface,
+-      display->queue);
++
++  if (window->parent) {
++    /* embed in parent */
++    window->area_subsurface =
++        wl_subcompositor_get_subsurface (display->subcompositor,
++        window->area_surface, parent);
++    wl_subsurface_set_desync (window->area_subsurface);
++  }
++
++  window->video_surface = wl_compositor_create_surface (display->compositor);
++  wl_proxy_set_queue ((struct wl_proxy *) window->video_surface, display->queue);
+ 
+   /* embed video_surface in area_surface */
+   window->video_subsurface =
+@@ -151,65 +206,121 @@ gst_wl_window_new_internal (GstWlDisplay * display)
+    * alive and will free it on wl_buffer::release */
+   gst_buffer_unref (buf);
+ 
+-  /* do not accept input */
+-  region = wl_compositor_create_region (display->compositor);
+-  wl_surface_set_input_region (window->area_surface, region);
+-  wl_region_destroy (region);
++  /* do not accept input if overlay */
++  if (window->parent) {
++    region = wl_compositor_create_region (display->compositor);
++    wl_surface_set_input_region (window->area_surface, region);
++    wl_region_destroy (region);
+ 
+-  region = wl_compositor_create_region (display->compositor);
+-  wl_surface_set_input_region (window->video_surface, region);
+-  wl_region_destroy (region);
++    region = wl_compositor_create_region (display->compositor);
++    wl_surface_set_input_region (window->video_surface, region);
++    wl_region_destroy (region);
++  }
+ 
+   return window;
+ }
+ 
+-GstWlWindow *
+-gst_wl_window_new_toplevel (GstWlDisplay * display, const GstVideoInfo * info)
++
++static gboolean
++wl_shell_window_new_toplevel (GstWlDisplay * display,
++	const GstVideoInfo * info, GstWlWindow * window,
++	gboolean fullscreen)
+ {
+-  GstWlWindow *window;
+   gint width;
+ 
+-  window = gst_wl_window_new_internal (display);
+-
+   /* go toplevel */
+   window->shell_surface = wl_shell_get_shell_surface (display->shell,
+       window->area_surface);
+ 
+-  if (window->shell_surface) {
+-    wl_shell_surface_add_listener (window->shell_surface,
+-        &shell_surface_listener, window);
+-    wl_shell_surface_set_toplevel (window->shell_surface);
+-  } else {
++  if (!window->shell_surface) {
+     GST_ERROR ("Unable to get wl_shell_surface");
++    return FALSE;
++  }
+ 
+-    g_object_unref (window);
+-    return NULL;
++  wl_shell_surface_add_listener (window->shell_surface,
++        &shell_surface_listener, window);
++  wl_shell_surface_set_toplevel (window->shell_surface);
++
++  /* set the initial size to be the same as the reported video size */
++  width = gst_util_uint64_scale_int_round (info->width,
++		info->par_n, info->par_d);
++
++  gst_wl_window_set_render_rectangle (window, 0, 0, width, info->height);
++
++  if (fullscreen)
++    wl_shell_surface_set_fullscreen (window->shell_surface,
++	WL_SHELL_SURFACE_FULLSCREEN_METHOD_SCALE, 0, NULL);
++
++  return TRUE;
++}
++
++static gboolean
++xdg_shell_window_new_toplevel (GstWlDisplay * display,
++	const GstVideoInfo * info, GstWlWindow * window,
++	gboolean fullscreen)
++{
++  gint width;
++
++  /* go toplevel */
++  window->xdg_surface = xdg_shell_get_xdg_surface (display->xdg_shell,
++      window->area_surface);
++
++  if (!window->xdg_surface) {
++    GST_ERROR ("Unable to get xdg_surface");
++    return FALSE;
+   }
+ 
++  xdg_surface_add_listener (window->xdg_surface,
++        &xdg_surface_listener, window);
++
+   /* set the initial size to be the same as the reported video size */
+-  width =
+-      gst_util_uint64_scale_int_round (info->width, info->par_n, info->par_d);
++  width = gst_util_uint64_scale_int_round (info->width,
++		info->par_n, info->par_d);
++
+   gst_wl_window_set_render_rectangle (window, 0, 0, width, info->height);
+ 
+-  return window;
++  if (fullscreen)
++    xdg_surface_set_fullscreen (window->xdg_surface, NULL);
++
++  return TRUE;
+ }
+ 
+ GstWlWindow *
+-gst_wl_window_new_in_surface (GstWlDisplay * display,
+-    struct wl_surface * parent)
++gst_wl_window_new_toplevel (GstWlDisplay * display, const GstVideoInfo * info,
++		gboolean fullscreen)
+ {
+   GstWlWindow *window;
+-  window = gst_wl_window_new_internal (display);
++  gboolean success;
+ 
+-  /* embed in parent */
+-  window->area_subsurface =
+-      wl_subcompositor_get_subsurface (display->subcompositor,
+-      window->area_surface, parent);
+-  wl_subsurface_set_desync (window->area_subsurface);
++  window = gst_wl_window_new_internal (display, NULL);
++  if (!window) {
++    GST_ERROR ("Unable to create new wl_window");
++    return NULL;
++  }
++
++  /* use xdg_shell if available */
++  if (display->xdg_shell)
++    success = xdg_shell_window_new_toplevel (display, info, window,
++					     fullscreen);
++  else
++    success = wl_shell_window_new_toplevel (display, info, window,
++					    fullscreen);
++
++  if (!success) {
++    g_object_unref(window);
++    window = NULL;
++  }
+ 
+   return window;
+ }
+ 
++GstWlWindow *
++gst_wl_window_new_in_surface (GstWlDisplay * display,
++    struct wl_surface * parent)
++{
++  return gst_wl_window_new_internal (display, parent);
++}
++
+ GstWlDisplay *
+ gst_wl_window_get_display (GstWlWindow * window)
+ {
+@@ -231,41 +342,42 @@ gst_wl_window_is_toplevel (GstWlWindow * window)
+ {
+   g_return_val_if_fail (window != NULL, FALSE);
+ 
+-  return (window->shell_surface != NULL);
++  return window->xdg_surface != NULL || window->shell_surface != NULL;
++}
++
++gboolean
++gst_wl_window_is_overlay (GstWlWindow * window)
++{
++  g_return_val_if_fail (window != NULL, FALSE);
++
++  return window->parent != NULL;
+ }
+ 
+ static void
+ gst_wl_window_resize_video_surface (GstWlWindow * window, gboolean commit)
+ {
+   GstVideoRectangle src = { 0, };
+-  GstVideoRectangle res;
++  GstVideoRectangle *res = &window->video_render_rectangle;
+ 
+   /* center the video_subsurface inside area_subsurface */
+   src.w = window->video_width;
+   src.h = window->video_height;
+-  gst_video_sink_center_rect (src, window->render_rectangle, &res, TRUE);
++  gst_video_sink_center_rect (src, window->render_rectangle, res, TRUE);
+ 
+-  wl_subsurface_set_position (window->video_subsurface, res.x, res.y);
+-  wl_viewport_set_destination (window->video_viewport, res.w, res.h);
++  wl_subsurface_set_position (window->video_subsurface,
++		  res->x - window->render_rectangle.x,
++		  res->y - window->render_rectangle.y);
++
++  wl_viewport_set_destination (window->video_viewport, res->w, res->h);
+ 
+   if (commit) {
+-    wl_surface_damage (window->video_surface, 0, 0, res.w, res.h);
++    wl_surface_damage (window->video_surface, 0, 0, res->w, res->h);
+     wl_surface_commit (window->video_surface);
+   }
+ 
+-  if (gst_wl_window_is_toplevel (window)) {
+-    struct wl_region *region;
+-
+-    region = wl_compositor_create_region (window->display->compositor);
+-    wl_region_add (region, 0, 0, window->render_rectangle.w,
+-        window->render_rectangle.h);
+-    wl_surface_set_input_region (window->area_surface, region);
+-    wl_region_destroy (region);
+-  }
+-
+   /* this is saved for use in wl_surface_damage */
+-  window->surface_width = res.w;
+-  window->surface_height = res.h;
++  window->surface_width = res->w;
++  window->surface_height = res->h;
+ }
+ 
+ void
+diff --git a/ext/wayland/wlwindow.h b/ext/wayland/wlwindow.h
+index e22cb26..8ac30a8 100644
+--- a/ext/wayland/wlwindow.h
++++ b/ext/wayland/wlwindow.h
+@@ -42,6 +42,7 @@ struct _GstWlWindow
+   GObject parent_instance;
+ 
+   GstWlDisplay *display;
++  struct wl_surface *parent;	/* if != NULL is overlay */
+   struct wl_surface *area_surface;
+   struct wl_subsurface *area_subsurface;
+   struct wl_viewport *area_viewport;
+@@ -49,6 +50,7 @@ struct _GstWlWindow
+   struct wl_subsurface *video_subsurface;
+   struct wl_viewport *video_viewport;
+   struct wl_shell_surface *shell_surface;
++  struct xdg_surface *xdg_surface;
+ 
+   /* the size and position of the area_(sub)surface */
+   GstVideoRectangle render_rectangle;
+@@ -56,6 +58,8 @@ struct _GstWlWindow
+   gint video_width, video_height;
+   /* the size of the video_(sub)surface */
+   gint surface_width, surface_height;
++  /* the size and position of the video render rectangle */
++  GstVideoRectangle video_render_rectangle;
+ };
+ 
+ struct _GstWlWindowClass
+@@ -66,13 +70,14 @@ struct _GstWlWindowClass
+ GType gst_wl_window_get_type (void);
+ 
+ GstWlWindow *gst_wl_window_new_toplevel (GstWlDisplay * display,
+-        const GstVideoInfo * info);
++        const GstVideoInfo * info, gboolean fullscreen);
+ GstWlWindow *gst_wl_window_new_in_surface (GstWlDisplay * display,
+         struct wl_surface * parent);
+ 
+ GstWlDisplay *gst_wl_window_get_display (GstWlWindow * window);
+ struct wl_surface *gst_wl_window_get_wl_surface (GstWlWindow * window);
+ gboolean gst_wl_window_is_toplevel (GstWlWindow *window);
++gboolean gst_wl_window_is_overlay (GstWlWindow * window);
+ 
+ void gst_wl_window_render (GstWlWindow * window, GstWlBuffer * buffer,
+         const GstVideoInfo * info);
+diff --git a/ext/wayland/xdg-shell.xml b/ext/wayland/xdg-shell.xml
+new file mode 100644
+index 0000000..1d37e36
+--- /dev/null
++++ b/ext/wayland/xdg-shell.xml
+@@ -0,0 +1,616 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<protocol name="xdg_shell">
++
++  <copyright>
++    Copyright © 2008-2013 Kristian Høgsberg
++    Copyright © 2013      Rafael Antognolli
++    Copyright © 2013      Jasper St. Pierre
++    Copyright © 2010-2013 Intel Corporation
++
++    Permission is hereby granted, free of charge, to any person obtaining a
++    copy of this software and associated documentation files (the "Software"),
++    to deal in the Software without restriction, including without limitation
++    the rights to use, copy, modify, merge, publish, distribute, sublicense,
++    and/or sell copies of the Software, and to permit persons to whom the
++    Software is furnished to do so, subject to the following conditions:
++
++    The above copyright notice and this permission notice (including the next
++    paragraph) shall be included in all copies or substantial portions of the
++    Software.
++
++    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++    DEALINGS IN THE SOFTWARE.
++  </copyright>
++
++  <interface name="xdg_shell" version="1">
++    <description summary="create desktop-style surfaces">
++      xdg_shell allows clients to turn a wl_surface into a "real window"
++      which can be dragged, resized, stacked, and moved around by the
++      user. Everything about this interface is suited towards traditional
++      desktop environments.
++    </description>
++
++    <enum name="version">
++      <description summary="latest protocol version">
++	The 'current' member of this enum gives the version of the
++	protocol.  Implementations can compare this to the version
++	they implement using static_assert to ensure the protocol and
++	implementation versions match.
++      </description>
++      <entry name="current" value="5" summary="Always the latest version"/>
++    </enum>
++
++    <enum name="error">
++      <entry name="role" value="0" summary="given wl_surface has another role"/>
++      <entry name="defunct_surfaces" value="1" summary="xdg_shell was destroyed before children"/>
++      <entry name="not_the_topmost_popup" value="2" summary="the client tried to map or destroy a non-topmost popup"/>
++      <entry name="invalid_popup_parent" value="3" summary="the client specified an invalid popup parent surface"/>
++    </enum>
++
++    <request name="destroy" type="destructor">
++      <description summary="destroy xdg_shell">
++        Destroy this xdg_shell object.
++
++        Destroying a bound xdg_shell object while there are surfaces
++        still alive created by this xdg_shell object instance is illegal
++        and will result in a protocol error.
++      </description>
++    </request>
++
++    <request name="use_unstable_version">
++      <description summary="enable use of this unstable version">
++	Negotiate the unstable version of the interface.  This
++	mechanism is in place to ensure client and server agree on the
++	unstable versions of the protocol that they speak or exit
++	cleanly if they don't agree.  This request will go away once
++	the xdg-shell protocol is stable.
++      </description>
++      <arg name="version" type="int"/>
++    </request>
++
++    <request name="get_xdg_surface">
++      <description summary="create a shell surface from a surface">
++	This creates an xdg_surface for the given surface and gives it the
++	xdg_surface role. A wl_surface can only be given an xdg_surface role
++	once. If get_xdg_surface is called with a wl_surface that already has
++	an active xdg_surface associated with it, or if it had any other role,
++	an error is raised.
++
++	See the documentation of xdg_surface for more details about what an
++	xdg_surface is and how it is used.
++      </description>
++      <arg name="id" type="new_id" interface="xdg_surface"/>
++      <arg name="surface" type="object" interface="wl_surface"/>
++    </request>
++
++    <request name="get_xdg_popup">
++      <description summary="create a popup for a surface">
++	This creates an xdg_popup for the given surface and gives it the
++	xdg_popup role. A wl_surface can only be given an xdg_popup role
++	once. If get_xdg_popup is called with a wl_surface that already has
++	an active xdg_popup associated with it, or if it had any other role,
++	an error is raised.
++
++	This request must be used in response to some sort of user action
++	like a button press, key press, or touch down event.
++
++	See the documentation of xdg_popup for more details about what an
++	xdg_popup is and how it is used.
++      </description>
++      <arg name="id" type="new_id" interface="xdg_popup"/>
++      <arg name="surface" type="object" interface="wl_surface"/>
++      <arg name="parent" type="object" interface="wl_surface"/>
++      <arg name="seat" type="object" interface="wl_seat" summary="the wl_seat of the user event"/>
++      <arg name="serial" type="uint" summary="the serial of the user event"/>
++      <arg name="x" type="int"/>
++      <arg name="y" type="int"/>
++    </request>
++
++    <event name="ping">
++      <description summary="check if the client is alive">
++        The ping event asks the client if it's still alive. Pass the
++        serial specified in the event back to the compositor by sending
++        a "pong" request back with the specified serial.
++
++        Compositors can use this to determine if the client is still
++        alive. It's unspecified what will happen if the client doesn't
++        respond to the ping request, or in what timeframe. Clients should
++        try to respond in a reasonable amount of time.
++
++        A compositor is free to ping in any way it wants, but a client must
++        always respond to any xdg_shell object it created.
++      </description>
++      <arg name="serial" type="uint" summary="pass this to the pong request"/>
++    </event>
++
++    <request name="pong">
++      <description summary="respond to a ping event">
++	A client must respond to a ping event with a pong request or
++	the client may be deemed unresponsive.
++      </description>
++      <arg name="serial" type="uint" summary="serial of the ping event"/>
++    </request>
++  </interface>
++
++  <interface name="xdg_surface" version="1">
++    <description summary="A desktop window">
++      An interface that may be implemented by a wl_surface, for
++      implementations that provide a desktop-style user interface.
++
++      It provides requests to treat surfaces like windows, allowing to set
++      properties like maximized, fullscreen, minimized, and to move and resize
++      them, and associate metadata like title and app id.
++
++      The client must call wl_surface.commit on the corresponding wl_surface
++      for the xdg_surface state to take effect. Prior to committing the new
++      state, it can set up initial configuration, such as maximizing or setting
++      a window geometry.
++
++      Even without attaching a buffer the compositor must respond to initial
++      committed configuration, for instance sending a configure event with
++      expected window geometry if the client maximized its surface during
++      initialization.
++
++      For a surface to be mapped by the compositor the client must have
++      committed both an xdg_surface state and a buffer.
++    </description>
++
++    <request name="destroy" type="destructor">
++      <description summary="Destroy the xdg_surface">
++	Unmap and destroy the window. The window will be effectively
++	hidden from the user's point of view, and all state like
++	maximization, fullscreen, and so on, will be lost.
++      </description>
++    </request>
++
++    <request name="set_parent">
++      <description summary="set the parent of this surface">
++	Set the "parent" of this surface. This window should be stacked
++	above a parent. The parent surface must be mapped as long as this
++	surface is mapped.
++
++	Parent windows should be set on dialogs, toolboxes, or other
++	"auxiliary" surfaces, so that the parent is raised when the dialog
++	is raised.
++      </description>
++      <arg name="parent" type="object" interface="xdg_surface" allow-null="true"/>
++    </request>
++
++    <request name="set_title">
++      <description summary="set surface title">
++	Set a short title for the surface.
++
++	This string may be used to identify the surface in a task bar,
++	window list, or other user interface elements provided by the
++	compositor.
++
++	The string must be encoded in UTF-8.
++      </description>
++      <arg name="title" type="string"/>
++    </request>
++
++    <request name="set_app_id">
++      <description summary="set application ID">
++	Set an application identifier for the surface.
++
++	The app ID identifies the general class of applications to which
++	the surface belongs. The compositor can use this to group multiple
++	surfaces together, or to determine how to launch a new application.
++
++	For D-Bus activatable applications, the app ID is used as the D-Bus
++	service name.
++
++	The compositor shell will try to group application surfaces together
++	by their app ID.  As a best practice, it is suggested to select app
++	ID's that match the basename of the application's .desktop file.
++	For example, "org.freedesktop.FooViewer" where the .desktop file is
++	"org.freedesktop.FooViewer.desktop".
++
++	See the desktop-entry specification [0] for more details on
++	application identifiers and how they relate to well-known D-Bus
++	names and .desktop files.
++
++	[0] http://standards.freedesktop.org/desktop-entry-spec/
++      </description>
++      <arg name="app_id" type="string"/>
++    </request>
++
++    <request name="show_window_menu">
++      <description summary="show the window menu">
++        Clients implementing client-side decorations might want to show
++        a context menu when right-clicking on the decorations, giving the
++        user a menu that they can use to maximize or minimize the window.
++
++        This request asks the compositor to pop up such a window menu at
++        the given position, relative to the local surface coordinates of
++        the parent surface. There are no guarantees as to what menu items
++        the window menu contains.
++
++        This request must be used in response to some sort of user action
++        like a button press, key press, or touch down event.
++      </description>
++
++      <arg name="seat" type="object" interface="wl_seat" summary="the wl_seat of the user event"/>
++      <arg name="serial" type="uint" summary="the serial of the user event"/>
++      <arg name="x" type="int" summary="the x position to pop up the window menu at"/>
++      <arg name="y" type="int" summary="the y position to pop up the window menu at"/>
++    </request>
++
++    <request name="move">
++      <description summary="start an interactive move">
++	Start an interactive, user-driven move of the surface.
++
++	This request must be used in response to some sort of user action
++	like a button press, key press, or touch down event. The passed
++	serial is used to determine the type of interactive move (touch,
++	pointer, etc).
++
++	The server may ignore move requests depending on the state of
++	the surface (e.g. fullscreen or maximized), or if the passed serial
++	is no longer valid.
++
++	If triggered, the surface will lose the focus of the device
++	(wl_pointer, wl_touch, etc) used for the move. It is up to the
++	compositor to visually indicate that the move is taking place, such as
++	updating a pointer cursor, during the move. There is no guarantee
++	that the device focus will return when the move is completed.
++      </description>
++      <arg name="seat" type="object" interface="wl_seat" summary="the wl_seat of the user event"/>
++      <arg name="serial" type="uint" summary="the serial of the user event"/>
++    </request>
++
++    <enum name="resize_edge">
++      <description summary="edge values for resizing">
++	These values are used to indicate which edge of a surface
++	is being dragged in a resize operation.
++      </description>
++      <entry name="none" value="0"/>
++      <entry name="top" value="1"/>
++      <entry name="bottom" value="2"/>
++      <entry name="left" value="4"/>
++      <entry name="top_left" value="5"/>
++      <entry name="bottom_left" value="6"/>
++      <entry name="right" value="8"/>
++      <entry name="top_right" value="9"/>
++      <entry name="bottom_right" value="10"/>
++    </enum>
++
++    <request name="resize">
++      <description summary="start an interactive resize">
++	Start a user-driven, interactive resize of the surface.
++
++	This request must be used in response to some sort of user action
++	like a button press, key press, or touch down event. The passed
++	serial is used to determine the type of interactive resize (touch,
++	pointer, etc).
++
++	The server may ignore resize requests depending on the state of
++	the surface (e.g. fullscreen or maximized).
++
++	If triggered, the client will receive configure events with the
++	"resize" state enum value and the expected sizes. See the "resize"
++	enum value for more details about what is required. The client
++	must also acknowledge configure events using "ack_configure". After
++	the resize is completed, the client will receive another "configure"
++	event without the resize state.
++
++	If triggered, the surface also will lose the focus of the device
++	(wl_pointer, wl_touch, etc) used for the resize. It is up to the
++	compositor to visually indicate that the resize is taking place,
++	such as updating a pointer cursor, during the resize. There is no
++	guarantee that the device focus will return when the resize is
++	completed.
++
++	The edges parameter specifies how the surface should be resized,
++	and is one of the values of the resize_edge enum. The compositor
++	may use this information to update the surface position for
++	example when dragging the top left corner. The compositor may also
++	use this information to adapt its behavior, e.g. choose an
++	appropriate cursor image.
++      </description>
++      <arg name="seat" type="object" interface="wl_seat" summary="the wl_seat of the user event"/>
++      <arg name="serial" type="uint" summary="the serial of the user event"/>
++      <arg name="edges" type="uint" summary="which edge or corner is being dragged"/>
++    </request>
++
++    <enum name="state">
++      <description summary="types of state on the surface">
++        The different state values used on the surface. This is designed for
++        state values like maximized, fullscreen. It is paired with the
++        configure event to ensure that both the client and the compositor
++        setting the state can be synchronized.
++
++        States set in this way are double-buffered. They will get applied on
++        the next commit.
++
++        Desktop environments may extend this enum by taking up a range of
++        values and documenting the range they chose in this description.
++        They are not required to document the values for the range that they
++        chose. Ideally, any good extensions from a desktop environment should
++        make its way into standardization into this enum.
++
++        The current reserved ranges are:
++
++        0x0000 - 0x0FFF: xdg-shell core values, documented below.
++        0x1000 - 0x1FFF: GNOME
++      </description>
++      <entry name="maximized" value="1" summary="the surface is maximized">
++        The surface is maximized. The window geometry specified in the configure
++        event must be obeyed by the client.
++      </entry>
++      <entry name="fullscreen" value="2" summary="the surface is fullscreen">
++        The surface is fullscreen. The window geometry specified in the configure
++        event must be obeyed by the client.
++      </entry>
++      <entry name="resizing" value="3">
++        The surface is being resized. The window geometry specified in the
++        configure event is a maximum; the client cannot resize beyond it.
++        Clients that have aspect ratio or cell sizing configuration can use
++        a smaller size, however.
++      </entry>
++      <entry name="activated" value="4">
++        Client window decorations should be painted as if the window is
++        active. Do not assume this means that the window actually has
++        keyboard or pointer focus.
++      </entry>
++    </enum>
++
++    <event name="configure">
++      <description summary="suggest a surface change">
++	The configure event asks the client to resize its surface or to
++	change its state.
++
++	The width and height arguments specify a hint to the window
++	about how its surface should be resized in window geometry
++	coordinates. See set_window_geometry.
++
++	If the width or height arguments are zero, it means the client
++	should decide its own window dimension. This may happen when the
++	compositor need to configure the state of the surface but doesn't
++	have any information about any previous or expected dimension.
++
++	The states listed in the event specify how the width/height
++	arguments should be interpreted, and possibly how it should be
++	drawn.
++
++	Clients should arrange their surface for the new size and
++	states, and then send a ack_configure request with the serial
++	sent in this configure event at some point before committing
++	the new surface.
++
++	If the client receives multiple configure events before it
++        can respond to one, it is free to discard all but the last
++        event it received.
++      </description>
++
++      <arg name="width" type="int"/>
++      <arg name="height" type="int"/>
++      <arg name="states" type="array"/>
++      <arg name="serial" type="uint"/>
++    </event>
++
++    <request name="ack_configure">
++      <description summary="ack a configure event">
++        When a configure event is received, if a client commits the
++        surface in response to the configure event, then the client
++        must make an ack_configure request sometime before the commit
++        request, passing along the serial of the configure event.
++
++        For instance, the compositor might use this information to move
++        a surface to the top left only when the client has drawn itself
++        for the maximized or fullscreen state.
++
++        If the client receives multiple configure events before it
++        can respond to one, it only has to ack the last configure event.
++
++        A client is not required to commit immediately after sending
++        an ack_configure request - it may even ack_configure several times
++        before its next surface commit.
++
++        The compositor expects that the most recently received
++        ack_configure request at the time of a commit indicates which
++        configure event the client is responding to.
++      </description>
++      <arg name="serial" type="uint" summary="the serial from the configure event"/>
++    </request>
++
++    <request name="set_window_geometry">
++      <description summary="set the new window geometry">
++        The window geometry of a window is its "visible bounds" from the
++        user's perspective. Client-side decorations often have invisible
++        portions like drop-shadows which should be ignored for the
++        purposes of aligning, placing and constraining windows.
++
++        The window geometry is double buffered, and will be applied at the
++        time wl_surface.commit of the corresponding wl_surface is called.
++
++        Once the window geometry of the surface is set once, it is not
++        possible to unset it, and it will remain the same until
++        set_window_geometry is called again, even if a new subsurface or
++        buffer is attached.
++
++        If never set, the value is the full bounds of the surface,
++        including any subsurfaces. This updates dynamically on every
++        commit. This unset mode is meant for extremely simple clients.
++
++        If responding to a configure event, the window geometry in here
++        must respect the sizing negotiations specified by the states in
++        the configure event.
++
++        The arguments are given in the surface local coordinate space of
++        the wl_surface associated with this xdg_surface.
++
++        The width and height must be greater than zero.
++      </description>
++      <arg name="x" type="int"/>
++      <arg name="y" type="int"/>
++      <arg name="width" type="int"/>
++      <arg name="height" type="int"/>
++    </request>
++
++    <request name="set_maximized">
++      <description summary="maximize the window">
++        Maximize the surface.
++
++        After requesting that the surface should be maximized, the compositor
++        will respond by emitting a configure event with the "maximized" state
++        and the required window geometry. The client should then update its
++        content, drawing it in a maximized state, i.e. without shadow or other
++        decoration outside of the window geometry. The client must also
++        acknowledge the configure when committing the new content (see
++        ack_configure).
++
++        It is up to the compositor to decide how and where to maximize the
++        surface, for example which output and what region of the screen should
++        be used.
++
++        If the surface was already maximized, the compositor will still emit
++        a configure event with the "maximized" state.
++      </description>
++    </request>
++
++    <request name="unset_maximized">
++      <description summary="unmaximize the window">
++        Unmaximize the surface.
++
++        After requesting that the surface should be unmaximized, the compositor
++        will respond by emitting a configure event without the "maximized"
++        state. If available, the compositor will include the window geometry
++        dimensions the window had prior to being maximized in the configure
++        request. The client must then update its content, drawing it in a
++        regular state, i.e. potentially with shadow, etc. The client must also
++        acknowledge the configure when committing the new content (see
++        ack_configure).
++
++        It is up to the compositor to position the surface after it was
++        unmaximized; usually the position the surface had before maximizing, if
++        applicable.
++
++        If the surface was already not maximized, the compositor will still
++        emit a configure event without the "maximized" state.
++      </description>
++    </request>
++
++    <request name="set_fullscreen">
++      <description summary="set the window as fullscreen on a monitor">
++	Make the surface fullscreen.
++
++        You can specify an output that you would prefer to be fullscreen.
++	If this value is NULL, it's up to the compositor to choose which
++        display will be used to map this surface.
++
++        If the surface doesn't cover the whole output, the compositor will
++        position the surface in the center of the output and compensate with
++        black borders filling the rest of the output.
++      </description>
++      <arg name="output" type="object" interface="wl_output" allow-null="true"/>
++    </request>
++    <request name="unset_fullscreen" />
++
++    <request name="set_minimized">
++      <description summary="set the window as minimized">
++	Request that the compositor minimize your surface. There is no
++	way to know if the surface is currently minimized, nor is there
++	any way to unset minimization on this surface.
++
++	If you are looking to throttle redrawing when minimized, please
++	instead use the wl_surface.frame event for this, as this will
++	also work with live previews on windows in Alt-Tab, Expose or
++	similar compositor features.
++      </description>
++    </request>
++
++    <event name="close">
++      <description summary="surface wants to be closed">
++        The close event is sent by the compositor when the user
++        wants the surface to be closed. This should be equivalent to
++        the user clicking the close button in client-side decorations,
++        if your application has any...
++
++        This is only a request that the user intends to close your
++        window. The client may choose to ignore this request, or show
++        a dialog to ask the user to save their data...
++      </description>
++    </event>
++  </interface>
++
++  <interface name="xdg_popup" version="1">
++    <description summary="short-lived, popup surfaces for menus">
++      A popup surface is a short-lived, temporary surface that can be
++      used to implement menus. It takes an explicit grab on the surface
++      that will be dismissed when the user dismisses the popup. This can
++      be done by the user clicking outside the surface, using the keyboard,
++      or even locking the screen through closing the lid or a timeout.
++
++      When the popup is dismissed, a popup_done event will be sent out,
++      and at the same time the surface will be unmapped. The xdg_popup
++      object is now inert and cannot be reactivated, so clients should
++      destroy it. Explicitly destroying the xdg_popup object will also
++      dismiss the popup and unmap the surface.
++
++      Clients will receive events for all their surfaces during this
++      grab (which is an "owner-events" grab in X11 parlance). This is
++      done so that users can navigate through submenus and other
++      "nested" popup windows without having to dismiss the topmost
++      popup.
++
++      Clients that want to dismiss the popup when another surface of
++      their own is clicked should dismiss the popup using the destroy
++      request.
++
++      The parent surface must have either an xdg_surface or xdg_popup
++      role.
++
++      Specifying an xdg_popup for the parent means that the popups are
++      nested, with this popup now being the topmost popup. Nested
++      popups must be destroyed in the reverse order they were created
++      in, e.g. the only popup you are allowed to destroy at all times
++      is the topmost one.
++
++      If there is an existing popup when creating a new popup, the
++      parent must be the current topmost popup.
++
++      A parent surface must be mapped before the new popup is mapped.
++
++      When compositors choose to dismiss a popup, they will likely
++      dismiss every nested popup as well. When a compositor dismisses
++      popups, it will follow the same dismissing order as required
++      from the client.
++
++      The x and y arguments passed when creating the popup object specify
++      where the top left of the popup should be placed, relative to the
++      local surface coordinates of the parent surface. See
++      xdg_shell.get_xdg_popup.
++
++      The client must call wl_surface.commit on the corresponding wl_surface
++      for the xdg_popup state to take effect.
++
++      For a surface to be mapped by the compositor the client must have
++      committed both the xdg_popup state and a buffer.
++    </description>
++
++    <request name="destroy" type="destructor">
++      <description summary="remove xdg_popup interface">
++	This destroys the popup. Explicitly destroying the xdg_popup
++	object will also dismiss the popup, and unmap the surface.
++
++	If this xdg_popup is not the "topmost" popup, a protocol error
++	will be sent.
++      </description>
++    </request>
++
++    <event name="popup_done">
++      <description summary="popup interaction is done">
++	The popup_done event is sent out when a popup is dismissed by the
++	compositor. The client should destroy the xdg_popup object at this
++	point.
++      </description>
++    </event>
++
++  </interface>
++</protocol>
+-- 
+1.9.1
+
