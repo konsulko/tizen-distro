@@ -1,0 +1,31 @@
+From 4907bfc6e4dfea31009b8ba223518aa2a2862cfb Mon Sep 17 00:00:00 2001
+From: Leon Anavi <leon.anavi@konsulko.com>
+Date: Thu, 4 Feb 2016 14:49:19 +0200
+Subject: [PATCH] ofono.conf: Enable Handsfree Audio Agent
+
+Enable Handsfree Audio Agent oFono backend for user pulse
+as it is required for pulseaudio.
+
+Signed-off-by: Leon Anavi <leon.anavi@konsulko.com>
+---
+ src/ofono.conf | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/ofono.conf b/src/ofono.conf
+index ed56d3b..7e83d7f 100644
+--- a/src/ofono.conf
++++ b/src/ofono.conf
+@@ -25,4 +25,10 @@
+     <deny send_destination="org.ofono"/>
+   </policy>
+ 
++  <policy user="pulse">
++    <allow own="org.ofono"/>
++    <allow send_destination="org.ofono"/>
++    <allow send_interface="org.ofono.HandsfreeAudioAgent"/>
++  </policy>
++
+ </busconfig>
+-- 
+2.1.4
+
