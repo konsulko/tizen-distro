@@ -4,6 +4,8 @@ LIC_FILES_CHKSUM ??= "file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd64
 SRC_URI = ""
 ALLOW_EMPTY_${PN} = "1"
 
+DEPENDS = "pulseaudio"
+
 inherit allarch useradd
 
 RDEPENDS_${PN} += "pulseaudio"
